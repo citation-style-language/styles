@@ -47,3 +47,7 @@ string "http://www.zotero.org/styles/" followed by the file name minus the
 
     <id>http://www.zotero.org/styles/apa</id>
     <link href="http://www.zotero.org/styles/apa" rel="self"/>
+
+## XML Indenting
+
+Styles should preferably be indented with 2 spaces per level.
