@@ -4,6 +4,8 @@ NOTES
 
 - This style is based on the March 2010 version of the style guide. A major change that places commas inside quoted titles makes it incompatible with the June 2007 style guide.
 
+- This style uses CSL1.0 and has been tested with Zotero 2.1.7
+
 - Originated from the http://www.zotero.org/styles/UniSA-Harvard3 style
 
 - Resource type is assumed to be electronic if both URL and Accessed date are filled out. Moreover, for journal articles there is an inbuilt override checkbox on 'Styles' tab in Preferences that only exports URL and accessed date if no page number. See http://forums.zotero.org/discussion/6268/electronic-journal-articles-and-item-type/
@@ -16,9 +18,7 @@ KNOWN CHALLENGES
 
 - Podcast - title wrongly in quotation marks. Workaround by using the Report type.
 
-- Blog post and Discussion forum post are treated as a web page in Zotero 2.0 (title wrongly in italics).
-
-- Should an item have no other data following the title, there will be a comma before the trailing dot.
+- Blog post and Discussion forum post are treated as a web page in Zotero 2.1 (title wrongly in italics).
 
 - MS Word 2003 - bibliography options entry-spacing and line-spacing may need to be adjusted to suit the Normal Word style. See forum http://forums.zotero.org/discussion/8901/
 
@@ -26,7 +26,7 @@ TO DO
 
 - Incorporate more exotic resource types from the 2010 style guide
 
-- When converting to CSL1.0 reduce the title macro through the use of localisation options
+- Reduce explicit handling of types in conditions
 
 -->
    <info>
@@ -43,10 +43,10 @@ TO DO
       </author>
       <category citation-format="author-date"/>
       <category field="generic-base"/>
-      <updated>2010-03-25T15:58:59+00:00</updated>
+      <updated>2011-06-05T15:58:59+00:00</updated>
       <summary>University of South Australia citation style based on the March 2010 version of the style guide titled The Harvard Author–Date Referencing System</summary>
       <link href="http://www.unisa.edu.au/ltu/students/study/referencing/harvard.pdf" rel="documentation"/>
-      <rights>This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details. You should have received a copy of the GNU General Public License and the GNU Lesser Public License along with this program. If not, see http://www.gnu.org/licenses/ </rights>
+      <rights>This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
    </info>
    <locale xml:lang="en">
       <terms>
@@ -60,8 +60,14 @@ TO DO
          </term>
          <term name="edition" form="short">edn</term>
          <term name="volume" form="short">vol.</term>
-      </terms>
-   </locale>
+         <!-- Unlike the en-US locale, inner and outer quotation marks are swapped here -->
+         <term name="open-quote">‘</term> 
+         <term name="close-quote">’</term> 
+         <term name="open-inner-quote">“</term> 
+         <term name="close-inner-quote">”</term> 
+</terms>
+<style-options punctuation-in-quote="true"/>
+  </locale>
    <macro name="editor">
       <names variable="editor" delimiter=", ">
          <label form="short" suffix=" " strip-periods="true"/>
@@ -74,7 +80,8 @@ TO DO
          <name and="symbol" initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
       </names>
    </macro>
-   <macro name="noauthor_title"><!-- This macro is only called when author is empty and the trick with substitute automatically suppresses repeating elements -->
+   <macro name="noauthor_title">
+   <!-- This macro is only called when author is empty and the trick with substitute automatically suppresses repeating elements -->
       <choose>
          <if type="article-newspaper">
             <names variable="author">
@@ -126,32 +133,20 @@ TO DO
          </if>
       </choose>
    </macro>
-   <macro name="title"><!-- The involved logic is due to the pre-CSL1.0 handling of trailing comma inside single quotation marks with the possibility of being called from the noauthor_title macro as well --><!-- This macro can be greatly reduced through the use of new localisation options once Zotero 2.1 is released -->
+   <macro name="title">
       <choose>
-         <if type="chapter paper-conference article-journal article-magazine article-newspaper broadcast interview manuscript map personal_communication speech thesis map song" match="none"><!-- book, webpage, document, patent -->
-            <choose>
-               <if variable="author editor" match="none">
-                  <text variable="title" font-style="italic"/>
-               </if>
-               <else>
-                  <text variable="title" font-style="italic" suffix=", "/>
-               </else>
-            </choose>
+         <if type="chapter paper-conference article-journal article-magazine article-newspaper broadcast interview manuscript map personal_communication speech thesis map song" match="none"><!-- book, webpage, document -->
+            <text variable="title" font-style="italic"/>
          </if>
-         <else-if type="article-newspaper">
-            <text variable="title" prefix="‘" suffix=",’ "/>
-         </else-if>
-         <else-if variable="author editor" match="none">
-            <text variable="title" prefix="‘" suffix="’"/>
-         </else-if>
          <else>
-            <text variable="title" prefix="‘" suffix=",’ "/>
+            <text variable="title" quotes="true"/>
          </else>
       </choose>
    </macro>
    <macro name="publisher">
       <group delimiter=", ">
-         <text variable="publisher"/><!-- The special treatment of event is due to the "place" field being shared (e.g. in a "conference paper") for both "event-place" and "publisher-place" in Zotero -->
+         <text variable="publisher"/>
+         <!-- The special treatment of event is due to the "place" field being shared (e.g. in a "conference paper") for both "event-place" and "publisher-place" in Zotero -->
          <choose>
             <if variable="container-title">
                <text variable="publisher-place"/>
@@ -175,7 +170,8 @@ TO DO
       </choose>
    </macro>
    <macro name="day-month-date">
-      <choose><!-- "post" and "post-weblog" are currently not mapped by Zotero 2.0, "podcast" could be worked around as a report -->
+      <choose>
+         <!-- "post" and "post-weblog" are currently not mapped by Zotero 2.1, "podcast" could be worked around as a report -->
          <if type="article-newspaper report post post-weblog" match="any">
             <date variable="issued">
                <date-part name="day" form="numeric" suffix=" "/>
@@ -268,9 +264,9 @@ TO DO
          <choose>
             <if type="personal_communication" match="none">
                <text macro="author"/>
-               <text macro="year-date" prefix=" " suffix=", "/>
-               <text macro="title"/>
-               <group delimiter=", " suffix=".">
+               <group prefix=" " delimiter=", " suffix=".">
+                  <text macro="year-date"/>
+                  <text macro="title"/>
                   <choose>
                      <if type="bill book graphic legal_case motion_picture report song chapter paper-conference" match="any">
                         <group delimiter=", ">
