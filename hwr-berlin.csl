@@ -11,12 +11,13 @@
       <rights>This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
       <category field="social_science"/>
       <category citation-format="note"/>
-      <updated>2011-04-01T11:37:41+00:00</updated>
+      <updated>2011-07-28T18:46:02+00:00</updated>
    </info>
-   <locale xml:lang="en">
+   <locale xml:lang="de">
       <terms>
          <term name="et-al">u.a.</term>
          <term name="and">und</term>
+         <term name="retrieved">zugegriffen am</term>
          <term name="accessed">abgerufen am</term>
          <term name="ibid">ebenda</term>
          <term name="page" form="short">
@@ -34,10 +35,8 @@
          </term>
       </terms>
    </locale><!-- 
-  macro definitions 
-	title
-	publisher-place
-	edition
+   macro definitions 
+	author
 	editor
 	accessed
 	date
@@ -45,24 +44,8 @@
 	pages
 	point-locators
 	point-locators-subsequent
+        hasUrl
   -->
-   <macro name="title">
-      <choose>
-         <if variable="title">
-            <text variable="title"/>
-            <text variable="collection-title" prefix=", in:"/>
-         </if>
-         <else>
-            <text variable="container-title"/>
-         </else>
-      </choose>
-   </macro>
-   <macro name="publisher-place">
-      <text variable="publisher-place" font-weight="normal" font-style="normal" vertical-align="baseline"/>
-   </macro>
-   <macro name="edition">
-      <text variable="edition" font-weight="normal" font-style="normal" vertical-align="baseline"/>
-   </macro>
    <macro name="author">
       <names variable="author">
          <name and="text" name-as-sort-order="all" sort-separator=", " delimiter=", " delimiter-precedes-last="never"/>
@@ -91,9 +74,9 @@
       <choose>
          <if variable="issued">
             <date variable="issued">
-               <date-part name="day" form="numeric-leading-zeros" suffix="."/>
-               <date-part name="month" form="numeric-leading-zeros" suffix="."/>
-               <date-part name="year" form="long"/>
+               <date-part form="numeric-leading-zeros" name="day" suffix="."/>
+               <date-part form="numeric-leading-zeros" name="month" suffix="."/>
+               <date-part form="long" name="year"/>
             </date>
          </if>
          <else>
@@ -129,37 +112,12 @@
       </choose>
    </macro>
    <macro name="pages">
-      <choose>
-         <if type="article-journal">
-            <text variable="page" prefix=", "/>
-         </if>
-         <else>
-            <choose>
-               <if variable="volume">
-                  <text variable="page" prefix=", "/>
-               </if>
-               <else>
-                  <label variable="page" prefix=", " suffix="" form="long"/>
-                  <text variable="page"/>
-               </else>
-            </choose>
-         </else>
-      </choose>
+		<label variable="locator" form="short" prefix=", " suffix=". " strip-periods="true"/>
+		<text variable="page"/>
    </macro>
    <macro name="point-locators">
-      <text macro="pages"/>
-      <choose>
-         <if variable="page">
-            <group prefix=" (" suffix=")">
-               <label variable="locator" form="short" suffix=". " strip-periods="true"/>
-               <text variable="locator"/>
-            </group>
-         </if>
-         <else>
-            <label variable="locator" form="short" prefix=", " suffix=". " strip-periods="true"/>
-            <text variable="locator"/>
-         </else>
-      </choose>
+		<label variable="locator" form="short" prefix=", " suffix=". " strip-periods="true"/>
+		<text variable="locator"/>
    </macro>
    <macro name="point-locators-subsequent">
       <group>
@@ -186,9 +144,20 @@
                <number variable="volume" form="numeric" suffix=":"/>
             </else-if>
          </choose>
+         <label variable="locator" form="short" suffix=". " strip-periods="true"/>
          <text variable="locator"/>
       </group>
    </macro>
+<macro name="hasUrl">
+               <choose>
+                  <if variable="URL" match="any">
+                     <text value="yes"/>
+                  </if>
+                  <else>
+                     <text value="no"/>
+                  </else>
+               </choose>
+</macro>
    <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
       <layout delimiter="; " suffix=".">
          <choose>
@@ -203,7 +172,7 @@
                <text macro="year-date" prefix=" (" suffix=")"/>
                <text macro="point-locators"/>
                <choose>
-                  <if variable="note" match="any">
+                  <if variable="URL" match="any">
                      <text value="(siehe Internet-/Intranetverzeichnis)" prefix=" "/>
                   </if>
                </choose>
@@ -213,6 +182,7 @@
    </citation>
    <bibliography et-al-min="3" et-al-use-first="1" hanging-indent="true">
       <sort>
+         <key macro="hasUrl"/>
          <key macro="author"/>
          <key macro="date"/>
       </sort>
@@ -221,33 +191,36 @@
             <text macro="author"/>
             <text macro="year-date" prefix=" (" suffix="):" font-weight="bold"/>
          </group>
-         <text macro="title" prefix=" "/>
+         <text variable="title" prefix=" "/>
          <choose>
             <if type="webpage">
                <text macro="date" prefix=", "/>
             </if>
             <else-if type="speech" match="any">
-               <text macro="publisher-place" prefix=", "/>
+               <text variable="publisher-place" prefix=", "/>
                <text macro="date" prefix=", "/>
                <text macro="accessed" prefix=", "/>
             </else-if>
-            <else-if type="article-newspaper">
-               <text macro="title" prefix=", in:"/>
-               <text variable="volume" prefix=", "/>
+            <else-if type="article-newspaper article-magazine article-journal">
+	       <text  value=" In: " font-style="italic"/>
+               <text variable="container-title" font-style="italic"/>
+               <text variable="collection-title" prefix=", Reihe "/>
+               <text variable="volume" prefix=", Band "/>
+               <text variable="issue" prefix=", Ausgabe "/>
                <text macro="date" prefix=", "/>
-               <text macro="point-locators"/>
+               <text macro="pages"/>
             </else-if>
             <else-if type="chapter paper-conference" match="any">
-               <text macro="editor" suffix=": "/>
-               <text variable="container-title" prefix=", in: " font-style="italic"/>
-               <text macro="publisher-place" prefix=", "/>
-               <text macro="edition" prefix=", "/>
+               <text macro="editor" prefix=", in: " suffix=": "/>
+               <text variable="container-title" font-style="italic"/>
+               <text variable="publisher-place" prefix=", "/>
+               <text variable="edition" prefix=", "/>
                <text macro="year-date" prefix=", "/>
-               <text macro="point-locators"/>
+               <text macro="pages"/>
             </else-if>
             <else>
-               <text macro="publisher-place" prefix=", "/>
-               <text macro="edition" prefix=", "/>
+               <text variable="publisher-place" prefix=", "/>
+               <text variable="edition" prefix=", "/>
                <text macro="year-date" prefix=", "/>
             </else>
          </choose>
@@ -257,7 +230,9 @@
                <text variable="URL" prefix=", "/>
             </if>
          </choose>
-         <text variable="note" prefix=" "/>
+         <text variable="ISBN" prefix=", ISBN: "/>
+         <text variable="DOI" prefix=", DOI: "/>
+         <text variable="note" prefix=", "/>
       </layout>
    </bibliography>
 </style>
