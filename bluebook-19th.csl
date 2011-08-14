@@ -27,28 +27,36 @@
   <!-- ### BLUEBOOK AUTHOR ### -->
   <macro name="bb-author">
     <names variable="author">
-      <name/>
+      <name and="symbol" delimiter-precedes-last="never" />
     </names>
   </macro>
   <macro name="bb-author-short">
-    <choose>
-      <if type="book" match="any">
-        <names variable="author">
-          <name form="short" font-variant="small-caps"/>
-        </names>
-      </if>
-      <else>
-        <names variable="author">
-          <name form="short"/>
-        </names>
-      </else>
-    </choose>
+	<names variable="author">
+	  <name form="short" and="symbol" delimiter-precedes-last="never" initialize-with="."/>
+	  <substitute>
+		<text variable="title" form="short"/>
+	  </substitute>
+	</names>
+  </macro>
+  <!-- ### BLUEBOOK EDITOR -->
+  <macro name="bb-editor">
+    <names variable="editor">
+      <name and="symbol" delimiter-precedes-last="never"/>
+    </names>
+  </macro>
+  <macro name="bb-editor-short">
+	<names variable="editor">
+	  <name form="short" and="symbol" delimiter-precedes-last="never"/>
+	</names>
   </macro>
   <!-- ### BLUEBOOK TITLE ### -->
+  <macro name="bb-title">
+	<text variable="title" text-case="title"/>
+  </macro>
   <macro name="bb-short-title">
     <choose>
       <if type="book" match="any">
-        <text variable="title" font-variant="small-caps" form="short"/>
+        <text variable="title" font-variant="small-caps" form="short" text-case="title"/>
       </if>
       <else-if type="legal_case">
         <choose>
@@ -71,15 +79,89 @@
         <text variable="title" form="short"/>
       </else-if>
       <else>
-        <text variable="title" font-style="italic" form="short"/>
+        <text variable="title" font-style="italic" form="short" text-case="title"/>
       </else>
     </choose>
   </macro>
+  <macro name="bb-container-title">
+	<text variable="container-title" text-case="title"/>
+  </macro>
+  <!-- not clear from BB whether "in" should be used here -->
+  <macro name="bb-proceedings-title">
+	<group delimiter=" ">
+	  <text term="in"/>
+	  <text variable="container-title" font-variant="small-caps"/>
+	</group>
+  </macro>
+  <!-- ### BLUEBOOK EDITION -->
+  <macro name="bb-edition">
+	<group delimiter=" ">
+	  <number variable="edition" form="ordinal"/>
+	  <text term="edition" form="short"/>
+	</group>
+  </macro>
   <!-- ### BLUEBOOK ISSUED ### -->
   <macro name="bb-issued">
-    <group prefix="(" suffix=")">
-      <date variable="issued" form="text" date-parts="year"/>
+    <group prefix="(" suffix=")" delimiter=", ">
+	  <text macro="bb-editor"/>
+	  <group delimiter=" ">
+		<text macro="bb-edition"/>
+		<date variable="issued" form="text" date-parts="year"/>
+	  </group>
     </group>
+  </macro>
+  <macro name="bb-issued-with-alt">
+	<group delimiter=", ">
+	  <group prefix="(" suffix=")" delimiter=", ">
+		<text variable="publisher" form="short"/>
+		<text variable="event"/>
+		<group delimiter=" ">
+		  <text variable="genre"/>
+		  <number variable="number"/>
+		</group>
+		<text macro="bb-editor"/>
+		<group delimiter=" ">
+		  <text macro="bb-edition"/>
+		  <date variable="issued" form="text" date-parts="year-month-day"/>
+		</group>
+	  </group>
+	  <group delimiter=" ">
+		<text value="available at" font-style="italic"/>
+		<text variable="URL"/>
+	  </group>
+	</group>
+  </macro>
+  <macro name="bb-issued-direct-to-web">
+	<choose>
+	  <if variable="editor publisher edition issued" match="any">
+		<text value=" "/>
+	  </if>
+	  <else>
+		<text value=", "/>
+	  </else>
+	</choose>
+	<group delimiter=", ">
+	  <group prefix="(" suffix=")" delimiter=", ">
+		<text variable="publisher" form="short"/>
+		<text macro="bb-editor"/>
+		<group delimiter=" ">
+		  <text macro="bb-edition"/>
+		  <date variable="issued" form="text" date-parts="year-month-day"/>
+		</group>
+	  </group>
+	  <group delimiter=" ">
+		<text variable="URL"/>
+		<choose>
+		  <if variable="URL">
+			<text variable="note" prefix="(" suffix=")"/>
+		  </if>
+		</choose>
+		<group prefix="(" suffix=")" delimiter=" ">
+		  <text value="last visited"/>
+		  <date variable="accessed" form="text" date-parts="year-month-day"/>
+		</group>
+	  </group>
+	</group>
   </macro>
   <!-- ### ID BACKREFERENCES ### -->
   <macro name="bb-ibid">
@@ -191,9 +273,7 @@
           <text variable="number"/>
           <group delimiter=" ">
             <text variable="genre"/>
-            <names variable="author">
-              <name initialize-with="." font-variant="small-caps"/>
-            </names>
+            <text macro="bb-author" font-variant="small-caps"/>
           </group>
         </group>
       </else>
@@ -303,10 +383,20 @@
   <!-- ### SECONDARY SUBSEQUENT (generic) ### -->
   <macro name="bb-secondary-subsequent">
     <group delimiter=", ">
-      <text macro="bb-author-short"/>
+      <choose>
+		<if type="book">
+		  <text macro="bb-author-short" font-variant="small-caps"/>
+		</if>
+		<else-if type="webpage" variable="issued" match="all">
+		  <text macro="bb-author-short" font-variant="small-caps"/>
+		</else-if>
+		<else>
+		  <text macro="bb-author-short"/>
+		</else>
+      </choose>
       <choose>
         <if disambiguate="true">
-          <text macro="bb-short-title"/>
+          <text macro="bb-short-title" text-case="title"/>
         </if>
       </choose>
       <group delimiter="">
@@ -359,12 +449,110 @@
     <group delimiter=", ">
       <text macro="bb-author" font-variant="small-caps"/>
       <group delimiter=" ">
-        <text variable="title" font-variant="small-caps"/>
+        <text macro="bb-title" font-variant="small-caps"/>
         <text macro="bb-point-locator-base"/>
         <text macro="bb-issued"/>
       </group>
     </group>
     <text variable="references" prefix=" [" suffix="]"/>
+  </macro>
+  <!-- ### REPORT ### -->
+  <macro name="bb-report">
+    <choose>
+      <if position="first">
+        <text macro="bb-report-first"/>
+      </if>
+      <else-if position="ibid">
+        <text macro="bb-ibid"/>
+      </else-if>
+      <else-if position="subsequent">
+        <text macro="bb-secondary-subsequent"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="bb-report-first">
+    <group delimiter=", ">
+      <text macro="bb-author" font-variant="small-caps"/>
+      <group delimiter=" ">
+        <text macro="bb-title" font-variant="small-caps"/>
+        <text macro="bb-point-locator-base"/>
+        <text macro="bb-issued-with-alt"/>
+      </group>
+    </group>
+    <text variable="references" prefix=" [" suffix="]"/>
+  </macro>
+  <!-- ### WEB-ONLY ### -->
+  <macro name="bb-web">
+    <choose>
+      <if position="first">
+        <text macro="bb-web-first"/>
+      </if>
+      <else-if position="ibid">
+        <text macro="bb-ibid"/>
+      </else-if>
+      <else-if position="subsequent">
+        <text macro="bb-secondary-subsequent"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="bb-web-first">
+	<group delimiter=" ">
+	  <group delimiter=", ">
+		<choose>
+		  <if variable="issued">
+			<text macro="bb-author" font-variant="small-caps"/>
+			<choose>
+			  <if variable="title container-title" match="all">
+				<text macro="bb-title" font-style="italic"/>
+				<text macro="bb-container-title" font-variant="small-caps"/>
+			  </if>
+			  <else>
+				<text macro="bb-title" font-variant="small-caps"/>
+				<text macro="bb-container-title" font-variant="small-caps"/>
+			  </else>
+			</choose>
+		  </if>
+		  <else>
+			<text macro="bb-author"/>
+			<choose>
+			  <if variable="title container-title" match="all">
+				<text macro="bb-title" font-style="italic"/>
+				<text macro="bb-container-title"/>
+			  </if>
+			  <else>
+				<text macro="bb-title"/>
+				<text macro="bb-container-title"/>
+			  </else>
+			</choose>
+		  </else>
+		</choose>
+	  </group>
+	  <text macro="bb-issued-direct-to-web"/>
+	</group>
+  </macro>
+  <!-- ### CONFERENCE PAPER ### -->
+  <macro name="bb-paper-conference">
+    <choose>
+      <if position="first">
+		<text macro="bb-paper-conference-first"/>
+      </if>
+      <else-if position="ibid">
+        <text macro="bb-ibid"/>
+      </else-if>
+      <else-if position="subsequent">
+        <text macro="bb-secondary-subsequent"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="bb-paper-conference-first">
+	<group delimiter=" ">
+	  <group delimiter=", ">
+		<text macro="bb-author"/>
+		<text macro="bb-title" font-style="italic"/>
+	  </group>
+	  <text macro="bb-proceedings-title"/>
+	  <text macro="bb-issued-with-alt"/>
+	</group>
   </macro>
   <!-- ### PERIODICAL ### -->
   <macro name="bb-periodical">
@@ -383,10 +571,8 @@
   <macro name="bb-periodical-first">
     <group delimiter=" ">
       <group delimiter=", ">
-        <names variable="author">
-          <name/>
-        </names>
-        <text variable="title" font-style="italic"/>
+        <text macro="bb-author"/>
+        <text macro="bb-title" font-style="italic"/>
         <group delimiter=" ">
           <text variable="volume"/>
           <text variable="container-title" form="short" font-variant="small-caps"/>
@@ -397,7 +583,7 @@
       <text macro="bb-issued"/>
     </group>
   </macro>
-  <citation near-note-distance="5" et-al-min="2" et-al-subsequent-min="4" et-al-subsequent-use-first="2" et-al-use-first="1">
+  <citation near-note-distance="5" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " suffix=".">
       <choose>
         <if type="legal_case">
@@ -409,6 +595,15 @@
         <else-if type="book" match="any">
           <text macro="bb-book"/>
         </else-if>
+        <else-if type="report" match="any">
+          <text macro="bb-report"/>
+        </else-if>
+		<else-if type="webpage" match="any">
+		  <text macro="bb-web"/>
+		</else-if>
+		<else-if type="paper-conference" match="any">
+		  <text macro="bb-paper-conference"/>
+		</else-if>
         <else>
           <text macro="bb-periodical"/>
         </else>
