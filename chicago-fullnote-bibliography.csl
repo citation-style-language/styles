@@ -17,20 +17,31 @@
       <name>Elena Razlogova</name>
       <email>elena.razlogova@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
     <summary>Chicago format with full notes and bibliography</summary>
     <category field="generic-base"/>
-    <category citation-format="numeric"/>
-    <updated>2009-12-04T20:22:16+00:00</updated>
+    <category citation-format="note"/>
+    <updated>2011-08-26T18:38:41+00:00</updated>
     <rights>This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="editortranslator" form="verb-short">
+        <single>trans. and ed.</single>
+        <multiple>trans. and ed.</multiple>
+      </term>
+      <term name="editortranslator" form="verb">
+        <single> Translated and edited by</single>
+        <multiple> Translated and edited by</multiple>
+      </term>
+    </terms>
+  </locale>
   <macro name="editor-translator">
     <group delimiter=", ">
       <choose>
 	<if variable="author">
-	  <names variable="editor" delimiter=", ">
-	    <label form="verb-short" text-case="lowercase" suffix=". " strip-periods="true"/>
-	    <name and="text" delimiter=", "/>
-	  </names>
 	  <choose>
 	    <if variable="container-author">
 	      <group>
@@ -41,12 +52,8 @@
 	      </group>
 	    </if>
 	  </choose>
-	</if>
-      </choose>
-      <choose>
-	<if variable="author editor" match="any">
-	  <names variable="translator" delimiter=", ">
-	    <label form="verb-short" text-case="lowercase" suffix=". " strip-periods="true"/>
+	  <names variable="editor translator" delimiter=", ">
+	    <label form="verb-short" text-case="lowercase" suffix=" " />
 	    <name and="text" delimiter=", "/>
 	  </names>
 	</if>
@@ -97,10 +104,6 @@
 	<group delimiter=", ">
 	  <choose>
 	    <if variable="author">
-	      <names variable="editor" delimiter=", ">
-		<label form="verb" text-case="lowercase" suffix=" "/>
-		<name and="text" delimiter=", "/>
-	      </names>
 	      <choose>
 		<if variable="container-author">
 		  <group>
@@ -111,14 +114,24 @@
 		  </group>
 		</if>
 	      </choose>
-	    </if>
-	  </choose>
-	  <choose>
-	    <if variable="author editor" match="any">
-	      <names variable="translator" delimiter=", ">
-		<label form="verb" text-case="lowercase" suffix=" "/>
-		<name and="text" delimiter=", "/>
-	      </names>
+	      <!--This includes page numers after the container author, e.g. for Introductions -->
+	      <choose>
+		<if variable="container-author author" match="all">
+		  <group delimiter=". ">
+		    <text variable="page"/>
+		    <names variable="editor translator" delimiter=", ">
+		      <label form="verb"  suffix=" "/>
+		      <name and="text" delimiter=", "/>
+		    </names>
+		  </group>
+		</if>
+		<else>
+		  <names variable="editor translator" delimiter=", ">
+		    <label form="verb" text-case="lowercase" suffix=" "/>
+		    <name and="text" delimiter=", "/>
+		  </names>
+		</else>
+	      </choose>
 	    </if>
 	  </choose>
 	</group>
@@ -581,10 +594,17 @@
     <choose>
       <if type="chapter paper-conference" match="any">
 	<choose>
-	  <if variable="page">
-	    <text variable="volume" suffix=":"/>
-	    <text variable="page"/>
+	  <!--If author and container-author are present, page numbers are in macro container-contributor. Leave them out here-->
+	  <if variable="author container-author" match="all">
 	  </if>
+	  <else>	
+	    <choose>
+	      <if variable="page">
+		<text variable="volume" suffix=":"/>
+		<text variable="page"/>
+	      </if>
+	    </choose>
+	  </else>
 	</choose>
       </if>
     </choose>
