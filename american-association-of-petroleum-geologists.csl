@@ -16,7 +16,7 @@
     <category citation-format="author-date"/>
     <category field="geology"/>
     <link href="http://eeg.allentrack.net/html/eeginstr.pdf" rel="documentation"/>
-    <updated>2012-01-05T08:01:02+00:00</updated>
+    <updated>2012-01-05T22:16:02+00:00</updated>
     <rights>This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
   </info>
   <macro name="author">
@@ -59,17 +59,16 @@
       <else>
 	<group delimiter=", ">
 	  <choose>
-	    <if variable="publisher">
-	      <text variable="publisher"/>
+	    <if type="paper-conference" match="none">
+	      <text variable="publisher-place"/>
 	    </if>
-	    <else>
-	      <group delimiter=" ">
-		<text variable="collection-title"/>
-		<text variable="collection-number"/>
-	      </group>
-	    </else>
 	  </choose>
-	  <text variable="publisher-place"/>
+	  <text variable="publisher"/>
+	  <group delimiter=" " >
+	    <text variable="collection-title"/>
+	    <text variable="collection-number"/>
+	  </group>
+
 	  <text variable="number-of-pages" suffix=" p."/>
 	</group>
       </else>
@@ -90,15 +89,20 @@
   <macro name="book-edited">
     <choose>
       <if type="chapter paper-conference" match="any">
+	<text term="in" text-case="lowercase" font-style="italic" suffix=" "/>
 	<group delimiter=", ">            
 	  <group>
-	    <text term="in" text-case="lowercase" font-style="italic"/>
             <names variable="editor translator" prefix=" "  delimiter=", ">
               <name and="text" sort-separator=", " initialize-with=". "  delimiter-precedes-last="always"/>
               <label form="short" prefix=", "  />
             </names>
 	  </group>
 	  <text variable="container-title"/>
+	  <choose>
+	    <if type="paper-conference">
+	      <text variable="event-place"/>
+	    </if>
+	  </choose>
 	</group>
       </if>
     </choose>
@@ -112,19 +116,33 @@
   </macro>
   <macro name="accessed">
     <choose>
-      <if variable="URL">
-	<text variable="URL" prefix="&lt;" suffix="&gt;"/>
-	<group prefix=" (" suffix=")" delimiter=" ">
-	  <text term="accessed"/>
-	  <date variable="accessed" >
-	    <date-part name="month"/>
-	    <date-part name="day" prefix=" "/>
-	    <date-part name="year" prefix=", "/>
-	  </date>
-	</group>
+      <if type="webpage">
+	<choose>
+	  <if variable="URL">
+	    <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+	    <group prefix=" (" suffix=")" delimiter=" ">
+	      <text term="accessed"/>
+	      <date variable="accessed" >
+		<date-part name="month"/>
+		<date-part name="day" prefix=" "/>
+		<date-part name="year" prefix=", "/>
+	      </date>
+	    </group>
+	  </if>
+	</choose>
       </if>
     </choose>
   </macro>
+<macro name="page">
+<choose>
+<if type="article article-magazine article-newspaper article-journal bill book broadcast chapter entry entry-dictionary entry-encyclopedia figure graphic interview legislation legal_case manuscript map motion_picture musical_score pamphlet paper-conference patent post post-weblog personal_communication review review-book song speech thesis treaty webpage" match="any">
+<text variable="page" prefix="p. "/>
+</if>
+<else>
+<text variable="page" suffix=" p."/>
+      </else>
+</choose>
+</macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year">
     <sort>
       <key macro="year-date"/>
@@ -151,16 +169,17 @@
         <text macro="author"/>
         <text macro="year-date"/>
 	<text variable="title" />
-<group delimiter=" ">
-	<text variable="genre"/>
-<text variable="number"/>
-</group>
+	<group delimiter=" ">
+	  <text variable="genre"/>
+	  <text variable="number"/>
+	</group>
 	<text macro="book-edited"/>
       </group>
       <group prefix=": " delimiter=", ">
 	<text macro="publisher"/>
 	<text macro="mapinfo"/>
-	<text variable="page" prefix="p. "/>
+	<text macro="page"/>
+	<text variable="DOI" prefix="doi:"/>
       </group>
       <text macro="accessed" prefix=": "/>
     </layout>
