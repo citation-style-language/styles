@@ -21,7 +21,11 @@
   <macro name="author">
     <names variable="author" suffix=".">
       <name sort-separator=", " initialize-with=". " and="text" name-as-sort-order="first" delimiter=", " delimiter-precedes-last="always"/>
-      <label form="long" prefix=", " text-case="lowercase"/>
+      <label form="long" prefix=", "/>
+      <substitute>
+        <names variable="editor"/>
+        <text variable="title"/>
+      </substitute>
     </names>
   </macro>
   <macro name="editor">
@@ -35,7 +39,7 @@
       <name form="short" and="text" delimiter=", " initialize-with=". "/>
       <substitute>
         <names variable="editor"/>
-        <names variable="translator"/>
+        <text variable="title"/>
       </substitute>
     </names>
   </macro>
@@ -45,14 +49,60 @@
         <date variable="issued">
           <date-part name="year"/>
         </date>
+	<text variable="year-suffix" font-style="italic"/>
       </if>
       <else>
         <text term="no date" form="short"/>
       </else>
     </choose>
   </macro>
+  <macro name="chapter-info">
+    <group delimiter=" ">
+      <choose>
+	<if type="chapter paper-conference" match="any">
+	  <group delimiter=" ">
+	    <label variable="page" text-case="capitalize-first"/>
+	    <text variable="page"/>
+	    <text term="in" font-style="italic"/>
+	  </group>
+	</if>
+      </choose>
+      <text macro="editor"/>
+    </group>
+  </macro>
+  <macro name="container">
+    <choose>
+      <if type="article-journal article-magazine" match="any">
+	<group delimiter=" ">
+	  <text variable="container-title"/>
+	  <group delimiter=":">
+	    <text variable="volume"/>
+	    <text variable="page"/>
+	  </group>
+	</group>
+      </if>
+      <else-if type="article-newspaper">
+      <text variable="container-title"/>
+      <date variable="issued" delimiter=" ">
+	<date-part name="day"/>
+	<date-part name="month"/>
+	<date-part name="year"/>
+      </date>
+      <text variable="section" prefix="; section "/>
+      <text variable="page" prefix=":"/>
+      </else-if>
+      <else>
+	<text variable="container-title"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="publisher">
     <group delimiter=", ">
+      <group delimiter=" ">
+	<text variable="collection-title"/>
+	<text variable="collection-number"/>
+      </group>
+      <text variable="genre"/>
       <text variable="publisher"/>
       <text variable="publisher-place"/>
     </group>
@@ -61,16 +111,47 @@
     <choose>
       <if is-numeric="edition">
         <group delimiter=" ">
-          <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" suffix="." strip-periods="true"/>
+          <number variable="edition" form="long-ordinal" text-case="capitalize-first"/>
+          <text term="edition"/>
         </group>
       </if>
       <else>
-        <text variable="edition" suffix="."/>
+        <text variable="edition"/>
       </else>
     </choose>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year">
+  <macro name="volume">
+    <choose>
+      <if type="article-journal article-magazine" match="none">
+	<choose>
+	  <if variable="volume">
+	    <group delimiter=" ">
+	      <text term="volume"  text-case="capitalize-first"/>
+	      <text variable="volume"/>
+	    </group>
+	  </if>
+	</choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="accessed">
+    <choose>
+      <if variable="URL">
+	<group delimiter=". ">
+	  <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+	  <group delimiter=" ">
+	    <text term="accessed" text-case="capitalize-first"/>
+	    <date variable="accessed" delimiter=" ">
+	      <date-part name="day"/>
+	      <date-part name="month" form="short" strip-periods="true"/>
+	      <date-part name="year"/>
+	    </date>
+	  </group>
+	</group>
+      </if>
+    </choose>
+  </macro>
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite"  collapse="year-suffix">
     <sort>
       <key macro="author-short"/>
       <key macro="year-date"/>
@@ -91,50 +172,16 @@
       <key macro="year-date"/>
     </sort>
     <layout suffix=".">
-      <group delimiter=" ">
+      <group delimiter=". ">
         <text macro="author"/>
-        <date variable="issued" suffix=".">
-          <date-part name="year"/>
-        </date>
-        <choose>
-          <if type="bill book graphic legal_case motion_picture report song" match="any">
-            <group suffix=".">
-              <group delimiter=", ">
-                <text variable="title"/>
-                <text macro="edition"/>
-              </group>
-              <text macro="editor" prefix=" (" suffix=")"/>
-            </group>
-            <text prefix=" " suffix="" macro="publisher"/>
-            <group suffix="." prefix="; ">
-              <text variable="page" prefix=":"/>
-            </group>
-          </if>
-          <else-if type="chapter paper-conference" match="any">
-            <group delimiter=" ">
-              <text variable="title"/>
-              <text term="in" font-style="italic"/>
-              <text macro="editor"/>
-              <group>
-                <text variable="container-title"/>
-                <text variable="collection-title" prefix=". "/>
-                <text macro="edition" prefix=", "/>
-              </group>
-              <group delimiter=". ">
-                <text variable="volume" prefix="vol. " suffix="."/>
-                <text macro="publisher"/>
-              </group>
-            </group>
-          </else-if>
-          <else>
-            <text variable="title" suffix=". "/>
-            <text variable="container-title" form="short" suffix=" "/>
-            <group delimiter=":">
-              <text variable="volume"/>
-              <text variable="page"/>
-            </group>
-          </else>
-        </choose>
+	<text macro="year-date"/>
+	<text variable="title"/>   
+	<text macro="chapter-info"/>
+	<text macro="container"/>
+	<text macro="edition"/>
+	<text macro="volume"/>
+	<text macro="publisher"/>   
+	<text macro="accessed"/>
       </group>
     </layout>
   </bibliography>
