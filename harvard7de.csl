@@ -63,29 +63,25 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="DOI">
-        <text variable="DOI" prefix="doi: "/>
+      <if type="webpage" match="any">
+        <group>
+          <text term="retrieved" text-case="capitalize-first" suffix=" "/>
+          <text value="am" suffix=" "/>
+          <date variable="accessed">
+            <date-part name="day" form="numeric-leading-zeros" suffix="."/>
+            <date-part name="month" form="numeric-leading-zeros" suffix="."/>
+            <date-part name="year" form="long"/>
+          </date>
+          <group>
+            <text term="from" prefix=" " suffix=" "/>
+            <text variable="URL"/>
+          </group>
+        </group>
       </if>
-      <else>
-        <choose>
-          <if type="webpage">
-            <group>
-              <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-              <text value="am" suffix=" "/>
-              <date variable="accessed">
-                <date-part name="day" form="numeric-leading-zeros" suffix="."/>
-                <date-part name="month" form="numeric-leading-zeros" suffix="."/>
-                <date-part name="year" form="long"/>
-              </date>
-              <group>
-                <text term="from" prefix=" " suffix=" "/>
-                <text variable="URL"/>
-              </group>
-            </group>
-          </if>
-        </choose>
-      </else>
     </choose>
+  </macro>
+  <macro name="doi">
+    <text variable="DOI" prefix="DOI: "/>
   </macro>
   <macro name="title">
     <choose>
@@ -109,10 +105,17 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter=": ">
-      <text variable="publisher-place"/>
-      <text variable="publisher"/>
-    </group>
+    <choose>
+      <if variable="publisher publisher-place" match="any">
+        <group delimiter=": ">
+          <text variable="publisher-place"/>
+          <text variable="publisher"/>
+        </group>
+      </if>
+      <else-if type="book chapter" match="any">
+        <text value="o.V."/>
+      </else-if>
+    </choose>
   </macro>
   <macro name="year-date">
     <choose>
@@ -128,7 +131,7 @@
   </macro>
   <macro name="locator">
     <choose>
-      <if type="article-journal">
+      <if type="article-journal article-magazine">
         <text variable="volume" suffix=" "/>
         <!-- <date variable="issued">
           <date-part name="year" prefix="(" suffix=")"/>
@@ -212,7 +215,7 @@
       <key variable="issued"/>
     </sort>
     <layout>
-      <group delimiter=" " suffix=".">
+      <group suffix=".">
         <choose>
           <if type="chapter paper-conference" match="any">
             <group delimiter="; ">
@@ -220,33 +223,32 @@
             </group>
           </if>
           <else>
-            <group delimiter="; ">
+            <group delimiter="; " suffix=" ">
               <text macro="author"/>
               <text macro="editor"/>
             </group>
           </else>
         </choose>
-        <text macro="year-date" prefix="(" suffix="):"/>
-        <text macro="title" suffix="."/>
-        <text macro="container-prefix"/>
+        <text macro="year-date" prefix=" (" suffix="):"/>
+        <text macro="title" prefix=" " suffix="."/>
+        <text macro="container-prefix" prefix=" "/>
         <choose>
           <if type="chapter paper-conference" match="any">
-            <text macro="editor"/>
+            <text macro="editor" prefix=" "/>
           </if>
         </choose>
-        <text variable="container-title" font-style="italic" suffix="."/>
-        <text macro="edition"/>
-        <text macro="genre"/>
-        <text macro="publisher"/>
-        <group delimiter=", ">
-          <group delimiter=", " prefix="(" suffix=")">
-            <text variable="collection-title"/>
-          </group>
-          <text macro="locator"/>
-          <text macro="published-date"/>
-          <text macro="pages"/>
+        <text variable="container-title" font-style="italic" prefix=" " suffix="."/>
+        <text macro="edition" prefix=" "/>
+        <text macro="genre" prefix=" "/>
+        <text macro="publisher" prefix=" "/>
+        <text variable="collection-title" prefix=" (" suffix=")"/>
+        <group>
+          <text macro="locator" prefix=" "/>
+          <text macro="published-date" prefix=" "/>
+          <text macro="pages" prefix=", "/>
           <!--<text macro="duration"/>-->
-          <text macro="access"/>
+          <text macro="access" prefix=" "/>
+          <text macro="doi" prefix=", "/>
         </group>
       </group>
       <text macro="isbn" prefix=" — "/>
