@@ -21,6 +21,10 @@ IndependentStyles.each do |path|
         @style.should be_a(CSL::Style)
       end
 
+      it "is independent" do
+        @style.should be_independent
+      end
+
       it "has an info element" do
        @style.should have_info
       end
@@ -59,6 +63,13 @@ IndependentStyles.each do |path|
         end
       end
 
+      it "defines all macros that are referenced by text or key nodes" do
+        @style.descendants!.each do |node|
+          if node.matches?(/^key|text$/, :macro => /./)
+            @style.macros.should have_key(node[:macro])
+          end
+        end
+      end
     end
 
   end
