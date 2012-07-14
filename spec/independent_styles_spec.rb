@@ -1,8 +1,8 @@
-INDEPENDENT_STYLES.each do |path|
+IndependentStyles.each do |path|
   filename = File.basename(path)
   id = filename[0..-5]
 
-  describe id do
+  describe "independent style #{id}" do
 
     it "is a valid CSL 1.0 style" do
       CSL.validate(path).should == []
@@ -55,7 +55,7 @@ INDEPENDENT_STYLES.each do |path|
           link = @style.template_link
 
           link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
-          INDEPENDENT_STYLES.grep(/\/#{link[/[^\/]+$/]}\.csl$/).should have(1).elements
+          IndependentStyles.grep(/\/#{link[/[^\/]+$/]}\.csl$/).should have(1).elements
         end
       end
 
