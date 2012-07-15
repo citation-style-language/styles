@@ -1,6 +1,4 @@
-IndependentStyles.each do |path|
-  filename = File.basename(path)
-  id = filename[0..-5]
+Independents.each_pair do |id, (filename, path, style)|
 
   describe "independent style #{id}" do
 
@@ -12,73 +10,71 @@ IndependentStyles.each do |path|
       filename.should match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
-    describe "the parsed style" do
-      before :all do
-        @style = CSL::Style.load(path)
-      end
+    it "was successfully parsed" do
+      style.should be_a(CSL::Style)
+    end
 
-      it "was successfully parsed" do
-        @style.should be_a(CSL::Style)
-      end
-
+    unless style.nil?
       it "is independent" do
-        @style.should be_independent
+        style.should be_independent
       end
 
       it "has an info element" do
-       @style.should have_info
+       style.should have_info
       end
 
       it "has a self-link" do
-        @style.should have_self_link
+        style.should have_self_link
       end
 
       it "has an id" do
-        @style.info.should have_id
+        style.info.should have_id
       end
 
       it "the self-link is a valid style repository link" do
-        @style.self_link.should == "http://www.zotero.org/styles/#{id}"
+        style.self_link.should == "http://www.zotero.org/styles/#{id}"
       end
 
       it "the self-link matches the style id" do
-        @style.id.should == @style.self_link
+        style.id.should == style.self_link
       end
 
       it "has and info/rights element" do
-        @style.info.should have_rights
+        style.info.should have_rights
       end
 
       it "is licensed under a CC BY-SA license" do
-        @style.info.rights.to_s.strip.should ==
+        style.info.rights.to_s.strip.should ==
           'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
       end
 
       it "its template-link (if present) points to an existing independent style" do
-        if @style.has_template_link?
-          link = @style.template_link
+        if style.has_template_link?
+          link = style.template_link
 
           link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
-          IndependentStyles.grep(/\/#{link[/[^\/]+$/]}\.csl$/).should have(1).elements
+          Independents.should have_key(link[/[^\/]+$/])
         end
       end
-      
-      it "has at least one info/category" do
-        @style.info.should have_categories
-      end
 
-      it "has a citation-format" do
-        @style.citation_format.should_not be_nil
-      end
-      
-      it "its citation-format is valid" do
-        @style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
+      unless %w{ all bibtex blank national-archives-of-australia }.include?(id)
+        it "has at least one info/category" do
+          style.info.should have_categories
+        end
+
+        it "has a citation-format" do
+          style.citation_format.should_not be_nil
+        end
+
+        it "its citation-format is valid" do
+          style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
+        end
       end
 
       it "defines all macros that are referenced by text or key nodes" do
-        @style.descendants!.each do |node|
+        style.descendants!.each do |node|
           if node.matches?(/^key|text$/, :macro => /./)
-            @style.macros.should have_key(node[:macro])
+            style.macros.should have_key(node[:macro])
           end
         end
       end
