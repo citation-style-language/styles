@@ -9,7 +9,7 @@ IndependentStyles.each do |path|
     end
 
     it "has a conventional file name" do
-      filename.should match(/[a-z\d](-[a-z\d]+)*\.csl$/)
+      filename.should match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
     describe "the parsed style" do
@@ -41,7 +41,7 @@ IndependentStyles.each do |path|
         @style.self_link.should == "http://www.zotero.org/styles/#{id}"
       end
 
-      it "the self-link should match the style id" do
+      it "the self-link matches the style id" do
         @style.id.should == @style.self_link
       end
 

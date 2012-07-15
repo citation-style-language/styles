@@ -9,7 +9,7 @@ DependentStyles.each do |path|
     end
 
     it "has a conventional file name" do
-      filename.should match(/[a-z\d](-[a-z\d]+)*\.csl$/)
+      filename.should match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
     describe "the parsed style" do
@@ -35,12 +35,28 @@ DependentStyles.each do |path|
         @style.should_not have_bibliography
       end
       
+      it "the self-link (if present) is a valid style repository link" do
+        if @style.has_self_link?
+          @style.self_link.should == "http://www.zotero.org/styles/#{id}"
+        end
+      end
+
+      it "the self-link (if present) matches the style id" do
+        if @style.has_self_link?
+          @style.id.should == @style.self_link
+        end
+      end
+      
       it "does not have a template-link" do
         @style.should_not have_template_link
       end
 
       it "has an id" do
-        @style.info.should have_id
+        @style.should have_id
+      end
+
+      it "the id is a valid style repository link" do
+        @style.id.should == "http://www.zotero.org/styles/#{id}"
       end
 
       it "has and info/rights element" do
