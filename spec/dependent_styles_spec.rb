@@ -34,7 +34,7 @@ DependentStyles.each do |path|
         @style.should_not have_citation
         @style.should_not have_bibliography
       end
-      
+
       it "the self-link (if present) is a valid style repository link" do
         if @style.has_self_link?
           @style.self_link.should == "http://www.zotero.org/styles/#{id}"
@@ -46,7 +46,7 @@ DependentStyles.each do |path|
           @style.id.should == @style.self_link
         end
       end
-      
+
       it "does not have a template-link" do
         @style.should_not have_template_link
       end
@@ -74,6 +74,19 @@ DependentStyles.each do |path|
         link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
         IndependentStyles.grep(/\/#{link[/[^\/]+$/]}\.csl$/).should have(1).elements
       end
+
+      it "has at least one info/category" do
+        @style.info.should have_categories
+      end
+
+      it "has a citation-format" do
+        @style.citation_format.should_not be_nil
+      end
+
+      # it "has the same citation-format as its independent-parent" do
+      #   # @style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
+      # end
+
     end
   end
 end

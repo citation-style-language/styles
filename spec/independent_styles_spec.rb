@@ -62,6 +62,18 @@ IndependentStyles.each do |path|
           IndependentStyles.grep(/\/#{link[/[^\/]+$/]}\.csl$/).should have(1).elements
         end
       end
+      
+      it "has at least one info/category" do
+        @style.info.should have_categories
+      end
+
+      it "has a citation-format" do
+        @style.citation_format.should_not be_nil
+      end
+      
+      it "its citation-format is valid" do
+        @style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
+      end
 
       it "defines all macros that are referenced by text or key nodes" do
         @style.descendants!.each do |node|
