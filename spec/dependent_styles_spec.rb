@@ -1,4 +1,4 @@
-IndependentStyles.each do |path|
+DependentStyles.each do |path|
   filename = File.basename(path)
   id = filename[0..-5]
 
@@ -35,24 +35,12 @@ IndependentStyles.each do |path|
         @style.should_not have_bibliography
       end
       
-      it "has a self-link" do
-        @style.should have_self_link
-      end
-
       it "does not have a template-link" do
         @style.should_not have_template_link
       end
 
       it "has an id" do
         @style.info.should have_id
-      end
-
-      it "the self-link is a valid style repository link" do
-        @style.self_link.should == "http://www.zotero.org/styles/#{id}"
-      end
-
-      it "the self-link should match the style id" do
-        @style.id.should == @style.self_link
       end
 
       it "has and info/rights element" do
