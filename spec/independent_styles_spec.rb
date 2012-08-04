@@ -1,7 +1,7 @@
 Independents.each_pair do |id, (filename, path, style)|
 
   describe "independent style #{id}" do
-
+    
     it "is a valid CSL 1.0 style" do
       CSL.validate(path).should == []
     end
@@ -77,7 +77,7 @@ Independents.each_pair do |id, (filename, path, style)|
             style.macros.should have_key(node[:macro])
           end
         end
-      end
+      end      
     end
 
   end

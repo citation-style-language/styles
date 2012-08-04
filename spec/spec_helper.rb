@@ -2,6 +2,8 @@ require 'csl'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
+ISSN = Hash.new { |h,k| h[k] = [] }
+
 def load_style(path)
   filename = File.basename(path)
   id = filename[0..-5]
@@ -11,7 +13,13 @@ def load_style(path)
   rescue
     # failed to parse the style. we'll report the error later
   end
-  
+
+  begin    
+    ISSN[style.info.issn.to_s] << id if style.info.has_issn?
+  rescue
+    warn "Failed to extract ISSN of style #{id}"
+  end
+
   [id, [filename, path, style]]
 end
 
