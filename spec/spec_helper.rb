@@ -14,8 +14,18 @@ def load_style(path)
     # failed to parse the style. we'll report the error later
   end
 
-  begin    
-    ISSN[style.info.issn.to_s] << id if style.info.has_issn?
+  begin
+    if style.info.has_issn?
+      Array(style.info.issn).each do |issn|
+        ISSN[issn.to_s] << id
+      end
+    end
+    
+    if style.info.has_eissn?
+      Array(style.info.eissn).each do |issn|
+        ISSN[issn.to_s] << id
+      end
+    end
   rescue
     warn "Failed to extract ISSN of style #{id}"
   end
