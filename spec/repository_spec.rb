@@ -13,7 +13,7 @@ describe "The CSL Style Repository" do
   end
 
   it "contains no duplicate ISSNs" do
-    ISSN.select { |k,v| v.length > 1 }.should == []
+    ISSN.select { |_, styles| styles.length > 1 }.should == {}
   end
-  
+
 end
