@@ -61,9 +61,9 @@ Dependents.each_pair do |id, (filename, path, style)|
         license = style.info.rights[:license]
 
         if license
-          license.should == 'http://creativecommons.org/licenses/by-sa/3.0/'
           style.info.rights.to_s.strip.should ==
             'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
+          license.should == 'http://creativecommons.org/licenses/by-sa/3.0/'
         else
           style.info.rights.to_s.strip.should ==
             'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
