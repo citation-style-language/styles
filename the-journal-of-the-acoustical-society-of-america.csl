@@ -14,7 +14,7 @@
     <category field="physics"/>
     <category citation-format="author-date"/>
     <issn>0001-4966</issn>
-    <updated>2011-05-12T00:16:05+00:00</updated>
+    <updated>2012-05-10T13:46:03+00:00</updated>
     <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
   </info>
   <locale xml:lang="en">
@@ -255,13 +255,27 @@
   <macro name="locators">
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="any">
-        <group prefix=" " delimiter=", ">
-          <group>
-            <text variable="volume" font-weight="bold"/>
-            <!-- <text variable="issue" prefix="(" suffix=")"/> -->
-          </group>
-          <text variable="page"/>
-        </group>
+        <choose>
+          <if variable="page volume" match="all">
+            <group prefix=" " delimiter=", ">
+              <group>
+                <text variable="volume" font-weight="bold"/>
+                <!-- <text variable="issue" prefix="(" suffix=")"/> -->
+              </group>
+              <text variable="page"/>
+            </group>
+          </if>
+          <else-if variable="DOI">
+            <text variable="DOI" prefix=", doi: "/>
+          </else-if>
+          <else-if variable="URL">
+            <group>
+              <text term="retrieved" text-case="capitalize-first" suffix=" "/>
+              <text term="from" suffix=" "/>
+              <text variable="URL"/>
+            </group>
+          </else-if>
+        </choose>
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group delimiter=", ">
@@ -275,10 +289,17 @@
             <text term="volume" form="short" text-case="capitalize-first" suffix=". " strip-periods="true"/>
             <number variable="volume" form="numeric"/>
           </group>
-          <group>
-            <label variable="page" form="short" suffix=" "/>
-            <text variable="page"/>
-          </group>
+          <choose>
+            <if variable="page">
+              <group>
+                <label variable="page" form="short" suffix=" "/>
+                <text variable="page"/>
+              </group>
+            </if>
+            <else>
+              <text variable="number-of-pages" suffix=" pages"/>
+            </else>
+          </choose>
         </group>
       </else-if>
     </choose>
@@ -320,9 +341,9 @@
               <text variable="container-title" form="short"/>
               <text variable="collection-title"/>
             </group>
+            <text macro="locators"/>
           </group>
         </group>
-        <text macro="locators"/>
         <group delimiter=", " prefix=". ">
           <text macro="event"/>
         </group>
