@@ -58,16 +58,7 @@ Dependents.each_pair do |id, (filename, path, style)|
       end
 
       it "is licensed under a CC BY-SA license" do
-        license = style.info.rights[:license]
-
-        if license
-          style.info.rights.to_s.strip.should ==
-            'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
-          license.should == 'http://creativecommons.org/licenses/by-sa/3.0/'
-        else
-          style.info.rights.to_s.strip.should ==
-            'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
-        end
+        (style.info.rights.to_s.strip == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
       end
 
       it "its independent-parent link points to an existing style" do
