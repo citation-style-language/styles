@@ -11,6 +11,9 @@
       <uri>http://twitter.com/cparnot</uri>
       <email>charles@mekentosj.com</email>
     </author>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <issn>1073-449X</issn>
@@ -21,7 +24,10 @@
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" font-style="italic"/>
+        <group delimiter=", ">
+	  <text variable="title" font-style="italic"/>
+	  <text macro="edition"/>	
+	</group>      
       </if>
       <else>
         <text variable="title"/>
@@ -30,9 +36,23 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name sort-separator=", " delimiter=", " initialize-with="" name-as-sort-order="all"/>
+      <name sort-separator=" " delimiter=", " initialize-with="" name-as-sort-order="all"/>
+      <label prefix=", "/>
       <et-al font-style="italic"/>
+      <substitute>
+	<names variable="editor"/>
+	<names variable="translator"/>
+      </substitute>
     </names>
+  </macro>
+  <macro name="editor">
+    <group delimiter=" ">
+      <text term="in" text-case="capitalize-first" suffix=": "/>
+      <names variable="editor translator">
+	<name sort-separator=" " delimiter=", " initialize-with="" name-as-sort-order="all"/>
+	<label prefix=", "/>
+      </names>
+    </group>
   </macro>
   <macro name="access">
     <choose>
@@ -46,9 +66,22 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <text term="edition" form="short"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition" suffix="."/>
+      </else>
+    </choose>
+  </macro>
   <macro name="issuance">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture report song chapter paper-conference" match="any">
         <group prefix=" " suffix=". ">
           <text variable="publisher-place" suffix=": "/>
           <text variable="publisher" suffix="; "/>
@@ -64,6 +97,21 @@
       </else>
     </choose>
   </macro>
+
+  <macro name="pages">
+    <choose>
+      <if type="chapter paper-conference" match="any">
+	<group delimiter=" ">
+	  <label variable="page" form="short" plural="never"/>
+	  <text variable="page"/>
+	</group>
+      </if>
+      <else-if type="article-journal">
+	<text variable="volume" suffix=":"/>
+	<text variable="page"/>
+      </else-if>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -75,12 +123,17 @@
   <bibliography et-al-min="30" et-al-use-first="29" second-field-align="flush" entry-spacing="0" line-spacing="2">
     <layout>
       <text variable="citation-number" suffix="."/>
-      <text macro="author"/>
-      <text macro="title" prefix=" " suffix=". "/>
-      <text variable="container-title" font-style="italic" suffix=" " form="short" strip-periods="true"/>
+      <group delimiter=". " suffix=". ">
+	<text macro="author"/>
+	<text macro="title"/>
+	<text macro="editor"/>
+      </group>
+      <group delimiter=", " suffix=" ">      
+	<text variable="container-title" font-style="italic"  form="short" strip-periods="true"/>
+	<text macro="edition"/>	
+      </group>     
       <text macro="issuance"/>
-      <text variable="volume" suffix=":"/>
-      <text variable="page" suffix="."/>
+      <text macro="pages" suffix="."/>
       <text macro="access" suffix="."/>
     </layout>
   </bibliography>
