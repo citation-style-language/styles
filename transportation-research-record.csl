@@ -13,7 +13,7 @@
     <category field="engineering"/>
     <category field="generic-base"/>
     <issn>0361-1981</issn>
-    <updated>2012-06-08T00:00:00+00:00</updated>
+    <updated>2012-10-01T02:25:53+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <!-- Macros -->
@@ -49,9 +49,9 @@
       </else-if>
       <else>
         <date variable="issued">
-          <date-part name="day" form="numeric-leading-zeros" suffix="-"/>
-          <date-part name="month" form="short" suffix="-" strip-periods="true"/>
-          <date-part name="year" form="long"/>
+          <date-part name="month" form="short"  strip-periods="true"/>
+          <date-part name="day" form="numeric-leading-zeros" prefix=" "/>
+          <date-part name="year" form="long" prefix=", "/>
         </date>
       </else>
     </choose>
@@ -69,6 +69,7 @@
   <macro name="editor">
     <names variable="editor">
       <name initialize-with=". " delimiter=", " and="text"/>
+      <label form="short" prefix=", "/>
     </names>
   </macro>
   <macro name="locators">
@@ -90,14 +91,11 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="book report" match="any">
+      <if type="book report thesis legislation" match="any">
         <text variable="title" font-style="italic"/>
       </if>
-      <else-if type="paper-conference article-journal" match="any">
-        <text variable="title"/>
-      </else-if>
       <else>
-        <text variable="title" quotes="true" font-style="italic"/>
+        <text variable="title"/>
       </else>
     </choose>
   </macro>
@@ -108,8 +106,8 @@
     </group>
   </macro>
   <macro name="page">
-    <group>
-      <label variable="page" form="short" suffix=" "/>
+    <group delimiter=" ">
+      <label variable="page" form="short"/>
       <text variable="page"/>
     </group>
   </macro>
@@ -156,7 +154,7 @@
       <!-- Rest of Citation -->
       <choose>
         <!-- Specific Formats -->
-        <if type="paper-conference">
+        <if type="paper-conference" match="any">
           <group delimiter=". ">
             <text macro="title"/>
             <choose>
@@ -182,16 +180,29 @@
             </choose>
           </group>
         </if>
-        <else-if type="book">
+        <else-if type="book thesis">
           <group delimiter=". ">
             <text variable="version"/>
-            <text macro="title" font-style="italic"/>
+            <text macro="title"/>
+	    <text variable="genre"/>
             <group delimiter=", ">
               <text macro="publisher"/>
               <text macro="issued"/>
             </group>
           </group>
         </else-if>
+	<else-if type="chapter">
+	  <group delimiter=". ">
+	    <text variable="title"/>
+	    <group delimiter=" ">
+	      <text term="in" text-case="capitalize-first"/>
+	      <text variable="container-title"/>
+	      <text macro="editor" prefix="(" suffix=")"/>
+	    </group>
+	  </group>
+	  <text macro="publisher" prefix=", "/>
+	  <text macro="page" prefix=", "/>
+	</else-if>
         <else-if type="article-journal article-newspaper" match="any">
           <group delimiter=". ">
             <text macro="title"/>
@@ -200,7 +211,7 @@
               <text variable="volume" prefix="Vol. "/>
               <text variable="issue" prefix="No. "/>
               <text macro="issued"/>
-              <text variable="page" prefix="pp. "/>
+              <text macro="page"/>
             </group>
           </group>
         </else-if>
@@ -221,9 +232,9 @@
           <text variable="number" prefix="U.S. Patent "/>
           <text macro="issued"/>
         </else-if>
-        <else-if type="article">
+        <else-if type="article webpage">
           <group delimiter=". ">
-            <text variable="title" font-style="italic"/>
+            <text macro="title"/>
             <text macro="editor"/>
             <text variable="issue"/>
             <group delimiter=", ">
@@ -240,9 +251,26 @@
             </group>
           </group>
         </else-if>
+	<else-if type="legislation">
+	  <text macro="title" suffix=". "/>
+	  <group delimiter=", ">
+	    <text variable="container-title" />
+	    <text variable="number"/>
+	    <text variable="section"/>
+	    <text macro="issued"/>
+	  </group>
+	</else-if>
         <!-- Generic/Fallback Formats -->
         <else>
-          <text macro="title" prefix="Style not yet supported for " suffix=". Please consult TRB Formatting Guidelines for assistance."/>
+          <text macro="title" suffix=". "/>
+	  <group delimiter=", ">
+	    <text variable="container-title"/>
+	    <text macro="publisher"/>
+	    <text variable="volume"/>
+	    <text variable="issue"/>
+	    <text macro="issued"/>
+	    <text macro="page"/>
+	  </group>
         </else>
       </choose>
     </layout>
