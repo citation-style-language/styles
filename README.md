@@ -4,6 +4,8 @@ CSL 1.0 Style Repository
 [github.com/citation-style-language/styles](https://github.com/citation-style-language/styles) is the main repository for CSL 1.0 styles and is maintained by the Citation Style Language (CSL) project members.
 For more information, check out the [project website](http://citationstyles.org/) and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
 
+To setup the test environment, please follow [the instructions on the repository wiki](https://github.com/citation-style-language/styles/wiki/Test-Environment).
+
 Licensing
 ---------
 
