@@ -44,7 +44,7 @@ Independents.each_pair do |id, (filename, path, style)|
       end
 
       it "is licensed under a CC BY-SA license" do
-        (style.info.rights.to_s.strip == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
+        (style.info.rights.text == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
       end
 
       it "its template-link (if present) points to an existing independent style" do
