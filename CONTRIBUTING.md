@@ -30,7 +30,7 @@ finished, click the "Send pull request" button.
 If you wish to submit a new style:
 
 1. Create a GitHub.com account and sign in.
-2. Go to https://github.com/citation-style-language/styles, and click the plus button (with a "Fork this project and create a new file" tooltip, see the [GitHub blog](https://github.com/blog/1327-creating-files-on-github). If you wish to submit a dependent style, first navigate to the "dependent" directory.
+2. Go to https://github.com/citation-style-language/styles, and click the plus button (with a "Fork this project and create a new file" tooltip, see the [GitHub blog](https://github.com/blog/1327-creating-files-on-github)). If you wish to submit a dependent style, first navigate to the "dependent" directory.
 3. Name your new style, and paste the style code into the code editor window.
 4. Click the "Propose New File" button.
 6. In the next window, describe the changes you've made. When
