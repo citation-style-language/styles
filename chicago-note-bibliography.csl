@@ -239,8 +239,10 @@
       </if>
       <else-if type="bill book graphic  legislation motion_picture report song" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
-        <text variable="version" prefix=" , version " suffix=""/>
-        <!--This isn't localized because we don't have a version term. While not ideal, it should work for many languages and is better than not including a term.-->
+	<group delimiter=" " prefix=", ">
+	  <text term="version"/>        
+	  <text variable="version"/>
+	</group>
       </else-if>
       <else-if type="legal_case">
         <text variable="title"/>
@@ -261,7 +263,10 @@
       </if>
       <else-if type="bill book graphic legislation motion_picture report song" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
-        <text variable="version" prefix=" (version " suffix=")"/>
+	<group prefix=" (" suffix=")" delimiter=" ">        
+	  <text term="version"/>
+	  <text variable="version"/>
+	</group>
       </else-if>
       <else-if type="legal_case">
         <text variable="title"/>
@@ -295,6 +300,13 @@
       <else>
         <text variable="title" text-case="title" form="short" quotes="true"/>
       </else>
+    </choose>
+  </macro>
+  <macro name="date-disambiguate">
+    <choose>
+      <if disambiguate="true">
+	<text macro="issued"/>
+      </if>
     </choose>
   </macro>
   <macro name="description-note">
@@ -738,7 +750,12 @@
   <macro name="issue-note-join-with-space">
     <choose>
       <if type="article-journal legal_case" variable="publisher-place publisher" match="any">
-        <text macro="issue-note"/>
+	<!--Chicago doesn't use publisher/place for Newspapers and we want the date delimited by a comma-->
+	<choose>
+	  <if type="article-newspaper" match="none">		
+	    <text macro="issue-note"/>
+	  </if>
+	</choose>
       </if>
     </choose>
   </macro>
@@ -747,6 +764,9 @@
       <if type="article-journal legal_case" variable="publisher-place publisher" match="none">
         <text macro="issue-note"/>
       </if>
+      <else-if type="article-newspaper">
+	<text macro="issue-note"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="issue-note">
@@ -754,6 +774,9 @@
       <if type="article-journal legal_case" match="any">
         <text macro="issued" prefix="(" suffix=")"/>
       </if>
+      <else-if type="article-newspaper">
+	<text macro="issued"/>
+      </else-if>
       <else-if variable="publisher-place publisher" match="any">
         <group prefix="(" suffix=")" delimiter=", ">
           <group delimiter=" ">
@@ -809,19 +832,23 @@
         <text macro="issued" prefix=" (" suffix=")"/>
       </if>
       <else-if type="speech">
-        <group delimiter=", ">
-          <group delimiter=" ">
-            <choose>
-              <if variable="title" match="none"/>
-              <else>
-                <text variable="genre" text-case="capitalize-first"/>
-              </else>
-            </choose>
-            <text macro="event"/>
-          </group>
-          <text variable="event-place"/>
-          <text macro="issued"/>
-        </group>
+	<group delimiter=", ">
+	  <group delimiter=" ">
+	    <choose>
+	      <if variable="title" match="none"/>
+	      <else>
+		<text variable="genre" text-case="capitalize-first"/>
+	      </else>
+	    </choose>
+	    <text macro="event"/>
+	  </group>
+	  <text variable="event-place"/>
+	  <text macro="issued"/>
+	</group>
+      </else-if>
+      <!--Chicago doesn't use publisher/place for Newspapers -->
+      <else-if type="article-newspaper">
+	<text macro="issued"/>
       </else-if>
       <else-if variable="publisher-place publisher" match="any">
         <group delimiter=", ">
@@ -943,6 +970,8 @@
             <group delimiter=" ">
               <group delimiter=", ">
                 <text macro="title-short"/>
+		<!--if title & author are the same: -->
+		<text macro="date-disambiguate"/>
                 <text macro="case-locator-subsequent"/>
               </group>
               <text macro="case-issue-subsequent"/>
