@@ -39,7 +39,7 @@ Independents.each_pair do |id, (filename, path, style)|
         style.id.should == style.self_link
       end
 
-      it "has and info/rights element" do
+      it "has an info/rights element" do
         style.info.should have_rights
       end
 
