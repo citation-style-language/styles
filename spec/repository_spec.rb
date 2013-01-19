@@ -16,4 +16,7 @@ describe "The CSL Style Repository" do
     ISSN.select { |_, styles| styles.length > 1 }.should == {}
   end
 
+  it "contains no duplicate style titles" do
+    TITLES.select { |_, styles| styles.length > 1 }.should == {}
+  end
 end

@@ -39,13 +39,12 @@ Independents.each_pair do |id, (filename, path, style)|
         style.id.should == style.self_link
       end
 
-      it "has and info/rights element" do
+      it "has an info/rights element" do
         style.info.should have_rights
       end
 
       it "is licensed under a CC BY-SA license" do
-        style.info.rights.to_s.strip.should ==
-          'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
+        (style.info.rights.text == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
       end
 
       it "its template-link (if present) points to an existing independent style" do
