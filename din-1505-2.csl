@@ -31,7 +31,6 @@
             * "contributor" is not valid as a name variable , nevertheless it works but doesnt validate!
             * Name of Volumes seems not to exist (type book) ("Sachtitel des (Teil.-)Bandes")
             * author etc. first names should not be abbreviated
-            * scale of maps seems not to be available as variable
             * reviewed author seems to be not available as variable (newspaper article)
             * thesis type does notoffer a PLACE or FACULTY as variable!
             how to show the place if it is not included in the University title!?!?
@@ -41,6 +40,8 @@
       non breaking space: &#160;
       narrow no break space: uni202F / &#8239; - but this is not supported widely!
       em dash: &#8212;
+      space:  &#032;
+      tab: &#009;
 
     -->
     <updated>2012-09-27T22:06:38+00:00</updated>
@@ -119,6 +120,7 @@
         <date-part name="month" form="numeric-leading-zeros" suffix="-"/>
         <date-part name="day" form="numeric-leading-zeros"/>
       </date>
+      <!--<date variable="accessed" form="numeric" date-parts="year-month-day"/> // dd.mm.yyy -->
     </group>
   </macro>
   <macro name="title">
@@ -133,7 +135,7 @@
   </macro>
   <macro name="genre">
     <choose>
-      <if type="report thesis" match="any">
+      <if type="report thesis map" match="any">
         <group>
           <text variable="genre"/>
           <!--<text term="number" form="short" suffix=" "/>-->
@@ -169,13 +171,12 @@
       </if>
     </choose>
   </macro>
-  <!--     "scale" seem to be not accessible...
-    <macro name="scale">
-        <group>
-            <text term="scale"/>
-            <text variable="scale"/>
-        </group>
-    </macro>-->
+  <macro name="scale">
+    <group>
+      <text term="scale"/>
+      <text prefix=" " variable="scale"/>
+    </group>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="false" collapse="year">
     <sort>
       <key macro="author"/>
@@ -203,7 +204,7 @@
       <group delimiter=" ; " suffix=":">
         <text macro="author"/>
         <choose>
-          <if type="bill book graphic legal_case legislation manuscript map map motion_picture report song thesis webpage" match="any">
+          <if type="bill book graphic legal_case legislation manuscript map motion_picture report song thesis webpage" match="any">
             <!-- except type="chapter article " etc.... -->
             <text macro="editor"/>
             <text macro="editor-collection"/>
@@ -214,7 +215,7 @@
       </group>
       <choose>
         <!-- Tabelle 1 aus litverz.ps -->
-        <if type="bill book graphic legal_case legislation map map motion_picture report song" match="any">
+        <if type="bill book graphic legal_case legislation map motion_picture report song" match="any">
           <text prefix=" " macro="title" suffix=""/>
           <text prefix=", " variable="collection-title" font-style="italic"/>
           <!--Reihe-->
@@ -222,14 +223,12 @@
           <text prefix=". " macro="volumes"/>
           <text prefix=". " macro="edition"/>
           <text prefix=". " variable="publisher-place"/>
-          <text prefix=" : " variable="publisher"/>
-          <date prefix=", " variable="issued">
-            <date-part name="year"/>
-          </date>
+          <text prefix="&#160;: " variable="publisher"/>
+          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
           <!-- " (1. Gesamttitel mit Zählung)"
                     " (2. Gesamttitel mit Zählung)" -->
-          <!--             <text prefix=" &#8211;&#160;" macro="scale"/> -->
-          <text prefix=".  &#8212;&#160;" variable="note"/>
+          <text prefix=" &#8211;&#160;" macro="scale"/>
+          <text prefix=". &#8212;&#160;" variable="note"/>
           <text prefix=" &#8212;&#160;ISBN&#160;" variable="ISBN"/>
         </if>
         <!-- Tabelle 3 aus litverz.ps -->
@@ -246,16 +245,14 @@
           <text prefix=", " variable="collection-title" font-style="italic"/>
           <!-- Reihe -->
           <text prefix=". " macro="volumes"/>
-          <!-- <text prefix=" : " variable="title of volumes"/>  what is this?  -->
+          <!-- <text prefix=" : " variable="title of volumes"/> what is this? -->
           <text prefix=". " macro="edition"/>
           <text prefix=". " variable="publisher-place"/>
-          <text prefix=" : " variable="publisher"/>
-          <date prefix=", " variable="issued">
-            <date-part name="year"/>
-          </date>
+          <text prefix="&#160;: " variable="publisher"/>
+          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
           <!-- " (1. Gesamttitel mit Zählung)"
-               " (2. Gesamttitel mit Zählung)"    -->
-          <text prefix=".  &#8212;&#160;" variable="note"/>
+               " (2. Gesamttitel mit Zählung)" -->
+          <text prefix=". &#8212;&#160;" variable="note"/>
           <text prefix=" &#8212;&#160;ISBN&#160;" variable="ISBN"/>
           <text prefix=", " macro="pages"/>
         </else-if>
@@ -268,42 +265,37 @@
           <text prefix=", " variable="publisher" form="long"/>
           <!-- <text prefix=", " variable="faculty"/> -->
           <text prefix=", " macro="genre"/>
-          <date prefix=", " variable="issued">
-            <date-part name="year"/>
-          </date>
-          <text prefix=".  &#8212;&#160;" variable="note"/>
+          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
+          <text prefix=". &#8212;&#160;" variable="note"/>
         </else-if>
         <else-if type="webpage">
           <text prefix=" " macro="title" suffix=". " font-style="italic"/>
           <text prefix="URL " variable="URL"/>
           <text prefix=". - " macro="access"/>
           <text prefix=". &#8212;&#160;" variable="container-title"/>
-          <text prefix=".  &#8212;&#160;" variable="note"/>
+          <text prefix=". &#8212;&#160;" variable="note"/>
         </else-if>
-        <!-- Tabelle 2 aus litverz.ps  UND -->
+        <!-- Tabelle 2 aus litverz.ps UND -->
         <!-- Tabelle 4 aus litverz.ps - Schriften von Tagungen, Konferenzen, Symposien, ...-->
         <else-if type="article article-journal article-magazine article-newspaper" match="any">
           <text prefix=" " variable="title"/>
           <!-- " : Zusatz zum Sachtitel"
                ". Angabe des Teils"
-               " (Gesamttitelangabe)"  -->
+               " (Gesamttitelangabe)" -->
           <group>
             <text prefix=". " term="in" text-case="capitalize-first" suffix=": "/>
             <text macro="editor" suffix=" "/>
             <text variable="container-title" font-style="italic"/>
             <text prefix=", " variable="collection-title" font-style="italic" suffix="."/>
-            <!--", unterreihe der zeitschrift/zeitung"  -->
+            <!--", unterreihe der zeitschrift/zeitung" -->
           </group>
           <text prefix=" " macro="volumes"/>
           <text prefix=". " variable="publisher-place"/>
           <text prefix=", " variable="publisher" form="long"/>
-          <date prefix=" (" variable="issued" suffix=")">
-            <date-part name="year"/>
-          </date>
+          <date prefix=" (" suffix=")" variable="issued" form="numeric" date-parts="year"/>
           <text prefix=", Nr.&#160;" variable="issue"/>
           <text prefix=", " macro="pages"/>
-          <!--<text prefix=".  &#8212;&#160;" macro="scale"/>-->
-          <text prefix=".  &#8212;&#160;" variable="note"/>
+          <text prefix=". &#8212;&#160;" variable="note"/>
           <text prefix=" &#8212;&#160;ISBN&#160;" variable="ISBN"/>
         </else-if>
         <!-- keiner der oben genannten fälle -->
