@@ -20,12 +20,13 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The author-date variant of the Chicago style</summary>
-    <updated>2012-10-26T01:15:26+00:00</updated>
+    <updated>2012-12-06T03:10:19+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
     <terms>
       <term name="editor" form="verb-short">ed.</term>
+      <term name="container-author" form="verb">by</term>
       <term name="translator" form="verb-short">trans.</term>
     </terms>
   </locale>
@@ -59,21 +60,11 @@
         <group prefix=", " delimiter=", ">
           <choose>
             <if variable="author">
-              <names variable="editor">
+              <names variable="container-author editor" delimiter=", ">
                 <label form="verb" suffix=" " plural="never"/>
                 <name and="text" delimiter=", "/>
               </names>
-              <choose>
-                <if variable="container-author">
-                  <group>
-                    <names variable="container-author">
-                      <label form="verb" suffix=" " strip-periods="true"/>
-                      <name and="text" delimiter=", "/>
-                    </names>
-                  </group>
-                </if>
-              </choose>
-            </if>
+	    </if>
           </choose>
           <choose>
             <if variable="author editor" match="any">
@@ -177,6 +168,12 @@
             </if>
           </choose>
         </if>
+	<else-if type="webpage">
+	  <date variable="issued" delimiter=" ">
+	    <date-part name="month"/>
+	    <date-part name="day"/>
+	  </date>
+	</else-if>
       </choose>
       <choose>
         <if type="legal_case" match="none">
@@ -204,19 +201,32 @@
   </macro>
   <macro name="edition">
     <choose>
-      <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <choose>
           <if is-numeric="edition">
-            <group delimiter=" ">
+            <group delimiter=" " prefix=". "> 
               <number variable="edition" form="ordinal"/>
-              <text term="edition" form="short" suffix="." strip-periods="true"/>
+              <text term="edition" form="short" />
             </group>
           </if>
           <else>
-            <text variable="edition" suffix="."/>
+            <text variable="edition" prefix=". "/>
           </else>
         </choose>
       </if>
+      <else-if type="chapter  paper-conference" match="any">
+	<choose>
+          <if is-numeric="edition">
+            <group delimiter=" " prefix=", "> 
+              <number variable="edition" form="ordinal"/>
+              <text term="edition" form="short" />
+            </group>
+          </if>
+          <else>
+            <text variable="edition" prefix=", "/>
+          </else>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="locators">
@@ -387,7 +397,14 @@
       <if variable="title" match="none"/>
       <else-if type="thesis"/>
       <else>
-        <text variable="genre" text-case="capitalize-first" prefix=". "/>
+	<group delimiter=" ">
+	  <text variable="genre" text-case="capitalize-first" prefix=". "/>
+	  <choose>
+	    <if type="report">
+	      <text variable="number"/>
+	    </if>
+	  </choose>
+	</group>
       </else>
     </choose>
     <!--This is for computer programs only. Localization new to 1.0.1, so may be missing in many locales-->
@@ -452,8 +469,8 @@
       <text macro="secondary-contributors" prefix=". "/>
       <text macro="container-title" prefix=". "/>
       <text macro="container-contributors"/>
+      <text macro="edition"/>
       <text macro="locators-chapter"/>
-      <text macro="edition" prefix=". "/>
       <text macro="locators"/>
       <text macro="collection-title" prefix=". "/>
       <text macro="issue"/>
