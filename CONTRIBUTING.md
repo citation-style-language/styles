@@ -71,7 +71,7 @@ Windows](http://windows.github.com/), or
 
 Visit http://gist.github.com and paste the style code into the text box. Give
 the style a name ("name this file...") and click the "Create Public Gist"
-button. Copy the URL of the gist (e.g. https://gist.github.com/1320111) and
+button. Copy the URL of the gist (e.g. https://gist.github.com/rmzelle/1320111) and
 include it in your message to us. You can either start a new discussion in the
 [Citation Styles](http://forums.zotero.org/11/) section of the Zotero forums, or
 [create a new GitHub
