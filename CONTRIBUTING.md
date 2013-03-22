@@ -31,8 +31,8 @@ If you wish to **add** a new style:
 button (with a "Fork this project and create a new file" tooltip, see [Creating
 files on GitHub](https://github.com/blog/1327-creating-files-on-github)). If you
 wish to submit a dependent style, first navigate to the "dependent" directory.
-3. Name your new style (use the file name, e.g. "journal-of-results.csl") and paste
-the style code into the code editor window.
+3. Name your new style. Use the file name including the ".csl" extension, e.g. "journal-of-results.csl".
+4. Paste the style code into the code editor window.
 4. Click the "Propose New File" button.
 5. In the next window, describe the changes you've made. When
 finished, click the "Send pull request" button.
