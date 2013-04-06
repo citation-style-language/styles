@@ -12,12 +12,22 @@ ISSN_FILTER = %w{
   0036-8075 1095-9203 1359-4184 1476-5578 1097-6256 1546-1726
 }
 
-# These titles are ignored when checking for duplicate Titles
+# These titles are ignored when checking for duplicate titles
 TITLES_FILTER = [
   # 'example title 1',
   # 'example title 2'
 ]
 
+# These files are ignored when checking for extra files
+EXTRA_FILES_FILTER = [
+  'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
+  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/
+]
+
+EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
+  name = File.basename(file)  
+  File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name }
+end
 
 def load_style(path)
   filename = File.basename(path)
