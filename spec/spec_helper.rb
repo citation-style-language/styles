@@ -21,7 +21,7 @@ TITLES_FILTER = [
 # These files are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
-  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/
+  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/, 'renamed-styles.json'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
