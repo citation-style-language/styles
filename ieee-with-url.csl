@@ -34,6 +34,8 @@
   <locale xml:lang="en">
     <terms>
       <term name="chapter" form="short">ch.</term>
+      <term name="presented at">presented at the</term>
+      <term name="available at">available</term>
     </terms>
   </locale>
   <!-- Macros -->
@@ -122,8 +124,10 @@
   <macro name="publisher">
     <choose>
       <if type=" bill book chapter graphic legal_case legislation motion_picture paper-conference song" match="any">
-        <text variable="publisher-place" suffix=": "/>
-        <text variable="publisher"/>
+        <group delimiter=": ">
+          <text variable="publisher-place"/>
+          <text variable="publisher"/>
+        </group>
       </if>
       <else>
         <group delimiter=", ">
@@ -135,19 +139,25 @@
   </macro>
   <macro name="event">
     <choose>
-      <if type="paper-conference">
+      <if type="paper-conference speech" match="any">
         <choose>
           <!-- Published Conference Paper -->
           <if variable="container-title">
             <group delimiter=", ">
-              <text variable="container-title" prefix="in " font-style="italic"/>
+              <group delimiter=" ">
+                <text term="in"/>
+                <text variable="container-title" font-style="italic"/>
+              </group>
               <text variable="event-place"/>
             </group>
           </if>
           <!-- Unpublished Conference Paper -->
           <else>
             <group delimiter=", ">
-              <text variable="event" prefix="presented at the "/>
+              <group delimiter=" ">
+                <text term="presented at"/>
+                <text variable="event"/>
+              </group>
               <text variable="event-place"/>
             </group>
           </else>
@@ -159,13 +169,17 @@
     <choose>
       <if variable="URL">
         <group delimiter=". ">
-          <text variable="URL" prefix="Available: "/>
-          <group prefix="[" suffix="]">
-            <date variable="accessed" prefix="Accessed: ">
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <text variable="URL"/>
+          </group>
+          <group prefix="[" suffix="]" delimiter=": ">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed">
               <date-part name="day" form="numeric-leading-zeros" suffix="-"/>
               <date-part name="month" form="short" suffix="-" strip-periods="true"/>
               <date-part name="year" form="long"/>
-            </date>
+            </date>         
           </group>
         </group>
       </if>
@@ -287,7 +301,10 @@
           <else-if type="chapter paper-conference" match="any">
             <group delimiter=", " suffix=", ">
               <text macro="title"/>
-              <text variable="container-title" prefix="in " font-style="italic"/>
+              <group delimiter=" ">
+                <text term="in"/>
+                <text variable="container-title" prefix="in " font-style="italic"/>
+              </group>
               <text macro="locators"/>
             </group>
             <text macro="editor" suffix=" "/>
