@@ -15,7 +15,7 @@
     </author>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <summary>Style based on ISO 690:2010(E), V1</summary>
+    <summary>Style based on ČSN ISO 690:2011</summary>
     <updated>2012-09-27T22:06:38+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
@@ -44,6 +44,15 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
+      <name and="text" name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="never">
+        <name-part name="given"/>
+        <name-part name="family" text-case="uppercase"/>
+      </name>
+      <label prefix=", " form="short" suffix="."/>
+    </names>
+  </macro>
+  <macro name="editor2">
+    <names variable="editor">
       <name and="text" delimiter=", " delimiter-precedes-last="never">
         <name-part name="given"/>
         <name-part name="family" text-case="uppercase"/>
@@ -58,6 +67,14 @@
         <name-part name="given"/>
       </name>
       <label prefix=" (" form="short" suffix=".)"/>
+    </names>
+  </macro>
+  <macro name="translator2">
+    <names variable="translator">
+      <name and="text" delimiter=", " delimiter-precedes-last="never">
+        <name-part name="family" text-case="uppercase"/>
+        <name-part name="given"/>
+      </name>
     </names>
   </macro>
   <macro name="responsability">
@@ -112,7 +129,7 @@
             <text macro="container-author"/>
           </if>
           <else-if variable="editor">
-            <text macro="editor"/>
+            <text macro="editor2"/>
           </else-if>
           <else>
             <text macro="translator"/>
@@ -156,6 +173,11 @@
         </choose>
         <choose>
           <if variable="container-title">
+            <choose>
+              <if variable="event">
+                <text variable="event" font-style="italic" suffix=": "/>
+              </if>
+            </choose>
             <text variable="container-title" font-style="italic"/>
           </if>
           <else>
@@ -163,8 +185,19 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="article-journal article-magazine article-newspaper webpage">
+      <else-if type="article-journal article-magazine article-newspaper" match="any">
         <text variable="title" suffix=". "/>
+        <text variable="container-title" font-style="italic"/>
+      </else-if>
+      <else-if type="webpage">
+        <choose>
+          <if variable="container-title">
+            <text variable="title" suffix=". "/>
+          </if>
+          <else>
+            <text variable="title" suffix=" "/>
+          </else>
+        </choose>
         <text variable="container-title" font-style="italic"/>
       </else-if>
       <else-if type="report">
@@ -357,18 +390,25 @@
   <macro name="note">
     <text variable="note"/>
   </macro>
-  <citation disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" year-suffix-delimiter=", " after-collapse-delimiter="; " et-al-min="3" et-al-use-first="1">
+  <citation disambiguate-add-year-suffix="true" disambiguate-add-names="true" collapse="year" year-suffix-delimiter=", " after-collapse-delimiter="; " et-al-min="3" et-al-use-first="1">
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
+      <group delimiter=" ">
         <group delimiter=" ">
-          <text macro="author-citation" suffix=", "/>
-          <text macro="year-date"/>
+          <text macro="author-citation" suffix=" "/>
+          <choose>
+            <if variable="locator">
+              <text macro="year-date" suffix=","/>
+            </if>
+            <else>
+              <text macro="year-date"/>
+            </else>
+          </choose>
         </group>
-        <text variable="locator" prefix=" s. "/>
+        <text variable="locator" prefix="s. "/>
       </group>
     </layout>
   </citation>
-  <bibliography>
+  <bibliography entry-spacing="1" line-spacing="1">
     <sort>
       <key macro="responsability"/>
       <key macro="year-date"/>
@@ -377,22 +417,34 @@
     <layout>
       <choose>
         <if type="book map" match="any">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
             <text macro="genre" suffix=". "/>
             <text macro="edition" suffix=". "/>
+            <choose>
+              <if variable="author translator" match="any">
+                <text macro="translator2" prefix="Přel. " suffix=". "/>
+              </if>
+            </choose>
             <text macro="publisher-place" suffix=": "/>
-            <text macro="publisher"/>
-            <text macro="accessed"/>
-            <text macro="collection" prefix=". "/>
-            <text macro="isbn" prefix=". " suffix=". "/>
+            <choose>
+              <if variable="accessed">
+                <text macro="publisher" suffix=" "/>
+              </if>
+              <else>
+                <text macro="publisher" suffix=". "/>
+              </else>
+            </choose>
+            <text macro="accessed" suffix=". "/>
+            <text macro="collection" suffix=". "/>
+            <text macro="isbn" suffix=". "/>
             <text macro="url"/>
           </group>
         </if>
-        <else-if type="post post-weblog">
-          <group display="block">
+        <else-if type="post post-weblog" match="any">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -405,21 +457,27 @@
           </group>
         </else-if>
         <else-if type="article-journal">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
-            <text macro="title" suffix=", "/>
+            <text macro="title" suffix=". "/>
             <text macro="medium" prefix=" [" suffix="]. "/>
             <text macro="edition" suffix=". "/>
-            <text macro="issue" suffix=". "/>
+            <choose>
+              <if variable="accessed">
+                <text macro="issue" suffix=" "/>
+              </if>
+              <else>
+                <text macro="issue" suffix=". "/>
+              </else>
+            </choose>
             <text macro="accessed" suffix=". "/>
             <text macro="issn" suffix=". "/>
-            <!--text macro="doi" suffix=". "/-->
             <text macro="url"/>
           </group>
         </else-if>
         <else-if type="article-newspaper">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -433,10 +491,10 @@
           </group>
         </else-if>
         <else-if type="chapter entry entry-dictionary entry-encyclopedia" match="any">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
-            <text macro="title" font-style="normal" suffix=". "/>
+            <text macro="title" suffix=". "/>
             <text macro="edition" suffix=". "/>
             <text macro="publisher-place" suffix=": "/>
             <text macro="publisher" suffix=". "/>
@@ -448,7 +506,7 @@
           </group>
         </else-if>
         <else-if type="speech">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -461,7 +519,7 @@
           </group>
         </else-if>
         <else-if type="paper-conference">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -471,27 +529,41 @@
             <text macro="page"/>
             <text macro="accessed"/>
             <text macro="collection" prefix=". "/>
-            <text macro="isbn" prefix=". " suffix="."/>
-            <text macro="url" prefix=" "/>
+            <choose>
+              <if variable="URL DOI" match="any">
+                <text macro="isbn" prefix=". "/>
+              </if>
+              <else>
+                <text macro="isbn" prefix=". " suffix="."/>
+              </else>
+            </choose>
+            <text macro="url" prefix=". "/>
           </group>
         </else-if>
         <else-if type="thesis">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
-            <text macro="publisher-place" suffix=", "/>
+            <choose>
+              <if variable="accessed">
+                <text macro="publisher-place" suffix=" "/>
+              </if>
+              <else>
+                <text macro="publisher-place" suffix=". "/>
+              </else>
+            </choose>
             <text macro="accessed" suffix=". "/>
             <text macro="genre" suffix=". "/>
             <text macro="publisher" suffix=". "/>
             <text macro="url"/>
           </group>
         </else-if>
-        <else-if type="webpage" match="any">
-          <group display="block">
+        <else-if type="webpage">
+          <group>
             <text macro="responsability" suffix=". "/>
+            <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
-            <text macro="year-date" suffix=" "/>
             <text macro="accessed" suffix=". "/>
             <text macro="url"/>
           </group>
@@ -507,7 +579,7 @@
           </group>
         </else-if>
         <else-if type="song" match="any">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -522,7 +594,7 @@
           </group>
         </else-if>
         <else-if type="broadcast" match="any">
-          <group display="block">
+          <group>
             <text variable="container-title" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="number" suffix=". "/>
@@ -532,7 +604,7 @@
           </group>
         </else-if>
         <else-if type="report">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -546,7 +618,7 @@
           </group>
         </else-if>
         <else-if type="manuscript">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -559,7 +631,7 @@
           </group>
         </else-if>
         <else-if type="patent">
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>
@@ -571,8 +643,19 @@
             <text macro="url"/>
           </group>
         </else-if>
+        <else-if type="personal_communication">
+          <group>
+            <text macro="responsability" suffix=". "/>
+            <text macro="year-date" suffix=". "/>
+            <text macro="title" suffix=". "/>
+            <text macro="accessed" suffix=". "/>
+            <text macro="date" suffix=". "/>
+            <text macro="url" suffix=". "/>
+            <text value="Osobní komunikace."/>
+          </group>
+        </else-if>
         <else>
-          <group display="block">
+          <group>
             <text macro="responsability" suffix=". "/>
             <text macro="year-date" suffix=". "/>
             <text macro="title" suffix=". "/>

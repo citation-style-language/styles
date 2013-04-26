@@ -15,31 +15,49 @@
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <category field="biology"/>
-    <updated>2012-09-09T21:58:08+00:00</updated>
+    <updated>2013-01-12T23:55:23+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="collection-editor" form="long">
+        <single>Series editor</single>
+        <multiple>Series editors</multiple>
+      </term>
+    </terms>
+  </locale>
   <macro name="author">
     <names variable="author" suffix=": ">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <label form="short" prefix=" (" suffix=")" text-case="capitalize-first" strip-periods="true"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
     </names>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix="">
-      <label form="verb" suffix=" "/>
+    <names variable="editor" suffix=".">
+      <label form="verb" suffix=" " text-case="capitalize-first"/>
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
     </names>
   </macro>
   <macro name="publisher">
-    <text variable="publisher-place" suffix=": "/>
-    <text variable="publisher" suffix="; "/>
+    <group delimiter=": ">
+      <choose>
+        <if type="thesis" match="none">
+          <text variable="publisher-place"/>
+        </if>
+      </choose>
+      <text variable="publisher"/>
+    </group>
   </macro>
   <macro name="container-title">
-    <text variable="container-title" font-weight="normal" font-style="italic" vertical-align="baseline" form="short"/>
+    <text variable="container-title" font-style="italic" form="short" strip-periods="true"/>
   </macro>
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" font-weight="normal" font-style="italic" suffix=""/>
+        <text variable="title" font-style="italic" suffix="" text-case="title"/>
       </if>
       <else>
         <text variable="title" suffix="" font-weight="bold"/>
@@ -47,7 +65,21 @@
     </choose>
   </macro>
   <macro name="volume">
-    <text variable="volume" font-weight="bold" font-style="normal"/>
+    <choose>
+      <if type="article-journal article-magazine" match="any">
+        <text variable="volume" font-weight="bold"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="volume-book">
+    <choose>
+      <if type="article-journal article-magazine" match="none">
+        <group delimiter=" " font-style="italic">
+          <text term="volume" text-case="capitalize-first"/>
+          <text variable="volume"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="edition">
     <choose>
@@ -85,16 +117,25 @@
             <text macro="author"/>
             <text macro="title" suffix=". "/>
             <choose>
-              <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-                <text macro="edition" prefix=" " suffix=" "/>
-                <text macro="publisher" prefix=" "/>
+              <if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+                <group delimiter=". " prefix=" " suffix="; ">
+                  <text macro="edition"/>
+                  <text macro="volume-book"/>
+                  <text variable="genre" font-style="italic"/>
+                  <text macro="publisher"/>
+                </group>
               </if>
               <else-if type="chapter paper-conference" match="any">
-                <text term="in" text-case="capitalize-first" suffix=" "/>
-                <text macro="container-title" suffix=". "/>
-                <text macro="edition" suffix=". "/>
-                <text macro="editor"/>
-                <text macro="publisher" prefix=" "/>
+                <group delimiter=". " suffix="; ">
+                  <group delimiter=" ">
+                    <text term="in" text-case="capitalize-first"/>
+                    <text macro="container-title"/>
+                  </group>
+                  <text macro="volume-book"/>
+                  <text macro="edition"/>
+                  <text macro="editor"/>
+                  <text macro="publisher"/>
+                </group>
               </else-if>
               <else>
                 <text macro="container-title" suffix=" "/>
@@ -104,17 +145,14 @@
               <date-part name="year"/>
             </date>
             <text macro="volume" prefix=", "/>
-            <!-- This was to deal with supplemental issues, but is-numeric evaluates to true if there is a number in there at all, so for right now, this is commented out RMF Dec 4, 2008 -->
-            <!--
-		<choose>
-		<if is-numeric="issue">
-
-</if>
-<else>
-<text variable="issue" prefix="(" suffix=")"/>
-</else>
-</choose>
-	    -->
+            <!-- This will hopefully deal with supplements at least reasonably well -->
+            <choose>
+              <if is-numeric="issue">
+	      </if>
+              <else>
+                <text variable="issue" prefix="(" suffix=")"/>
+              </else>
+            </choose>
             <text variable="page" prefix=":"/>
           </group>
           <group prefix=" [" suffix="]" delimiter=": ">
@@ -123,7 +161,7 @@
               <label prefix=" (" suffix=")" form="long"/>
             </names>
             <group delimiter=", ">
-              <text variable="collection-title" font-style="italic"/>
+              <text variable="collection-title" font-style="italic" text-case="title"/>
               <choose>
                 <if is-numeric="collection-number">
                   <text variable="collection-number" prefix="vol. "/>
