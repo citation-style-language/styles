@@ -67,14 +67,14 @@ end
 print "\nLoading dependent styles"
 
 Dependents = Hash[Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].each_with_index.map { |path, i|
-  print '.' if i % 100 == 0
+  print '.' if i % 500 == 0
   load_style(path)
 }]
 
 print "\nLoading independent styles"
 
 Independents = Hash[Dir[File.join(STYLE_ROOT, '*.csl')].each_with_index.map { |path, i|
-  print '.'  if i % 100 == 0
+  print '.'  if i % 500 == 0
   load_style(path)
 }]
 
