@@ -18,16 +18,26 @@ TITLES_FILTER = [
   # 'example title 2'
 ]
 
+# These styles are ignored when checking for valid citation-formats
+CITATION_FORMAT_FILTER = %w{
+  all bibtex blank national-archives-of-australia
+}
+
 # These files are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
-  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/, 'renamed-styles.json'
+  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/,
+  'renamed-styles.json'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
-  name = File.basename(file)  
+  name = File.basename(file)
   File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name }
 end
+
+CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
+CSL::Schema.default_rights_string =
+  'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
 
 def load_style(path)
   filename = File.basename(path)
@@ -53,7 +63,7 @@ def load_style(path)
     end
 
     if style.has_title?
-    	title = style.title.to_s.downcase
+      title = style.title.to_s.downcase
       TITLES[title] << id unless TITLES_FILTER.include?(title)
     end
   rescue

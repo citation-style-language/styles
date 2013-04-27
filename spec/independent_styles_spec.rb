@@ -1,7 +1,7 @@
 Independents.each_pair do |id, (filename, path, style)|
 
   describe "independent style #{id}" do
-    
+
     it "is a valid CSL 1.0 style" do
       CSL.validate(path).should == []
     end
@@ -44,7 +44,7 @@ Independents.each_pair do |id, (filename, path, style)|
       end
 
       it "is licensed under a CC BY-SA license" do
-        (style.info.rights.text == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
+        style.should be_default_license
       end
 
       it "its template-link (if present) points to an existing independent style" do
@@ -56,7 +56,7 @@ Independents.each_pair do |id, (filename, path, style)|
         end
       end
 
-      unless %w{ all bibtex blank national-archives-of-australia }.include?(id)
+      unless CITATION_FORMAT_FILTER.include?(id)
         it "has at least one info/category" do
           style.info.should have_categories
         end
@@ -68,6 +68,18 @@ Independents.each_pair do |id, (filename, path, style)|
         it "its citation-format is valid" do
           style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
         end
+
+        it "has a valid class attribute" do
+          style[:class].to_s.should match(/^(note|in-text)$/)
+        end
+
+        it "its class attribute corresponds to the citation-format" do
+          if style.citation_format == :note
+            style[:class].should == 'note'
+          else
+            style[:class].should == 'in-text'
+          end
+        end
       end
 
       it "defines all macros that are referenced by text or key nodes" do
@@ -76,7 +88,7 @@ Independents.each_pair do |id, (filename, path, style)|
             style.macros.should have_key(node[:macro])
           end
         end
-      end      
+      end
     end
 
   end
