@@ -96,16 +96,55 @@ def load_style(path)
 end
 
 
+# Collect styles to include in this test run.
+#
+# By default, all *.csl files will be included. If the environment
+# variable CSL_TEST is set, only the style files matching the content
+# of the variable will be tested; this can be a space separated list
+# of files including regular expressions; if CSL_TEST is set to the
+# special value `git' only those styles which have been modified since
+# the last commit will be tested.
+#
+# Note that this requires the `git` executable to be available. Also
+# note that this will not catch new files which have not yet been
+# committed, but only modified files.
+#
+# Examples:
+#
+# $ CSL_TEST=git bundle exec rspec spec --format doc
+# -> only includes changed styles and using documentation format
+#
+# $ CSL_TEST="apa.csl vancouver.csl" bundle exec rspec spec
+# -> only run test for apa.csl and vancouver.csl
+#
+# $ CSL_TEST="chicago.*" bundle exec rspec spec
+# -> run tests for all styles starting with 'chicago'
+
+STYLE_FILTER = case ENV['CSL_TEST']
+  when nil
+    /./
+  when 'git'
+    Regexp.new("/(#{`git diff --name-only`.split(/\s+/).join('|')})$")
+  else
+    Regexp.new("/(#{ENV['CSL_TEST'].split(/\s+/).join('|')})$")  
+  end
+
+def collect_styles(type = '')
+  Dir[File.join(STYLE_ROOT, type, '*.csl')].select do |filename|
+    filename =~ STYLE_FILTER
+  end
+end
+
 print "\nLoading dependent styles"
 
-Dependents = Hash[Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].each_with_index.map { |path, i|
+Dependents = Hash[collect_styles('dependent').each_with_index.map { |path, i|
   print '.' if i % 120 == 0
   load_style(path)
 }]
 
 print "\nLoading independent styles"
 
-Independents = Hash[Dir[File.join(STYLE_ROOT, '*.csl')].each_with_index.map { |path, i|
+Independents = Hash[collect_styles.each_with_index.map { |path, i|
   print '.'  if i % 120 == 0
   load_style(path)
 }]
