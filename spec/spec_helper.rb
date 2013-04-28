@@ -20,7 +20,7 @@ TITLES_FILTER = [
 
 # These styles are ignored when checking for valid citation-formats
 CITATION_FORMAT_FILTER = %w{
-  all bibtex blank national-archives-of-australia
+  bibtex blank national-archives-of-australia
 }
 
 # These files are ignored when checking for extra files
@@ -77,14 +77,14 @@ end
 print "\nLoading dependent styles"
 
 Dependents = Hash[Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].each_with_index.map { |path, i|
-  print '.' if i % 100 == 0
+  print '.' if i % 120 == 0
   load_style(path)
 }]
 
 print "\nLoading independent styles"
 
 Independents = Hash[Dir[File.join(STYLE_ROOT, '*.csl')].each_with_index.map { |path, i|
-  print '.'  if i % 100 == 0
+  print '.'  if i % 120 == 0
   load_style(path)
 }]
 
