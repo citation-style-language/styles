@@ -35,9 +35,31 @@ EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
   File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name }
 end
 
+# Default license and rights text
 CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
 CSL::Schema.default_rights_string =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
+
+
+# RSpec Error Formatter For Minimal Output
+require 'rspec/core/formatters/base_text_formatter'
+class ErrorFormatter < RSpec::Core::Formatters::BaseTextFormatter
+
+  def example_pending(example)
+    super(example)
+    output.print pending_color('*')
+  end
+
+  def example_failed(example)
+    super(example)
+    output.print failure_color('F')
+  end
+
+  def start_dump
+    super()
+    output.puts
+  end
+end
 
 def load_style(path)
   filename = File.basename(path)
