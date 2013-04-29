@@ -94,6 +94,13 @@
       <!-- needed: Label should appear as suffix to EVERY name...!-->
     </names>
   </macro>
+  <macro name="recipient">
+    <names variable="recipient" delimiter=" ; ">
+      <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=" ; " delimiter-precedes-last="always" font-variant="small-caps"/>
+      <!--<label form="long" prefix=" (" suffix=")"/>-->
+      <!-- needed: Label should appear as suffix to EVERY name...!-->
+    </names>
+  </macro>
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="symbol" delimiter=", " initialize-with=". " delimiter-precedes-last="never" font-variant="small-caps"/>
@@ -171,11 +178,36 @@
       </if>
     </choose>
   </macro>
+  <macro name="dimensions">
+    <group>
+      <text variable="dimensions"/>
+    </group>
+  </macro>
+  <macro name="medium">
+    <group>
+      <text variable="medium"/>
+    </group>
+  </macro>
   <macro name="scale">
     <group>
       <text term="scale"/>
       <text prefix=" " variable="scale"/>
     </group>
+  </macro>
+  <macro name="recipient-show">
+    <choose>
+      <if type="personal_communication">
+        <choose>
+          <if variable="genre">
+            <text variable="genre" text-case="capitalize-first"/>
+          </if>
+          <else>
+            <text term="letter" text-case="capitalize-first"/>
+          </else>
+        </choose>
+      </if>
+    </choose>
+    <text macro="recipient" prefix=", "/>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="false" collapse="year">
     <sort>
@@ -215,18 +247,20 @@
       </group>
       <choose>
         <!-- Tabelle 1 aus litverz.ps -->
-        <if type="bill book graphic legal_case legislation map motion_picture report song" match="any">
+        <if type="bill book broadcast graphic legal_case legislation map motion_picture report song" match="any">
           <text prefix=" " macro="title" suffix=""/>
           <text prefix=", " variable="collection-title" font-style="italic"/>
           <!--Reihe-->
           <text prefix=" (" macro="genre" suffix=")"/>
           <text prefix=". " macro="volumes"/>
           <text prefix=". " macro="edition"/>
+          <text prefix=". " macro="medium"/>
+          <text prefix=". " macro="dimensions"/>
           <text prefix=". " variable="publisher-place"/>
           <text prefix="&#160;: " variable="publisher"/>
           <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
           <!-- " (1. Gesamttitel mit Zählung)"
-                    " (2. Gesamttitel mit Zählung)" -->
+          " (2. Gesamttitel mit Zählung)" -->
           <text prefix=" &#8211;&#160;" macro="scale"/>
           <text prefix=". &#8212;&#160;" variable="note"/>
           <text prefix=" &#8212;&#160;ISBN&#160;" variable="ISBN"/>
@@ -301,9 +335,9 @@
         <!-- keiner der oben genannten fälle -->
         <else>
           <group suffix=".">
-            <text macro="title" prefix=" "/>
-            <text macro="editor" prefix=" "/>
-            <text macro="translator" prefix=" "/>
+            <text prefix=" " macro="title"/>
+            <text prefix=", " macro="editor"/>
+            <text prefix=". " macro="recipient-show"/>
           </group>
           <group prefix=" " suffix=".">
             <text variable="container-title" font-style="italic"/>
