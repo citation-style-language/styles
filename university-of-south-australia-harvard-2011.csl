@@ -5,7 +5,7 @@ NOTES
 
 - This style is based on the May 2011 version of the style guide.
 
-- This style uses CSL1.0 and has been tested with Zotero 2.1.7
+- This style uses CSL1.0.1 and has been tested with Zotero 4.0.8
 
 - Originated from the http://www.zotero.org/styles/UniSA-Harvard3 style
 
@@ -13,13 +13,15 @@ NOTES
 
 KNOWN CHALLENGES
 
-- Thesis, electronicly accessed - does not insert Dept between Title and genre. This is a limitation of UniSA/Zotero. Non-electronic thesis does not req Dept. & Zotero has no variable avaliable to support it.
+- Thesis, electronically accessed - does not insert Dept between Title and genre. This is a limitation of UniSA/Zotero. Non-electronic thesis does not req Dept. & Zotero has no variable avaliable to support it.
 
 - Thesis on microfiche - title wrongly in quotation marks. Workaround by using the Report type.
 
 - Podcast - title wrongly in quotation marks. Workaround by using the Report type.
 
 - Blog post and Discussion forum post are treated as a web page in Zotero 2.1 (title wrongly in italics).
+
+- Edited book with no authors will not insert "ed." or "eds" in an in-text citation (can be added as Prefix manually though). 
 
 - MS Word 2003 - bibliography options entry-spacing and line-spacing may need to be adjusted to suit the Normal Word style. See forum http://forums.zotero.org/discussion/8901/
 
@@ -71,15 +73,32 @@ TO DO
     <style-options punctuation-in-quote="false"/>
   </locale>
   <macro name="editor">
+    <choose>
+      <if variable="editor container-title" match="all">
+        <text term="in" suffix=" " text-case="lowercase"/>
+      </if>
+    </choose>
     <names variable="editor" delimiter=", ">
-      <label form="short" suffix=" " strip-periods="true"/>
       <name and="symbol" initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+      <label form="short" prefix=" (" suffix=")"/>
     </names>
   </macro>
   <macro name="translator">
     <names variable="translator" delimiter=", ">
-      <label form="short" suffix=" " strip-periods="true"/>
+      <label form="short" suffix=" "/>
       <name and="symbol" initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+    </names>
+  </macro>
+  <macro name="noauthor_editor">
+    <!-- This macro is only called when author is empty and the trick with substitute automatically suppresses repeating elements -->
+    <names variable="author">
+      <name/>
+      <substitute>
+        <names variable="editor">
+          <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+          <label form="short" prefix=" (" suffix=")"/>
+        </names>
+      </substitute>
     </names>
   </macro>
   <macro name="noauthor_title">
@@ -108,7 +127,7 @@ TO DO
       <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
       <label form="short" prefix=" (" suffix=")" strip-periods="true"/>
       <substitute>
-        <names variable="editor"/>
+        <text macro="noauthor_editor"/>
         <text macro="noauthor_title"/>
       </substitute>
     </names>
@@ -221,8 +240,14 @@ TO DO
       <if type="chapter paper-conference" match="any">
         <choose>
           <if variable="container-title">
-            <text term="in" text-case="lowercase"/>
-            <text variable="container-title" font-style="italic" prefix=" "/>
+            <choose>
+              <if variable="editor author" match="all">
+              </if>
+              <else>
+                <text term="in" text-case="lowercase" suffix=" "/>
+              </else>
+            </choose>
+            <text variable="container-title" font-style="italic"/>
           </if>
           <else-if variable="event">
             <text value="paper presented at "/>
@@ -273,9 +298,9 @@ TO DO
             <choose>
               <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
                 <group delimiter=", ">
+                  <text macro="editor"/>
                   <text macro="container"/>
                   <text macro="edition"/>
-                  <text macro="editor"/>
                   <text macro="translator"/>
                   <text macro="genre"/>
                   <text macro="day-month-date"/>
