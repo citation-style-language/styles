@@ -11,7 +11,7 @@ end
 require 'rspec/core'
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color }
+  spec.rspec_opts = %w{ --require spec_helper.rb --format ErrorFormatter --color }
 end
 
 task :default => [:spec]

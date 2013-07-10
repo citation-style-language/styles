@@ -53,13 +53,12 @@ Dependents.each_pair do |id, (filename, path, style)|
         style.id.should == "http://www.zotero.org/styles/#{id}"
       end
 
-      it "has and info/rights element" do
+      it "has an info/rights element" do
         style.info.should have_rights
       end
 
       it "is licensed under a CC BY-SA license" do
-        style.info.rights.to_s.strip.should ==
-          'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
+        style.should be_default_license
       end
 
       it "its independent-parent link points to an existing style" do
@@ -80,7 +79,7 @@ Dependents.each_pair do |id, (filename, path, style)|
       it "has the same citation-format as its independent-parent" do
         parent = style.independent_parent_link[/[^\/]+$/]
         parent = Independents[parent][-1]
-        
+
         style.citation_format.should == parent.citation_format
       end
 

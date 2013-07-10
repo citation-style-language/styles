@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
   <info>
-    <title>MIS Quarterly (MISQ)</title>
+    <title>MIS Quarterly</title>
+    <title-short>MISQ</title-short>
     <id>http://www.zotero.org/styles/mis-quarterly</id>
     <link href="http://www.zotero.org/styles/mis-quarterly" rel="self"/>
-    <link href="http://www.misq.org/manuscript-guidelines" rel="documentation"/>
     <link href="http://www.zotero.org/styles/apa" rel="template"/>
+    <link href="http://www.misq.org/manuscript-guidelines" rel="documentation"/>
     <author>
       <name>Mikko Rönkkö</name>
       <email>mikko.ronkko@tkk.fi</email>
@@ -35,13 +36,13 @@
     </contributor>
     <category citation-format="author-date"/>
     <issn>0276-7783</issn>
-    <updated>2008-09-20T09:22:05+00:00</updated>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
+    <updated>2012-09-27T22:06:38+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <names variable="editor translator" delimiter=", " suffix=", ">
+        <names variable="editor translator" delimiter=", ">
           <name and="text" initialize-with=". " delimiter=", "/>
           <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
         </names>
@@ -144,8 +145,8 @@
   <macro name="title">
     <choose>
       <if type="report thesis" match="any">
-        <text variable="title" font-style="italic"/>
-        <group prefix=" (" suffix="), ">
+        <text variable="title" quotes="true" suffix=","/>
+        <group prefix=" " suffix=", ">
           <text variable="genre"/>
           <text variable="number" prefix=" No. "/>
         </group>
@@ -172,10 +173,21 @@
             <text variable="genre" suffix=", "/>
           </if>
         </choose>
-        <group delimiter=": ">
-          <text variable="publisher-place"/>
-          <text variable="publisher"/>
-        </group>
+        <choose>
+          <if type="speech paper-conference" match="any">
+            <text variable="publisher-place"/>
+            <date variable="issued">
+              <date-part prefix=", " name="month"/>
+              <date-part prefix=" " name="day"/>
+            </date>
+          </if>
+          <else>
+            <group delimiter=": ">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+            </group>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -206,7 +218,7 @@
             <date-part name="year"/>
           </date>
           <choose>
-            <if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
+            <if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song speech" match="none">
               <date variable="issued">
                 <date-part prefix=", " name="month"/>
                 <date-part prefix=" " name="day"/>
@@ -237,11 +249,11 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" suffix=", " strip-periods="true"/>
+          <text term="edition" form="short" suffix="." strip-periods="true"/>
         </group>
       </if>
       <else>
-        <text variable="edition" suffix=", "/>
+        <text variable="edition" suffix="."/>
       </else>
     </choose>
   </macro>
@@ -256,7 +268,7 @@
         </group>
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
-        <group prefix=" (" suffix=")" delimiter=", ">
+        <group prefix=" (" suffix=") " delimiter=", ">
           <text macro="edition"/>
           <group>
             <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=". " strip-periods="true"/>
@@ -275,6 +287,32 @@
       <label variable="locator" form="short"/>
       <text variable="locator" prefix=" "/>
     </group>
+  </macro>
+  <macro name="container-phrase">
+    <!-- Container phrase accounts for avoiding comma after Journal titles
+       and adding " in " before proceedings title or book title -->
+    <choose>
+      <if type="article-journal article-magazine article-newspaper" match="none">
+        <group suffix=", ">
+          <choose>
+            <if type="chapter paper-conference" match="any">
+              <text term="in" text-case="lowercase" suffix=" "/>
+            </if>
+          </choose>
+          <text variable="container-title" font-style="italic"/>
+        </group>
+      </if>
+      <else>
+        <group>
+          <choose>
+            <if type="chapter paper-conference" match="any">
+              <text term="in" text-case="lowercase" suffix=" "/>
+            </if>
+          </choose>
+          <text variable="container-title" font-style="italic"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year">
     <sort>
@@ -298,28 +336,24 @@
       <group suffix=".">
         <text macro="author" suffix="."/>
         <text macro="issued" suffix=" "/>
-        <group delimiter=" ">
+        <group delimiter=" " suffix=" ">
           <text macro="title"/>
-          <group delimiter=", ">
-            <group>
-              <choose>
-                <if type="chapter paper-conference" match="any">
-                  <text term="in" text-case="capitalize-first" suffix=" "/>
-                </if>
-              </choose>
-              <text variable="container-title" font-style="italic"/>
-              <text variable="collection-title"/>
-            </group>
-            <text macro="container-contributors"/>
-            <text macro="secondary-contributors"/>
-          </group>
+          <text macro="container-phrase"/>
+        </group>
+        <group delimiter=", " suffix=", ">
+          <text variable="collection-title"/>
+          <text macro="container-contributors"/>
+          <text macro="secondary-contributors"/>
         </group>
         <text macro="locators"/>
         <group delimiter=", ">
           <text macro="event"/>
           <text macro="publisher"/>
         </group>
-        <text prefix=", pp. " variable="page"/>
+        <group delimiter=" " prefix=", ">
+          <label variable="page" form="short"/>
+          <text variable="page"/>
+        </group>
       </group>
     </layout>
   </bibliography>
