@@ -46,6 +46,26 @@
       </else>
     </choose>
   </macro>
+  <macro name="access">
+    <choose>
+      <if variable="URL">
+        <group delimiter=". ">
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <text variable="URL"/>
+          </group>
+          <group prefix="[" suffix="]" delimiter=": ">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed">
+              <date-part name="day" form="numeric-leading-zeros" suffix="-"/>
+              <date-part name="month" form="short" suffix="-" strip-periods="true"/>
+              <date-part name="year" form="long"/>
+            </date>
+          </group>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <macro name="publisher">
     <group delimiter=", " prefix="(" suffix=")">
       <text variable="publisher" form="long"/>
@@ -68,17 +88,13 @@
   </macro>
   <citation collapse="citation-number">
     <sort>
-      <key macro="author"/>
+      <key variable="citation-number"/>
     </sort>
     <layout delimiter="," vertical-align="sup">
       <text variable="citation-number"/>
     </layout>
   </citation>
   <bibliography entry-spacing="0" second-field-align="flush" et-al-min="31" et-al-use-first="30">
-    <sort>
-      <key macro="author"/>
-      <key macro="year-date"/>
-    </sort>
     <layout suffix=".">
       <text variable="citation-number" suffix=". "/>
       <text macro="author" prefix=" " suffix=", "/>
@@ -98,18 +114,28 @@
           <group delimiter=", ">
             <text variable="container-title" form="short" text-case="title" font-style="italic"/>
             <text macro="edition"/>
-            <text macro="editor" suffix=" "/>
+            <text macro="editor"/>
           </group>
-          <text macro="publisher"/>
-          <group delimiter=" ">
-            <label variable="page" form="short" prefix=", " suffix="." strip-periods="true"/>
-            <text variable="page"/>
+          <group delimiter=", " prefix=" ">
+            <text macro="publisher"/>
+            <group delimiter=" ">
+              <label variable="page" form="short"/>
+              <text variable="page"/>
+            </group>
           </group>
+        </else-if>
+        <else-if type="webpage">
+          <group delimiter=", " suffix=". ">
+            <text variable="title"/>
+            <text variable="container-title" font-style="italic"/>
+            <text macro="year-date"/>
+          </group>
+          <text macro="access" prefix=". "/>
         </else-if>
         <else-if type="patent">
           <group delimiter=", ">
             <text variable="title"/>
-            <text variable="number" prefix="U.S. Patent "/>
+            <text variable="number" prefix=" "/>
             <text macro="year-date"/>
           </group>
         </else-if>

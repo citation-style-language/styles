@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="note" default-locale="en-GB">
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="note" default-locale="en-US">
   <info>
     <title>Canadian Guide to Uniform Legal Citation, 7th ed. (McGill Guide)</title>
     <id>http://www.zotero.org/styles/mcgill-guide-v7</id>
@@ -21,10 +21,17 @@
     <style-options punctuation-in-quote="false"/>
     <terms>
       <term name="et-al">et al</term>
+      <term name="ordinal">th</term>
       <term name="ordinal-01">st</term>
       <term name="ordinal-02">d</term>
       <term name="ordinal-03">d</term>
-      <term name="ordinal-04">th</term>
+      <term name="ordinal-11">th</term>
+      <term name="ordinal-12">th</term>
+      <term name="ordinal-13">th</term>
+      <term name="paragraph" form="short">
+        <single>para</single>
+        <multiple>paras</multiple>
+      </term>
     </terms>
   </locale>
   <macro name="editor">
@@ -87,6 +94,12 @@
   <macro name="references">
     <text variable="references"/>
   </macro>
+  <macro name="series-info">
+    <group delimiter=" ">
+      <text variable="collection-title" strip-periods="true"/>
+      <text variable="collection-number"/>
+    </group>
+  </macro>
   <macro name="sort-by-type">
     <choose>
       <if type="bill legislation" match="any">
@@ -107,8 +120,8 @@
     </choose>
   </macro>
   <!-- the 'rendering' macros mostly check if called from w/i bibliography so that author gets printed
-	right. Only actually need to check for 'first' because w/i cite,
-	all the other tests should have been done... -->
+    right. Only actually need to check for 'first' because w/i cite,
+all the other tests should have been done... -->
   <macro name="render-chapter">
     <group delimiter=" ">
       <text variable="title" quotes="true"/>
@@ -137,6 +150,18 @@
       <text macro="edition"/>
       <text macro="translator"/>
       <text macro="editor"/>
+      <text macro="series-info"/>
+    </group>
+    <text macro="publisher-place-year"/>
+  </macro>
+  <macro name="render-report">
+    <group delimiter=", ">
+      <text variable="title" font-style="italic"/>
+      <group delimiter=" ">
+        <text variable="collection-title" strip-periods="true"/>
+        <text macro="genre"/>
+        <text variable="number"/>
+      </group>
     </group>
     <text macro="publisher-place-year"/>
   </macro>
@@ -197,6 +222,7 @@
         <text macro="container-title"/>
         <text variable="number"/>
         <text variable="page-first"/>
+        <text variable="authority" prefix="(" suffix=")"/>
         <text variable="URL" prefix="(available on " suffix=")"/>
       </group>
     </group>
@@ -212,7 +238,7 @@
           </choose>
         </if>
         <else>
-          <label variable="locator" prefix=", "/>
+          <label variable="locator" form="short" strip-periods="true" prefix=", "/>
         </else>
       </choose>
       <text variable="locator"/>
@@ -220,7 +246,7 @@
   </macro>
   <macro name="short-form">
     <!-- Hump to overcome: cannot check against existence of short title.
-		Not implemented: "cited to" for cases, construct short casenames, adding ref to article -->
+Not implemented: "cited to" for cases, construct short casenames, adding ref to article -->
     <choose>
       <if type="bill legal_case legislation" match="none">
         <names variable="author">
@@ -233,7 +259,7 @@
         </names>
       </if>
       <else>
-        <text variable="title" form="short"/>
+        <text variable="title" font-style="italic" form="short"/>
       </else>
     </choose>
   </macro>
@@ -253,12 +279,12 @@
         <!-- Not implemented: ibid only needs capitalize-first if it's the first word in a footnote -->
         <if position="ibid-with-locator">
           <group>
-            <text term="ibid" font-style="italic" strip-periods="true" text-case="capitalize-first"/>
+            <text term="ibid" font-style="italic" strip-periods="true" />
             <text macro="pinpoint"/>
           </group>
         </if>
         <else-if position="ibid">
-          <text term="ibid" font-style="italic" strip-periods="true" text-case="capitalize-first"/>
+          <text term="ibid" font-style="italic" strip-periods="true"/>
         </else-if>
         <!-- For future versions? Cannot test for whether short form exists (Supra should be capitalized if no short form) -->
         <else-if position="subsequent">
@@ -269,8 +295,8 @@
             </group>
             <text value="note"/>
             <text variable="first-reference-note-number"/>
-            <text macro="pinpoint"/>
           </group>
+          <text macro="pinpoint"/>
         </else-if>
         <else>
           <group>
@@ -299,6 +325,12 @@
                     </else-if>
                     <else-if type="webpage">
                       <text macro="render-webpage"/>
+                    </else-if>
+                    <else-if type="book">
+                      <text macro="render-book"/>
+                    </else-if>
+                    <else-if type="report">
+                      <text macro="render-report"/>
                     </else-if>
                     <else>
                       <group delimiter=" ">
@@ -359,6 +391,9 @@
               </else-if>
               <else-if type="webpage">
                 <text macro="render-webpage"/>
+              </else-if>
+              <else-if type="report">
+                <text macro="render-report"/>
               </else-if>
               <else>
                 <group>
