@@ -72,25 +72,27 @@ def load_style(path)
     # failed to parse the style. we'll report the error later
   end
 
-  begin
-    if style.info.has_issn?
-      [style.info.issn].flatten(1).each do |issn|
-        ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+  unless style.nil?
+    begin
+      if style.info.has_issn?
+        [style.info.issn].flatten(1).each do |issn|
+          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+        end
       end
-    end
 
-    if style.info.has_eissn?
-      [style.info.eissn].flatten(1).each do |issn|
-        ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+      if style.info.has_eissn?
+        [style.info.eissn].flatten(1).each do |issn|
+          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+        end
       end
-    end
 
-    if style.has_title?
-      title = style.title.to_s.downcase
-      TITLES[title] << id unless TITLES_FILTER.include?(title)
+      if style.has_title?
+        title = style.title.to_s.downcase
+        TITLES[title] << id unless TITLES_FILTER.include?(title)
+      end
+    rescue
+      warn "Failed to extract ISSN of style #{id}"
     end
-  rescue
-    warn "Failed to extract ISSN of style #{id}"
   end
 
   [id, [filename, path, style]]
