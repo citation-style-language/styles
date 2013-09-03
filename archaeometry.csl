@@ -12,15 +12,13 @@
     <category citation-format="author-date"/>
     <eissn>1475-4754</eissn>
     <summary>Style for Arhcaeometry Journal</summary>
-    <updated>2013-09-03T18:53:26+00:00</updated>
+    <updated>2013-09-03T22:33:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
 
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <choose>
-          <if variable="editor container-author" match="any">
             <group delimiter="; " prefix=" (" suffix=")">
               <names variable="container-author">
                 <name sort-separator=" " delimiter=", " initialize-with=". " delimiter-precedes-last="always" and="text"/>
@@ -31,11 +29,6 @@
               </names>
             </group>
 	    <text variable="page" prefix=", "/>
-          </if>
-	  <else>
-            <text variable="page" prefix=", "/>
-          </else>
-        </choose>
       </if>
     </choose>
   </macro>
@@ -47,30 +40,24 @@
       </if>
     </choose>
   </macro>
-  
-  <macro name="editor">
-    <names variable="editor">
-      <name name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=", " suffix="." strip-periods="true"/>
-    </names>
+
+   <macro name="anonymous">
+    <choose>
+      <if variable="author editor translator" match="none">
+        <text term="anonymous" form="long" text-case="capitalize-first" strip-periods="true"/>
+      </if>
+    </choose>
   </macro>
-  
-  <macro name="translator">
-    <names variable="translator">
-      <name name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-      <label form="verb-short" prefix=", " suffix="." strip-periods="true"/>
-    </names>
-  </macro>
-  
+
   <macro name="recipient">
     <choose>
       <if type="personal_communication">
         <choose>
           <if variable="genre">
-            <text variable="genre" text-case="capitalize-first"/>
+            <text variable="genre" text-case="capitalize-first" prefix=", "/>
           </if>
           <else>
-            <text term="letter" text-case="capitalize-first"/>
+            <text term="letter" text-case="capitalize-first" prefix=", "/>
           </else>
         </choose>
       </if>
@@ -81,34 +68,16 @@
     </names>
   </macro>
   
-  <macro name="author">
-    <choose>
-      <if variable="author editor translator" match="any">
-        <names variable="author">
-          <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-          <label form="short" prefix=" (" suffix=".)" text-case="lowercase" strip-periods="true"/>
-          <substitute>
-            <names variable="editor"/>
-            <names variable="translator"/>
-          </substitute>
-        </names>
-      </if>
-      <else>
-        <text term="anonymous"/>
-      </else>   
-    </choose>    
-  </macro>
-  
   <macro name="contributors">
     <names variable="author">
-      <name name-as-sort-order="all" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=", " suffix="." text-case="lowercase" strip-periods="true"/>
+      <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+      <label form="short" prefix=" (" suffix=".)" text-case="lowercase" strip-periods="true"/>
       <substitute>
-        <text macro="editor"/>
-        <text macro="translator"/>
+        <names variable="editor"/>
+        <names variable="translator"/>
+	<text macro="anonymous"/>
       </substitute>
     </names>
-    <text term="anonymous" form="long"/>
     <text macro="recipient"/>
   </macro>
   
@@ -126,15 +95,14 @@
   <macro name="interviewer">
     <names variable="interviewer" delimiter=", ">
       <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
-      <name delimiter=", "/>
+      <name delimiter=", " initialize-with="."/>
     </names>
   </macro>
   
   <macro name="archive">
-    <group delimiter=". ">
+    <group delimiter=", " prefix=", ">
       <text variable="archive_location" text-case="capitalize-first"/>
       <text variable="archive"/>
-      <text variable="archive-place"/>
     </group>
   </macro>
   
@@ -175,6 +143,9 @@
         <text variable="container-title" prefix=" " form="short"/>
         <text variable="page" form="long" prefix=" "/>
       </else-if>
+      <else-if type="personal_communication">
+        <text macro="archive"/>
+      </else-if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <group prefix=". " delimiter=". ">
           <group>
@@ -184,7 +155,8 @@
           <group>
             <number variable="number-of-volumes" form="numeric"/>
             <text term="volume" form="short" prefix=" " suffix="." plural="true" strip-periods="true"/>
-          </group></group>
+          </group>
+        </group>
       </else-if>
     </choose>
   </macro>
@@ -266,13 +238,14 @@
   </macro>
  
   <macro name="description">
-    <group delimiter=". ">
+    <group delimiter=", " prefix=", ">
       <text macro="interviewer"/>
       <text variable="medium" text-case="capitalize-first"/>
     </group>
     <choose>
       <if variable="title" match="none"/>
       <else-if type="thesis"/>
+      <else-if type="personal_communication"/>
       <else>
         <text variable="genre" text-case="capitalize-first" prefix=". "/>
       </else>
@@ -332,7 +305,7 @@
       <key variable="title"/>
     </sort>
     <layout suffix=".">
-      <text macro="author" suffix=", "/>
+      <text macro="contributors" suffix=", "/>
       <text macro="date" suffix=", "/>
       <text macro="title"/>
       <text macro="description"/>
