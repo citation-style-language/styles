@@ -12,7 +12,7 @@
     <category citation-format="author-date"/>
     <eissn>1475-4754</eissn>
     <summary>Style for Arhcaeometry Journal</summary>
-    <updated>2013-09-03T22:33:26+00:00</updated>
+    <updated>2013-11-05T16:40:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="container-contributors">
@@ -27,7 +27,10 @@
             <name sort-separator=" " delimiter=", " initialize-with=". " delimiter-precedes-last="always" and="text"/>
           </names>
         </group>
-        <text variable="page" prefix=", "/>
+        <group prefix=", " delimiter=", ">
+          <text macro="locators-chapter"/>
+          <text variable="page"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -114,12 +117,22 @@
         </choose>
       </if>
       <else-if type="book" match="any">
-        <text variable="title" font-style="italic"/>
+        <group>
+          <text variable="title" font-style="italic"/>
+          <text macro="edition" prefix=" "/>
+          <text macro="locators-chapter" prefix=", "/>
+        </group>
       </else-if>
       <else>
         <text variable="title"/>
       </else>
     </choose>
+  </macro>
+  <macro name="edition">
+    <group>
+      <number variable="edition" form="ordinal" suffix=" "/>
+      <text term="edition" form="short"/>
+    </group>
   </macro>
   <macro name="locators">
     <choose>
@@ -135,7 +148,7 @@
       <else-if type="personal_communication">
         <text macro="archive"/>
       </else-if>
-      <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <else-if type="bill graphic legal_case legislation motion_picture report song" match="any">
         <group prefix=". " delimiter=". ">
           <group>
             <text term="volume" form="short" text-case="capitalize-first" suffix=". " strip-periods="true"/>
@@ -151,9 +164,16 @@
   </macro>
   <macro name="locators-chapter">
     <choose>
-      <if type="chapter paper-conference" match="any">
-        <group prefix=", " delimiter=" ">
-          <text variable="volume"/>
+      <if type="chapter paper-conference book" match="any">
+        <group delimiter=", ">
+          <group>
+            <text term="volume" form="short" text-case="capitalize-first" suffix=". " strip-periods="true"/>
+            <number variable="volume" form="numeric"/>
+          </group>
+          <group>
+            <number variable="number-of-volumes" form="numeric"/>
+            <text term="volume" form="short" prefix=" " suffix="." plural="true" strip-periods="true"/>
+          </group>
         </group>
       </if>
     </choose>
@@ -177,14 +197,14 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="container-prefix">
-    <text term="in" suffix=" " text-case="capitalize-first"/>
-  </macro>
   <macro name="container-title">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <text macro="container-prefix"/>
-        <text variable="container-title" font-style="italic"/>
+        <group>
+          <text term="in" suffix=" " text-case="capitalize-first"/>
+          <text variable="container-title" font-style="italic"/>
+          <text macro="edition" prefix=" "/>
+        </group>
       </if>
       <else>
         <text variable="container-title" font-style="italic"/>
@@ -214,8 +234,10 @@
     </date>
   </macro>
   <macro name="collection-title">
-    <text variable="collection-title"/>
-    <text variable="collection-number" prefix=" "/>
+    <group delimiter=" ">
+      <text variable="collection-title"/>
+      <text variable="collection-number"/>
+    </group>
   </macro>
   <macro name="description">
     <group delimiter=", " prefix=", ">
@@ -288,11 +310,10 @@
       <text macro="description"/>
       <text macro="container-title" suffix="" prefix=", "/>
       <text macro="container-contributors"/>
+      <text macro="collection-title" prefix=", "/>
       <text macro="issue" prefix=", "/>
       <text macro="locators"/>
-      <text macro="collection-title" prefix=", "/>
       <text macro="locators-article"/>
-      <text macro="locators-chapter"/>
       <text macro="access" prefix=", "/>
     </layout>
   </bibliography>
