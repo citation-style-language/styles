@@ -12,7 +12,7 @@
     </author>
     <category citation-format="note"/>
     <category field="law"/>
-    <summary>The OSCOLA Standards. For a Zotero RDF File that shows data-entry in Zotero see: https://www.zotero.org/groups/oscola_samples/items/order/itemType</summary>
+    <summary>The OSCOLA Standards. For a Zotero Group showing data-entry in Zotero see: https://www.zotero.org/groups/oscola_samples/items/order/itemType</summary>
     <updated>2012-10-25T21:15:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
@@ -124,7 +124,7 @@
       <if type="interview">
         <group delimiter=", ">
           <names variable="interviewer">
-            <name delimiter-precedes-last="never" and="text" delimiter=", " initialize="false" initialize-with="" name-as-sort-order="first"/>
+            <name delimiter-precedes-last="never" and="text" delimiter=", "  initialize-with="" name-as-sort-order="all" sort-separator=" "/>
           </names>
           <names variable="author" prefix="Interview with ">
             <name delimiter-precedes-last="never" and="text" delimiter=", " initialize="false" initialize-with=""/>
@@ -135,7 +135,7 @@
         <group delimiter=" ">
           <group delimiter=", ">
             <names variable="author">
-              <name delimiter-precedes-last="never" and="text" delimiter=", " name-as-sort-order="first" initialize="false" initialize-with=""/>
+              <name delimiter-precedes-last="never" and="text" delimiter=", " initialize-with="" name-as-sort-order="all" sort-separator=" "/>
             </names>
             <text variable="genre"/>
           </group>
@@ -150,7 +150,7 @@
       <else-if type="legal_case legislation" match="any"/>
       <else>
         <names variable="author">
-          <name delimiter-precedes-last="never" and="text" delimiter=", " name-as-sort-order="first" initialize="false" initialize-with=""/>
+          <name delimiter-precedes-last="never" and="text" delimiter=", " name-as-sort-order="all"  initialize-with="" sort-separator=" "/>
           <label form="short" prefix=" (" suffix=")" strip-periods="true"/>
           <substitute>
             <names variable="editor"/>
@@ -161,7 +161,6 @@
       </else>
     </choose>
   </macro>
-  
   <macro name="editor">
     <choose>
       <if type="chapter paper-conference entry-encyclopedia" match="none">
@@ -172,8 +171,6 @@
       </if>
     </choose>
   </macro>
-
-
   <macro name="editor-chapter">
     <group>
       <text term="in" suffix=" "/>
@@ -246,7 +243,6 @@
           </else-if>
         </choose>
       </if>
-
       <else-if type="legislation bill" match="any">
         <text macro="issued-year"/>
       </else-if>
@@ -345,7 +341,6 @@
       </if>
     </choose>
   </macro>
-
   <macro name="volume-book">
     <choose>
       <if type="book chapter report" match="any">
@@ -396,7 +391,6 @@
   <macro name="article-case-info">
     <choose>
       <if type="article-journal article-magazine article-newspaper legal_case">
-        
         <group delimiter=" ">
           <!--Assume that only cases with a Medium Neutral Citation have a docket number -->
           <choose>
@@ -414,7 +408,6 @@
                 <if variable="container-title">
                   <text variable="container-title" form="short"/>
                 </if>
-
                 <else>
                   <group delimiter=", " prefix="(" suffix=")">
                     <text value="Unreported"/>
@@ -455,7 +448,6 @@
         </choose>
       </if>
     </choose>
-
   </macro>
   <macro name="locator-space">
     <choose>
@@ -495,7 +487,6 @@
       </else-if>
     </choose>
   </macro>
-
   <macro name="locator-comma">
     <choose>
       <if type="legal_case">
@@ -517,8 +508,6 @@
       </else-if>
     </choose>
   </macro>
-
-
   <!--Others -->
   <macro name="manuscript-catchall">
     <choose>
@@ -534,15 +523,26 @@
           <if variable="URL">
             <group delimiter=" ">
               <text variable="URL" prefix="&lt;" suffix="&gt;"/>
-              <text term="accessed"/>
-              <date variable="accessed" form="text"/>
+              <group delimiter=" ">
+                <text term="accessed"/>
+                <date variable="accessed" form="text"/>
+              </group>
             </group>     
           </if>
         </choose>
       </if>
     </choose>
   </macro>
+  <macro name="author-count">
+    <names variable="author">
+      <name form="count"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
   <macro name="sort-type">
+    <!--This should just sort secondary sources first. I'm leaving the rest from AGLC for simplicity-->
     <choose>
       <if type="book chapter paper-conference article-magazine article-newspaper article-journal report speech entry-encyclopedia" match="any">
         <text value="1"/>
@@ -564,7 +564,7 @@
         <text value="4"/>
       </else-if>
       <else>
-        <text value="5"/>
+        <text value="1"/>
       </else>
     </choose>
   </macro>
@@ -644,32 +644,44 @@
       </choose>
     </layout>
   </citation>
-  <bibliography et-al-min="4" et-al-use-first="1">
+  <bibliography et-al-min="4" et-al-use-first="1" subsequent-author-substitute="&#8212;&#8212;">
     <sort>
       <key macro="sort-type"/>
       <key macro="author" names-min="1" names-use-first="1"/>
+      <key macro="author-count" names-min="2" names-use-first="2"/>
+      <key macro="author" />
       <key variable="issued"/>
+      <key variable="title"/>
     </sort>
     <layout>
       <group delimiter=" ">
         <group delimiter=", ">
-          <text macro="author"/>
-          <text macro="title"/>
-          <text macro="broadcast-container"/>
-          <text macro="volume-book"/>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="author"/>
+              <group>
+                <text macro="title"/>
+                <text macro="book-container"/>
+              </group>                  
+              <text macro="broadcast-container"/>
+              <text macro="volume-book"/>
+              <text macro="looseleaf-note"/>
+            </group>
+            <group delimiter=" ">
+              <text macro="date-parenthesis"/>
+              <text macro="bill-number"/>
+              <text macro="article-case-info"/>
+              <text macro="publisher"/>
+            </group>
+          </group>
+          <text macro="manuscript-catchall"/>
         </group>
         <group delimiter=" ">
-          <text macro="date-parenthesis"/>
-          <text macro="article-case-info"/>
-          <text macro="book-container"/>
-          <text macro="publisher"/>
+          <text macro="page-first"/>
+          <text macro="court"/>
         </group>
+        <text macro="URL"/>
       </group>
-      <text macro="manuscript-catchall" prefix=", "/>
-      <group delimiter=", " prefix=" ">
-        <text macro="page-first"/>
-      </group>
-      <text macro="URL" prefix=" "/>
     </layout>
   </bibliography>
 </style>
