@@ -20,7 +20,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The author-date variant of the Chicago style</summary>
-    <updated>2014-01-06T06:51:01+00:00</updated>
+    <updated>2014-01-19T17:47:01+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -217,8 +217,37 @@
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <text variable="volume" prefix=" "/>
-        <text variable="issue" prefix=" (" suffix=")"/>
+        <choose>
+          <if variable="volume">
+            <text variable="volume" prefix=" "/>
+            <group prefix=" (" suffix=")">
+              <choose>
+                <if variable="issue">
+                  <text variable="issue"/>
+                </if>
+                <else>
+                  <date variable="issued">
+                    <date-part name="month"/>
+                  </date>
+                </else>
+              </choose>
+            </group>
+          </if>
+          <else-if variable="issue">
+            <group delimiter=" " prefix=", ">
+              <text term="issue" form="short"/>
+              <text variable="issue"/>
+              <date variable="issued" prefix="(" suffix=")">
+                <date-part name="month"/>
+              </date>
+            </group>
+          </else-if>
+          <else>
+            <date variable="issued" prefix=", ">
+              <date-part name="month"/>
+            </date>
+          </else>
+        </choose>
       </if>
       <else-if type="legal_case">
         <text variable="volume" prefix=", "/>
@@ -278,7 +307,14 @@
         </group>
       </if>
       <else-if type="article-journal">
-        <text variable="page" prefix=": "/>
+        <choose>
+          <if variable="volume issue" match="any">
+            <text variable="page" prefix=": "/>
+          </if>
+          <else>
+            <text variable="page" prefix=", "/>
+          </else>
+        </choose>
       </else-if>
     </choose>
   </macro>
