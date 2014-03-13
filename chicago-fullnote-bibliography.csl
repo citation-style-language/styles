@@ -375,15 +375,22 @@
   <macro name="collection-title">
     <choose>
       <if type="article-journal">
-        <text variable="collection-title" suffix=","/>
+        <group delimiter=" ">
+          <text variable="collection-title"/>
+          <text variable="collection-number"/>
+        </group>
       </if>
       <else-if match="none" is-numeric="collection-number">
-        <text variable="collection-title"/>
-        <text variable="collection-number" prefix=", "/>
+        <group delimiter=", ">
+          <text variable="collection-title"/>
+          <text variable="collection-number"/>
+        </group>
       </else-if>
       <else>
-        <text variable="collection-title" text-case="title"/>
-        <text variable="collection-number" prefix=" "/>
+        <group delimiter=" ">
+          <text variable="collection-title" text-case="title"/>
+          <text variable="collection-number"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -424,7 +431,11 @@
   <macro name="locators-note-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators-note"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators-note"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -433,8 +444,18 @@
       <if type="article-journal" match="none">
         <text macro="locators-note"/>
       </if>
-      <else-if variable="volume" match="none">
-        <text macro="locators-note"/>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="volume" match="none">
+            <text macro="locators-note"/>
+          </if>
+          <else-if match="any" variable="container-title">
+            <group delimiter=", ">
+              <text macro="collection-title"/>
+              <text macro="locators-note"/>
+            </group>
+          </else-if>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -500,8 +521,10 @@
             <text macro="locators"/>
           </if>
           <else-if match="any" variable="container-title">
-            <text macro="collection-title" suffix=" "/>
-            <text macro="locators"/>
+            <group delimiter=", ">
+              <text macro="collection-title"/>
+              <text macro="locators"/>
+            </group>
           </else-if>
         </choose>
       </else-if>
@@ -1079,7 +1102,11 @@
                         <text macro="secondary-contributors-note"/>
                         <text macro="container-title-note"/>
                         <text macro="container-contributors-note"/>
-                        <text macro="collection-title"/>
+                        <choose>
+                          <if match="none" type="article-journal">
+                            <text macro="collection-title"/>
+                          </if>
+                        </choose>
                       </group>
                       <text macro="locators-note-join-with-space"/>
                     </group>
