@@ -21,10 +21,14 @@
       <name>Frank Bennett</name>
       <email>biercenator@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <email>andrew.dunning@utoronto.ca</email>
+    </contributor>
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>Chicago format with full notes and bibliography</summary>
-    <updated>2014-03-02T18:37:55+00:00</updated>
+    <updated>2014-03-13T00:51:29+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -369,10 +373,19 @@
     </group>
   </macro>
   <macro name="collection-title">
-    <group delimiter=" ">
-      <text variable="collection-title" text-case="title"/>
-      <text variable="collection-number"/>
-    </group>
+    <choose>
+      <if type="article-journal">
+        <text variable="collection-title" suffix=","/>
+      </if>
+      <else-if match="none" is-numeric="collection-number">
+        <text variable="collection-title"/>
+        <text variable="collection-number" prefix=", "/>
+      </else-if>
+      <else>
+        <text variable="collection-title" text-case="title"/>
+        <text variable="collection-number" prefix=" "/>
+      </else>
+    </choose>
   </macro>
   <macro name="edition-note">
     <choose>
@@ -468,7 +481,11 @@
   <macro name="locators-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -482,6 +499,10 @@
           <if variable="volume" match="none">
             <text macro="locators"/>
           </if>
+          <else-if match="any" variable="container-title">
+            <text macro="collection-title" suffix=" "/>
+            <text macro="locators"/>
+          </else-if>
         </choose>
       </else-if>
     </choose>
@@ -1058,11 +1079,11 @@
                         <text macro="secondary-contributors-note"/>
                         <text macro="container-title-note"/>
                         <text macro="container-contributors-note"/>
+                        <text macro="collection-title"/>
                       </group>
                       <text macro="locators-note-join-with-space"/>
                     </group>
                     <text macro="locators-note-join-with-comma"/>
-                    <text macro="collection-title"/>
                     <text macro="issue-note-join-with-comma"/>
                   </group>
                   <text macro="issue-note-join-with-space"/>
@@ -1111,7 +1132,11 @@
                   </group>
                   <text macro="locators-join-with-space"/>
                 </group>
-                <text macro="collection-title"/>
+                <choose>
+                  <if match="none" type="article-journal">
+                    <text macro="collection-title"/>
+                  </if>
+                </choose>
                 <text macro="issue-join-with-period"/>
               </group>
               <text macro="issue-join-with-space"/>
