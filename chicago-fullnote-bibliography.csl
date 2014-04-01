@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="never">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="never" page-range-format="chicago">
   <info>
     <title>Chicago Manual of Style 16th edition (full note)</title>
     <id>http://www.zotero.org/styles/chicago-fullnote-bibliography</id>
@@ -21,10 +21,14 @@
       <name>Frank Bennett</name>
       <email>biercenator@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <email>andrew.dunning@utoronto.ca</email>
+    </contributor>
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>Chicago format with full notes and bibliography</summary>
-    <updated>2014-03-02T18:37:55+00:00</updated>
+    <updated>2014-03-14T08:06:29+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -369,10 +373,34 @@
     </group>
   </macro>
   <macro name="collection-title">
-    <group delimiter=" ">
-      <text variable="collection-title" text-case="title"/>
-      <text variable="collection-number"/>
-    </group>
+    <choose>
+      <if match="none" type="article-journal">
+        <choose>
+          <if match="none" is-numeric="collection-number">
+            <group delimiter=", ">
+              <text variable="collection-title" text-case="title"/>
+              <text variable="collection-number"/>
+            </group>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text variable="collection-title" text-case="title"/>
+              <text variable="collection-number"/>
+            </group>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="collection-title-journal">
+    <choose>
+      <if type="article-journal">
+        <group delimiter=" ">
+          <text variable="collection-title"/>
+          <text variable="collection-number"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="edition-note">
     <choose>
@@ -411,7 +439,11 @@
   <macro name="locators-note-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators-note"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators-note"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -420,8 +452,15 @@
       <if type="article-journal" match="none">
         <text macro="locators-note"/>
       </if>
-      <else-if variable="volume" match="none">
-        <text macro="locators-note"/>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="volume" match="none">
+            <text macro="locators-note"/>
+          </if>
+          <else-if match="any" variable="collection-title">
+            <text macro="locators-note"/>
+          </else-if>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -429,6 +468,7 @@
     <choose>
       <if type="article-journal">
         <group delimiter=", ">
+          <text macro="collection-title-journal"/>
           <number variable="volume"/>
           <group delimiter=" ">
             <text term="issue" form="short"/>
@@ -468,7 +508,11 @@
   <macro name="locators-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -478,10 +522,13 @@
         <text macro="locators"/>
       </if>
       <else-if type="article-journal">
-        <choose> 
+        <choose>
           <if variable="volume" match="none">
             <text macro="locators"/>
           </if>
+          <else-if match="any" variable="collection-title">
+            <text macro="locators"/>
+          </else-if>
         </choose>
       </else-if>
     </choose>
@@ -497,6 +544,7 @@
     <choose>
       <if type="article-journal">
         <group delimiter=", ">
+          <text macro="collection-title-journal"/>
           <number variable="volume"/>
           <group delimiter=" ">
             <text term="issue" form="short"/>
@@ -744,7 +792,6 @@
       </if>
     </choose>
   </macro>
-
   <macro name="archive-note">
     <choose>
       <if type="thesis">
@@ -829,7 +876,7 @@
             <text macro="issued"/>
           </else>
         </choose>
-      </else-if> 
+      </else-if>
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
