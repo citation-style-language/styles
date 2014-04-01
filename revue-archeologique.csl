@@ -14,7 +14,7 @@
     <category field="anthropology"/>
     <issn>0035-0737</issn>
     <summary>Feuille de style pour la Revue Archéologique, mélangeant la citation complète en note et le style auteur/date. Problèmes connus par rapport à la feuille de style de la revue: impossibilité de coder l'utilisation de 'Id.' pour désigner un même auteur d'une référence différente; impossibilité d'interdire la mention des références citées une seule fois dans la bibliographie finale qui doit être expurgée</summary>
-    <updated>2012-10-18T11:00:00+01:00</updated>
+    <updated>2013-09-25T04:19:09+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -54,13 +54,20 @@
     <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
   </macro>
   <macro name="author-short">
-    <names variable="author">
-      <name form="short" font-variant="small-caps" delimiter=", "/>
-      <et-al font-variant="normal" font-style="italic"/>
-      <substitute>
-        <text macro="editor-short"/>
-      </substitute>
-    </names>
+    <choose>
+      <if variable="author editor" match="none">
+        <text variable="title" form="short" font-variant="small-caps"/>
+      </if>
+      <else>
+        <names variable="author">
+            <name form="short" font-variant="small-caps" delimiter=", "/>
+            <et-al font-variant="normal" font-style="italic"/>
+          <substitute>
+            <text macro="editor-short"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="editor-short">
     <names variable="editor">
@@ -83,6 +90,25 @@
       <text variable="collection-title" font-style="italic"/>
       <text variable="collection-number"/>
     </group>
+  </macro>
+  <macro name="locator">
+    <group delimiter="&#160;" prefix=", ">
+      <label variable="locator" form="short"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="locator-cit">
+    <choose>
+      <if type="article-journal article-magazine article-newspaper entry-dictionary entry-encyclopedia">
+        <group delimiter="&#160;" prefix=", en partic. ">
+            <label variable="locator" form="short"/>
+            <text variable="locator"/>
+        </group>
+      </if>
+      <else>
+        <text macro="locator"/>
+      </else>
+    </choose>
   </macro>
   <macro name="title">
     <choose>
@@ -134,10 +160,7 @@
         <if position="ibid-with-locator">
           <group delimiter=", ">
             <text term="ibid" text-case="capitalize-first" font-style="italic"/>
-            <group>
-              <label variable="locator" form="short"/>
-              <text variable="locator" prefix="&#160;"/>
-            </group>
+            <text macro="locator"/>
           </group>
         </if>
         <else-if position="ibid">
@@ -147,10 +170,7 @@
           <group>
             <text macro="author-short" suffix=" "/>
             <text macro="year-date"/>
-            <group delimiter="&#160;" prefix=", ">
-              <label variable="locator" form="short"/>
-              <text variable="locator"/>
-            </group>
+            <text macro="locator"/>
           </group>
         </else-if>
         <else>
@@ -190,10 +210,29 @@
                 <text macro="year-date" prefix=", "/>
               </group>
             </else-if>
+            <else-if type="entry-dictionary entry-encyclopedia" match="any">
+              <group delimiter=", " prefix=", ">
+                <text macro="title" quotes="true"/>
+                <choose>
+                  <if variable="title-short" match="any">
+                    <text variable="title" form="short" font-style="italic"/>
+                  </if>
+                  <else>
+                    <text variable="container-title" font-style="italic"/>
+                  </else>
+                </choose>
+                <group delimiter="&#160;">
+                  <label variable="volume" form="short"/>
+                  <text variable="volume"/>
+                </group>
+                <text macro="year-date"/>
+                <text macro="pages"/>
+              </group>
+            </else-if>
             <else-if type="chapter paper-conference" match="any">
               <text macro="title" quotes="true" prefix=", " suffix=", "/>
               <group>
-                <text macro="editor" prefix="dans " suffix=", "/>
+                <text macro="editor" suffix=", "/>
                 <text variable="container-title" font-style="italic"/>
                 <text macro="collection" prefix=" "/>
                 <text macro="publisher" prefix=", " suffix=", "/>
@@ -202,15 +241,12 @@
               </group>
             </else-if>
           </choose>
-          <group delimiter="&#160;" prefix=", ">
-            <label variable="locator" form="short"/>
-            <text variable="locator"/>
-          </group>
+          <text macro="locator-cit"/>
         </else>
       </choose>
     </layout>
   </citation>
-  <bibliography subsequent-author-substitute="">
+  <bibliography subsequent-author-substitute="&#9;">
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
@@ -224,10 +260,13 @@
               <name form="short" font-variant="small-caps" delimiter=", "/>
             </names>
           </if>
-          <else>
+          <else-if variable="editor">
             <names variable="editor">
               <name form="short" font-variant="small-caps" delimiter=", "/>
             </names>
+          </else-if>
+          <else>
+            <text variable="title" form="short" font-variant="small-caps"/>
           </else>
         </choose>
         <text macro="year-date" prefix=" " suffix="&#9;"/>
@@ -265,10 +304,29 @@
               <text macro="publisher" prefix=", "/>
             </group>
           </else-if>
+          <else-if type="entry-dictionary entry-encyclopedia" match="any">
+            <group delimiter=", " prefix=", ">
+              <text macro="title" quotes="true"/>
+              <choose>
+                <if variable="title-short" match="any">
+                  <text variable="title" form="short" font-style="italic"/>
+                </if>
+                <else>
+                  <text variable="container-title" font-style="italic"/>
+                </else>
+              </choose>
+              <group delimiter="&#160;">
+                <label variable="volume" form="short"/>
+                <text variable="volume"/>
+              </group>
+              <text macro="year-date"/>
+              <text macro="pages"/>
+            </group>
+          </else-if>
           <else-if type="chapter paper-conference" match="any">
             <text macro="title" quotes="true" suffix=", "/>
             <group>
-              <text macro="editor" prefix="dans " suffix=", "/>
+              <text macro="editor" suffix=", "/>
               <text variable="container-title" font-style="italic"/>
               <text macro="collection" prefix=" "/>
               <text macro="publisher" prefix=", " suffix=", "/>
