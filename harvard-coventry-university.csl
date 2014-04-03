@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB">
-<!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
+  <!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
   <info>
     <title>Harvard - Coventry University</title>
     <title-short>CU Harvard</title-short>
@@ -24,6 +24,7 @@
     <terms>
       <term name="edition" form="short">edn.</term>
       <term name="page" form="short"/>
+      <term name="section" form="short">s.</term>
     </terms>
     <style-options punctuation-in-quote="false"/>
   </locale>
@@ -96,18 +97,11 @@
       </if>
       <else-if type="legislation">
         <choose>
-          <if variable="author">
-            <names variable="author">
-              <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with="." delimiter=", "/>
-              <label form="short" prefix=" " strip-periods="false"/>
-              <substitute>
-                <text macro="editor"/>
-                <text macro="anon"/>
-              </substitute>
-            </names>
+          <if variable="container-title chapter-number" match="any">
+            <text variable="title" text-case="title"/>
           </if>
           <else>
-            <text variable="title" font-style="italic" text-case="title" suffix="."/>
+            <text variable="title" font-style="italic" text-case="title"/>
           </else>
         </choose>
       </else-if>
@@ -136,21 +130,7 @@
         </choose>
       </if>
       <else-if type="legislation">
-        <choose>
-          <if variable="author">
-            <names variable="author">
-              <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with="." delimiter=", "/>
-              <label form="short" prefix=" " strip-periods="false"/>
-              <substitute>
-                <text macro="cite-editor"/>
-                <text macro="anon"/>
-              </substitute>
-            </names>
-          </if>
-          <else>
-            <text variable="title" font-style="italic" text-case="title"/>
-          </else>
-        </choose>
+        <text variable="title" text-case="title"/>
       </else-if>
       <else>
         <names variable="author">
@@ -239,6 +219,28 @@
       </else>
     </choose>
   </macro>
+  <macro name="year-date-legislation">
+    <choose>
+      <if variable="issued">
+        <group delimiter=", ">
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+          <choose>
+            <if variable="chapter-number">
+              <text variable="chapter-number"/>
+            </if>
+            <else>
+              <text variable="container-title"/>
+            </else>
+          </choose>
+        </group>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="edition">
     <choose>
       <if is-numeric="edition">
@@ -291,18 +293,31 @@
       </if>
     </choose>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" collapse="year">
+  <citation et-al-min="3" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="all-names" name-as-sort-order="all" collapse="year">
     <layout prefix="(" suffix=")" delimiter=", ">
-      <group delimiter=": ">
-        <group delimiter=" ">
-          <text macro="author-short"/>
-          <text macro="year-date"/>
-        </group>
-        <group delimiter=" ">
-          <label variable="locator" form="short" strip-periods="false"/>
-          <text variable="locator"/>
-        </group>
-      </group>
+      <choose>
+        <if locator="page">
+          <group delimiter=":&#160;">
+            <group delimiter=" ">
+              <text macro="author-short"/>
+              <text macro="year-date"/>
+            </group>
+            <text variable="locator"/>
+          </group>
+        </if>
+        <else>
+          <group delimiter=",&#160;">
+            <group delimiter=" ">
+              <text macro="author-short"/>
+              <text macro="year-date"/>
+            </group>
+            <group delimiter="&#160;">
+              <label variable="locator" form="short" strip-periods="false"/>
+              <text variable="locator"/>
+            </group>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <bibliography hanging-indent="true">
@@ -314,29 +329,23 @@
     <layout>
       <group delimiter=" ">
         <text macro="author"/>
-        <text macro="year-date" prefix=" (" suffix=")"/>
+        <choose>
+          <if type="legislation" match="any">
+            <text macro="year-date-legislation" prefix=" (" suffix=")"/>
+          </if>
+          <else>
+            <text macro="year-date" prefix=" (" suffix=")"/>
+          </else>
+        </choose>
         <choose>
           <if type="bill legislation" match="any">
+            <text macro="online"/>
             <group delimiter=". ">
-              <group delimiter=" ">
-                <choose>
-                  <if type="legislation" match="any">
-                    <choose>
-                      <if variable="author">
-                        <text variable="title" font-style="italic" text-case="title"/>
-                        <text value="[Act of Parliament]"/>
-                      </if>
-                    </choose>
-                  </if>
-                  <else>
-                    <text variable="title" font-style="italic" text-case="title"/>
-                  </else>
-                </choose>
-              </group>
               <text macro="edition"/>
               <text variable="number"/>
               <text macro="transby"/>
-              <text macro="online"/>
+              <text variable="references"/>
+              <text macro="publisher"/>
               <text macro="access"/>
             </group>
           </if>
@@ -360,11 +369,11 @@
           </else-if>
           <else-if type="manuscript">
             <text macro="title-online"/>
-            <text variable="genre" prefix="[" suffix="]"/>
             <group delimiter=". ">
               <text macro="transby"/>
               <text variable="archive"/>
               <text variable="archive_location"/>
+              <text variable="genre"/>
               <text macro="publisher"/>
               <text macro="access"/>
             </group>
@@ -427,6 +436,7 @@
               </group>
               <text macro="volume"/>
               <text macro="volumes"/>
+              <text variable="genre"/>
               <text macro="publisher" prefix=" "/>
               <text macro="access"/>
             </group>
@@ -539,6 +549,7 @@
           <else-if type="map" match="any">
             <text macro="title-online"/>
             <group delimiter=". ">
+              <text variable="call-number"/>
               <group delimiter=", ">
                 <text variable="scale"/>
                 <text variable="collection-title"/>
@@ -582,6 +593,7 @@
               </group>
               <text macro="volumes"/>
               <text macro="issued"/>
+              <text variable="genre"/>
               <group delimiter=", ">
                 <text macro="publisher"/>
                 <text macro="pages"/>
