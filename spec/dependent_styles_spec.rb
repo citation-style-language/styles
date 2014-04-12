@@ -31,7 +31,7 @@ Dependents.each_pair do |id, (filename, path, style)|
 
       it "the self-link (if present) is a valid style repository link" do
         if style.has_self_link?
-          style.self_link.should == "http://www.zotero.org/styles/#{id}"
+          style.self_link.should match(%r{http[s]?://www.zotero.org/styles/#{id}})
         end
       end
 
@@ -64,7 +64,7 @@ Dependents.each_pair do |id, (filename, path, style)|
       it "its independent-parent link points to an existing style" do
         link = style.independent_parent_link
 
-        link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
+        link.should match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
         Independents.should have_key(link[/[^\/]+$/])
       end
 
