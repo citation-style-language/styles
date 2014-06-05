@@ -31,12 +31,12 @@ Independents.each_pair do |id, (filename, path, style)|
         style.info.should have_id
       end
 
-      it "the self-link is a valid style repository link" do
-        style.self_link.should == "http://www.zotero.org/styles/#{id}"
+      it "the id is a valid style repository link" do
+        style.id.should == "http://www.zotero.org/styles/#{id}"
       end
 
-      it "the self-link matches the style id" do
-        style.id.should == style.self_link
+      it "the self-link is a valid style repository link" do
+        style.self_link.should match(%r{http[s]?://www.zotero.org/styles/#{id}})
       end
 
       it "has an info/rights element" do
@@ -51,7 +51,7 @@ Independents.each_pair do |id, (filename, path, style)|
         if style.has_template_link?
           link = style.template_link
 
-          link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
+          link.should match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
           Independents.should have_key(link[/[^\/]+$/])
         end
       end

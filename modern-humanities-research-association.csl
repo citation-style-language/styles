@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB" page-range-format="chicago">
   <info>
     <title>Modern Humanities Research Association 3rd edition (note with bibliography)</title>
     <title-short>MHRA</title-short>
@@ -13,10 +13,14 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <uri>http://individual.utoronto.ca/dunning/</uri>
+    </contributor>
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>MHRA format with full notes and bibliography</summary>
-    <updated>2013-04-16T04:40:01+00:00</updated>
+    <updated>2014-03-19T19:16:44+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -72,11 +76,24 @@
   </macro>
   <macro name="title-note">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" font-style="italic" text-case="title"/>
+      <if variable="title" match="none">
+        <text variable="genre"/>
       </if>
+      <else-if type="bill book graphic legislation motion_picture report song" match="any">
+        <text variable="title" text-case="title" font-style="italic"/>
+        <group delimiter=" " prefix=", ">
+          <text term="version"/>
+          <text variable="version"/>
+        </group>
+      </else-if>
+      <else-if type="legal_case interview" match="any">
+        <text variable="title"/>
+      </else-if>
+      <else-if variable="reviewed-author">
+        <text variable="title" font-style="italic" prefix="review of "/>
+      </else-if>
       <else>
-        <text variable="title" quotes="true" text-case="title"/>
+        <text variable="title" text-case="title" quotes="true"/>
       </else>
     </choose>
   </macro>
@@ -109,31 +126,51 @@
   </macro>
   <macro name="editor-translator">
     <group delimiter=", ">
-      <choose>
-        <if variable="author">
-          <group delimiter=" ">
-            <choose>
-              <if variable="container-author">
-                <group>
-                  <names variable="container-author">
-                    <label form="verb-short" suffix=" "/>
-                    <name and="text" delimiter=", "/>
-                  </names>
-                </group>
-              </if>
-            </choose>
-          </group>
-          <names variable="editor translator" delimiter=", ">
-            <label form="verb-short" suffix=" "/>
-            <name and="text" delimiter=", "/>
-          </names>
-        </if>
-      </choose>
+      <group delimiter=" ">
+        <choose>
+          <if variable="container-author reviewed-author" match="any">
+            <group>
+              <names variable="container-author reviewed-author">
+                <label form="verb-short" text-case="lowercase" suffix=" "/>
+                <name and="text" delimiter=", "/>
+              </names>
+            </group>
+          </if>
+        </choose>
+      </group>
+      <names variable="editor translator" delimiter=", ">
+        <label form="verb-short" text-case="lowercase" suffix=" "/>
+        <name and="text" delimiter=", "/>
+      </names>
     </group>
   </macro>
+  <macro name="secondary-contributors-note">
+    <choose>
+      <if type="chapter paper-conference" match="none">
+        <text macro="editor-translator"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="container-contributors-note">
+    <choose>
+      <if type="chapter paper-conference" match="any">
+        <text macro="editor-translator"/>
+      </if>
+    </choose>
+  </macro>
   <macro name="collection-title">
-    <text variable="collection-title" text-case="title"/>
-    <text variable="collection-number" prefix=", "/>
+    <group delimiter=", ">
+      <choose>
+        <if type="article-journal">
+          <text variable="collection-title"/>
+          <text variable="collection-number"/>
+        </if>
+        <else>
+          <text variable="collection-title" text-case="title"/>
+          <text variable="collection-number"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="locators-note">
     <choose>
@@ -299,10 +336,17 @@
     </group>
   </macro>
   <macro name="publisher">
-    <group delimiter=": ">
-      <text variable="publisher-place"/>
-      <text variable="publisher"/>
-    </group>
+    <choose>
+      <if type="thesis">
+        <text variable="publisher"/>
+      </if>
+      <else>
+        <group delimiter=": ">
+          <text variable="publisher-place"/>
+          <text variable="publisher"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="issued">
     <choose>
@@ -374,7 +418,7 @@
     </group>
     <choose>
       <if variable="DOI">
-        <text variable="DOI" prefix=" &lt;doi:" suffix="&gt;"/>
+        <text variable="DOI" prefix=" &lt;http://dx.doi.org/" suffix="&gt;"/>
       </if>
       <else>
         <choose>
@@ -408,8 +452,9 @@
           <group delimiter=", ">
             <text macro="contributors-note"/>
             <text macro="title-note"/>
+            <text macro="secondary-contributors-note"/>
             <text macro="container-title-note"/>
-            <text macro="editor-translator"/>
+            <text macro="container-contributors-note"/>
             <text macro="collection-title"/>
             <text macro="locators-note"/>
           </group>
@@ -422,7 +467,7 @@
       </choose>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="7" et-al-use-first="6" subsequent-author-substitute="---">
+  <bibliography hanging-indent="true" et-al-min="7" et-al-use-first="6" subsequent-author-substitute="&#8212;&#8212;&#8212;">
     <sort>
       <key macro="author"/>
       <key variable="title"/>
@@ -431,8 +476,9 @@
       <group delimiter=", ">
         <text macro="author"/>
         <text macro="title-note"/>
+        <text macro="secondary-contributors-note"/>
         <text macro="container-title-note"/>
-        <text macro="editor-translator"/>
+        <text macro="container-contributors-note"/>
         <text macro="collection-title"/>
         <text macro="volume"/>
       </group>

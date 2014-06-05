@@ -20,10 +20,10 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The author-date variant of the Chicago style</summary>
-    <updated>2014-01-06T06:51:01+00:00</updated>
+    <updated>2014-05-23T03:53:32+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale>
+  <locale xml:lang="en">
     <terms>
       <term name="editor" form="verb-short">ed.</term>
       <term name="container-author" form="verb">by</term>
@@ -39,7 +39,7 @@
     <choose>
       <if type="chapter paper-conference" match="none">
         <names variable="editor translator" delimiter=". ">
-          <label form="verb" text-case="capitalize-first" suffix=" " plural="never"/>
+          <label form="verb" text-case="capitalize-first" suffix=" "/>
           <name and="text" delimiter=", "/>
         </names>
       </if>
@@ -50,11 +50,11 @@
       <if type="chapter paper-conference" match="any">
         <group prefix=", " delimiter=", ">
           <names variable="container-author" delimiter=", ">
-            <label form="verb" suffix=" " plural="never"/>
+            <label form="verb" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
           <names variable="editor translator" delimiter=", ">
-            <label form="verb" suffix=" " plural="never"/>
+            <label form="verb" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
         </group>
@@ -70,7 +70,7 @@
   <macro name="translator">
     <names variable="translator">
       <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=", " plural="never"/>
+      <label form="short" prefix=", "/>
     </names>
   </macro>
   <macro name="recipient">
@@ -95,7 +95,7 @@
     <group delimiter=". ">
       <names variable="author">
         <name and="text" name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-        <label form="short" plural="never" prefix=", "/>
+        <label form="short" prefix=", "/>
         <substitute>
           <names variable="editor"/>
           <names variable="translator"/>
@@ -217,8 +217,37 @@
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <text variable="volume" prefix=" "/>
-        <text variable="issue" prefix=" (" suffix=")"/>
+        <choose>
+          <if variable="volume">
+            <text variable="volume" prefix=" "/>
+            <group prefix=" (" suffix=")">
+              <choose>
+                <if variable="issue">
+                  <text variable="issue"/>
+                </if>
+                <else>
+                  <date variable="issued">
+                    <date-part name="month"/>
+                  </date>
+                </else>
+              </choose>
+            </group>
+          </if>
+          <else-if variable="issue">
+            <group delimiter=" " prefix=", ">
+              <text term="issue" form="short"/>
+              <text variable="issue"/>
+              <date variable="issued" prefix="(" suffix=")">
+                <date-part name="month"/>
+              </date>
+            </group>
+          </else-if>
+          <else>
+            <date variable="issued" prefix=", ">
+              <date-part name="month"/>
+            </date>
+          </else>
+        </choose>
       </if>
       <else-if type="legal_case">
         <text variable="volume" prefix=", "/>
@@ -278,7 +307,14 @@
         </group>
       </if>
       <else-if type="article-journal">
-        <text variable="page" prefix=": "/>
+        <choose>
+          <if variable="volume issue" match="any">
+            <text variable="page" prefix=": "/>
+          </if>
+          <else>
+            <text variable="page" prefix=", "/>
+          </else>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -380,7 +416,7 @@
     </choose>
     <choose>
       <if variable="title" match="none"/>
-      <else-if type="thesis personal_communication" match="any"/>
+      <else-if type="thesis personal_communication speech" match="any"/>
       <else>
         <group delimiter=" " prefix=". ">
           <text variable="genre" text-case="capitalize-first"/>
@@ -404,10 +440,13 @@
         <text variable="authority" prefix=". "/>
       </if>
       <else-if type="speech">
-        <group prefix=" " delimiter=", ">
-          <text macro="event"/>
-          <text macro="day-month"/>
+        <group prefix=". " delimiter=", ">
+          <group delimiter=" ">
+            <text variable="genre" text-case="capitalize-first"/>
+            <text macro="event"/>
+          </group>
           <text variable="event-place"/>
+          <text macro="day-month"/>
         </group>
       </else-if>
       <else-if type="article-newspaper article-magazine personal_communication" match="any">
