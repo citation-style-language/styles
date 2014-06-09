@@ -27,7 +27,7 @@
     </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <updated>2013-03-28T21:58:08+00:00</updated>
+    <updated>2013-11-02T03:09:48+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -75,7 +75,7 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <label form="short" suffix=" " plural="never"/>
+      <label form="short" suffix=". " plural="contextual"/>
       <name initialize-with="" delimiter=", " et-al-min="7" et-al-use-first="5"/>
     </names>
   </macro>
@@ -97,24 +97,34 @@
       </if>
       <else-if type="book" match="any">
         <group delimiter=", ">
-          <text variable="title" font-style="italic"/>
+          <text variable="title" font-style="italic" text-case="title"/>
           <group>
             <label variable="volume" form="short" suffix=" " text-case="capitalize-first"/>
-            <text variable="volume"/>
+            <text variable="volume" text-case="title"/>
           </group>
         </group>
       </else-if>
       <else>
-        <text variable="title" text-case="sentence"/>
+        <text variable="title"/>
       </else>
     </choose>
   </macro>
   <macro name="container-title">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="paper-conference" match="any">
         <text term="in" text-case="capitalize-first" suffix=" "/>
-        <text variable="container-title" font-style="italic"/>
+        <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
+      <else-if type="chapter" match="any">
+        <text term="in" text-case="capitalize-first" suffix=" "/>
+        <group delimiter=", ">
+          <text variable="container-title" font-style="italic" text-case="title"/>
+          <group>
+            <label variable="volume" form="short" suffix=" " text-case="capitalize-first"/>
+            <text variable="volume" text-case="title"/>
+          </group>
+        </group>
+      </else-if>
       <else-if type="article-newspaper article-magazine article-journal" match="any">
         <text variable="container-title" form="short" font-style="italic"/>
       </else-if>
@@ -131,7 +141,7 @@
   </macro>
   <macro name="locator">
     <choose>
-      <if type="article-journal chapter paper-conference" match="any">
+      <if type="article-journal paper-conference" match="any">
         <choose>
           <if variable="volume">
             <group prefix=". ">
@@ -153,17 +163,37 @@
               <else>
                 <text variable="page" prefix=". "/>
               </else>
-            </choose>
+            </choose>  
           </else>
         </choose>
       </if>
+      <else-if type="chapter" match="any">
+        <group prefix=", ">
+          <label variable="page" form="short" suffix=" "/>
+          <text variable="page"/>
+        </group>
+      </else-if>
       <else-if type="article-magazine article-newspaper" match="any">
         <group delimiter=", ">
           <text macro="date-m-d"/>
-          <group>
-            <label variable="page" form="short" suffix=" "/>
-            <text variable="page"/>
-          </group>
+          <choose>
+            <if variable="page" match="any">
+              <choose>
+                <if is-numeric="page" match="all">
+                  <group prefix=", ">
+                    <label variable="page" form="short" suffix=" "/>
+                    <text variable="page"/>
+                  </group>
+                </if>
+                <else>
+                  <text variable="page" prefix=". "/>
+                </else>
+              </choose>
+            </if>
+            <else>
+              <text variable="URL" prefix=". "/>
+            </else>
+          </choose>
         </group>
       </else-if>
       <else>
@@ -176,10 +206,6 @@
       <if type="book" match="any">
         <group delimiter=". ">
           <text macro="publisher"/>
-          <group delimiter=" ">
-            <number variable="number-of-pages"/>
-            <label variable="number-of-pages" form="short"/>
-          </group>
           <group delimiter=" ">
             <number variable="edition" form="ordinal"/>
             <label variable="edition" form="short"/>
@@ -194,10 +220,6 @@
             <text macro="locator"/>
           </group>
           <text macro="publisher"/>
-          <group delimiter=" ">
-            <text variable="number-of-pages"/>
-            <label variable="number-of-pages" form="short"/>
-          </group>
           <group delimiter=" ">
             <number variable="edition" form="ordinal"/>
             <label variable="edition" form="short"/>
@@ -243,10 +265,6 @@
         <group delimiter=". ">
           <text variable="genre" suffix=" thesis"/>
           <text variable="publisher" form="short"/>
-          <group delimiter=" ">
-            <text variable="number-of-pages"/>
-            <label variable="number-of-pages" form="short"/>
-          </group>
         </group>
       </else-if>
       <else-if type="webpage" match="any">
