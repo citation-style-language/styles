@@ -17,6 +17,10 @@
       <email>karnesky+zotero@gmail.com</email>
       <uri>http://arc.nucapt.northwestern.edu/Richard_Karnesky</uri>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <email>andrew.dunning@utoronto.ca</email>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The author-date variant of the Chicago style</summary>
@@ -134,35 +138,31 @@
         <if type="graphic report" match="any">
           <text macro="archive"/>
         </if>
-        <else-if type="article-magazine article-newspaper bill book chapter graphic legal_case legislation motion_picture paper-conference report song thesis" match="none">
+        <else-if type="article-journal bill book chapter legal_case legislation motion_picture paper-conference" match="none">
           <text macro="archive"/>
         </else-if>
       </choose>
-      <text variable="DOI" prefix="doi:"/>
       <choose>
-        <if variable="DOI issued" match="none">
-          <choose>
-            <if variable="URL accessed" match="all">
-              <group delimiter=" ">
-                <text term="accessed" text-case="capitalize-first"/>
-                <date variable="accessed" delimiter=" ">
-                  <date-part name="month"/>
-                  <date-part name="day"/>
-                </date>
-              </group>
-            </if>
-          </choose>
+        <if variable="issued" match="none">
+          <group delimiter=" ">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed" delimiter=" ">
+              <date-part name="month"/>
+              <date-part name="day"/>
+            </date>
+          </group>
         </if>
-        <else-if type="webpage">
-          <date variable="issued" delimiter=" ">
-            <date-part name="month"/>
-            <date-part name="day"/>
-          </date>
-        </else-if>
       </choose>
       <choose>
         <if type="legal_case" match="none">
-          <text variable="URL"/>
+          <choose>
+            <if variable="DOI">
+              <text variable="DOI" prefix="doi:"/>
+            </if>
+            <else>
+              <text variable="URL"/>
+            </else>
+          </choose>
         </if>
       </choose>
     </group>
@@ -176,8 +176,24 @@
           </if>
         </choose>
       </if>
-      <else-if type="bill book graphic legal_case legislation motion_picture song" match="any">
+      <else-if type="bill book graphic legislation motion_picture report song" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
+        <group prefix=" (" suffix=")" delimiter=" ">
+          <text term="version"/>
+          <text variable="version"/>
+        </group>
+      </else-if>
+      <else-if variable="reviewed-author">
+        <group delimiter=", ">
+          <text variable="title" font-style="italic" prefix="Review of "/>
+          <names variable="reviewed-author">
+            <label form="verb-short" text-case="lowercase" suffix=" "/>
+            <name and="text" delimiter=", "/>
+          </names>
+        </group>
+      </else-if>
+      <else-if type="legal_case interview" match="any">
+        <text variable="title"/>
       </else-if>
       <else>
         <text variable="title" text-case="title" quotes="true"/>
