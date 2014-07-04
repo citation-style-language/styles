@@ -58,6 +58,11 @@
         <names variable="editor"/>
       </substitute>
     </names>
+    <choose>
+      <if type="patent">
+        <text term="original-author" prefix=", "/>
+      </if>
+    </choose>
   </macro>
   <macro name="editor">
     <group delimiter=": ">
@@ -179,7 +184,7 @@
   </macro>
   <macro name="date">
     <choose>
-      <if type="article-journal article-magazine article-newspaper" match="any">
+      <if type="article-journal article-magazine article-newspaper webpage" match="any">
         <group suffix=";" delimiter=" ">
           <date variable="issued" form="text"/>
           <text macro="accessed-date"/>
@@ -254,6 +259,28 @@
       </if>
     </choose>
   </macro>
+  <macro name="webpage-details">
+  	<text variable="container-title"/>
+    <text term="internet" prefix=" [" suffix="]. " text-case="capitalize-first"/>
+    <group delimiter="; " suffix=". ">
+      <group delimiter=". ">
+        <text macro="author"/>
+        <text variable="title"/>
+      </group>
+      <group delimiter=" ">
+        <date variable="issued" form="text"/>
+        <text macro="accessed-date"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="pmcid">
+    <text variable="PMCID" prefix="PMCID: "/>
+    <choose>
+      <if variable="PMCID" match="none">
+        <text variable="PMID" prefix="PMID: "/>
+      </if>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -265,21 +292,29 @@
   <bibliography et-al-min="7" et-al-use-first="6" second-field-align="flush">
     <layout>
       <text variable="citation-number" suffix=". "/>
-      <group delimiter=". " suffix=". ">
-        <text macro="author"/>
-        <text macro="title"/>
-      </group>
-      <group delimiter=" " suffix=". ">
-        <text macro="editor"/>
-        <text macro="container-title"/>
-        <text macro="publisher"/>
-        <group>
-          <text macro="date"/>
-          <text macro="journal-location"/>
-          <text macro="pages"/>
-        </group>
-      </group>
-      <text macro="report-details" suffix=". "/>
+      <choose>
+        <if type="webpage">
+      	  <text macro="webpage-details"/>
+        </if>
+        <else>
+          <group delimiter=". " suffix=". ">
+            <text macro="author"/>
+            <text macro="title"/>
+          </group>
+          <group delimiter=" " suffix=". ">
+            <text macro="editor"/>
+            <text macro="container-title"/>
+            <text macro="publisher"/>
+            <group>
+              <text macro="date"/>
+              <text macro="journal-location"/>
+              <text macro="pages"/>
+            </group>
+          </group>
+          <text macro="report-details" suffix=". "/>
+        </else>
+      </choose>
+      <text macro="pmcid" suffix=". "/>
       <text macro="access"/>
     </layout>
   </bibliography>
