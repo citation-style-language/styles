@@ -21,7 +21,7 @@
     <category field="anthropology"/>
     <issn>0220-6617</issn>
     <eissn>1951-6207</eissn>
-    <updated>2014-04-27T03:53:13+00:00</updated>
+    <updated>2014-07-28T02:01:37+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -43,7 +43,7 @@
   </macro>
   <macro name="author-short">
     <names variable="author">
-      <name form="short" and="text" delimiter=", " initialize-with=". " delimiter-precedes-last="never" name-as-sort-order="all" sort-separator=" ">
+      <name form="short" and="text" delimiter=", " initialize-with=". " delimiter-precedes-last="never" name-as-sort-order="all" sort-separator=" " et-al-min="4" et-al-use-first="1">
         <name-part name="family" font-variant="small-caps"/>
         <name-part name="given" font-variant="small-caps"/>
       </name>
@@ -110,8 +110,8 @@
         </group>
       </if>
       <else-if variable="URL">
-        <text value="Disponible sur : " prefix=" "/>
-        <group prefix="&lt; " suffix=" &gt;">
+        <text value="URL : " prefix=". "/>
+        <group prefix="" suffix="">
           <text variable="URL"/>
         </group>
       </else-if>
@@ -120,7 +120,7 @@
   <macro name="accessed-date">
     <choose>
       <if variable="URL">
-        <group prefix="(" suffix=")" delimiter=" ">
+        <group prefix=", " suffix="" delimiter=" ">
           <text value="consulté le"/>
           <date variable="accessed" suffix="">
             <date-part name="day" suffix=" "/>
@@ -204,6 +204,17 @@
     <text variable="issue" prefix=" n?" suffix=","/>
     <text variable="page" prefix=" p.&#160;" suffix="."/>
   </macro>
+  <macro name="webpageinfo">
+    <text variable="note" prefix="Tome " suffix=" | "/>
+    <text macro="year-date" prefix="" suffix=","/>
+  </macro>
+  <macro name="parution">
+    <date variable="issued">
+      <date-part name="day" suffix=" "/>
+      <date-part name="month" suffix=" "/>
+      <date-part name="year" suffix=""/>
+    </date>
+  </macro>
   <citation disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="primary-name">
     <layout prefix=" (" suffix=")" delimiter="">
       <group delimiter="&#160;:&#160;">
@@ -222,71 +233,83 @@
       <key variable="issued"/>
     </sort>
     <layout>
-      <group prefix="" suffix="&#13;" delimiter=" ">
+      <group prefix="" suffix="" delimiter=" ">
         <text macro="author-short"/>
         <text macro="year-date"/>
         <text variable="year-suffix" prefix=" "/>
       </group>
-      <text macro="author"/>
-      <text macro="title" prefix="- " suffix=", "/>
-      <choose>
-        <if type="thesis">
-          <text variable="genre" suffix=". "/>
-          <text macro="publisher" prefix=" "/>
-          <text variable="number-of-pages" suffix=" p."/>
-        </if>
-        <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <text macro="publisher" prefix=""/>
-          <text macro="edition"/>
-          <text variable="number-of-pages" suffix=" p."/>
-          <text macro="collection"/>
-        </else-if>
-        <else-if type="patent">
-          <text variable="number" suffix=". "/>
-          <date variable="issued">
-            <date-part name="day" suffix=" "/>
-            <date-part name="month" suffix=" "/>
-            <date-part name="year" suffix="."/>
-          </date>
-        </else-if>
-        <else-if type="chapter paper-conference webpage" match="any">
-          <group prefix=" ">
-            <text value="in" suffix=" : " text-case="capitalize-first"/>
-            <text macro="editor"/>
-            <text macro="journal-title"/>
-            <text variable="event" suffix=". " font-style="italic"/>
-          </group>
-          <text macro="publisher" prefix=" "/>
-          <text variable="page" prefix=" p. " suffix="."/>
-        </else-if>
-        <else-if type="article-journal" match="any">
-          <group prefix=" ">
-            <text macro="journal-title"/>
-          </group>
-          <text variable="volume" prefix="" form="short"/>
-          <text variable="page" prefix="&#160;:&#160;" suffix="."/>
-        </else-if>
-        <else>
-          <text macro="journal-title"/>
-          <group suffix=".">
-            <date variable="issued" suffix=".">
+      <group display="block" delimiter="" prefix="" suffix="">
+        <text macro="author"/>
+        <text macro="title" prefix="- " suffix=", "/>
+        <choose>
+          <if type="thesis">
+            <text variable="genre" suffix=". "/>
+            <text macro="publisher" prefix=" "/>
+            <text variable="number-of-pages" suffix=" p."/>
+          </if>
+          <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+            <text macro="publisher" prefix=""/>
+            <text macro="edition"/>
+            <text variable="number-of-pages" suffix=" p."/>
+            <text macro="collection"/>
+          </else-if>
+          <else-if type="patent">
+            <text variable="number" suffix=". "/>
+            <date variable="issued">
               <date-part name="day" suffix=" "/>
               <date-part name="month" suffix=" "/>
-              <date-part name="year" suffix=""/>
+              <date-part name="year" suffix="."/>
             </date>
-          </group>
-          <group suffix=". ">
-            <text macro="locators"/>
-          </group>
-        </else>
-      </choose>
-      <text macro="access"/>
-      <text macro="accessed-date" prefix=" "/>
-      <choose>
-        <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
-          <text variable="ISBN" prefix="ISBN&#160;: " suffix="."/>
-        </if>
-      </choose>
+          </else-if>
+          <else-if type="chapter paper-conference" match="any">
+            <group prefix=" ">
+              <text value="in" suffix=" : " text-case="capitalize-first"/>
+              <text macro="editor"/>
+              <text macro="journal-title"/>
+              <text variable="event" suffix=". " font-style="italic"/>
+            </group>
+            <text macro="publisher" prefix=" "/>
+            <text variable="page" prefix=" p. " suffix="."/>
+          </else-if>
+          <else-if type="webpage" match="any">
+            <group prefix=" ">
+              <text macro="editor"/>
+              <text macro="journal-title"/>
+              <text variable="event" suffix=". " font-style="italic"/>
+            </group>
+            <text macro="webpageinfo" prefix=" "/>
+            <text variable="page" prefix=" p. " suffix="."/>
+            <text macro="parution" prefix=" mis en ligne le "/>
+            <text macro="accessed-date"/>
+            <text macro="access"/>
+          </else-if>
+          <else-if type="article-journal" match="any">
+            <group prefix=" ">
+              <text macro="journal-title"/>
+            </group>
+            <text variable="volume" prefix="" form="short"/>
+            <text variable="page" prefix="&#160;:&#160;" suffix="."/>
+          </else-if>
+          <else>
+            <text macro="journal-title"/>
+            <group suffix=".">
+              <date variable="issued" suffix=".">
+                <date-part name="day" suffix=" "/>
+                <date-part name="month" suffix=" "/>
+                <date-part name="year" suffix=""/>
+              </date>
+            </group>
+            <group suffix=". ">
+              <text macro="locators"/>
+            </group>
+          </else>
+        </choose>
+        <choose>
+          <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
+            <text variable="ISBN" prefix="ISBN&#160;: " suffix="."/>
+          </if>
+        </choose>
+      </group>
     </layout>
   </bibliography>
 </style>
