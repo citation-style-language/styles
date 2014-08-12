@@ -161,10 +161,44 @@
       </else>
     </choose>
   </macro>
-  <macro name="locators">
+  <macro name="locators-journal">
     <choose>
-      <if type="article-journal article-magazine article-newspaper" match="any">
+      <if type="article-journal" match="any">
         <text variable="page"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="locators-newspaper">
+    <choose>
+      <if type="article-magazine article-newspaper" match="any">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <choose>
+              <if is-numeric="section">
+                <text value="sec."/>
+              </if>
+            </choose>
+            <text variable="section"/>
+          </group>
+          <group delimiter=" ">
+            <choose>
+              <if is-numeric="page">
+                <label variable="page" form="short"/>
+              </if>
+            </choose>
+            <text variable="page"/>
+          </group>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="date-newspaper">
+    <choose>
+      <if type="article-magazine article-newspaper" match="any">
+        <date variable="issued">
+          <date-part name="month" form="short"/>
+          <date-part name="day" form="numeric"/>
+        </date>
       </if>
     </choose>
   </macro>
@@ -239,20 +273,24 @@
           </group>
         </if>
         <else>
-          <group delimiter=" ">
-            <group>
-              <text macro="author"/>
-              <text macro="issued"/>
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <group>
+                <text macro="author"/>
+                <text macro="issued"/>
+              </group>
+              <text macro="title"/>
+              <group delimiter=", ">
+                <text macro="container-contributors"/>
+                <text macro="container-title"/>
+              </group>
+              <text variable="collection-title"/>
+              <text macro="secondary-contributors"/>
+              <text macro="publisher"/>
+              <text macro="locators-journal"/>
             </group>
-            <text macro="title"/>
-            <group delimiter=", ">
-              <text macro="container-contributors"/>
-              <text macro="container-title"/>
-            </group>
-            <text variable="collection-title"/>
-            <text macro="secondary-contributors"/>
-            <text macro="publisher"/>
-            <text macro="locators"/>
+            <text macro="date-newspaper"/>
+            <text macro="locators-newspaper"/>
           </group>
           <text macro="access" prefix=", "/>
         </else>
