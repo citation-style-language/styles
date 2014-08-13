@@ -21,6 +21,10 @@
       <name>Frank Bennett</name>
       <email>biercenator@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <email>andrew.dunning@utoronto.ca</email>
+    </contributor>
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>Chicago format with short notes and bibliography</summary>
@@ -370,10 +374,34 @@
     </group>
   </macro>
   <macro name="collection-title">
-    <group delimiter=" ">
-      <text variable="collection-title" text-case="title"/>
-      <text variable="collection-number"/>
-    </group>
+    <choose>
+      <if match="none" type="article-journal">
+        <choose>
+          <if match="none" is-numeric="collection-number">
+            <group delimiter=", ">
+              <text variable="collection-title" text-case="title"/>
+              <text variable="collection-number"/>
+            </group>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text variable="collection-title" text-case="title"/>
+              <text variable="collection-number"/>
+            </group>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="collection-title-journal">
+    <choose>
+      <if type="article-journal">
+        <group delimiter=" ">
+          <text variable="collection-title"/>
+          <text variable="collection-number"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="edition-note">
     <choose>
@@ -412,7 +440,11 @@
   <macro name="locators-note-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators-note"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators-note"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -421,8 +453,15 @@
       <if type="article-journal" match="none">
         <text macro="locators-note"/>
       </if>
-      <else-if variable="volume" match="none">
-        <text macro="locators-note"/>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="volume" match="none">
+            <text macro="locators-note"/>
+          </if>
+          <else-if match="any" variable="collection-title">
+            <text macro="locators-note"/>
+          </else-if>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -430,6 +469,7 @@
     <choose>
       <if type="article-journal">
         <group delimiter=", ">
+          <text macro="collection-title-journal"/>
           <number variable="volume"/>
           <group delimiter=" ">
             <text term="issue" form="short"/>
@@ -449,6 +489,7 @@
       </else-if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group delimiter=", ">
+          <text macro="edition-note"/>
           <group delimiter=" ">
             <text term="volume" form="short"/>
             <number variable="volume" form="numeric"/>
@@ -461,7 +502,6 @@
               </group>
             </if>
           </choose>
-          <text macro="edition-note"/>
         </group>
       </else-if>
     </choose>
@@ -469,13 +509,17 @@
   <macro name="locators-join-with-space">
     <choose>
       <if type="article-journal" variable="volume" match="all">
-        <text macro="locators"/>
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
   <macro name="locators-join-with-comma">
     <choose>
-      <if type="legal_case">
+      <if type="legal_case chapter paper-conference" match="any">
         <text macro="locators"/>
       </if>
       <else-if type="article-journal">
@@ -483,13 +527,16 @@
           <if variable="volume" match="none">
             <text macro="locators"/>
           </if>
+          <else-if match="any" variable="collection-title">
+            <text macro="locators"/>
+          </else-if>
         </choose>
       </else-if>
     </choose>
   </macro>
   <macro name="locators-join-with-period">
     <choose>
-      <if type="legal_case article-journal" match="none">
+      <if type="legal_case article-journal chapter paper-conference" match="none">
         <text macro="locators"/>
       </if>
     </choose>
@@ -498,6 +545,7 @@
     <choose>
       <if type="article-journal">
         <group delimiter=", ">
+          <text macro="collection-title-journal"/>
           <number variable="volume"/>
           <group delimiter=" ">
             <text term="issue" form="short"/>
@@ -514,6 +562,7 @@
       </else-if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <group delimiter=". ">
+          <text macro="edition"/>
           <group delimiter=" ">
             <text term="volume" form="short" text-case="capitalize-first"/>
             <number variable="volume" form="numeric"/>
@@ -522,11 +571,11 @@
             <number variable="number-of-volumes" form="numeric"/>
             <text term="volume" form="short" plural="true"/>
           </group>
-          <text macro="edition"/>
         </group>
       </else-if>
       <else-if type="chapter paper-conference" match="any">
         <group delimiter=". ">
+          <text macro="edition"/>
           <choose>
             <if variable="page" match="none">
               <group delimiter=" ">
@@ -535,7 +584,6 @@
               </group>
             </if>
           </choose>
-          <text macro="edition"/>
         </group>
       </else-if>
     </choose>
@@ -1072,11 +1120,11 @@
                       <group delimiter=", ">
                         <text macro="container-title"/>
                         <text macro="container-contributors"/>
-                        <text macro="locators-chapter"/>
                       </group>
                       <text macro="locators-join-with-period"/>
                     </group>
                     <text macro="locators-join-with-comma"/>
+                    <text macro="locators-chapter"/>
                   </group>
                   <text macro="locators-join-with-space"/>
                 </group>

@@ -12,9 +12,14 @@
     <contributor>
       <name>Frank Bennett</name>
     </contributor>
+    <contributor>
+      <name>Florian Martin-Bariteau</name>
+      <email>f.martin-bariteau@umontreal.ca</email>
+      <uri>http://f-mb.github.io/cslegal/</uri>
+    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
-    <updated>2012-09-27T22:06:38+00:00</updated>
+    <updated>2014-06-28T19:23:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -137,11 +142,13 @@ all the other tests should have been done... -->
     <group delimiter=" ">
       <text variable="title" quotes="true"/>
       <date form="text" variable="issued" date-parts="year" prefix="(" suffix=")"/>
-      <text variable="volume"/>
+      <group delimiter=":">
+        <text variable="volume"/>
+        <text variable="issue"/>
+      </group>
+      <text macro="container-title"/>
+      <text variable="page-first"/>
     </group>
-    <text variable="issue" prefix=":"/>
-    <text macro="container-title" prefix=" "/>
-    <text variable="page-first" prefix=" "/>
     <text macro="internet-location"/>
   </macro>
   <macro name="render-book">
@@ -207,25 +214,58 @@ all the other tests should have been done... -->
     </group>
   </macro>
   <macro name="render-case">
-    <group delimiter=", ">
-      <group delimiter=" ">
-        <text variable="title" font-style="italic"/>
+    <choose>
+      <if variable="author">
+        <group delimiter=", ">
+          <text variable="authority" strip-periods="true"/>
+          <date form="numeric" variable="issued"/>
+          <text variable="number"/>
+          <group delimiter=" ">
+            <text variable="title" font-style="italic" strip-periods="true"/>
+            <text variable="references" prefix="(" suffix=")"/>
+          </group>
+          <text variable="container-title" strip-periods="true" font-style="italic"/>
+          <text variable="volume"/>
+          <text variable="page"/>
+          <text variable="note"/>
+        </group>
+      </if>
+      <else-if variable="title" match="none">
+        <group delimiter=", ">
+          <text variable="authority" strip-periods="true"/>
+          <date form="numeric" variable="issued"/>
+          <text variable="number"/>
+          <group delimiter=" ">
+            <text variable="title" form="short" font-style="italic" strip-periods="true"/>
+            <text variable="references" prefix="(" suffix=")"/>
+          </group>
+          <text variable="container-title" strip-periods="true" font-style="italic"/>
+          <text variable="volume"/>
+          <text variable="page"/>
+          <text variable="note"/>
+        </group>
+      </else-if>
+      <else>
+        <text variable="title" font-style="italic" suffix=", " strip-periods="true"/>
         <choose>
-          <if variable="volume">
-            <date form="text" variable="issued" date-parts="year" prefix="(" suffix=")"/>
+          <if variable="container-title" match="none">
+            <date form="text" variable="issued" date-parts="year"/>
+            <text variable="authority" suffix=" " strip-periods="true"/>
+            <text variable="page"/>
           </if>
+          <else>
+            <date form="text" variable="issued" date-parts="year" prefix=" [" suffix="] "/>
+            <text variable="volume" suffix=" "/>
+            <text variable="container-title" suffix=" " strip-periods="true"/>
+            <text variable="page"/>
+            <text variable="authority" prefix=" (" suffix=")" strip-periods="true"/>
+          </else>
         </choose>
-      </group>
-      <group delimiter=" ">
-        <text variable="volume"/>
-        <date form="text" variable="issued" date-parts="year"/>
-        <text macro="container-title"/>
-        <text variable="number"/>
-        <text variable="page-first"/>
-        <text variable="authority" prefix="(" suffix=")"/>
-        <text variable="URL" prefix="(available on " suffix=")"/>
-      </group>
-    </group>
+        <text variable="note" prefix=", "/>
+        <text variable="references" prefix=" (" suffix=")"/>
+      </else>
+    </choose>
+    <text variable="URL" prefix=" (available on " suffix=")"/>
   </macro>
   <macro name="pinpoint">
     <group delimiter=" ">
@@ -259,6 +299,20 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
         </names>
       </if>
       <else>
+        <choose>
+          <if type="legal_case">
+            <choose>
+              <if variable="author">
+                <text variable="authority" suffix=", "/>
+                <date form="numeric" variable="issued" suffix=", "/>
+              </if>
+              <else-if variable="title" match="none">
+                <text variable="authority" suffix=", "/>
+                <date form="numeric" variable="issued" suffix=", "/>
+              </else-if>
+            </choose>
+          </if>
+        </choose>
         <text variable="title" font-style="italic" form="short"/>
       </else>
     </choose>
@@ -323,7 +377,7 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
                     <else-if type="article-newspaper">
                       <text macro="render-article-newspaper"/>
                     </else-if>
-                    <else-if type="webpage">
+                    <else-if type="webpage post-weblog" match="any">
                       <text macro="render-webpage"/>
                     </else-if>
                     <else-if type="book">
@@ -389,7 +443,7 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
               <else-if type="book">
                 <text macro="render-book"/>
               </else-if>
-              <else-if type="webpage">
+              <else-if type="webpage post-weblog" match="any">
                 <text macro="render-webpage"/>
               </else-if>
               <else-if type="report">

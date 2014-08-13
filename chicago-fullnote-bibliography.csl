@@ -28,7 +28,7 @@
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>Chicago format with full notes and bibliography</summary>
-    <updated>2014-03-14T08:06:29+00:00</updated>
+    <updated>2014-05-15T18:02:53+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -104,6 +104,7 @@
                   </names>
                 </if>
               </choose>
+              <!--This includes page numers after the container author, e.g. for Introductions -->
               <choose>
                 <if variable="container-author author" match="all">
                   <group delimiter=". ">
@@ -348,7 +349,7 @@
     <group delimiter=" ">
       <choose>
         <if type="chapter paper-conference" match="any">
-          <text term="in" text-case="lowercase"/>
+          <text term="in"/>
         </if>
       </choose>
       <choose>
@@ -488,6 +489,7 @@
       </else-if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group delimiter=", ">
+          <text macro="edition-note"/>
           <group delimiter=" ">
             <text term="volume" form="short"/>
             <number variable="volume" form="numeric"/>
@@ -500,7 +502,6 @@
               </group>
             </if>
           </choose>
-          <text macro="edition-note"/>
         </group>
       </else-if>
     </choose>
@@ -518,7 +519,7 @@
   </macro>
   <macro name="locators-join-with-comma">
     <choose>
-      <if type="legal_case">
+      <if type="legal_case chapter paper-conference" match="any">
         <text macro="locators"/>
       </if>
       <else-if type="article-journal">
@@ -535,7 +536,7 @@
   </macro>
   <macro name="locators-join-with-period">
     <choose>
-      <if type="legal_case article-journal" match="none">
+      <if type="legal_case article-journal chapter paper-conference" match="none">
         <text macro="locators"/>
       </if>
     </choose>
@@ -561,6 +562,7 @@
       </else-if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <group delimiter=". ">
+          <text macro="edition"/>
           <group delimiter=" ">
             <text term="volume" form="short" text-case="capitalize-first"/>
             <number variable="volume" form="numeric"/>
@@ -569,11 +571,11 @@
             <number variable="number-of-volumes" form="numeric"/>
             <text term="volume" form="short" plural="true"/>
           </group>
-          <text macro="edition"/>
         </group>
       </else-if>
       <else-if type="chapter paper-conference" match="any">
         <group delimiter=". ">
+          <text macro="edition"/>
           <choose>
             <if variable="page" match="none">
               <group delimiter=" ">
@@ -582,7 +584,6 @@
               </group>
             </if>
           </choose>
-          <text macro="edition"/>
         </group>
       </else-if>
     </choose>
@@ -614,6 +615,9 @@
       <if type="thesis">
         <text variable="publisher"/>
       </if>
+      <else-if type="speech">
+        <text variable="event-place"/>
+      </else-if>
       <else>
         <group delimiter=": ">
           <text variable="publisher-place"/>
@@ -665,7 +669,7 @@
                     <if variable="volume">
                       <group delimiter=", ">
                         <group delimiter=" ">
-                          <text term="volume" form="short" text-case="lowercase"/>
+                          <text term="volume" form="short"/>
                           <number variable="volume" form="numeric"/>
                         </group>
                         <label variable="locator" form="short"/>
@@ -880,7 +884,7 @@
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
-      <else-if variable="publisher-place publisher" match="any">
+      <else-if variable="publisher-place event-place publisher genre" match="any">
         <group prefix="(" suffix=")" delimiter=", ">
           <group delimiter=" ">
             <choose>
@@ -1082,6 +1086,7 @@
             <group delimiter=" ">
               <group delimiter=", ">
                 <text macro="title-short"/>
+                <!--if title & author are the same: -->
                 <text macro="date-disambiguate"/>
                 <text macro="case-locator-subsequent"/>
               </group>
@@ -1151,11 +1156,11 @@
                       <group delimiter=", ">
                         <text macro="container-title"/>
                         <text macro="container-contributors"/>
-                        <text macro="locators-chapter"/>
                       </group>
                       <text macro="locators-join-with-period"/>
                     </group>
                     <text macro="locators-join-with-comma"/>
+                    <text macro="locators-chapter"/>
                   </group>
                   <text macro="locators-join-with-space"/>
                 </group>
