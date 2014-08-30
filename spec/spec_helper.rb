@@ -26,6 +26,9 @@ CITATION_FORMAT_FILTER = %w{
 
 # These styles are ignored when checking for unused macros
 UNUSED_MACROS_FILTER = %w{
+  chicago-annotated-bibliography chicago-author-date
+  chicago-library-list chicago-note-biblio-no-ibid
+  chicago-note-bibliography
 }
 
 # These files are ignored when checking for extra files
