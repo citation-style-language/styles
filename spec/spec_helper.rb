@@ -24,6 +24,13 @@ CITATION_FORMAT_FILTER = %w{
   bibtex blank national-archives-of-australia
 }
 
+# These styles are ignored when checking for unused macros
+UNUSED_MACROS_FILTER = %w{
+  chicago-annotated-bibliography chicago-author-date
+  chicago-library-list chicago-note-biblio-no-ibid
+  chicago-note-bibliography
+}
+
 # These files are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
@@ -129,7 +136,7 @@ STYLE_FILTER = case ENV['CSL_TEST']
   when 'git'
     Regexp.new("/(#{`git diff --name-only`.split(/\s+/).join('|')})$")
   else
-    Regexp.new("/(#{ENV['CSL_TEST'].split(/\s+/).join('|')})$")  
+    Regexp.new("/(#{ENV['CSL_TEST'].split(/\s+/).join('|')})$")
   end
 
 def collect_styles(type = '')

@@ -89,6 +89,19 @@ Independents.each_pair do |id, (filename, path, style)|
           end
         end
       end
+
+      unless UNUSED_MACROS_FILTER.include?(id)
+        it "has no unused macros" do
+          available_macros = style.macros.keys.sort
+
+          used_macros = style.descendants.
+            select { |node| node.attribute? :macro }.
+            map    { |node| node[:macro] }.
+            sort.uniq
+
+          (available_macros - used_macros).should == []
+        end
+      end
     end
 
   end
