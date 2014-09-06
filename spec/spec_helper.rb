@@ -28,7 +28,7 @@ CITATION_FORMAT_FILTER = %w{
 UNUSED_MACROS_FILTER = %w{
   chicago-annotated-bibliography chicago-author-date
   chicago-library-list chicago-note-biblio-no-ibid
-  chicago-note-bibliography
+  chicago-note-bibliography taylor-and-francis-chicago-author-date
 }
 
 # These files are ignored when checking for extra files
