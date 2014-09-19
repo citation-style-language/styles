@@ -15,9 +15,26 @@
         <category field="medicine"/>
         <eissn>2211-419X</eissn>
         <summary>A style for some Elsevier journals, resembles Vancouver style</summary>
-        <updated>2014-09-08T11:44:17+00:00</updated>
+        <updated>2014-09-18T11:44:17+00:00</updated>
         <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
     </info>
+	<macro name="access">
+    <choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="Doi: "/>
+      </if>
+      <else-if type="webpage post-weblog" match="any">
+        <choose>
+          <if variable="URL">
+            <group delimiter=". ">
+              <text variable="URL" prefix="Available at "/>
+              <date variable="accessed" prefix="Accessed " suffix=", " form="text"/>
+            </group>
+          </if>
+        </choose>
+      </else-if>
+    </choose>
+  </macro>
     <macro name="author">
         <names variable="author">
             <name form="long" initialize="false" delimiter=", " delimiter-precedes-last="always" name-as-sort-order="all" sort-separator=" "/>
@@ -94,7 +111,7 @@
         <choose>
             <if variable="issued">
                 <date variable="issued">
-                    <date-part name="year" form="short" range-delimiter="-"/>
+                    <date-part name="year" form="long" range-delimiter="-"/>
                 </date>
             </if>
             <else>
@@ -102,6 +119,18 @@
             </else>
         </choose>
     </macro>
+	<macro name="year-date_webpage">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year" form="long" range-delimiter="-"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
     <macro name="publisher_book">
         <text variable="publisher-place" suffix=": " form="long" text-case="title"/>
         <text variable="publisher" suffix="; " form="long"/>
@@ -112,6 +141,10 @@
         <text variable="publisher" suffix="; " form="long"/>
         <text macro="year-date_chapter"/>
     </macro>
+	<macro name="publisher_thesis">
+    	<text variable="publisher" suffix=", " form="long"/>
+    	<text variable="publisher-place" form="long"/>
+  </macro>
     <macro name="edition_book">
         <choose>
             <if is-numeric="edition">
@@ -153,7 +186,7 @@
             <choose>
                 <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
                     <group delimiter=". ">
-                        <text variable="title" form="long" text-case="title" font-style="italic"/>
+                        <text variable="title" form="long" text-case="sentence" font-style="italic"/>
                         <text variable="volume" prefix="vol. " form="long"/>
                         <text macro="edition_book"/>
                         <text macro="publisher_book"/>
@@ -190,20 +223,27 @@
                     </group>
                 </else-if>
                 <else-if type="thesis">
-                    <group delimiter=", ">
-                        <text variable="title" form="long"/>
-                        <text variable="genre" form="long"/>
-                        <text variable="publisher" form="long" suffix="; " text-case="lowercase"/>
-                        <text macro="year-date_thesis"/>
-                    </group>
-                </else-if>
+          <group delimiter=" ">
+            <text variable="title" form="long" font-style="italic" suffix="." text-case="sentence"/>
+            <text variable="genre" form="long" suffix=","  text-case="sentence"/>
+            <text macro="publisher_thesis" suffix="," text-case="title"/>
+            <text macro="year-date_thesis"/>
+          </group>
+        </else-if>
+				<else-if type="webpage">
+          		<group delimiter=" ">
+            			<text variable="title" form="long" suffix=". " text-case="sentence"/>
+            			<text variable="container-title" form="long" suffix=". " text-case="title"/>
+            			<text macro="access"/>
+            			<text macro="year-date_webpage"/>
+         		 </group>
+        		</else-if>
                 <else>
                     <group delimiter=":">
                         <group delimiter=" ">
                             <group delimiter=". ">
                                 <text variable="title" form="long" text-case="sentence"/>
-                                <text variable="container-title" form="short" text-case="title"
-                                    strip-periods="true" font-style="italic"/>
+                                <text variable="container-title" form="short" text-case="title" strip-periods="true" font-style="italic"/>
                             </group>
                             <group delimiter=";">
                                 <text macro="year-date_journal"/>
@@ -212,6 +252,7 @@
                         </group>
                         <text variable="page" form="short"/>
                     </group>
+					<text macro="access" prefix=". "/>
                 </else>
             </choose>
         </layout>
