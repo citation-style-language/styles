@@ -68,18 +68,6 @@ your style against the CSL schema, and correct any validation errors.
     feature branch, commit your changes, and then create a [pull
     request](http://help.github.com/send-pull-requests/).
 
-    A third way to submit styles is to create a gist. Visit
-    http://gist.github.com and paste the style code into the text box. Give the
-    style a name ("name this file...") and click the "Create Public Gist"
-    button. Copy the URL of the gist (e.g.
-    https://gist.github.com/rmzelle/1320111) and include it in your message to
-    us. You can either start a new discussion in the [Citation
-    Styles](http://forums.zotero.org/11/) section of the Zotero forums, or
-    [create a new GitHub
-    issue](https://github.com/citation-style-language/styles/issues/new) in the
-    _styles_ repository. Gists have to be checked by hand and take longer to get
-    accepted.
-
 4. Check on your pull request.
 
     After you create a pull request, tests are automatically run to verify that
