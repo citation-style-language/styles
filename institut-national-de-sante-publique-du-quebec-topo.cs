@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="fr-CA">
   <info>
-    <title>INSPQ-TOPO</title>
-    <id>http://www.zotero.org/styles/INSPQ-TOPO</id>
-    <link href="http://www.zotero.org/styles/INSPQ-TOPO" rel="self"/>
+    <title>Institut national de santé publique du Québec - TOPO (French-Canada)</title>
+    <title-short>INSPQ-TOPO</title-short>
+    <id>http://www.zotero.org/styles/institut-national-de-sante-publique-du-quebec-topo</id>
+    <link href="http://www.zotero.org/styles/institut-national-de-sante-publique-du-quebec-topo" rel="self"/>
+    <link href="http://www.inspq.qc.ca/pdf/publications/CollectionTOPO/TOPO-NAPP_styleguide.pdf" rel="documentation"/>
     <category citation-format="numeric"/>
-    <updated>2012-12-12T09:16:02+00:00</updated>
-    <summary>Style Zotero dérivé de France (tous les auteurs, numérotation) et modifié par Gérald Baril pour la collection TOPO de l'Institut national de santé publique du Québec</summary>
-    </info>
-<locale xml:lang="fr">
+    <updated>2014-09-22T09:16:02+00:00</updated>
+    <summary>Style dérivé de France (tous les auteurs, numérotation) et modifié par Gérald Baril pour la collection TOPO de l'Institut national de santé publique du Québec</summary>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
+  </info>
+<locale xml:lang="fr-CA">
 <terms>
 <term name="editor" form="short" >
 <single>dir.</single>
@@ -17,46 +20,43 @@
 </terms>
 </locale>
   <macro name="author">
-       <names variable="author" suffix=" ">
-         <name sort-separator=", " initialize-with=". " name-as-sort-order="first" delimiter=", " and="text"
-            delimiter-precedes-last="after-inverted-name">
-           <name-part name="family" font-variant="small-caps"/>
-           <name-part name="given" text-case="capitalize-first"/>
-         </name>
-         <label form="short" prefix=" (" suffix=".)" text-case="lowercase" strip-periods="true" />
-         <substitute>
-           <names variable="editor"/>
-         </substitute>
-         <substitute>
-           <text variable="title" suffix="," font-style="italic"/>
-         </substitute>
-        </names>
-     </macro>
-   <macro name="editor">
+    <names variable="author" suffix=" ">
+      <name sort-separator=", " initialize-with=". " name-as-sort-order="first" delimiter=", " and="text" delimiter-precedes-last="after-inverted-name">
+        <name-part name="family" font-variant="small-caps"/>
+        <name-part name="given" text-case="capitalize-first"/>
+      </name>
+      <label form="short" prefix=" (" suffix=")"/>
+      <substitute>
+        <names variable="editor"/>
+        <text variable="title" suffix="," font-style="italic"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="editor">
     <names variable="editor" >
       <name sort-separator=" " initialize-with=". " delimiter=", " and="text" delimiter-precedes-last="never">
         <name-part name="family" text-case="capitalize-first"/>
         <name-part name="given" text-case="capitalize-first"/>
       </name>
-     </names>
-     <text value="dir." prefix=" (" suffix="), "/>
+    </names>
+    <text value="dir." prefix=" (" suffix="), "/>
   </macro>
   <macro name="publisher">
     <choose>
       <if variable="publisher-place">
         <text variable="publisher-place" prefix=", "/>
       </if>
-     </choose>
+    </choose>
     <choose>
       <if variable="publisher">
         <text variable="publisher" prefix=", "/>
       </if>
-     </choose>
-   </macro>
-   <macro name="access">
+    </choose>
+  </macro>
+  <macro name="access">
     <choose>
       <if variable="DOI accessed" match="all">
-         <group prefix=", &lt;" suffix="&gt;">
+        <group prefix=", &lt;" suffix="&gt;">
           <text value="http://dx.doi.org/"/>
           <text variable="DOI"/>
         </group>
@@ -131,7 +131,7 @@
       <if is-numeric="edition">
         <group delimiter=" " prefix=", ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" suffix="." strip-periods="true"/>
+          <text term="edition" form="short"/>
         </group>
       </if>
       <else>
@@ -164,7 +164,7 @@
     </layout>
   </citation>
   <bibliography entry-spacing="1" line-spacing="1" second-field-align="flush">
-    <layout>
+    <layout suffix=".">
       <text variable="citation-number" prefix="(" suffix=")"/>
       <text macro="author"/>
        <group suffix="). " prefix="(">
@@ -205,14 +205,11 @@
         </else-if>
         <else>
           <text macro="journal-title"/>
-          <group suffix="">
           <text macro="locators"/>
-          </group>
         </else>
       </choose>
       <text macro="access"/>
       <text macro="accessed-date" prefix=" "/>
-      <text value="."/>
     </layout>
   </bibliography>
 </style>
