@@ -56,18 +56,6 @@
       </if>
     </choose>
   </macro>
-  <macro name="editor">
-    <names variable="editor">
-      <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always" initialize-with=". "/>
-      <label form="short" prefix=", "/>
-    </names>
-  </macro>
-  <macro name="translator">
-    <names variable="translator">
-      <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always" initialize-with=". "/>
-      <label form="short" prefix=", "/>
-    </names>
-  </macro>
   <macro name="recipient">
     <choose>
       <if type="personal_communication">
@@ -135,32 +123,35 @@
       </choose>
       <text variable="DOI" prefix="doi:"/>
       <choose>
-        <if variable="DOI issued" match="none">
-          <choose>
-            <if variable="URL accessed" match="all">
-              <group delimiter=" ">
-                <text term="accessed" text-case="capitalize-first"/>
-                <date variable="accessed" delimiter=" ">
-                  <date-part name="month"/>
-                  <date-part name="day"/>
-                </date>
-              </group>
-            </if>
-          </choose>
-        </if>
-        <else-if type="webpage">
-          <date variable="issued" delimiter=" ">
-            <date-part name="month"/>
-            <date-part name="day"/>
-          </date>
-        </else-if>
-      </choose>
-      <choose>
-        <if type="legal_case" match="none">
-          <text variable="URL"/>
+        <if variable="DOI" type="legal_case" match="none">
+          <group delimiter=" ">
+            <text variable="URL"/>
+            <choose>
+              <if variable="issued" match="none">
+                <text macro="access-date"/>
+              </if>
+              <else-if type="webpage article-newspaper" match="any">
+                <text macro="access-date"/>
+              </else-if>
+            </choose>
+          </group>
         </if>
       </choose>
     </group>
+  </macro>
+  <macro name="access-date">
+    <choose>
+      <if variable="URL accessed" match="all">
+        <group delimiter=" " prefix="(" suffix=")">
+          <text term="accessed"/>
+          <date variable="accessed" delimiter=" ">
+            <date-part name="month"/>
+            <date-part name="day" suffix=","/>
+            <date-part name="year"/>
+          </date>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="title">
     <choose>
@@ -175,7 +166,7 @@
         <text variable="title" text-case="title" font-style="italic"/>
       </else-if>
       <else>
-        <text variable="title" text-case="title" quotes="true"/>
+        <text variable="title" text-case="title"/>
       </else>
     </choose>
   </macro>
