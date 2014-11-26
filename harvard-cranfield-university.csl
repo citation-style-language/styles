@@ -19,7 +19,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Harvard author-date style - adapted for Cranfield University</summary>
-    <updated>2014-11-26T12:33:44+00:00</updated>
+    <updated>2014-11-26T19:03:20+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor">
@@ -42,16 +42,6 @@
         <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
       </else-if>
       <else-if type="chapter" match="any"/>
-    </choose>
-  </macro>
-  <macro name="conditionalusetitle">
-    <choose>
-      <if type="article-newspaper">
-        <text variable="container-title"/>
-      </if>
-      <else-if type="bill legislation" match="any">
-        <text variable="title"/>
-      </else-if>
     </choose>
   </macro>
   <macro name="author">
@@ -121,10 +111,21 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter=": ">
+    <group delimiter=": " prefix=" ">
       <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
+    <choose>
+      <if type="paper-conference" match="any">
+        <text variable="collection-title" prefix=". "/>
+        <choose>
+          <if match="any" variable="volume">
+            <text term="volume" form="short" text-case="capitalize-first" prefix=", "/>
+            <text variable="volume"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
   </macro>
   <macro name="year-date">
     <choose>
@@ -152,7 +153,7 @@
     </choose>
   </macro>
   <macro name="pages">
-    <group>
+    <group prefix=", " suffix=".">
       <label suffix=" " variable="page" form="short"/>
       <text variable="page"/>
     </group>
@@ -336,7 +337,7 @@
             </group>
           </group>
         </else-if>
-        <else-if type="chapter paper-conference" match="any">
+        <else-if type="chapter" match="any">
           <text macro="title" prefix=" '" suffix="',"/>
           <group prefix=" " delimiter=" ">
             <text term="in" text-case="lowercase"/>
@@ -358,6 +359,27 @@
             <text variable="number" prefix=" " suffix="."/>
             <text variable="publisher" prefix=" " suffix=","/>
             <text variable="publisher-place" prefix=" "/>
+          </group>
+        </else-if>
+        <else-if type="paper-conference" match="any">
+          <choose>
+            <if match="any" is-numeric="title">
+              <text value=""/>
+            </if>
+            <else>
+              <group suffix=", ">
+                <text macro="title"/>
+              </group>
+            </else>
+          </choose>
+          <group>
+            <text macro="editor"/>
+          </group>
+          <text variable="container-title" font-style="italic" suffix="."/>
+          <text macro="online"/>
+          <group>
+            <text macro="publisher"/>
+            <text macro="pages"/>
           </group>
         </else-if>
         <else>
