@@ -23,7 +23,7 @@
         <single>ed.</single>
         <multiple>eds</multiple>
       </term>
-      <term name="edition" form="short">edn.</term>
+      <term name="edition" form="short">ed.</term>
     </terms>
   </locale>
   <macro name="editor">
@@ -110,10 +110,7 @@
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation  report song thesis webpage" match="any">
-        <group delimiter=". ">
-          <text variable="title" font-style="italic"/>
-          <text macro="edition"/>
-        </group>
+        <text variable="title" font-style="italic"/>
       </if>
       <else-if type="motion_picture">
         <group delimiter=" ">
@@ -150,9 +147,12 @@
               </choose>
             </if>
           </choose>
-          <group delimiter=": ">
-            <text variable="publisher-place"/>
-            <text variable="publisher"/>
+          <group delimiter=", ">
+            <text macro="edition"/>
+            <group delimiter=": ">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+            </group>
           </group>
           <group prefix="(" suffix=")" delimiter=", ">
             <text variable="collection-title"/>
@@ -209,39 +209,48 @@
     </choose>
   </macro>
   <macro name="published-date">
-    <choose>
-      <if type="article-newspaper" variable="URL"  match="all">
-        <group delimiter=" " prefix=" ">
-          <text term="online" text-case="capitalize-first" prefix=" ["  suffix="]"/>
+    <group delimiter=". ">
+      <text variable="section"/>
+      <choose>
+        <if type="article-newspaper" variable="URL"  match="all">
+          <group delimiter=" " prefix=" ">
+            <text term="online" text-case="capitalize-first" prefix=" ["  suffix="]"/>
+            <date variable="issued">
+              <date-part name="day" suffix=" " form="ordinal"/>
+              <date-part name="month" form="long"/>
+            </date>
+          </group>
+        </if>
+        <else-if type="article-newspaper post-weblog" match="any">
           <date variable="issued">
             <date-part name="day" suffix=" " form="ordinal"/>
             <date-part name="month" form="long"/>
           </date>
-        </group>
-      </if>
-      <else-if type="article-newspaper webpage post-weblog" match="any">
-        <date variable="issued">
-          <date-part name="day" suffix=" " form="ordinal"/>
-          <date-part name="month" form="long"/>
-        </date>
-      </else-if>
-    </choose>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="pages">
     <choose>
-      <if type="chapter paper-conference  article-magazine article-newspaper book review review-book report" match="any">
+      <if type="chapter paper-conference  article-magazine  book review review-book report" match="any">
         <group delimiter=" " prefix=", ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
       </if>
+      <else-if type="article-newspaper">
+        <text macro="edition" prefix=". "/>
+        <group delimiter=" " prefix=", ">
+          <label variable="page" form="short"/>
+          <text variable="page"/>
+        </group>
+      </else-if>
       <else-if type="article-journal article">
         <group delimiter=" " prefix=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
       </else-if>
-
     </choose>
   </macro>
   <macro name="container-title">
@@ -252,10 +261,7 @@
             <text variable="container-title"/>
           </if>
           <else>
-            <group delimiter=". ">
-              <text variable="container-title" font-style="italic"/>
-              <text macro="edition"/>
-            </group>
+            <text variable="container-title" font-style="italic"/>
           </else>
         </choose>
       </if>
@@ -266,7 +272,7 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" strip-periods="true"/>
+          <text term="edition" form="short"/>
         </group>
       </if>
       <else>
