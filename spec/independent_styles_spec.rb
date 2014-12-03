@@ -1,7 +1,7 @@
 Independents.each_pair do |id, (filename, path, style)|
 
   describe "independent style #{id}" do
-    
+
     it "is a valid CSL 1.0 style" do
       CSL.validate(path).should == []
     end
@@ -31,33 +31,32 @@ Independents.each_pair do |id, (filename, path, style)|
         style.info.should have_id
       end
 
+      it "the id is a valid style repository link" do
+        style.id.should == "http://www.zotero.org/styles/#{id}"
+      end
+
       it "the self-link is a valid style repository link" do
-        style.self_link.should == "http://www.zotero.org/styles/#{id}"
+        style.self_link.should match(%r{http[s]?://www.zotero.org/styles/#{id}})
       end
 
-      it "the self-link matches the style id" do
-        style.id.should == style.self_link
-      end
-
-      it "has and info/rights element" do
+      it "has an info/rights element" do
         style.info.should have_rights
       end
 
       it "is licensed under a CC BY-SA license" do
-        style.info.rights.to_s.strip.should ==
-          'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/'
+        style.should be_default_license
       end
 
       it "its template-link (if present) points to an existing independent style" do
         if style.has_template_link?
           link = style.template_link
 
-          link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
+          link.should match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
           Independents.should have_key(link[/[^\/]+$/])
         end
       end
 
-      unless %w{ all bibtex blank national-archives-of-australia }.include?(id)
+      unless CITATION_FORMAT_FILTER.include?(id)
         it "has at least one info/category" do
           style.info.should have_categories
         end
@@ -69,6 +68,18 @@ Independents.each_pair do |id, (filename, path, style)|
         it "its citation-format is valid" do
           style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
         end
+
+        it "has a valid class attribute" do
+          style[:class].to_s.should match(/^(note|in-text)$/)
+        end
+
+        it "its class attribute corresponds to the citation-format" do
+          if style.citation_format == :note
+            style[:class].should == 'note'
+          else
+            style[:class].should == 'in-text'
+          end
+        end
       end
 
       it "defines all macros that are referenced by text or key nodes" do
@@ -77,7 +88,20 @@ Independents.each_pair do |id, (filename, path, style)|
             style.macros.should have_key(node[:macro])
           end
         end
-      end      
+      end
+
+      unless UNUSED_MACROS_FILTER.include?(id)
+        it "has no unused macros" do
+          available_macros = style.macros.keys.sort
+
+          used_macros = style.descendants.
+            select { |node| node.attribute? :macro }.
+            map    { |node| node[:macro] }.
+            sort.uniq
+
+          (available_macros - used_macros).should == []
+        end
+      end
     end
 
   end

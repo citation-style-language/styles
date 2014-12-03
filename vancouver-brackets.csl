@@ -4,6 +4,7 @@
     <title>Vancouver (brackets)</title>
     <id>http://www.zotero.org/styles/vancouver-brackets</id>
     <link href="http://www.zotero.org/styles/vancouver-brackets" rel="self"/>
+    <link href="http://www.nlm.nih.gov/bsd/uniform_requirements.html" rel="documentation"/>
     <author>
       <name>Michael Berkowitz</name>
       <email>mberkowi@gmu.edu</email>
@@ -15,19 +16,33 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
-    <category field="medicine"/>
     <category citation-format="numeric"/>
-    <updated>2008-09-16T00:00:00+00:00</updated>
-    <summary>
-    Vancouver style as outlined by International Committee of Medical Journal Editors Uniform Requirements for Manuscripts Submitted to Biomedical Journals: Sample References
-    </summary>
-    <link href="http://www.nlm.nih.gov/bsd/uniform_requirements.html" rel="documentation"/>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
+    <category field="medicine"/>
+    <summary>Vancouver style as outlined by International Committee of Medical Journal Editors Uniform Requirements for Manuscripts Submitted to Biomedical Journals: Sample References</summary>
+    <updated>2012-09-27T22:06:38+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
+    <date form="text" delimiter=" ">
+      <date-part name="year"/>
+      <date-part name="month" form="short" strip-periods="true"/>
+      <date-part name="day"/>
+    </date>
     <terms>
+      <term name="presented at">presented at</term>
       <term name="retrieved">available</term>
       <term name="section" form="short">sect.</term>
+    </terms>
+  </locale>
+  <locale xml:lang="fr">
+    <date form="text" delimiter=" ">
+      <date-part name="day"/>
+      <date-part name="month" form="short" strip-periods="true"/>
+      <date-part name="year"/>
+    </date>
+    <terms>
+      <term name="retrieved">disponible</term>
+      <term name="from">sur</term>
     </terms>
   </locale>
   <locale xml:lang="de">
@@ -48,7 +63,7 @@
   <macro name="editor">
     <group delimiter=": ">
       <choose>
-        <if type="chapter paper-conference">
+        <if type="chapter paper-conference" match="any">
           <text term="in" text-case="capitalize-first"/>
         </if>
       </choose>
@@ -64,6 +79,7 @@
         <if type="thesis">
           <text variable="publisher-place" prefix="[" suffix="]"/>
         </if>
+        <else-if type="speech"/>
         <else>
           <text variable="publisher-place"/>
         </else>
@@ -89,11 +105,7 @@
       <if variable="URL">
         <group prefix="[" suffix="]" delimiter=" ">
           <text term="cited" text-case="lowercase"/>
-          <date variable="accessed" suffix="">
-            <date-part name="year"/>
-            <date-part name="month" prefix=" " form="short" strip-periods="true"/>
-            <date-part name="day" prefix=" "/>
-          </date>
+          <date variable="accessed" form="text"/>
         </group>
       </if>
     </choose>
@@ -102,7 +114,14 @@
     <choose>
       <if type="article-journal article-magazine chapter paper-conference article-newspaper" match="any">
         <group suffix="." delimiter=" ">
-          <text variable="container-title" form="short"/>
+          <choose>
+            <if type="article-journal">
+              <text variable="container-title" form="short" strip-periods="true"/>
+            </if>
+            <else>
+              <text variable="container-title" strip-periods="true"/>
+            </else>
+          </choose>
           <choose>
             <if variable="URL">
               <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
@@ -112,10 +131,10 @@
         <text macro="edition" prefix=" "/>
       </if>
       <!--add event-name and event-place once they become available-->
-      <else-if type="bill legislation">
+      <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <group delimiter=". ">
-            <text variable="container-title" form="short"/>
+            <text variable="container-title"/>
             <group delimiter=" ">
               <text term="section" form="short" text-case="capitalize-first"/>
               <text variable="section"/>
@@ -124,8 +143,17 @@
           <text variable="number"/>
         </group>
       </else-if>
+      <else-if type="speech">
+        <group delimiter=": " suffix=";">
+          <group delimiter=" ">
+            <text variable="genre" text-case="capitalize-first"/>
+            <text term="presented at"/>
+          </group>
+          <text variable="event"/>
+        </group>
+      </else-if>
       <else>
-        <text variable="container-title" suffix="." form="short"/>
+        <text variable="container-title" suffix="."/>
       </else>
     </choose>
   </macro>
@@ -164,15 +192,11 @@
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="any">
         <group suffix=";" delimiter=" ">
-          <date variable="issued" delimiter=" ">
-            <date-part name="year"/>
-            <date-part name="month" form="short" strip-periods="true"/>
-            <date-part name="day"/>
-          </date>
+          <date variable="issued" form="text"/>
           <text macro="accessed-date"/>
         </group>
       </if>
-      <else-if type="bill legislation">
+      <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <date variable="issued" delimiter=" ">
             <date-part name="month" form="short" strip-periods="true"/>
@@ -188,6 +212,31 @@
           <date-part name="year"/>
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
+        <text macro="accessed-date" prefix=" "/>
+      </else-if>
+      <else-if type="patent">
+        <group suffix=".">
+          <group delimiter=", ">
+            <text variable="number"/>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
+          <text macro="accessed-date" prefix=" "/>
+        </group>
+      </else-if>
+      <else-if type="speech">
+        <group delimiter="; ">
+          <group delimiter=" ">
+            <date variable="issued" delimiter=" ">
+              <date-part name="year"/>
+              <date-part name="month" form="short" strip-periods="true"/>
+              <date-part name="day"/>
+            </date>
+            <text macro="accessed-date"/>
+          </group>
+          <text variable="event-place"/>
+        </group>
       </else-if>
       <else>
         <group suffix=".">
@@ -204,8 +253,14 @@
       <if type="article-journal article-magazine article-newspaper" match="any">
         <text variable="page" prefix=":"/>
       </if>
+      <else-if type="book" match="any">
+        <text variable="number-of-pages" prefix=" " suffix=" p"/>
+      </else-if>
       <else>
-        <text variable="page" prefix=" p. "/>
+        <group prefix=" " delimiter=" ">
+          <label variable="page" form="short" plural="never"/>
+          <text variable="page"/>
+        </group>
       </else>
     </choose>
   </macro>
