@@ -25,21 +25,27 @@
     </terms>
   </locale>
   <macro name="editor">
-    <names variable="editor" delimiter=", ">
-      <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
-      <label form="short" prefix=" (" text-case="lowercase" suffix=")"/>
-    </names>
+    <group delimiter=", ">
+      <names variable="container-author" delimiter=", ">
+        <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
+      </names>
+      <names variable="editor" delimiter=", ">
+        <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
+        <label form="short" prefix=" (" text-case="lowercase" suffix=")"/>
+      </names>
+    </group>
   </macro>
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all"/>
       <label form="short" prefix=" (" suffix=")"/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
           <if type="article-newspaper article-magazine" match="any">
-            <text variable="container-title" text-case="title"/>
+            <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
             <text macro="title"/>
@@ -51,12 +57,13 @@
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
           <if type="article-newspaper article-magazine" match="any">
-            <text variable="container-title" text-case="title"/>
+            <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
             <text macro="title"/>
@@ -105,6 +112,18 @@
           <text variable="publisher"/>
         </group>
       </if>
+      <else-if type="report">
+        <group delimiter=". ">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <text variable="number"/>
+          </group>
+          <group delimiter=": ">
+            <text variable="publisher-place"/>
+            <text variable="publisher"/>
+          </group>
+        </group>
+      </else-if>
       <else-if type="article-newspaper article-magazine" match="none">
         <group delimiter=" ">
           <group delimiter=": ">
@@ -127,7 +146,8 @@
         </date>
       </if>
       <else>
-        <text term="no date" form="short"/>
+        <text term="no date"/>
+        <text variable="year-suffix" prefix=" "/>
       </else>
     </choose>
   </macro>
@@ -141,7 +161,7 @@
   </macro>
   <macro name="published-date">
     <choose>
-      <if type="article-newspaper">
+      <if type="article-newspaper article-magazine post-weblog speech" match="any">
         <date variable="issued">
           <date-part name="day" suffix=" "/>
           <date-part name="month" form="long"/>
@@ -167,6 +187,9 @@
           <text macro="edition"/>
         </group>
       </if>
+      <else-if type="speech" variable="event" match="any">
+        <text variable="event" font-style="italic"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="edition">

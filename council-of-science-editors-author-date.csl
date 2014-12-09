@@ -17,7 +17,7 @@
     <category citation-format="author-date"/>
     <category field="science"/>
     <summary>The Council of Science Editors style, Name-Year system: author-date in text, sorted in alphabetical order by author.</summary>
-    <updated>2014-09-22T14:40:29+00:00</updated>
+    <updated>2014-11-10T19:29:35+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -25,6 +25,10 @@
       <term name="editortranslator" form="long">
         <single>editor and translator</single>
         <multiple>editors and translators</multiple>
+      </term>
+      <term name="collection-editor">
+        <single>editor</single>
+        <multiple>editors</multiple>
       </term>
     </terms>
   </locale>
@@ -95,8 +99,20 @@
     </group>
   </macro>
   <macro name="pages">
-    <label plural="never" suffix=" " variable="page" form="short"/>
-    <text variable="page"/>
+    <group delimiter="; ">
+      <group>
+        <label variable="page" form="short" suffix=" " plural="never"/>
+        <text variable="page"/>
+      </group>
+      <group>
+        <text variable="number-of-pages"/>
+        <choose>
+          <if is-numeric="number-of-pages">
+            <label variable="number-of-pages" form="short" prefix=" " plural="never"/>
+          </if>
+        </choose>
+      </group>
+    </group>
   </macro>
   <macro name="year-date">
     <group delimiter=" ">
@@ -150,6 +166,25 @@
       </else>
     </choose>
   </macro>
+  <macro name="collection">
+    <choose>
+      <if type="report">
+        <group prefix=" " suffix="." delimiter=" ">
+          <text variable="collection-title"/>
+          <text variable="number" prefix=" Report No.: "/>
+        </group>
+      </if>
+      <else>
+        <group prefix=" (" suffix=")." delimiter=" ">
+          <names variable="collection-editor" suffix=". ">
+            <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+            <label prefix=", "/>
+          </names>
+          <text variable="collection-title"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true">
     <sort>
       <key macro="year-date"/>
@@ -182,6 +217,7 @@
               <text macro="editor"/>
             </group>
             <text prefix=" " macro="publisher"/>
+            <text prefix=" " macro="collection"/>
           </if>
           <else-if type="chapter paper-conference" match="any">
             <group prefix=" " delimiter=" ">
@@ -190,9 +226,9 @@
               <text variable="container-title" suffix="."/>
               <text variable="volume" prefix="Vol. " suffix="."/>
               <text macro="edition"/>
-              <text variable="collection-title" suffix="."/>
               <group suffix="." delimiter=". ">
                 <text macro="publisher"/>
+                <text prefix=" " macro="collection"/>
                 <text macro="pages"/>
               </group>
             </group>
