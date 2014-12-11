@@ -35,7 +35,7 @@ UNUSED_MACROS_FILTER = %w{
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
   'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/,
-  'renamed-styles.json'
+  'renamed-styles.json', 'script', 'cached-bundle', 's3-put'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
