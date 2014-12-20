@@ -21,7 +21,7 @@
     - If a book or entry-encyclopedia is cited for the 2nd time (or more), "title and edition" are substituted by (o. Fn. ...)
       (see footnote ...)
     - see more details below in the comments</summary>
-    <updated>2014-12-09T14:30:39+00:00</updated>
+    <updated>2014-12-20T11:38:27+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -51,6 +51,12 @@
         </names>
       </else>
     </choose>
+  </macro>
+  <macro name="author-chapter">
+    <names variable="container-author">
+      <name delimiter="/ " name-as-sort-order="all" sort-separator=", " form="short"/>
+      <label form="short" prefix=" (" suffix=")"/>
+    </names>
   </macro>
   <macro name="locator-with-label">
     <group delimiter=" ">
@@ -84,11 +90,11 @@
           <text term="edition" form="short" suffix="."/>
         </group>
       </if>
-      <else>
+      <else-if variable="edition">
         <text variable="edition" form="short"/>
-      </else>
+      </else-if>
     </choose>
-    <date date-parts="year" form="text" variable="issued" prefix=" " suffix=", "/>
+    <date date-parts="year" form="text" variable="issued" prefix=" "/>
   </macro>
   <citation et-al-min="5" et-al-use-first="1">
     <layout delimiter="; ">
@@ -126,7 +132,7 @@
               <text macro="edition"/>
             </else>
           </choose>
-          <text variable="locator"/>
+          <text variable="locator" prefix=", "/>
         </else-if>
         <!-- Legal commentary or handbook should be of publication type "entry-encyclopedia"
         - The term "Bearbeiter" (author of a certain chapter) in the following examples should be added by you and is not governed by this stylesheet
@@ -140,7 +146,7 @@
         if there is at least one series-editor (CSL.collection-editor) set: <collection-editor>, [<edition>. Aufl. ]<year>, <locator/cited page(s)> 
         -.- i.e. Bearbeiter, in: Palandt, BGB, 73. Aufl. 2014, ... (where you should add "Bearbeiter, in: " yourself)
         -->
-        <else-if type="entry-encyclopedia chapter" match="any">
+        <else-if type="entry-encyclopedia">
           <choose>
             <if variable="container-title">
               <text variable="container-title" suffix=", "/>
@@ -165,8 +171,16 @@
               <text macro="edition"/>
             </if>
           </choose>
-          <text variable="locator"/>
+          <text variable="locator" prefix=", "/>
         </else-if>
+        
+        <else-if type="chapter">
+          <text macro="autor-editor-note" suffix =", in: "/>
+          <text macro="author-chapter" suffix=", "/>
+          <text variable="container-title" suffix=", "/>
+          <text macro="edition"/>
+          <text macro="firstpage-locator" prefix=", "/>
+        </else-if>   
         <!-- Legal case
         Style:
         if case is published in journal:  <court> <journal> <journal-year>, <first-page>, <locator> [ <en-dash> <case name>]
@@ -214,6 +228,7 @@
         <if type="article-journal">
           <group delimiter=", ">
             <text macro="author-note"/>
+            <text variable="title"/>
             <text macro="journalname-year"/>
             <text macro="firstpage-locator"/>
           </group>
@@ -222,15 +237,15 @@
           <text macro="autor-editor-note" suffix=", "/>
           <text variable="title" form="short" suffix=", "/>
           <text macro="edition"/>
-          <text variable="locator"/>
         </else-if>
         <else-if type="article-newspaper">
           <text macro="author-note" suffix=", "/>
-          <text variable="container-title-short"/>
+          <text variable="title" suffix=", "/>
+          <text variable="container-title"/>
           <date form="numeric" variable="issued" prefix=" v. "/>
           <text variable="URL" prefix=", "/>
         </else-if>
-        <else-if type="entry-encyclopedia chapter" match="any">
+        <else-if type="entry-encyclopedia">
           <choose>
             <if variable="container-title">
               <text variable="container-title" suffix=", "/>
@@ -241,8 +256,14 @@
             </else>
           </choose>
           <text macro="edition"/>
-          <text variable="locator"/>
         </else-if>
+        <else-if type="chapter">
+          <text macro="autor-editor-note" suffix =", in: "/>
+          <text macro="author-chapter" suffix=", "/>
+          <text variable="container-title" suffix=", "/>
+          <text macro="edition"/>
+          <text variable="page-first" prefix=", "/>
+        </else-if>            
       </choose>
     </layout>
   </bibliography>
