@@ -14,7 +14,7 @@
     <category field="anthropology"/>
     <issn>0035-0737</issn>
     <summary>Feuille de style pour la Revue Archéologique, mélangeant la citation complète en note et le style auteur/date. Problèmes connus par rapport à la feuille de style de la revue: impossibilité de coder l'utilisation de 'Id.' pour désigner un même auteur d'une référence différente; impossibilité d'interdire la mention des références citées une seule fois dans la bibliographie finale qui doit être expurgée</summary>
-    <updated>2013-09-25T04:19:09+00:00</updated>
+    <updated>2014-09-06T22:02:33+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -24,6 +24,7 @@
         <multiple>éd.</multiple>
       </term>
       <term name="in">dans</term>
+      <term name="online">mis en ligne le</term>
       <term name="anonymous">anonyme</term>
       <term name="anonymous" form="short">anon.</term>
       <term name="no date">sans date</term>
@@ -33,6 +34,7 @@
   <macro name="author">
     <names variable="author" delimiter=", ">
       <name font-variant="small-caps" sort-separator=", " initialize-with="." delimiter=", "/>
+      <et-al font-variant="normal" font-style="italic"/>
       <substitute>
         <text macro="editor"/>
       </substitute>
@@ -62,10 +64,10 @@
   </macro>
   <macro name="access">
     <group>
-      <text term="accessed" suffix=" le "/>
-      <date variable="accessed">
-        <date-part name="day" suffix=" "/>
-        <date-part name="month" suffix=" "/>
+      <text term="accessed" suffix=" "/>
+      <date variable="accessed" form="numeric">
+        <date-part name="day"/>
+        <date-part name="month"/>
         <date-part name="year"/>
       </date>
     </group>
@@ -172,18 +174,34 @@
             <else-if type="webpage">
               <group delimiter=" ">
                 <text macro="title" font-style="italic"/>
-                <text variable="URL" prefix="(" suffix=","/>
-                <text prefix=" " macro="access" suffix=")"/>
+                <text term="online"/>
+                <date variable="issued" form="numeric"/>
+                <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+                <text macro="access" prefix=" (" suffix=")"/>
               </group>
             </else-if>
             <else-if type="article-journal article-magazine article-newspaper broadcast personal_communication thesis" match="any">
-              <group delimiter=", ">
-                <text macro="title" quotes="true"/>
+              <group>
+                <text macro="title" quotes="true" suffix=", "/>
                 <text variable="container-title" form="short" font-style="italic"/>
-                <text variable="volume"/>
-                <text variable="issue"/>
-                <text macro="year-date"/>
-                <text macro="pages"/>
+                <choose>
+                  <if variable="URL DOI" match="any">
+                    <group delimiter=" ">
+                      <text term="online"/>
+                      <date variable="issued" form="numeric"/>
+                      <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+                      <text macro="access" prefix=" (" suffix=")"/>
+                    </group>
+                  </if>
+                  <else>
+                    <group delimiter=", " prefix=", ">
+                      <text variable="volume"/>
+                      <text variable="issue"/>
+                      <text macro="year-date"/>
+                      <text macro="pages"/>
+                    </group>
+                  </else>
+                </choose>
               </group>
             </else-if>
             <else-if type="book graphic" match="any">
@@ -224,7 +242,7 @@
       </choose>
     </layout>
   </citation>
-  <bibliography subsequent-author-substitute="&#9;">
+  <bibliography>
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
@@ -236,12 +254,14 @@
         <choose>
           <if variable="author">
             <names variable="author">
-              <name form="short" font-variant="small-caps" delimiter=", "/>
+              <name form="short" font-variant="small-caps" delimiter=", " et-al-min="4" et-al-use-first="1"/>
+              <et-al font-variant="normal" font-style="italic"/>
             </names>
           </if>
           <else-if variable="editor">
             <names variable="editor">
-              <name form="short" font-variant="small-caps" delimiter=", "/>
+              <name form="short" font-variant="small-caps" delimiter=", " et-al-min="4" et-al-use-first="1"/>
+              <et-al font-variant="normal" font-style="italic"/>
             </names>
           </else-if>
           <else>
@@ -263,17 +283,29 @@
             <else-if type="webpage">
               <group delimiter=" ">
                 <text macro="title" font-style="italic"/>
-                <text variable="URL" prefix="(" suffix=","/>
-                <text prefix=" " macro="access" suffix=")"/>
+                <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+                <text macro="access" prefix=" (" suffix=")"/>
               </group>
             </else-if>
             <else-if type="article-journal article-magazine article-newspaper broadcast personal_communication thesis" match="any">
-              <group delimiter=", ">
-                <text macro="title" quotes="true"/>
+              <group>
+                <text macro="title" quotes="true" suffix=", "/>
                 <text variable="container-title" form="short" font-style="italic"/>
-                <text variable="volume"/>
-                <text variable="issue"/>
-                <text macro="pages"/>
+                <choose>
+                  <if variable="URL DOI" match="any">
+                    <group delimiter=" " prefix=" ">
+                      <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+                      <text macro="access" prefix=" (" suffix=")"/>
+                    </group>
+                  </if>
+                  <else>
+                    <group delimiter=", " prefix=", ">
+                      <text variable="volume"/>
+                      <text variable="issue"/>
+                      <text macro="pages"/>
+                    </group>
+                  </else>
+                </choose>
               </group>
             </else-if>
             <else-if type="book graphic" match="any">

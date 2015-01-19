@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB">
   <info>
-    <title>Harvard - Cite Them Right</title>
+    <title>Harvard - Cite Them Right 9th edition</title>
     <id>http://www.zotero.org/styles/harvard-cite-them-right</id>
     <link href="http://www.zotero.org/styles/harvard-cite-them-right" rel="self"/>
     <link href="http://www.zotero.org/styles/harvard-university-of-greenwich" rel="template"/>
@@ -25,21 +25,41 @@
     </terms>
   </locale>
   <macro name="editor">
-    <names variable="editor" delimiter=", ">
-      <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
-      <label form="short" prefix=" (" text-case="lowercase" suffix=")"/>
-    </names>
+    <choose>
+      <if type="chapter paper-conference" match="any">
+        <group delimiter=", ">
+          <names variable="container-author" delimiter=", ">
+            <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
+          </names>
+          <names variable="editor translator" delimiter=", ">
+            <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
+            <label form="short" prefix=" (" text-case="lowercase" suffix=")"/>
+          </names>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="secondary-contributors">
+    <choose>
+      <if type="chapter paper-conference" match="none">
+        <names variable="editor translator" delimiter=". ">
+          <label form="verb" text-case="capitalize-first" suffix=" "/>
+          <name and="text" initialize-with=". " delimiter=", "/>
+        </names>
+      </if>
+    </choose>
   </macro>
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all"/>
       <label form="short" prefix=" (" suffix=")"/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
           <if type="article-newspaper article-magazine" match="any">
-            <text variable="container-title" text-case="title"/>
+            <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
             <text macro="title"/>
@@ -51,12 +71,13 @@
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
           <if type="article-newspaper article-magazine" match="any">
-            <text variable="container-title" text-case="title"/>
+            <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
             <text macro="title"/>
@@ -105,11 +126,30 @@
           <text variable="publisher"/>
         </group>
       </if>
-      <else-if type="article-newspaper article-magazine" match="none">
-        <group delimiter=" ">
+      <else-if type="report">
+        <group delimiter=". ">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <text variable="number"/>
+          </group>
           <group delimiter=": ">
             <text variable="publisher-place"/>
             <text variable="publisher"/>
+          </group>
+        </group>
+      </else-if>
+      <else-if type="article-newspaper article-magazine" match="none">
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <choose>
+              <if type="speech" variable="event" match="any">
+                <text variable="event" font-style="italic"/>
+              </if>
+            </choose>
+            <group delimiter=": ">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+            </group>
           </group>
           <group prefix="(" suffix=")" delimiter=", ">
             <text variable="collection-title"/>
@@ -124,10 +164,12 @@
       <if variable="issued">
         <date variable="issued">
           <date-part name="year"/>
-        </date>
+        </date>        
+        <text variable="year-suffix"/>
       </if>
       <else>
-        <text term="no date" form="short"/>
+        <text term="no date"/>
+        <text variable="year-suffix" prefix=" "/>
       </else>
     </choose>
   </macro>
@@ -141,7 +183,7 @@
   </macro>
   <macro name="published-date">
     <choose>
-      <if type="article-newspaper">
+      <if type="article-newspaper article-magazine post-weblog speech" match="any">
         <date variable="issued">
           <date-part name="day" suffix=" "/>
           <date-part name="month" form="long"/>
@@ -213,19 +255,22 @@
       <key variable="title"/>
     </sort>
     <layout suffix=".">
-      <group delimiter=" ">
-        <text macro="author"/>
-        <text macro="year-date" prefix="(" suffix=")"/>
-        <group delimiter=", ">
-          <text macro="title"/>
-          <group delimiter=" ">
-            <text macro="container-prefix"/>
-            <text macro="editor"/>
-            <text macro="container-title"/>
+      <group delimiter=". ">
+        <group delimiter=" ">
+          <text macro="author"/>
+          <text macro="year-date" prefix="(" suffix=")"/>
+          <group delimiter=", ">
+            <text macro="title"/>
+            <group delimiter=" ">
+              <text macro="container-prefix"/>
+              <text macro="editor"/>
+              <text macro="container-title"/>
+            </group>
           </group>
         </group>
+        <text macro="secondary-contributors"/>
+        <text macro="publisher"/>
       </group>
-      <text macro="publisher" prefix=". "/>
       <group delimiter=", " prefix=", ">
         <text macro="locator"/>
         <text macro="published-date"/>
