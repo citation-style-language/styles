@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="never">
-  <!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
   <info>
     <title>American Psychological Association 6th edition</title>
     <title-short>APA</title-short>
@@ -281,6 +280,12 @@
               </choose>
             </group>
           </if>
+          <else-if variable="status">
+            <group prefix=" (" suffix=")">
+              <text variable="status"/>
+              <text variable="year-suffix" prefix="-"/>
+            </group>
+          </else-if>
           <else>
             <group prefix=" (" suffix=")">
               <text term="no date" form="short"/>
@@ -310,11 +315,20 @@
   <macro name="issued-year">
     <choose>
       <if variable="issued">
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
-        <text variable="year-suffix"/>
+        <group delimiter="/">
+          <group>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+            <text variable="year-suffix"/>
+          </group>
+          <date variable="original-date" form="text"/>
+        </group>
       </if>
+      <else-if variable="status">
+        <text variable="status"/>
+        <text variable="year-suffix" prefix="-"/>
+      </else-if>
       <else>
         <text term="no date" form="short"/>
         <text variable="year-suffix" prefix="-"/>
@@ -330,7 +344,7 @@
         </group>
       </if>
       <else>
-        <text variable="edition" suffix="."/>
+        <text variable="edition"/>
       </else>
     </choose>
   </macro>
@@ -344,6 +358,16 @@
           </group>
           <text variable="page"/>
         </group>
+        <choose>
+          <!--for advanced online publication-->
+          <if variable="issued">
+            <choose>
+              <if variable="page issue" match="none">
+                <text variable="status" prefix=". "/>
+              </if>
+            </choose>
+          </if>
+        </choose>
       </if>
       <else-if type="article-newspaper">
         <group delimiter=" " prefix=", ">
@@ -455,6 +479,17 @@
       </if>
     </choose>
   </macro>
+  <macro name="original-date">
+    <choose>
+      <if variable="original-date">
+        <group prefix="(" suffix=")" delimiter=" ">
+          <!---This should be localized-->
+          <text value="Original work published"/>
+          <date variable="original-date" form="text"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <citation et-al-min="6" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name">
     <sort>
       <key macro="author"/>
@@ -490,6 +525,7 @@
         </group>
       </group>
       <text macro="access" prefix=" "/>
+      <text macro="original-date" prefix=" "/>
     </layout>
   </bibliography>
 </style>
