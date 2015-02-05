@@ -10,7 +10,7 @@ ISSN_FILTER = %w{
   1662-453X 1663-9812 1664-042X 1664-0640 1664-1078 1664-2295
   1664-2392 1664-302X 1664-3224 1664-462X 1664-8021 2234-943X
   0036-8075 1095-9203 1359-4184 1476-5578 1097-6256 1047-7594
-  1546-1726 2108-6419
+  1546-1726 2108-6419 0035-2969 1958-5691
 }
 
 # These titles are ignored when checking for duplicate titles
@@ -35,7 +35,7 @@ UNUSED_MACROS_FILTER = %w{
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
   'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/,
-  'renamed-styles.json'
+  'renamed-styles.json', 'script', 'cached-bundle', 's3-put'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
@@ -48,26 +48,6 @@ CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
 CSL::Schema.default_rights_string =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
 
-
-# RSpec Error Formatter For Minimal Output
-require 'rspec/core/formatters/base_text_formatter'
-class ErrorFormatter < RSpec::Core::Formatters::BaseTextFormatter
-
-  def example_pending(example)
-    super(example)
-    output.print pending_color('*')
-  end
-
-  def example_failed(example)
-    super(example)
-    output.print failure_color('F')
-  end
-
-  def start_dump
-    super()
-    output.puts
-  end
-end
 
 def load_style(path)
   filename = File.basename(path)
