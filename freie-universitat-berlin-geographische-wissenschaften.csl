@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE" demote-non-dropping-particle="never">
   <info>
     <title>Freie Universität Berlin - Geographische Wissenschaften (German)</title>
     <id>http://www.zotero.org/styles/freie-universitat-berlin-geographische-wissenschaften</id>
@@ -17,35 +17,38 @@
   </info>
   <locale xml:lang="de">
     <terms>
-      <term name="et-al">et al.</term>
-      <term name="editor" form="short"> (Hrsg.)</term>
-      <term name="collection-editor" form="short">(Hrsg.)</term>
-      <term name="page" form="short">S.</term>
+      <term name="et-al">et&#160;al.</term>
       <term name="issue">Heft</term>
     </terms>
   </locale>
   <macro name="edition">
     <choose>
-      <if variable="edition">
-        <group delimiter=" " suffix=" ">
-          <number variable="edition" form="ordinal"/>
-          <label variable="edition" form="short"/>
-        </group>
+      <if is-numeric="edition">
+        <number variable="edition" form="ordinal" suffix=" "/>
+        <label variable="edition" form="short"/>
       </if>
+      <else>
+        <text variable="edition"/>
+      </else>
     </choose>
-    <text variable="publisher-place"/>
+  </macro>
+  <macro name="publisher-place">
+    <choose>
+      <if variable="publisher-place">
+        <text variable="publisher-place" />
+      </if>
+      <else>
+        <text value=" o.&#160;O."/>
+      </else>
+    </choose>
   </macro>
   <macro name="pagenumbers">
-    <group delimiter=" ">
-      <number variable="number-of-pages"/>
-      <label variable="number-of-pages" form="short"/>
-    </group>
+    <number variable="number-of-pages" suffix=" "/>
+    <label variable="number-of-pages" form="short"/>
   </macro>
   <macro name="thesis">
-    <group prefix="Dissertation, " delimiter=". " suffix=".">
-      <text variable="publisher"/>
-      <text macro="pagenumbers"/>
-    </group>
+    <text variable="publisher" prefix="Dissertation, " suffix=". " />
+    <text macro="pagenumbers" suffix="."/>
   </macro>
   <macro name="book">
     <group prefix=" " delimiter=". " suffix=".">
@@ -56,6 +59,7 @@
         </if>
       </choose>
       <text macro="edition"/>
+      <text macro="publisher-place"/>
       <text macro="pagenumbers"/>
     </group>
   </macro>
@@ -67,21 +71,19 @@
       <name and="symbol" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all">
         <name-part name="family" text-case="uppercase"/>
       </name>
-      <label form="short"/>
+      <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
-        <group delimiter=" ">
-          <text variable="publisher" text-case="uppercase"/>
-          <text term="editor" form="short"/>
-        </group>
+        <names variable="collection-editor"/>
+        <names variable="translator" />
         <text macro="anon"/>
       </substitute>
     </names>
   </macro>
   <macro name="anon">
     <choose>
-      <if variable="author editor translator publisher" match="none">
-        <text term="anonymous" form="short"/>
+      <if variable="author editor translator collection-editor" match="none">
+        <text term="anonymous" form="long"/>
       </if>
     </choose>
   </macro>
@@ -90,33 +92,35 @@
       <name form="short" and="symbol" delimiter-precedes-last="never">
         <name-part name="family" text-case="uppercase"/>
       </name>
-      <label form="short"/>
+      <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
-        <text variable="publisher" text-case="uppercase" suffix=" "/>
-        <text term="editor" form="short"/>
+        <names variable="collection-editor"/>
         <names variable="translator"/>
         <text macro="anon"/>
       </substitute>
     </names>
   </macro>
   <macro name="year-date">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
+  <choose>
+    <if variable="issued">
+      <date variable="issued">
+        <date-part name="year"/>
+      </date>
+    </if>
+    <else>
+      <text term="no date" form="short"/>
+    </else>
+  </choose>
   </macro>
   <macro name="page">
-    <group delimiter=" ">
-      <label variable="page" form="short"/>
-      <text variable="page"/>
-    </group>
+    <label variable="page" form="short" suffix=" "/>
+    <text variable="page"/>
   </macro>
   <macro name="journal">
     <group delimiter=". " suffix=".">
-      <group delimiter=" ">
-        <text variable="container-title"/>
-        <number variable="volume" font-weight="bold"/>
-      </group>
+      <text variable="container-title" suffix=" "/>
+      <number variable="volume" font-weight="bold"/>
       <choose>
         <if variable="issue">
           <group prefix=" (" delimiter=" " suffix=")">
@@ -151,9 +155,7 @@
     <choose>
       <if variable="URL">
         <text variable="URL"/>
-        <group prefix=" (" suffix=") ">
-          <date variable="accessed" form="numeric"/>
-        </group>
+        <date variable="accessed" form="numeric" prefix=" (" suffix=") "/>
       </if>
     </choose>
   </macro>
@@ -180,10 +182,8 @@
       <key macro="author"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=" ">
-        <text macro="author-short"/>
-        <text macro="year-date"/>
-      </group>
+      <text macro="author-short" suffix=" "/>
+      <text macro="year-date"/>
       <group prefix=", " delimiter=" ">
         <label variable="locator" form="short"/>
         <text variable="locator"/>
