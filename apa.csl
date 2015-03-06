@@ -27,7 +27,7 @@
     <category citation-format="author-date"/>
     <category field="psychology"/>
     <category field="generic-base"/>
-    <updated>2014-09-23T19:13:50+00:00</updated>
+    <updated>2015-03-05T19:13:50+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -107,7 +107,7 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="thesis">
+      <if type="thesis report">
         <choose>
           <if variable="archive" match="any">
             <group>
@@ -129,7 +129,7 @@
       <else>
         <choose>
           <if variable="DOI">
-            <text variable="DOI" prefix="doi:"/>
+            <text variable="DOI" prefix="http://doi.org/"/>
           </if>
           <else>
             <choose>
@@ -160,7 +160,7 @@
     <choose>
       <if type="report thesis book graphic motion_picture report song manuscript speech" match="any">
         <choose>
-          <if variable="version">
+          <if variable="version" type="book" match="all">
             <!---This is a hack until we have a computer program type -->
             <text variable="title"/>
           </if>
@@ -193,6 +193,10 @@
         </group>
       </else-if>
     </choose>
+    <text macro="format"/>
+  </macro>
+  <macro name="format">
+    <text variable="medium" text-case="capitalize-first" prefix=" [" suffix="]"/>
   </macro>
   <macro name="publisher">
     <choose>
@@ -211,7 +215,8 @@
       <else-if type="post-weblog webpage" match="none">
         <group delimiter=", ">
           <choose>
-            <if variable="event" type="speech" match="none">
+            <if variable="event version" type="speech" match="none">
+            <!-- Including version is to avoid printing the programming language for computerProgram /-->
               <text variable="genre"/>
             </if>
           </choose>
@@ -271,12 +276,17 @@
               </date>
               <text variable="year-suffix"/>
               <choose>
-                <if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
+                <if type="speech" match="any">
+                  <date variable="issued">
+                    <date-part prefix=", " name="month"/>
+                  </date>
+                </if>
+                <else-if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
                   <date variable="issued">
                     <date-part prefix=", " name="month"/>
                     <date-part prefix=" " name="day"/>
                   </date>
-                </if>
+                </else-if>
               </choose>
             </group>
           </if>
@@ -378,14 +388,21 @@
       <else-if type="book graphic motion_picture report song chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
         <group prefix=" (" suffix=")" delimiter=", ">
           <text macro="edition"/>
-          <group>
-            <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=" "/>
-            <number variable="number-of-volumes" form="numeric" prefix="1-"/>
-          </group>
-          <group>
-            <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-            <number variable="volume" form="numeric"/>
-          </group>
+          <choose>
+            <if variable="volume" match="any">
+              <group>
+                <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                <number variable="volume" form="numeric"/>
+              </group>
+            </if>
+            <else>
+              <group>
+                <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=" "/>
+                <number variable="number-of-volumes" form="numeric" prefix="1&#x2013;"/>
+              </group>
+            </else>
+          </choose>
+
           <group>
             <label variable="page" form="short" suffix=" "/>
             <text variable="page"/>
