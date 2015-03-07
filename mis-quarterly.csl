@@ -37,9 +37,12 @@
     <contributor>
       <name>Gerit Wagner</name>
     </contributor>
+    <contributor>
+      <name>Dennis Riehle</name>
+    </contributor>
     <category citation-format="author-date"/>
     <issn>0276-7783</issn>
-    <updated>2014-07-18T10:20:00+00:00</updated>
+    <updated>2014-12-10T00:32:45+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -150,7 +153,7 @@
         </group>
       </if>
       <else-if type="bill book graphic legal_case legislation manuscript motion_picture report song speech" match="any">
-        <text variable="title" font-style="italic" suffix=", "/>
+        <text variable="title" font-style="italic"/>
       </else-if>
       <else>
         <text variable="title" quotes="true" suffix=","/>
@@ -214,14 +217,12 @@
   <macro name="issued">
     <choose>
       <if variable="issued">
-        <group prefix=" " suffix=".">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-        </group>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
       </if>
       <else>
-        <text prefix=" (" term="no date" suffix=")." form="short"/>
+        <text prefix="(" term="no date" suffix=")" form="short"/>
       </else>
     </choose>
   </macro>
@@ -253,15 +254,13 @@
   <macro name="locators">
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="any">
-        <group prefix=" " delimiter=", ">
-          <group prefix="(" suffix=")" delimiter=":">
-            <text variable="volume"/>
-            <text variable="issue"/>
-          </group>
+        <group prefix="(" suffix=")" delimiter=":">
+          <text variable="volume"/>
+          <text variable="issue"/>
         </group>
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
-        <group prefix=" (" suffix=") " delimiter=", ">
+        <group prefix=" (" suffix=")" delimiter=", ">
           <text macro="edition"/>
           <group>
             <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=" "/>
@@ -282,30 +281,14 @@
     </group>
   </macro>
   <macro name="container-phrase">
-    <!-- Container phrase accounts for avoiding comma after Journal titles
-       and adding " in " before proceedings title or book title -->
-    <choose>
-      <if type="article-journal article-magazine article-newspaper" match="none">
-        <group suffix=", ">
-          <choose>
-            <if type="chapter paper-conference" match="any">
-              <text term="in" suffix=" "/>
-            </if>
-          </choose>
-          <text variable="container-title" font-style="italic"/>
-        </group>
-      </if>
-      <else>
-        <group>
-          <choose>
-            <if type="chapter paper-conference" match="any">
-              <text term="in" suffix=" "/>
-            </if>
-          </choose>
-          <text variable="container-title" font-style="italic"/>
-        </group>
-      </else>
-    </choose>
+    <group>
+      <choose>
+        <if type="chapter paper-conference" match="any">
+          <text term="in" suffix=" "/>
+        </if>
+      </choose>
+      <text variable="container-title" font-style="italic"/>
+    </group>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year">
     <sort>
@@ -330,18 +313,20 @@
     <layout>
       <group suffix=".">
         <text macro="author" suffix="."/>
-        <text macro="issued" suffix=" "/>
-        <group delimiter=" " suffix=" ">
-          <text macro="title"/>
-          <text macro="container-phrase"/>
+        <text macro="issued" prefix=" " suffix="."/>
+        <group delimiter="" prefix=" ">
+          <group delimiter=" ">
+            <text macro="title"/>
+            <text macro="container-phrase"/>
+          </group>
+          <group delimiter=", ">
+            <text variable="collection-title"/>
+            <text macro="container-contributors"/>
+            <text macro="secondary-contributors"/>
+          </group>
+          <text macro="locators" prefix=" "/>
         </group>
-        <group delimiter=", " suffix=", ">
-          <text variable="collection-title"/>
-          <text macro="container-contributors"/>
-          <text macro="secondary-contributors"/>
-        </group>
-        <text macro="locators"/>
-        <group delimiter=", ">
+        <group delimiter=", " prefix=", ">
           <text macro="event"/>
           <text macro="publisher"/>
         </group>

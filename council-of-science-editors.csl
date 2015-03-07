@@ -14,7 +14,7 @@
     <category citation-format="numeric"/>
     <category field="science"/>
     <summary>The Council of Science Editors style, Citation-Sequence system: numbers in text, sorted by order of appearance in text.</summary>
-    <updated>2014-09-22T14:38:54+00:00</updated>
+    <updated>2014-12-22T17:32:22+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -22,6 +22,10 @@
       <term name="editortranslator" form="long">
         <single>editor and translator</single>
         <multiple>editors and translators</multiple>
+      </term>
+      <term name="collection-editor" form="long">
+        <single>editor</single>
+        <multiple>editors</multiple>
       </term>
     </terms>
   </locale>
@@ -32,12 +36,11 @@
     </names>
   </macro>
   <macro name="author">
-    <names variable="author">
+    <names variable="author" delimiter="; ">
       <name name-as-sort-order="all" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=" " strip-periods="true"/>
+      <label form="long" prefix=", " strip-periods="true"/>
       <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
+        <names variable="editor translator"/>
         <text variable="title"/>
       </substitute>
     </names>
@@ -119,8 +122,20 @@
     </group>
   </macro>
   <macro name="pages">
-    <label variable="page" form="short" suffix=" " plural="never"/>
-    <text variable="page"/>
+    <group delimiter="; ">
+      <group>
+        <label variable="page" form="short" suffix=" " plural="never"/>
+        <text variable="page"/>
+      </group>
+      <group>
+        <text variable="number-of-pages"/>
+        <choose>
+          <if is-numeric="number-of-pages">
+            <label variable="number-of-pages" form="short" prefix=" " plural="never"/>
+          </if>
+        </choose>
+      </group>
+    </group>
   </macro>
   <macro name="edition">
     <choose>
@@ -132,6 +147,25 @@
       </if>
       <else>
         <text variable="edition" suffix="."/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="collection">
+    <choose>
+      <if type="report">
+        <group prefix=" " suffix="." delimiter=" ">
+          <text variable="collection-title"/>
+          <text variable="number" prefix=" Report No.: "/>
+        </group>
+      </if>
+      <else>
+        <group prefix=" (" suffix=")." delimiter=" ">
+          <names variable="collection-editor" suffix=". ">
+            <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+            <label prefix=", "/>
+          </names>
+          <text variable="collection-title"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -159,14 +193,14 @@
             <text macro="editor"/>
           </group>
           <text prefix=" " macro="publisher"/>
-          <group suffix="." prefix="; " delimiter=" ">
+          <group suffix="." prefix="; " delimiter=". ">
             <date variable="issued">
               <date-part name="year"/>
             </date>
             <text macro="pages"/>
           </group>
         </if>
-        <else-if type="chapter paper-conference" match="any">
+        <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
           <text macro="title" prefix=" " suffix="."/>
           <group prefix=" " delimiter=" ">
             <text term="in" text-case="capitalize-first" suffix=":"/>
@@ -174,7 +208,6 @@
             <text variable="container-title" suffix="."/>
             <text variable="volume" prefix="Vol. " suffix="."/>
             <text macro="edition"/>
-            <text variable="collection-title" suffix="."/>
             <group suffix=".">
               <text macro="publisher"/>
               <group suffix="." prefix="; " delimiter=". ">
@@ -221,6 +254,7 @@
           </group>
         </else>
       </choose>
+      <text prefix=" " macro="collection"/>
       <text prefix=" " macro="access"/>
     </layout>
   </bibliography>
