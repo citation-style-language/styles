@@ -24,7 +24,7 @@ compute_md5() {
 }
 
 download() {
-  curl --tcp-nodelay -qsfL "$1" -o "$2"
+  curl --tcp-nodelay -qvfL "$1" -o "$2"
 }
 
 bundle_path=".bundle"
@@ -32,10 +32,13 @@ gemfile_hash="$(compute_md5 <"${BUNDLE_GEMFILE:-Gemfile}.lock")"
 cache_name="${TRAVIS_RUBY_VERSION}-${gemfile_hash}.tgz"
 fetch_url="http://${AMAZON_S3_BUCKET}.s3.amazonaws.com/${TRAVIS_REPO_SLUG}/${cache_name}"
 
+echo "Fetching cached bundle from ${fetch_url}"
+
 if download "$fetch_url" "$cache_name"; then
   echo "Reusing cached bundle ${cache_name}"
   tar xzf "$cache_name"
 else
+  echo "Building bundle ${cache_name}"
   bundle config build.nokogiri --use-system-libraries
 fi
 
