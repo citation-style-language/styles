@@ -31,16 +31,21 @@ UNUSED_MACROS_FILTER = %w{
   chicago-note-bibliography taylor-and-francis-chicago-author-date
 }
 
-# These files are ignored when checking for extra files
+# These files and directories are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
-  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/,
-  'renamed-styles.json', 'script', 'cached-bundle', 's3-put'
+  'dependent', 'Rakefile', 'renamed-styles.json'
+]
+
+# These directories and their contents are ignored when checking for extra files
+EXTRA_FILES_DIRECTORY_FILTER = [
+  'spec', 'vendor'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
+  basedir = file.sub(STYLE_ROOT + "/","").partition("/")[0]
   name = File.basename(file)
-  File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name }
+  File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name } || EXTRA_FILES_DIRECTORY_FILTER.any? { |d| d === basedir}
 end
 
 # Default license and rights text

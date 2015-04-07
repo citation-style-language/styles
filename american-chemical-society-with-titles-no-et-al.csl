@@ -23,11 +23,33 @@
     <updated>2012-09-27T22:06:38+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="editortranslator" form="short">
+        <single>ed. and translator</single>
+        <multiple>eds. and translators</multiple>
+      </term>
+      <term name="translator" form="short">
+        <single>translator</single>
+        <multiple>translators</multiple>
+      </term>
+      <term name="collection-editor" form="short">
+        <single>series ed.</single>
+        <multiple>series eds.</multiple>
+      </term>
+    </terms>
+  </locale>
   <macro name="editor">
-    <names variable="editor">
-      <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=", " text-case="capitalize-first"/>
-    </names>
+    <group delimiter="; ">
+      <names variable="editor translator" delimiter="; ">
+        <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+      <names variable="collection-editor">
+        <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+    </group>
   </macro>
   <macro name="author">
     <names variable="author" suffix=".">
@@ -67,7 +89,11 @@
   <macro name="book-container">
     <group delimiter=" ">
       <text macro="title" suffix="."/>
-      <text term="in" text-case="capitalize-first"/>
+      <choose>
+        <if type="entry-dictionary entry-encyclopedia" match="none">
+          <text term="in" text-case="capitalize-first"/>
+        </if>
+      </choose>
       <text variable="container-title" font-style="italic"/>
     </group>
   </macro>
@@ -166,7 +192,7 @@
             <date variable="issued" form="text"/>
           </group>
         </else-if>
-        <else-if type="chapter paper-conference" match="any">
+        <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
           <group delimiter="; ">
             <text macro="book-container"/>
             <text macro="editor"/>
@@ -198,7 +224,20 @@
             <text variable="container-title" font-style="italic" form="short"/>
             <group delimiter=", ">
               <text macro="issued" font-weight="bold"/>
-              <text variable="volume" font-style="italic"/>
+              <choose>
+                <if variable="volume">
+                  <group delimiter=" ">
+                    <text variable="volume" font-style="italic"/>
+                    <text variable="issue" prefix="(" suffix=")"/>
+                  </group>
+                </if>
+                <else-if variable="issue">
+                  <group delimiter=" ">
+                    <text term="issue" form="short" text-case="capitalize-first"/>
+                    <text variable="issue"/>
+                  </group>
+                </else-if>
+              </choose>
               <text variable="page"/>
             </group>
           </group>
