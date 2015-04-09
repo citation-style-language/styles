@@ -1,19 +1,28 @@
 describe "The CSL Style Repository" do
 
-  it "contains independent styles" do
-    Independents.should_not be_empty
-  end
+  unless ENV['CSL_TEST']
+    it "contains independent styles" do
+      expect(Independents).not_to be_empty
+    end
 
-  it "contains dependent styles" do
-    Dependents.should_not be_empty
+    it "contains dependent styles" do
+      expect(Dependents).not_to be_empty
+    end
   end
 
   it "does not contain any duplicate file names" do
-    (Independents.keys & Dependents.keys).should be_empty
+    expect(Independents.keys & Dependents.keys).to eq([])
   end
 
   it "contains no duplicate ISSNs" do
-    ISSN.select { |_, styles| styles.length > 1 }.should == {}
+    expect(ISSN.select { |_, styles| styles.length > 1 }).to eq({})
   end
 
+  it "contains no duplicate style titles" do
+    expect(TITLES.select { |_, styles| styles.length > 1 }).to eq({})
+  end
+
+  it "contains no extra files" do
+    expect(EXTRA_FILES).to eq([])
+  end
 end

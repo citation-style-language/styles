@@ -1,82 +1,107 @@
 Independents.each_pair do |id, (filename, path, style)|
 
   describe "independent style #{id}" do
-    
+
     it "is a valid CSL 1.0 style" do
-      CSL.validate(path).should == []
+      expect(CSL.validate(path)).to eq([])
     end
 
     it "has a conventional file name" do
-      filename.should match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
+      expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
     it "was successfully parsed" do
-      style.should be_a(CSL::Style)
+      expect(style).to be_a(CSL::Style)
     end
 
     unless style.nil?
       it "is independent" do
-        style.should be_independent
+        expect(style).to be_independent
       end
 
       it "has an info element" do
-       style.should have_info
+       expect(style).to have_info
       end
 
       it "has a self-link" do
-        style.should have_self_link
+        expect(style).to have_self_link
       end
 
       it "has an id" do
-        style.info.should have_id
+        expect(style.info).to have_id
+      end
+
+      it "the id is a valid style repository link" do
+        expect(style.id).to eq("http://www.zotero.org/styles/#{id}")
       end
 
       it "the self-link is a valid style repository link" do
-        style.self_link.should == "http://www.zotero.org/styles/#{id}"
-      end
-
-      it "the self-link matches the style id" do
-        style.id.should == style.self_link
+        expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{id}})
       end
 
       it "has an info/rights element" do
-        style.info.should have_rights
+        expect(style.info).to have_rights
       end
 
       it "is licensed under a CC BY-SA license" do
-        (style.info.rights.text == 'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License' && style.info.rights[:license].should == 'http://creativecommons.org/licenses/by-sa/3.0/').should be_true
+        expect(style).to be_default_license
       end
 
       it "its template-link (if present) points to an existing independent style" do
         if style.has_template_link?
           link = style.template_link
 
-          link.should match(%r{http://www.zotero.org/styles/([a-z-]+)})
-          Independents.should have_key(link[/[^\/]+$/])
+          expect(link).to match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
+          expect(Independents).to have_key(link[/[^\/]+$/])
         end
       end
 
-      unless %w{ all bibtex blank national-archives-of-australia }.include?(id)
+      unless CITATION_FORMAT_FILTER.include?(id)
         it "has at least one info/category" do
-          style.info.should have_categories
+          expect(style.info).to have_categories
         end
 
         it "has a citation-format" do
-          style.citation_format.should_not be_nil
+          expect(style.citation_format).not_to be_nil
         end
 
         it "its citation-format is valid" do
-          style.citation_format.to_s.should match(/^author(-date)?|numeric|label|note/)
+          expect(style.citation_format.to_s).to match(/^author(-date)?|numeric|label|note/)
+        end
+
+        it "has a valid class attribute" do
+          expect(style[:class].to_s).to match(/^(note|in-text)$/)
+        end
+
+        it "its class attribute corresponds to the citation-format" do
+          if style.citation_format == :note
+            expect(style[:class]).to eq('note')
+          else
+            expect(style[:class]).to eq('in-text')
+          end
         end
       end
 
       it "defines all macros that are referenced by text or key nodes" do
         style.descendants!.each do |node|
           if node.matches?(/^key|text$/, :macro => /./)
-            style.macros.should have_key(node[:macro])
+            expect(style.macros).to have_key(node[:macro])
           end
         end
-      end      
+      end
+
+      unless UNUSED_MACROS_FILTER.include?(id)
+        it "has no unused macros" do
+          available_macros = style.macros.keys.sort
+
+          used_macros = style.descendants.
+            select { |node| node.attribute? :macro }.
+            map    { |node| node[:macro] }.
+            sort.uniq
+
+          expect(available_macros - used_macros).to eq([])
+        end
+      end
     end
 
   end
