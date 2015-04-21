@@ -6,7 +6,7 @@ their styles directly from our repository.
 
 Help us improve our repository and contribute new styles or fix up existing
 ones. We're particularly interested in styles for journals and published
-style guides.
+style guides and may [refuse some contributions](https://github.com/citation-style-language/styles/wiki/Criteria-for-Inclusion).
 
 To submit a style, please follow the following steps:
 
