@@ -27,7 +27,7 @@
     <category citation-format="author-date"/>
     <category field="psychology"/>
     <category field="generic-base"/>
-    <updated>2015-03-05T19:13:50+00:00</updated>
+    <updated>2015-04-07T11:18:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -110,6 +110,16 @@
           <else-if type="bill book graphic legislation motion_picture song" match="any">
             <text variable="title" form="short" font-style="italic"/>
           </else-if>
+          <else-if variable="reviewed-author">
+            <choose>
+              <if variable="reviewed-title" match="none">
+                <text variable="title" form="short" font-style="italic" prefix="Review of "/>
+              </if>
+              <else>
+                <text variable="title" form="short" quotes="true"/>
+              </else>
+            </choose>
+          </else-if>
           <else>
             <text variable="title" form="short" quotes="true"/>
           </else>
@@ -181,6 +191,32 @@
           </else>
         </choose>
       </if>
+      <else-if variable="reviewed-author">
+        <choose>
+          <if variable="reviewed-title">
+            <group delimiter=" ">
+              <text variable="title"/>
+              <group delimiter=", " prefix="[" suffix="]">
+                <text variable="reviewed-title" font-style="italic" prefix="Review of "/>
+                <names variable="reviewed-author" delimiter=", ">
+                  <label form="verb-short" suffix=" "/>
+                  <name and="symbol" initialize-with=". " delimiter=", "/>
+                </names>
+              </group>
+            </group>
+          </if>
+          <else>
+            <!-- assume `title` is title of reviewed work -->
+            <group delimiter=", " prefix="[" suffix="]">
+              <text variable="title" font-style="italic" prefix="Review of "/>
+              <names variable="reviewed-author" delimiter=", ">
+                <label form="verb-short" suffix=" "/>
+                <name and="symbol" initialize-with=". " delimiter=", "/>
+              </names>
+            </group>
+          </else>
+        </choose>
+      </else-if>
       <else>
         <text variable="title"/>
       </else>
@@ -190,10 +226,17 @@
     <text macro="title"/>
     <choose>
       <if type="report thesis" match="any">
-        <group prefix=" (" suffix=")" delimiter=" ">
-          <text variable="genre"/>
-          <text variable="number" prefix="No. "/>
-        </group>
+        <group prefix=" (" suffix=")" delimiter=", ">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <text variable="number" prefix="No. "/>
+          </group>
+          <group delimiter=" ">
+            <text term="version" text-case="capitalize-first"/>
+            <text variable="version"/>
+          </group>
+          <text macro="edition"/>
+        </group>  
       </if>
       <else-if type="post-weblog webpage" match="any">
         <text variable="genre" prefix=" [" suffix="]"/>
@@ -338,13 +381,13 @@
     <choose>
       <if variable="issued">
         <group delimiter="/">
+          <date variable="original-date" form="text"/>          
           <group>
             <date variable="issued">
               <date-part name="year"/>
             </date>
             <text variable="year-suffix"/>
           </group>
-          <date variable="original-date" form="text"/>
         </group>
       </if>
       <else-if variable="status">
@@ -399,7 +442,11 @@
       </else-if>
       <else-if type="book graphic motion_picture report song chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
         <group prefix=" (" suffix=")" delimiter=", ">
-          <text macro="edition"/>
+          <choose>
+            <if type="report" match="none"> <!-- edition for report is included in title-plus-extra /-->
+              <text macro="edition"/>
+            </if>
+          </choose>
           <choose>
             <if variable="volume" match="any">
               <group>
