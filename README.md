@@ -4,6 +4,10 @@ CSL Style Repository
 [github.com/citation-style-language/styles](https://github.com/citation-style-language/styles) is the official repository for Citation Style Language (CSL) styles and is maintained by CSL project members.
 For more information, check out [CitationStyles.org](http://citationstyles.org/) and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
 
+http://validator.citationstyles.org/
+http://docs.citationstyles.org/en/stable/specification.html#global-options
+
+
 Licensing
 ---------
 
