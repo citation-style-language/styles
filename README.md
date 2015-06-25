@@ -5,6 +5,7 @@ CSL Style Repository
 For more information, check out [CitationStyles.org](http://citationstyles.org/) and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
 
 http://validator.citationstyles.org/
+
 http://docs.citationstyles.org/en/stable/specification.html#global-options
 
 
