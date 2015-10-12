@@ -10,15 +10,12 @@
       <email>mpbraendle@gmail.com</email>
       <uri>http://www.id.uzh.ch/cl/iframe/org/visitenk/index.php?id=mb</uri>
     </author>
-    <contributor><name /></contributor>
     <category citation-format="numeric"/>
     <category field="chemistry"/>
     <issn>0009-4293</issn>
-    <eissn>0009-4293</eissn>
     <summary>A style for CHIMIA, the International Journal for Chemistry and Official Membership Journal of the Swiss Chemical Society (SCS) and its Divisions.
-    This style has been tested with Mendeley and Zotero and has been validated using the CSL Schema 1.0.1. Papers for Mac does not correctly format webpages and patents due to unknown reasons.
-    The style has many limits due to CSL constraints, most notably the inability to include pages/page ranges for books, the wrong square brackets for two items cited together, and the lack of support for citing 1a)... b)...c)....</summary>
-    <updated>2015-08-31T22:30:00+00:00</updated>
+    This style has been tested with Mendeley and Zotero and has been validated using the CSL Schema 1.0.1. Papers for Mac does not correctly format webpages and patents due to unknown reasons.</summary>
+    <updated>2015-10-10T216:30:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <!-- MACROS, sorted alphabetically -->  
@@ -32,6 +29,20 @@
         <names variable="translator"/>
       </substitute>
     </names>
+  </macro>
+  
+  <!-- computer program -->
+  <macro name="computerprogram">
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <text variable="title" text-case="title"/>
+        <text macro="program-version"/>
+      </group>
+      <text macro="author"/>
+      <text macro="publisher"/>
+      <text macro="year-date"/>
+    </group>
+    <text macro="doi" prefix=", "/>
   </macro>
   
   <!-- DOI -->
@@ -54,9 +65,8 @@
   <!-- editor -->
   <macro name="editor">
     <group delimiter=" ">
-      <!-- <text term="editor" plural="true" text-case="capitalize-first"/> -->
       <names variable="editor">
-        <label form="short" text-case="capitalize-first" suffix=". " strip-periods="true"/>
+        <label form="short" text-case="capitalize-first" suffix=" "/>
         <name initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
       </names>
     </group>
@@ -199,13 +209,21 @@
         </if>
         <!-- book and report -->
         <else-if type="book report bill graphic legal_case legislation motion_picture song" match="any">
-          <text macro="author" suffix=", "/>
-          <group delimiter=", ">
-            <text variable="title" prefix="‘" suffix="’" />
-            <text macro="publisher"/>
-            <text macro="year-date"/>
-          </group>
-          <text macro="doi" prefix=", "/>
+          <choose>
+            <!-- Zotero maps computer program to book, so check on version variable (may fail) -->
+            <if variable="version">
+              <text macro="computerprogram"/>
+            </if>
+            <else>
+              <text macro="author" suffix=", "/>
+              <group delimiter=", ">
+                <text variable="title" prefix="‘" suffix="’" />
+                <text macro="publisher"/>
+                <text macro="year-date"/>
+              </group>
+              <text macro="doi" prefix=", "/>
+            </else>
+          </choose>
         </else-if>
         <!-- book chapter or conference proceedings -->
         <else-if type="chapter paper-conference entry-encyclopedia" match="any">
@@ -240,16 +258,7 @@
         </else-if>
         <!-- computer program (is mapped to type "article" in Mendeley) -->
         <else-if type="article">
-          <group delimiter=", ">
-            <group delimiter=" ">
-              <text variable="title" text-case="title"/>
-              <text macro="program-version"/>
-            </group>
-            <text macro="author"/>
-            <text macro="publisher"/>
-            <text macro="year-date"/>
-          </group>
-          <text macro="doi" prefix=", "/>
+          <text macro="computerprogram"/>
         </else-if>
         <!-- patent -->
         <else-if type="patent">
@@ -281,7 +290,7 @@
           <text macro="author" suffix=", "/>
           <group delimiter=", ">
             <text variable="title" prefix="‘" suffix="’" />
-            <text macro="publisher-place"/>
+            <text macro="publisher"/>
             <text macro="year-date"/>
           </group>
         </else-if>
