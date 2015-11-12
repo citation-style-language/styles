@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE" demote-non-dropping-particle="never">
   <info>
     <title>Freie Universität Berlin - Geographische Wissenschaften (German)</title>
     <id>http://www.zotero.org/styles/freie-universitat-berlin-geographische-wissenschaften</id>
@@ -17,13 +17,43 @@
   </info>
   <locale xml:lang="de">
     <terms>
-      <term name="et-al">et al.</term>
-      <term name="editor" form="short"> (Hrsg.)</term>
-      <term name="collection-editor" form="short">(Hrsg.)</term>
-      <term name="page" form="short">S.</term>
+      <term name="et-al">et&#160;al.</term>
       <term name="issue">Heft</term>
     </terms>
   </locale>
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <number variable="edition" form="ordinal" suffix=" "/>
+        <label variable="edition" form="short"/>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="publisher-place">
+    <choose>
+      <if variable="publisher-place">
+        <text variable="publisher-place"/>
+      </if>
+      <else>
+        <text value=" o.&#160;O."/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="pagenumbers">
+    <group delimiter=" ">
+      <number variable="number-of-pages"/>
+      <label variable="number-of-pages" form="short"/>
+    </group>
+  </macro>
+  <macro name="thesis">
+    <group prefix="Dissertation, " delimiter=". " suffix=".">
+      <text variable="publisher"/>
+      <text macro="pagenumbers"/>
+    </group>
+  </macro>
   <macro name="book">
     <group prefix=" " delimiter=". " suffix=".">
       <choose>
@@ -32,17 +62,9 @@
           <label variable="volume"/>
         </if>
       </choose>
-      <choose>
-        <if variable="edition">
-          <number variable="edition"/>
-          <label variable="edition" form="short"/>
-        </if>
-      </choose>
-      <text variable="publisher-place"/>
-      <group delimiter=" ">
-        <number variable="number-of-pages"/>
-        <label variable="number-of-pages" form="short"/>
-      </group>
+      <text macro="edition"/>
+      <text macro="publisher-place"/>
+      <text macro="pagenumbers"/>
     </group>
   </macro>
   <macro name="title">
@@ -53,41 +75,47 @@
       <name and="symbol" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all">
         <name-part name="family" text-case="uppercase"/>
       </name>
-      <label form="short"/>
+      <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
-        <group delimiter=" " suffix="(Hrsg.)">
-          <text variable="publisher" text-case="uppercase"/>
-        </group>
+        <names variable="collection-editor"/>
+        <names variable="translator"/>
         <text macro="anon"/>
       </substitute>
     </names>
   </macro>
   <macro name="anon">
     <choose>
-      <if variable="author editor translator publisher" match="none">
-        <text term="anonymous" form="short"/>
+      <if variable="author editor translator collection-editor" match="none">
+        <text term="anonymous" form="long"/>
       </if>
     </choose>
   </macro>
   <macro name="author-short">
     <names variable="author">
-      <name form="short" and="symbol" delimiter-precedes-last="never" et-al-min="3" et-al-use-first="1">
+      <name form="short" and="symbol" delimiter-precedes-last="never">
         <name-part name="family" text-case="uppercase"/>
       </name>
-      <label form="short"/>
+      <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
-        <text variable="publisher" text-case="uppercase" suffix=" (Hrsg.)"/>
+        <names variable="collection-editor"/>
         <names variable="translator"/>
         <text macro="anon"/>
       </substitute>
     </names>
   </macro>
   <macro name="year-date">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
   </macro>
   <macro name="page">
     <group delimiter=" ">
@@ -121,14 +149,13 @@
         <label form="short" prefix=" "/>
         <substitute>
           <names variable="collection-editor"/>
+          <names variable="container-author"/>
         </substitute>
       </names>
     </group>
     <group delimiter=". " suffix=".">
       <text variable="container-title"/>
-      <number variable="edition"/>
-      <label variable="edition"/>
-      <text variable="publisher-place"/>
+      <text macro="edition"/>
       <text macro="page"/>
     </group>
   </macro>
@@ -136,9 +163,7 @@
     <choose>
       <if variable="URL">
         <text variable="URL"/>
-        <group prefix=" (" suffix=") ">
-          <date variable="accessed" form="numeric"/>
-        </group>
+        <date variable="accessed" form="numeric" prefix=" (" suffix=") "/>
       </if>
     </choose>
   </macro>
@@ -152,8 +177,7 @@
     <group prefix=" " delimiter=". " suffix=".">
       <text variable="genre"/>
       <text variable="scale"/>
-      <number variable="edition" suffix=". Aufl"/>
-      <text variable="publisher-place"/>
+      <text macro="edition"/>
     </group>
   </macro>
   <macro name="author-count">
@@ -178,9 +202,9 @@
   </citation>
   <bibliography and="symbol">
     <sort>
-      <key macro="author-short"/>
-      <key macro="author-count" names-min="3" names-use-first="3"/>
-      <key macro="author" names-min="3" names-use-first="1"/>
+      <key macro="author" names-min="1" names-use-first="1"/>
+      <key macro="author-count" names-min="2" names-use-first="2"/>
+      <key macro="author"/>
       <key macro="year-date"/>
     </sort>
     <layout>
@@ -205,6 +229,9 @@
         </else-if>
         <else-if type="chapter" match="any">
           <text macro="anthology"/>
+        </else-if>
+        <else-if type="thesis" match="any">
+          <text macro="thesis"/>
         </else-if>
         <else>
           <text macro="book"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" default-locale="de-DE" version="1.0" demote-non-dropping-particle="sort-only">
   <info>
-    <title>Universität Freiburg - Geschichte (German)</title>
+    <title>Albert-Ludwigs-Universität Freiburg - Geschichte (German)</title>
     <id>http://www.zotero.org/styles/universitat-freiburg-geschichte</id>
     <link href="http://www.zotero.org/styles/universitat-freiburg-geschichte" rel="self"/>
     <link href="http://www.zotero.org/styles/hochschule-fur-wirtschaft-und-recht-berlin" rel="template"/>
@@ -11,7 +11,7 @@
     </author>
     <category citation-format="note"/>
     <category field="history"/>
-    <updated>2013-05-15T00:33:51+00:00</updated>
+    <updated>2015-03-15T16:59:28+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -19,7 +19,7 @@
       <term name="et-al">et. al.</term>
       <term name="and">/</term>
       <term name="retrieved">zugegriffen am</term>
-      <term name="accessed">abgerufen am</term>
+      <term name="accessed">Zugriff:</term>
       <!--      <term name="ibid">ebenda</term> -->
       <term name="page" form="short">
         <single>S.</single>
@@ -29,10 +29,10 @@
         <single>Abs.</single>
         <multiple>Abs.</multiple>
       </term>
-      <term name="editor" form="verb-short">hrsg. von</term>
+      <term name="editor" form="verb-short">hg. von</term>
       <term name="editor" form="short">
-        <single> (Hrsg.)</single>
-        <multiple> (Hrsgg.)</multiple>
+        <single> (Hg.)</single>
+        <multiple> (Hgg.)</multiple>
       </term>
     </terms>
   </locale>
@@ -124,6 +124,23 @@
     <!-- Angabe der Seiten o.ä. -->
     <text variable="locator"/>
   </macro>
+  <!-- Gibt Felder mit Text in Feld "Archiv" am Anfang der Biblographie aus, fuer Primaerquellenverzeichnis -->
+  <!-- Ausserdem werden die Primaerquellen noch alphabetisch sortiert -->
+  <macro name="archives-first">
+    <choose>
+      <if variable="archive">
+        <text value="1"/>
+      </if>
+      <else>
+        <text value="2"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="collection">
+    <text variable="collection-title"/>
+    <text variable="collection-number" prefix=" "/>
+    <text variable="volume" prefix=" "/>
+  </macro>
   <!-- ################################################################################ -->
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
     <layout delimiter="; " suffix=".">
@@ -143,15 +160,19 @@
       </choose>
     </layout>
   </citation>
-  <!-- BIB ########################################################################################################################################################################## -->
-  <bibliography et-al-min="3" et-al-use-first="1" hanging-indent="true">
+  <!-- BIB ############################################################################ -->
+  <bibliography et-al-min="3" et-al-use-first="1" hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;&#8212;">
     <sort>
+      <!-- Sortiert zuerst nach Inhalt des 'Archiv'-Felds, dann Autor -->
+      <key macro="archives-first" sort="ascending"/>
+      <key variable="archive"/>
       <key macro="author"/>
       <key macro="date"/>
     </sort>
     <layout suffix=".">
       <group font-weight="bold">
         <text macro="author"/>
+        <text macro="year-date" prefix=" (" suffix=")"/>
       </group>
       <text variable="title" prefix=": "/>
       <choose>
@@ -168,28 +189,33 @@
           <text variable="container-title" font-style="italic"/>
           <text variable="collection-title" prefix=", Reihe "/>
           <text variable="volume" prefix=" " font-style="italic"/>
-          <text variable="issue" prefix=", Ausgabe " font-style="italic"/>
-          <text macro="date" prefix=" (" suffix=")" font-style="italic"/>
+          <text variable="issue" prefix=" (" suffix=")" font-style="italic"/>
+          <choose>
+            <if type="article-newspaper">
+              <text macro="date" prefix=" (" suffix=")" font-style="italic"/>
+            </if>
+          </choose>
           <text macro="pages"/>
         </else-if>
         <else-if type="chapter paper-conference" match="any">
-          <text macro="editor" prefix=", in: " suffix=": "/>
+          <text term="in" prefix=", " suffix=": "/>
+          <text macro="editor" suffix=": "/>
           <text variable="container-title" font-style="italic"/>
+          <text macro="collection" prefix=" (=" suffix=")" font-style="italic"/>
           <text variable="publisher-place" prefix=", "/>
           <text variable="edition" prefix=", "/>
-          <text macro="year-date" prefix=" "/>
           <text macro="pages"/>
         </else-if>
         <else>
+          <text macro="collection" prefix=" (=" suffix=")" font-style="italic"/>
           <text variable="publisher-place" prefix=", "/>
           <text variable="edition" prefix=", "/>
-          <text macro="year-date" prefix=" "/>
         </else>
       </choose>
       <choose>
         <if variable="URL">
-          <text macro="accessed" prefix=", "/>
           <text variable="URL" prefix=", "/>
+          <text macro="accessed" prefix=", "/>
         </if>
       </choose>
       <!--  <text variable="ISBN" prefix=", ISBN: "/>

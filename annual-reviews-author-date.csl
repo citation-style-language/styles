@@ -25,9 +25,13 @@
       <name>Aurimas Vinckevicius</name>
       <email>aurimas.dev@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Brenton Wiernik</name>
+      <email>wiernik@workpsy.ch</email>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <updated>2013-11-02T03:09:48+00:00</updated>
+    <updated>2015-03-02T03:09:48+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -84,6 +88,16 @@
       <date-part name="year"/>
     </date>
   </macro>
+  <macro name="date-original">
+    <group delimiter=" ">
+      <date variable="issued">
+        <date-part name="year"/>
+      </date>
+      <date variable="original-date" prefix="(" suffix=")">
+        <date-part name="year"/>
+      </date>
+    </group>
+  </macro>
   <macro name="date-m-d">
     <date variable="issued" delimiter=" ">
       <date-part name="month" form="short"/>
@@ -112,8 +126,7 @@
   <macro name="container-title">
     <choose>
       <if type="paper-conference" match="any">
-        <text term="in" text-case="capitalize-first" suffix=" "/>
-        <text variable="container-title" font-style="italic" text-case="title"/>
+        <text variable="container-title" font-style="italic" text-case="title" form="short"/>
       </if>
       <else-if type="chapter" match="any">
         <text term="in" text-case="capitalize-first" suffix=" "/>
@@ -141,7 +154,19 @@
   </macro>
   <macro name="locator">
     <choose>
-      <if type="article-journal paper-conference" match="any">
+      <if type="article-journal" match="any">
+        <group prefix=". ">
+          <group suffix=":">
+            <text variable="volume"/>
+            <text variable="issue" prefix="(" suffix=")"/>
+          </group>
+          <group delimiter=". ">
+            <text variable="page"/>
+            <text macro="status"/>
+          </group>
+        </group>
+      </if>
+      <else-if type="paper-conference" match="any">
         <choose>
           <if variable="volume">
             <group prefix=". ">
@@ -149,7 +174,17 @@
                 <text variable="volume"/>
                 <text variable="issue" prefix="(" suffix=")"/>
               </group>
-              <text variable="page"/>
+              <choose>
+                <if variable="page" match="any">
+                  <group delimiter=". ">
+                    <text variable="page"/>
+                    <text macro="status"/>
+                  </group>
+                </if>
+                <else>
+                  <text variable="URL" prefix=". "/>
+                </else>
+              </choose>
             </group>
           </if>
           <else>
@@ -166,7 +201,7 @@
             </choose>
           </else>
         </choose>
-      </if>
+      </else-if>
       <else-if type="chapter" match="any">
         <group prefix=", ">
           <label variable="page" form="short" suffix=" "/>
@@ -210,6 +245,7 @@
             <number variable="edition" form="ordinal"/>
             <label variable="edition" form="short"/>
           </group>
+          <text macro="status"/>
         </group>
       </if>
       <else-if type="chapter" match="any">
@@ -224,16 +260,43 @@
             <number variable="edition" form="ordinal"/>
             <label variable="edition" form="short"/>
           </group>
+          <text macro="status"/>
         </group>
       </else-if>
       <else-if type="article-journal" match="any">
         <text macro="container-title"/>
         <text macro="locator"/>
       </else-if>
+      <else-if type="paper-conference" match="any">
+        <choose>
+          <if variable="volume" match="any">
+            <text macro="container-title"/>
+            <text macro="locator"/>
+          </if>
+          <else>
+            <text macro="container-title"/>
+            <text macro="locator"/>
+            <choose>
+              <if variable="publisher" match="any">
+                <group delimiter=". " prefix=". ">
+                  <text macro="publisher"/>
+                  <text macro="status"/>
+                </group>
+              </if>
+              <else>
+                <text variable="URL" prefix=". "/>
+              </else>
+            </choose>
+          </else>
+        </choose>
+      </else-if>
       <else-if type="article-magazine article-newspaper" match="any">
-        <group delimiter=", ">
-          <text macro="container-title"/>
-          <text macro="locator"/>
+        <group delimiter=". ">
+          <group delimiter=", ">
+            <text macro="container-title"/>
+            <text macro="locator"/>
+          </group>
+          <text macro="status"/>
         </group>
       </else-if>
       <else-if type="broadcast" match="any">
@@ -254,10 +317,13 @@
       <else-if type="report" match="any">
         <group delimiter=". ">
           <text macro="container-title"/>
-          <group delimiter=", ">
-            <text variable="number" font-style="italic"/>
-            <text variable="publisher"/>
-            <text variable="publisher-place"/>
+          <group delimiter=". ">
+            <group delimiter=", ">
+              <text variable="number" font-style="italic"/>
+              <text variable="publisher"/>
+              <text variable="publisher-place"/>
+            </group>
+            <text macro="status"/>
           </group>
         </group>
       </else-if>
@@ -281,6 +347,9 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="status">
+    <text variable="status" text-case="capitalize-first"/>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year-suffix-ranged" year-suffix-delimiter="," after-collapse-delimiter="; ">
     <sort>
       <key macro="author-short" names-min="2" names-use-first="1"/>
@@ -302,7 +371,7 @@
     <layout>
       <group delimiter=". ">
         <text macro="author"/>
-        <text macro="year-date"/>
+        <text macro="date-original"/>
         <text macro="title"/>
         <text macro="container"/>
       </group>

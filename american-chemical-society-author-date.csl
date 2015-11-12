@@ -23,11 +23,33 @@
     <updated>2012-09-27T22:06:38+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="editortranslator" form="short">
+        <single>ed. and translator</single>
+        <multiple>eds. and translators</multiple>
+      </term>
+      <term name="translator" form="short">
+        <single>translator</single>
+        <multiple>translators</multiple>
+      </term>
+      <term name="collection-editor" form="short">
+        <single>series ed.</single>
+        <multiple>series eds.</multiple>
+      </term>
+    </terms>
+  </locale>
   <macro name="editor">
-    <names variable="editor">
-      <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter="; " delimiter-precedes-last="always"/>
-      <label form="short" prefix=", " text-case="capitalize-first"/>
-    </names>
+    <group delimiter="; ">
+      <names variable="editor translator" delimiter="; ">
+        <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+      <names variable="collection-editor">
+        <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+    </group>
   </macro>
   <macro name="author">
     <names variable="author" suffix=".">
@@ -61,7 +83,7 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song">
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
       </if>
       <else>
@@ -71,7 +93,7 @@
   </macro>
   <macro name="volume">
     <group delimiter=" ">
-      <text term="volume" form="short" suffix="." text-case="capitalize-first" strip-periods="true"/>
+      <text term="volume" form="short" text-case="capitalize-first"/>
       <text variable="volume"/>
     </group>
   </macro>
@@ -79,14 +101,23 @@
     <text variable="collection-title"/>
   </macro>
   <macro name="pages">
-    <label variable="page" form="short" suffix=" "/>
+    <label variable="page" form="short" suffix=" " strip-periods="true"/>
     <text variable="page"/>
   </macro>
   <macro name="book-container">
-    <group delimiter=" ">
-      <text macro="title" suffix="."/>
-      <text term="in" text-case="capitalize-first"/>
-      <text variable="container-title" font-style="italic"/>
+    <group delimiter=". ">
+      <text macro="title"/>
+      <choose>
+        <if type="entry-dictionary entry-encyclopedia" match="none">
+          <group delimiter=" ">
+            <text term="in" text-case="capitalize-first"/>
+            <text variable="container-title" font-style="italic"/>
+          </group>
+        </if>
+        <else>
+          <text variable="container-title" font-style="italic"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="issued">
@@ -137,16 +168,42 @@
     <layout suffix=".">
       <text macro="author" suffix=" "/>
       <choose>
-        <if type="article-magazine">
+       <if type="article-journal review" match="any">
+          <group delimiter=" ">
+            <text macro="title" suffix="."/>
+            <text variable="container-title" font-style="italic" form="short"/>
+            <group delimiter=", ">
+              <text macro="issued" font-weight="bold"/>
+              <choose>
+                <if variable="volume">
+                  <group delimiter=" ">
+                    <text variable="volume" font-style="italic"/>
+                    <text variable="issue" prefix="(" suffix=")"/>
+                  </group>
+                </if>
+                <else-if variable="issue">
+                  <group delimiter=" ">
+                    <text term="issue" form="short" text-case="capitalize-first"/>
+                    <text variable="issue"/>
+                  </group>
+                </else-if>
+              </choose>
+              <text variable="page"/>
+            </group>
+          </group>
+        </if>
+        <else-if type="article-magazine article-newspaper article" match="any">
           <group delimiter=" ">
             <text macro="title" suffix="."/>
             <text variable="container-title" font-style="italic" suffix="."/>
             <text macro="edition"/>
             <text macro="publisher"/>
-            <text macro="full-issued" suffix=","/>
-            <text macro="pages"/>
+            <group delimiter=", ">
+              <text macro="full-issued"/>
+              <text macro="pages"/>
+            </group>
           </group>
-        </if>
+        </else-if>
         <else-if type="thesis">
           <group delimiter=", ">
             <group delimiter=". ">
@@ -161,10 +218,12 @@
         </else-if>
         <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
           <group delimiter="; ">
-            <text macro="title"/>
+            <group delimiter=", ">
+              <text macro="title"/>
+              <text macro="edition"/>
+            </group>
             <text macro="editor" prefix=" "/>
             <text macro="series"/>
-            <text macro="edition"/>
             <choose>
               <if type="report">
                 <group delimiter=" ">
@@ -192,7 +251,7 @@
             <date variable="issued" form="text"/>
           </group>
         </else-if>
-        <else-if type="chapter paper-conference" match="any">
+        <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
           <group delimiter="; ">
             <text macro="book-container"/>
             <text macro="editor"/>
@@ -216,17 +275,6 @@
               <date-part name="day" suffix=", "/>
               <date-part name="year"/>
             </date>
-          </group>
-        </else-if>
-        <else-if type="article-journal">
-          <group delimiter=" ">
-            <text macro="title" suffix="."/>
-            <text variable="container-title" font-style="italic" form="short"/>
-            <group delimiter=", ">
-              <text macro="issued" font-weight="bold"/>
-              <text variable="volume" font-style="italic"/>
-              <text variable="page"/>
-            </group>
           </group>
         </else-if>
         <else>

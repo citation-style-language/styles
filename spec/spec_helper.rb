@@ -10,7 +10,7 @@ ISSN_FILTER = %w{
   1662-453X 1663-9812 1664-042X 1664-0640 1664-1078 1664-2295
   1664-2392 1664-302X 1664-3224 1664-462X 1664-8021 2234-943X
   0036-8075 1095-9203 1359-4184 1476-5578 1097-6256 1047-7594
-  1546-1726
+  1546-1726 2108-6419 0035-2969 1958-5691
 }
 
 # These titles are ignored when checking for duplicate titles
@@ -28,19 +28,24 @@ CITATION_FORMAT_FILTER = %w{
 UNUSED_MACROS_FILTER = %w{
   chicago-annotated-bibliography chicago-author-date
   chicago-library-list chicago-note-biblio-no-ibid
-  chicago-note-bibliography
+  chicago-note-bibliography taylor-and-francis-chicago-author-date
 }
 
-# These files are ignored when checking for extra files
+# These files and directories are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
   'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
-  'dependent', 'Rakefile', 'spec', 'spec_helper.rb', /_spec\.rb$/,
-  'renamed-styles.json'
+  'dependent', 'Rakefile', 'renamed-styles.json'
+]
+
+# These directories and their contents are ignored when checking for extra files
+EXTRA_FILES_DIRECTORY_FILTER = [
+  'spec', 'vendor'
 ]
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
+  basedir = file.sub(STYLE_ROOT + "/","").partition("/")[0]
   name = File.basename(file)
-  File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name }
+  File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name } || EXTRA_FILES_DIRECTORY_FILTER.any? { |d| d === basedir}
 end
 
 # Default license and rights text
@@ -48,26 +53,6 @@ CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
 CSL::Schema.default_rights_string =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
 
-
-# RSpec Error Formatter For Minimal Output
-require 'rspec/core/formatters/base_text_formatter'
-class ErrorFormatter < RSpec::Core::Formatters::BaseTextFormatter
-
-  def example_pending(example)
-    super(example)
-    output.print pending_color('*')
-  end
-
-  def example_failed(example)
-    super(example)
-    output.print failure_color('F')
-  end
-
-  def start_dump
-    super()
-    output.puts
-  end
-end
 
 def load_style(path)
   filename = File.basename(path)

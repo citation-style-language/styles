@@ -20,7 +20,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>MHRA author date format. This is rather poorly specified in the style guide, so it includes some (hopefully reasonable) assumptions: et al for 3+ author; "and" between two authors; no added names, but added given names for disambiguation.</summary>
-    <updated>2014-03-12T15:55:55+00:00</updated>
+    <updated>2015-10-06T04:57:27+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -29,6 +29,10 @@
       <term name="editor" form="verb-short">ed. by</term>
       <term name="edition" form="short">edn</term>
       <term name="translator" form="verb-short">trans. by</term>
+      <term name="folio">
+	<single>fol.</single>
+	<multiple>fols</multiple>
+      </term>
     </terms>
   </locale>
   <macro name="author">
@@ -55,33 +59,18 @@
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case motion_picture report song" match="any">
-        <text variable="title" font-style="italic"/>
+        <text variable="title" text-case="title" font-style="italic"/>
       </if>
       <else>
-        <text variable="title" quotes="true"/>
+        <text variable="title" text-case="title" quotes="true"/>
       </else>
     </choose>
   </macro>
   <macro name="editor-translator">
-    <choose>
-      <if type="chapter paper-conference" match="any">
-        <text term="in" suffix=" "/>
-      </if>
-    </choose>
-    <group delimiter=", ">
-      <names variable="editor" delimiter=", ">
+      <names variable="editor translator" delimiter=", ">
+        <label form="verb-short" suffix=" "/>
         <name and="text" delimiter=", " delimiter-precedes-last="never"/>
-        <label form="short" suffix=")" prefix=" ("/>
       </names>
-      <choose>
-        <if variable="author editor" match="any">
-          <names variable="translator" delimiter=", ">
-            <label form="verb-short" suffix=" "/>
-            <name and="text" delimiter=", " delimiter-precedes-last="never"/>
-          </names>
-        </if>
-      </choose>
-    </group>
   </macro>
   <macro name="collection-title">
     <group delimiter=", ">
@@ -100,7 +89,15 @@
   <macro name="volume">
     <choose>
       <if type="article-journal">
-        <text variable="volume"/>
+       	<choose>
+	  <if variable="volume">
+	    <!--testing for volume because issues w/o volume number have different format-->
+	    <group delimiter=".">
+              <text variable="volume"/>
+	      <text variable="issue"/>
+	    </group>
+	  </if>
+	</choose>
       </if>
       <else-if type="bill book graphic legal_case motion_picture report song chapter paper-conference" match="any">
         <group delimiter=", ">
@@ -143,7 +140,12 @@
     </choose>
   </macro>
   <macro name="container-title-note">
-    <text variable="container-title" font-style="italic"/>
+    <choose>
+      <if type="chapter paper-conference" match="any">
+        <text term="in" suffix=" "/>
+      </if>
+    </choose>
+    <text variable="container-title" text-case="title" font-style="italic"/>
   </macro>
   <macro name="edition-note">
     <choose>
@@ -166,9 +168,9 @@
     <choose>
       <if type="article-newspaper">
         <group delimiter=", ">
-          <group>
-            <text variable="edition" suffix=" "/>
-            <text term="edition" prefix=" "/>
+          <group delimiter=" ">
+            <text variable="edition"/>
+            <text term="edition"/>
           </group>
           <group>
             <text term="section" suffix=" "/>
@@ -240,9 +242,9 @@
   </macro>
   <macro name="archive-note">
     <group delimiter=", ">
-      <text variable="archive_location"/>
-      <text variable="archive"/>
       <text variable="archive-place"/>
+      <text variable="archive"/>
+      <text variable="archive_location"/>
     </group>
   </macro>
   <macro name="access-note">
@@ -295,10 +297,10 @@
       </group>
       <group delimiter=", ">
         <text macro="title"/>
-        <text macro="editor-translator"/>
         <text macro="container-title-note"/>
         <text macro="collection-title"/>
         <text macro="volume"/>
+        <text macro="editor-translator"/>
       </group>
       <text macro="issue-note"/>
       <text macro="locators-specific-note" prefix=", "/>
