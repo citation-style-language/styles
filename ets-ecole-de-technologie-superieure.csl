@@ -122,21 +122,28 @@
     <text variable="issue" prefix=" "/>
   </macro>
   <macro name="access">
-    <group delimiter=". ">
-      <text variable="URL" prefix="&lt;" suffix="&gt;"/>
-      <choose>
-        <if variable="URL" match="any">
-          <group delimiter=" ">
-            <text value="Consulté le"/>
-            <date variable="accessed">
-              <date-part name="day" suffix=" "/>
-              <date-part name="month" suffix=" "/>
-              <date-part name="year"/>
-            </date>
-          </group>
-        </if>
-      </choose>
-    </group>
+		<choose>
+			<if variable="DOI" match="any">
+				<group delimiter=". ">
+					<text variable="DOI" prefix="&lt;http://dx.doi.org/" suffix="&gt;"/>
+					<date variable="accessed" delimiter=" " prefix="Consulté le ">
+						<date-part name="day"/>
+						<date-part name="month"/>
+						<date-part name="year"/>
+					</date>
+				</group>
+			</if>
+			<else-if variable="URL" match="any">
+				<group delimiter=". ">
+					<text variable="URL" prefix="&lt;" suffix="&gt;"/>
+					<date variable="accessed" delimiter=" " prefix="Consulté le ">
+						<date-part name="day"/>
+						<date-part name="month"/>
+						<date-part name="year"/>
+					</date>
+				</group>
+			</else-if>
+		</choose>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true">
     <layout prefix="(" suffix=")" delimiter="&#160;; ">
@@ -162,7 +169,14 @@
             <text variable="genre"/>
             <text variable="publisher-place"/>
             <text variable="publisher"/>
-            <text variable="page" form="short" suffix=" p"/>
+            <choose>
+              <if match="any" variable="number-of-pages">
+                <text variable="number-of-pages" suffix=" p"/>
+              </if>
+              <else-if match="any" variable="page">
+                <text variable="page" suffix=" p"/>
+              </else-if>
+            </choose>
           </group>
         </if>
         <else-if type="book" match="any">
@@ -258,10 +272,10 @@
         <else-if type="article-newspaper">
           <group delimiter=", " prefix=". ">
             <text macro="journal-title"/>
-            <date variable="issued">
-              <date-part name="day" suffix=" "/>
-              <date-part name="month" suffix=" "/>
-              <date-part name="year" suffix="."/>
+            <date variable="issued" delimiter=" " prefix="(" suffix=")">
+              <date-part name="day"/>
+              <date-part name="month"/>
+              <date-part name="year"/>
             </date>
             <text variable="page" prefix="p. "/>
           </group>
