@@ -4,9 +4,10 @@ The CSL style repository is the central location on the web for collecting
 and maintaining CSL styles. Software like Zotero, Mendeley, and Papers draw
 their styles directly from our repository.
 
-Help us improve our repository and contribute new styles or fix up existing
-ones. We're particularly interested in styles for journals and published
-style guides.
+We welcome style submissions (and corrections), and are particularly
+interested in styles for journals and published style guides. If you
+wish to submit a different type of style, please first check our
+[Criteria for Accepting Styles](https://github.com/citation-style-language/styles/wiki/Criteria-for-Accepting-Styles).
 
 To submit a style, please follow the following steps:
 

@@ -20,6 +20,7 @@
     <terms>
       <term name="et-al">et al.</term>
       <term name="editor" form="verb-short">hrsg. v.</term>
+      <term name="retrieved">Zugriff am</term>
     </terms>
   </locale>
   <macro name="author-short">
@@ -28,7 +29,14 @@
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <text variable="title"/>
+        <choose>
+          <if type="report">
+            <text variable="title" form="short"/>
+          </if>
+          <else>
+            <text variable="title"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -87,11 +95,24 @@
   <macro name="access">
     <choose>
       <if variable="URL">
-        <group delimiter=" ">
+        <group delimiter="; ">
           <text variable="URL"/>
-          <date variable="accessed" form="numeric" prefix="[" suffix="]"/>
+          <group delimiter=" ">
+            <text term="retrieved"/>
+            <date variable="accessed" form="numeric"/>
+          </group>
         </group>
       </if>
+    </choose>
+  </macro>
+  <macro name="sort-key">
+    <choose>
+      <if type="webpage post-weblog" match="any">
+        <text value="2"/>
+      </if>
+      <else>
+        <text value="1"/>
+      </else>
     </choose>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
@@ -114,6 +135,7 @@
   </citation>
   <bibliography et-al-min="12" et-al-use-first="10" hanging-indent="true">
     <sort>
+      <key macro="sort-key"/>
       <key macro="author" names-min="1" names-use-first="1"/>
       <key macro="author-count" names-min="3" names-use-first="3"/>
       <key macro="year"/>
@@ -143,7 +165,13 @@
             </group>
           </group>
         </if>
-        <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <else-if type="report">
+          <group delimiter=". ">
+            <text variable="title"/>
+            <text macro="publisher"/>
+          </group>
+        </else-if>
+        <else-if type="bill book graphic legal_case legislation motion_picture song" match="any">
           <group prefix=": " delimiter=". ">
             <text variable="title"/>
             <group delimiter="; ">
@@ -162,12 +190,15 @@
             </group>
           </group>
         </else-if>
-        <else-if type="webpage">
-          <group prefix=": " delimiter=", ">
-            <text variable="title"/>
-            <text variable="container-title"/>
-            <text macro="year"/>
-          </group>
+        <else-if type="webpage post-weblog" match="any">
+          <choose>
+            <if variable="author editor translator title" match="any">
+              <text macro="access" prefix=". "/>
+            </if>
+            <else>
+              <text macro="access"/>
+            </else>
+          </choose>
         </else-if>
         <else-if type="thesis">
           <group delimiter=". " prefix=": ">
@@ -207,7 +238,6 @@
           </group>
         </else>
       </choose>
-      <text macro="access" prefix=", "/>
     </layout>
   </bibliography>
 </style>
