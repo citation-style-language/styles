@@ -14,7 +14,7 @@
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <summary>Adaptation en français de la norme Vancouver, basée sur le guide des Bibliothèques de l'Université de Montréal.</summary>
-    <updated>2014-06-30T23:13:00+00:00</updated>
+    <updated>2015-12-07T17:41:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -38,36 +38,44 @@
       </term>
     </terms>
   </locale>
+  
   <macro name="author">
     <names variable="author">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
       <substitute>
-        <names variable="editor"/>
-      </substitute>
+        <choose>
+            <if type="chapter" match="none">
+              <names variable="editor">
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <label form="long" prefix=", "/>
     </names>
+            </if>
+          </choose>
+      </substitute>          
+    </names>
+    
     <choose>
       <if type="patent">
         <text term="original-author" prefix=", "/>
       </if>
-    </choose>
+    </choose>    
   </macro>
   <macro name="editor">
     <names variable="editor" suffix=".">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
+      <substitute>
+      	<names variable="container-author" suffix=".">
+      		<name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      		<label form="long" prefix=", "/>
+      	</names>
+      </substitute>
     </names>
   </macro>
   <macro name="publisher">
-    <group delimiter=": " suffix=";">
-      <choose>
-        <if type="thesis">
-          <text variable="publisher-place" prefix="[" suffix="]"/>
-        </if>
-        <else>
-          <text variable="publisher-place"/>
-        </else>
-      </choose>
+    <group delimiter=" : " suffix=";">
+      <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
   </macro>
@@ -105,10 +113,10 @@
               <text variable="container-title" strip-periods="true"/>
             </else>
           </choose>
-          <text macro="edition"/>
+          <text macro="edition" prefix=". "/>
           <choose>
             <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+              <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
             </if>
           </choose>
         </group>
@@ -135,11 +143,30 @@
     <text variable="title"/>
     <choose>
       <if type="thesis">
-        <text variable="genre" prefix=" [" suffix="]. "/>
+        <choose>
+          <if variable="URL">
+          	<text variable="genre" prefix=" ["/>
+            <text term="internet" prefix=", " suffix="]"/>
+          </if>
+          <else>
+          	<text variable="genre" prefix=" [" suffix="]"/>
+          </else>
+        </choose>
       </if>
+      <else-if type="graphic">
+        <choose>
+          <if variable="URL">
+          	<text variable="medium" prefix=" ["/>
+            <text term="internet" prefix=" " suffix="]"/>
+          </if>
+          <else>
+          	<text variable="medium" prefix=" [" suffix="]"/>
+          </else>
+        </choose>
+      </else-if>
     </choose>
     <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
+      <if type="article-journal article-magazine chapter paper-conference article-newspaper thesis graphic review review-book entry-dictionary entry-encyclopedia" match="none">
         <text macro="edition" prefix=". "/>
         <choose>
           <if variable="URL">
@@ -177,7 +204,7 @@
       </else-if>
       <else-if type="report">
         <date variable="issued" delimiter=" ">
-          <date-part name="month" form="short" strip-periods="true"/>
+       	  <date-part name="month" form="short" strip-periods="true"/>
           <date-part name="year"/>
         </date>
       </else-if>
@@ -202,16 +229,11 @@
   </macro>
   <macro name="pages">
     <choose>
-      <if type="article-journal article-magazine article-newspaper review review-book" match="any">
+      <if type="article-journal article-magazine article-newspaper" match="any">
         <text variable="page" prefix=":"/>
       </if>
       <else-if type="book" match="any">
-        <text variable="number-of-pages" prefix=" "/>
-        <choose>
-          <if is-numeric="number-of-pages">
-            <label variable="number-of-pages" form="short" prefix=" " plural="never"/>
-          </if>
-        </choose>
+        <text variable="number-of-pages" prefix=" " suffix=" p"/>
       </else-if>
       <else>
         <group prefix=" " delimiter=" ">
@@ -236,8 +258,21 @@
       </if>
     </choose>
   </macro>
+  <macro name="media-details">
+    <choose>
+      <if type="motion_picture">
+      	<group delimiter=" : ">
+      	  <text variable="medium"/>
+          <text variable="dimensions"/>
+        </group>
+      </if>
+      <else-if variable="dimensions">
+        <text variable="dimensions"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="webpage-details">
-    <text variable="container-title"/>
+  	<text variable="container-title"/>
     <text term="internet" prefix=" [" suffix="]. " text-case="capitalize-first"/>
     <group delimiter="; " suffix=". ">
       <group delimiter=". ">
@@ -263,31 +298,33 @@
       <text variable="citation-number" suffix=". "/>
       <choose>
         <if type="webpage">
-          <text macro="webpage-details"/>
+      	  <text macro="webpage-details"/>
         </if>
         <else>
-          <group delimiter=". " suffix=". ">
-            <text macro="author"/>
-            <text macro="title"/>
-          </group>
-          <group delimiter=" " suffix=". ">
-            <choose>
-              <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
-                <text term="in" text-case="capitalize-first" suffix=": "/>
-              </if>
-            </choose>
-            <text macro="editor"/>
-            <text macro="container-title"/>
-            <text macro="publisher"/>
-            <group>
-              <text macro="date"/>
-              <text macro="journal-location"/>
-              <text macro="pages"/>
-            </group>
-          </group>
-          <text macro="report-details" suffix=". "/>
+		  <group delimiter=". " suffix=". ">
+			<text macro="author"/>
+			<text macro="title"/>
+		  </group>
+		  <group delimiter=" " suffix=". ">
+			<choose>
+			  <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+				<text term="in" text-case="capitalize-first" suffix=": "/>
+			  </if>
+			</choose>
+			<text macro="editor"/>
+			<text macro="container-title"/>
+			<text macro="publisher"/>
+			<group>
+			  <text macro="date"/>
+			  <text macro="journal-location"/>
+			  <text macro="pages"/>
+			</group>
+		  </group>
+		  <text macro="report-details" suffix=". "/>
+		   <text macro="media-details" suffix=". "/>
         </else>
       </choose>
+     
       <text macro="access"/>
     </layout>
   </bibliography>
