@@ -1,4 +1,4 @@
-Independents.each_pair do |id, (filename, path, style)|
+Independents.each_pair do |id, (filename, path, style, reason)|
 
   describe "independent style #{id}" do
 
@@ -11,7 +11,7 @@ Independents.each_pair do |id, (filename, path, style)|
     end
 
     it "was successfully parsed" do
-      expect(style).to be_a(CSL::Style)
+      expect(style).to be_a(CSL::Style), reason
     end
 
     unless style.nil?
