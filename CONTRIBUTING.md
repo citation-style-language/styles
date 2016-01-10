@@ -89,7 +89,7 @@ your style against the CSL schema, and correct any validation errors.
 
     Sometimes we merge pull requests within the hour, and sometimes it takes a
     few days. This depends on how busy we are, and on the time it takes to get
-    your style is acceptable shape. In general, the closer you follow our
+    your style in an acceptable shape. In general, the closer you follow our
     instructions detailed here, the faster we can accept your style.
 
 5. Update your pull request.
