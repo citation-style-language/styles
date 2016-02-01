@@ -11,13 +11,15 @@
     <category field="medicine"/>
     <issn>0028-3878</issn>
     <eissn>1526-632X</eissn>
-    <updated>2015-01-29T08:00:00+00:00</updated>
+    <updated>2015-01-31T19:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
-      <term name="retrieved">available</term>
+      <term name="retrieved">accessed</term>
+      <term name="from">at</term>
       <term name="section" form="short">sect.</term>
+      <term name="internet">online</term>
     </terms>
   </locale>
   <locale xml:lang="de">
@@ -64,22 +66,25 @@
   <macro name="access">
     <choose>
       <if variable="URL">
-        <group delimiter=": ">
+        <group delimiter=": " suffix=".">
           <group delimiter=" ">
             <text term="retrieved" text-case="capitalize-first"/>
             <text term="from"/>
           </group>
           <text variable="URL"/>
         </group>
+        <text macro="accessed-date" prefix=" "/>
       </if>
     </choose>
   </macro>
   <macro name="accessed-date">
     <choose>
       <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
-          <text term="cited"/>
-          <date variable="accessed">
+        <group delimiter=" ">
+          <text term="retrieved" text-case="capitalize-first"/>
+          <date variable="accessed" suffix="." delimiter=" ">
+            <date-part name="month" form="long"/>
+            <date-part name="day" suffix=","/>
             <date-part name="year"/>
           </date>
         </group>
@@ -88,17 +93,28 @@
   </macro>
   <macro name="container-title">
     <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper" match="any">
+      <if type="article-journal" match="any">
         <group suffix="." delimiter=" ">
           <text variable="container-title" strip-periods="true" form="short"/>
           <choose>
             <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+              <text value="online serial" prefix="[" suffix="]"/>
             </if>
           </choose>
         </group>
         <text macro="edition" prefix=" "/>
       </if>
+      <else-if type="article-magazine chapter paper-conference article-newspaper" match="any">
+        <group suffix="." delimiter=" ">
+          <text variable="container-title" strip-periods="true" form="short"/>
+          <choose>
+            <if variable="URL">
+              <text term="internet" prefix="[" suffix="]"/>
+            </if>
+          </choose>
+        </group>
+        <text macro="edition" prefix=" "/>
+      </else-if>
       <!--add event-name and event-place once they become available-->
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
@@ -123,7 +139,7 @@
       <if type="article-journal article-magazine chapter paper-conference article-newspaper" match="none">
         <choose>
           <if variable="URL">
-            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+            <text term="internet" prefix=" [" suffix="]"/>
           </if>
         </choose>
         <text macro="edition" prefix=". "/>
@@ -151,21 +167,25 @@
   <macro name="date">
     <choose>
       <if type="article-journal" match="any">
-        <group suffix=";" delimiter=" ">
-          <date variable="issued" delimiter=" ">
-            <date-part name="year"/>
-          </date>
-          <text macro="accessed-date"/>
-        </group>
+        <choose>
+          <if variable="volume">
+            <group suffix=";" delimiter=" ">
+              <date variable="issued" delimiter=" ">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </if>
+          <else>
+            <group prefix="Epub " suffix=".">
+              <date variable="issued"  delimiter=" ">
+                <date-part name="year"/>
+                <date-part name="month" form="short" strip-periods="true"/>
+                <date-part name="day"/>
+              </date>
+            </group>
+          </else>
+        </choose>
       </if>
-      <else-if type="article-journal" match="any">
-        <group suffix=";" delimiter=" ">
-          <date variable="issued" delimiter=" ">
-            <date-part name="year"/>
-          </date>
-          <text macro="accessed-date"/>
-        </group>
-      </else-if>
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <date variable="issued" delimiter=" ">
@@ -188,7 +208,6 @@
           <date variable="issued">
             <date-part name="year"/>
           </date>
-          <text macro="accessed-date" prefix=" "/>
         </group>
       </else>
     </choose>
