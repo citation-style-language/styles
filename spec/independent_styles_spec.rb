@@ -1,53 +1,55 @@
 Independents.each_pair do |basename, (filename, path, style, reason)|
 
-  describe "independent style #{basename}" do
+  describe "#{basename}:" do
 
-    it "is a valid CSL 1.0 style" do
+    it "must validate against the CSL 1.0.1 schema" do
       expect(CSL.validate(path)).to eq([])
     end
 
-    it "has a conventional file name" do
+    it "must have a conventional file name" do
       expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
-    it "was successfully parsed" do
+    it "must be parsable as a CSL style" do
       expect(style).to be_a(CSL::Style), reason
     end
 
     unless style.nil?
-      it "is independent" do
+      it 'must be an independent style (dependent styles must be placed in the "dependent" subdirectory)' do
         expect(style).to be_independent
       end
 
-      it "has an info element" do
+      it "must have an <info/> element" do
        expect(style).to have_info
       end
 
-      it "has a self-link" do
+      it 'must have a "self" link' do
         expect(style).to have_self_link
       end
 
-      it "has an id" do
+      it "must have a style ID" do
         expect(style.info).to have_id
       end
 
-      it "the id is a valid style repository link" do
+      it 'style ID must be of the form "http://www.zotero.org/styles/" + style file name (without ".csl" extension, e.g. "http://www.zotero.org/styles/apa")' do
         expect(style.id).to eq("http://www.zotero.org/styles/#{basename}")
       end
 
-      it "the self-link is a valid style repository link" do
-        expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{basename}})
+      it '"self" link must match the style ID' do
+        if style.has_self_link?
+          expect(style.id).to eq(style.self_link)
+        end
       end
 
-      it "has an info/rights element" do
+      it "must have a <rights> element" do
         expect(style.info).to have_rights
       end
 
-      it "is licensed under a CC BY-SA license" do
+      it "must have the correct Creative Commons BY-SA license" do
         expect(style).to be_default_license
       end
 
-      it "its template-link (if present) points to an existing independent style" do
+      it '"template" link must point to an existing independent style' do
         if style.has_template_link?
           link = style.template_link
 
@@ -57,23 +59,15 @@ Independents.each_pair do |basename, (filename, path, style, reason)|
       end
 
       unless CITATION_FORMAT_FILTER.include?(basename)
-        it "has at least one info/category" do
+        it "must have at least one <category/> element" do
           expect(style.info).to have_categories
         end
 
-        it "has a citation-format" do
+        it "must define a citation-format" do
           expect(style.citation_format).not_to be_nil
         end
 
-        it "its citation-format is valid" do
-          expect(style.citation_format.to_s).to match(/^author(-date)?|numeric|label|note/)
-        end
-
-        it "has a valid class attribute" do
-          expect(style[:class].to_s).to match(/^(note|in-text)$/)
-        end
-
-        it "its class attribute corresponds to the citation-format" do
+        it 'must have a "class" attribute that matches the "citation-format" attribute' do
           if style.citation_format == :note
             expect(style[:class]).to eq('note')
           else
@@ -82,7 +76,7 @@ Independents.each_pair do |basename, (filename, path, style, reason)|
         end
       end
 
-      it "defines all macros that are referenced by text or key nodes" do
+      it "must define all macros that are called by <text/> and <key/> elements" do
         style.descendants!.each do |node|
           if node.matches?(/^key|text$/, :macro => /./)
             expect(style.macros).to have_key(node[:macro])
@@ -91,7 +85,7 @@ Independents.each_pair do |basename, (filename, path, style, reason)|
       end
 
       unless UNUSED_MACROS_FILTER.include?(basename)
-        it "has no unused macros" do
+        it "may not have any unused macros" do
           available_macros = style.macros.keys.sort
 
           used_macros = style.descendants.

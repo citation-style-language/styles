@@ -1,82 +1,76 @@
 Dependents.each_pair do |basename, (filename, path, style, reason)|
 
-  describe "dependent style #{basename}" do
+  describe "dependent/#{basename}:" do
 
-    it "is a valid CSL 1.0 style" do
+    it "must validate against the CSL 1.0.1 schema" do
       expect(CSL.validate(path)).to eq([])
     end
 
-    it "has a conventional file name" do
+    it "must have a conventional file name" do
       expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
     end
 
-    it "was successfully parsed" do
+    it "must be parsable as a CSL style" do
       expect(style).to be_a(CSL::Style), reason
     end
 
     unless style.nil?
-      it "is dependent" do
+      it "must be a dependent style (independent styles must be placed in the root directory)" do
         expect(style).to be_dependent
       end
 
-      it "has an info element" do
+      it "must have an <info/> element" do
        expect(style).to have_info
       end
 
-      it "does not have any rendering elements" do
+      it 'may not have <macro/>, <citation/>, or <bibliography/> elements' do
         expect(style).not_to have_macro
         expect(style).not_to have_citation
         expect(style).not_to have_bibliography
       end
 
-      it "the self-link (if present) is a valid style repository link" do
-        if style.has_self_link?
-          expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{basename}})
-        end
-      end
-
-      it "the self-link (if present) matches the style id" do
+      it '"self" link must match the style ID' do
         if style.has_self_link?
           expect(style.id).to eq(style.self_link)
         end
       end
 
-      it "does not have a template-link" do
+      it 'may not have a "template" link' do
         expect(style).not_to have_template_link
       end
 
-      it "has an id" do
+      it "must have a style ID" do
         expect(style).to have_id
       end
 
-      it "the id is a valid style repository link" do
+      it 'style ID must be of the form "http://www.zotero.org/styles/" + style file name (without ".csl" extension, e.g. "http://www.zotero.org/styles/apa")' do
         expect(style.id).to eq("http://www.zotero.org/styles/#{basename}")
       end
 
-      it "has an info/rights element" do
+      it "must have a <rights> element" do
         expect(style.info).to have_rights
       end
 
-      it "is licensed under a CC BY-SA license" do
+      it "must have the correct Creative Commons BY-SA license" do
         expect(style).to be_default_license
       end
 
-      it "its independent-parent link points to an existing style" do
+      it '"independent-parent" link must point to an existing independent style' do
         link = style.independent_parent_link
 
         expect(link).to match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
         expect(Independents).to have_key(link[/[^\/]+$/])
       end
 
-      it "has at least one info/category" do
+      it "must have at least one <category/> element" do
         expect(style.info).to have_categories
       end
 
-      it "has a citation-format" do
+      it "must define a citation-format" do
         expect(style.citation_format).not_to be_nil
       end
 
-      it "has the same citation-format as its independent-parent" do
+      it "must have the same citation-format as its independent-parent" do
         parent = style.independent_parent_link[/[^\/]+$/]
         parent = Independents[parent][-1]
 
