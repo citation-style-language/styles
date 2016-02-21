@@ -1,6 +1,6 @@
-Independents.each_pair do |id, (filename, path, style, reason)|
+Independents.each_pair do |basename, (filename, path, style, reason)|
 
-  describe "independent style #{id}" do
+  describe "independent style #{basename}" do
 
     it "is a valid CSL 1.0 style" do
       expect(CSL.validate(path)).to eq([])
@@ -32,11 +32,11 @@ Independents.each_pair do |id, (filename, path, style, reason)|
       end
 
       it "the id is a valid style repository link" do
-        expect(style.id).to eq("http://www.zotero.org/styles/#{id}")
+        expect(style.id).to eq("http://www.zotero.org/styles/#{basename}")
       end
 
       it "the self-link is a valid style repository link" do
-        expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{id}})
+        expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{basename}})
       end
 
       it "has an info/rights element" do
@@ -56,7 +56,7 @@ Independents.each_pair do |id, (filename, path, style, reason)|
         end
       end
 
-      unless CITATION_FORMAT_FILTER.include?(id)
+      unless CITATION_FORMAT_FILTER.include?(basename)
         it "has at least one info/category" do
           expect(style.info).to have_categories
         end
@@ -90,7 +90,7 @@ Independents.each_pair do |id, (filename, path, style, reason)|
         end
       end
 
-      unless UNUSED_MACROS_FILTER.include?(id)
+      unless UNUSED_MACROS_FILTER.include?(basename)
         it "has no unused macros" do
           available_macros = style.macros.keys.sort
 

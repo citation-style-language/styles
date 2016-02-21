@@ -1,6 +1,6 @@
-Dependents.each_pair do |id, (filename, path, style, reason)|
+Dependents.each_pair do |basename, (filename, path, style, reason)|
 
-  describe "dependent style #{id}" do
+  describe "dependent style #{basename}" do
 
     it "is a valid CSL 1.0 style" do
       expect(CSL.validate(path)).to eq([])
@@ -31,7 +31,7 @@ Dependents.each_pair do |id, (filename, path, style, reason)|
 
       it "the self-link (if present) is a valid style repository link" do
         if style.has_self_link?
-          expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{id}})
+          expect(style.self_link).to match(%r{http[s]?://www.zotero.org/styles/#{basename}})
         end
       end
 
@@ -50,7 +50,7 @@ Dependents.each_pair do |id, (filename, path, style, reason)|
       end
 
       it "the id is a valid style repository link" do
-        expect(style.id).to eq("http://www.zotero.org/styles/#{id}")
+        expect(style.id).to eq("http://www.zotero.org/styles/#{basename}")
       end
 
       it "has an info/rights element" do
