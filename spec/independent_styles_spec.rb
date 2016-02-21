@@ -51,10 +51,13 @@ Independents.each_pair do |basename, (filename, path, style, reason)|
 
       it '"template" link must point to an existing independent style' do
         if style.has_template_link?
-          link = style.template_link
-
-          expect(link).to match(%r{http[s]?://www.zotero.org/styles/([a-z-]+)})
-          expect(Independents).to have_key(link[/[^\/]+$/])
+          template_link = style.template_link
+          link_prefix = "http://www.zotero.org/styles/"
+          
+          expect(template_link).to match(%r{^#{link_prefix}})
+          parent_ID = template_link[link_prefix.length..-1]
+          
+          expect(Independents).to have_key(parent_ID)
         end
       end
 
