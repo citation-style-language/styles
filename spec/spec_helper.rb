@@ -57,39 +57,39 @@ CSL::Schema.default_rights_string =
 
 def load_style(path)
   filename = File.basename(path)
-  id = filename[0..-5]
+  basename = filename[0..-5]
 
   begin
     style = CSL::Style.load(path)
   rescue => e
     # failed to parse the style. we'll report the error later
-    return [id, [filename, path, nil, e.message]]
+    return [basename, [filename, path, nil, e.message]]
   end
 
   unless style.nil?
     begin
       if style.info.has_issn?
         [style.info.issn].flatten(1).each do |issn|
-          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+          ISSN[issn.to_s] << basename unless ISSN_FILTER.include?(issn.to_s)
         end
       end
 
       if style.info.has_eissn?
         [style.info.eissn].flatten(1).each do |issn|
-          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+          ISSN[issn.to_s] << basename unless ISSN_FILTER.include?(issn.to_s)
         end
       end
 
       if style.has_title?
         title = style.title.to_s.downcase
-        TITLES[title] << id unless TITLES_FILTER.include?(title)
+        TITLES[title] << basename unless TITLES_FILTER.include?(title)
       end
     rescue
-      warn "Failed to extract ISSN of style #{id}"
+      warn "Failed to extract ISSN of style #{basename}"
     end
   end
 
-  [id, [filename, path, style]]
+  [basename, [filename, path, style]]
 end
 
 
