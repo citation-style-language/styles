@@ -34,11 +34,8 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
       end
       
       unless CITATION_FORMAT_FILTER.include?(basename)
-        it "must have at least one <category/> element" do
-          expect(style.info).to have_categories
-        end
 
-        it "must define a citation-format" do
+        it 'must define a citation-format (<category citation-format="..."/>)' do
           expect(style.citation_format).not_to be_nil
         end
 
@@ -99,11 +96,7 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
         expect(style).not_to have_template_link
       end  
 
-      it "must have at least one <category/> element" do
-        expect(style.info).to have_categories
-      end
-
-      it "must define a citation-format" do
+      it 'must define a citation-format (<category citation-format="..."/>)' do
         expect(style.citation_format).not_to be_nil
       end
 
