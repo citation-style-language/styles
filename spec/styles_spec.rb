@@ -27,9 +27,9 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
           link_prefix = "http://www.zotero.org/styles/"
           
           expect(template_link).to match(%r{^#{link_prefix}})
-          parent_ID = template_link[link_prefix.length..-1]
+          template_ID = template_link[link_prefix.length..-1]
           
-          expect(Independents).to have_key(parent_ID)
+          expect(INDEPENDENTS_BASENAMES).to include(template_ID)
         end
       end
       
@@ -83,7 +83,7 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
         expect(parent_ID_link).to match(%r{^#{link_prefix}})
         parent_ID = parent_ID_link[link_prefix.length..-1]
         
-        expect(Independents).to have_key(parent_ID)
+        expect(INDEPENDENTS_BASENAMES).to include(parent_ID)
       end
       
       it 'may not have <macro/>, <citation/>, or <bibliography/> elements' do
