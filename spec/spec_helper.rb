@@ -146,4 +146,46 @@ Independents = Hash[collect_styles.each_with_index.map { |path, i|
   load_style(path)
 }]
 
+# Make sure we always have the basenames of all independent styles stored
+if ENV['CSL_TEST'] != nil
+  INDEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, '*.csl')].map { |path|
+    filename = File.basename(path)
+    basename = filename[0..-5]
+  }
+else
+  INDEPENDENTS_BASENAMES = Independents.keys
+end
+
+# Make sure the parents of selected dependents are loaded
+# (necessary for citation-format comparison)
+if ENV['CSL_TEST'] != nil
+  parent_basenames = []
+  
+  Dependents.each_pair do |basename, (filename, path, style, reason)|
+    if style.has_independent_parent_link?
+      parent_basename = style.independent_parent_link[/[^\/]+$/]
+      if !parent_basenames.include?(parent_basename)
+        parent_basenames << parent_basename
+      end
+    end
+  end
+  
+  # eliminate parents that already have been loaded
+  parent_basenames.reject! do |basename|
+    Independents.has_key?(basename)
+  end
+  
+  # load extra parents
+  extra_independents = Hash[parent_basenames.each_with_index.map { |basename, i|
+    print '.'  if i % 120 == 0
+    
+    # convert basename to path
+    path = File.join(STYLE_ROOT, basename + '.csl')
+    load_style(path)
+  }]
+  
+  # combine hashes
+  Independents.merge!(extra_independents)
+end
+
 puts
