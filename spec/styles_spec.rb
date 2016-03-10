@@ -1,14 +1,24 @@
-shared_examples "style" do |basename, (filename, path, style, reason), in_dependent_subdir|
-  it "must validate against the CSL 1.0.1 schema" do
-    expect(CSL.validate(path)).to eq([])
+shared_examples "style" do |basename, (filename, path, style), in_dependent_subdir|
+  let(:style_validates) { 
+    if CSL.validate(path).length == 0
+      true
+    else
+      false
+    end
+  }
+  
+  it "must validate against the CSL 1.0.1 schema (please check your style at http://validator.citationstyles.org/)" do
+    expect(style_validates).to be true
+  end
+
+  it "must be parsable as a CSL style" do
+    if style_validates
+      expect(style).to be_a(CSL::Style)
+    end
   end
 
   it "must have a conventional file name" do
     expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
-  end
-
-  it "must be parsable as a CSL style" do
-    expect(style).to be_a(CSL::Style), reason
   end
   
   unless style.nil?
@@ -137,16 +147,16 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
   end
 end
 
-Independents.each_pair do |basename, (filename, path, style, reason)|
+Independents.each_pair do |basename, (filename, path, style)|
   in_dependent_subdir = false
   describe "#{basename}:" do
-    include_examples "style", basename, [filename, path, style, reason], in_dependent_subdir
+    include_examples "style", basename, [filename, path, style], in_dependent_subdir
   end
 end
 
-Dependents.each_pair do |basename, (filename, path, style, reason)|
+Dependents.each_pair do |basename, (filename, path, style)|
   in_dependent_subdir = true
   describe "dependent/#{basename}:" do
-    include_examples "style", basename, [filename, path, style, reason], in_dependent_subdir
+    include_examples "style", basename, [filename, path, style], in_dependent_subdir
   end
 end
