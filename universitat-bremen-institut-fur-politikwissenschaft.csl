@@ -67,15 +67,19 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="webpage article-journal article-magazine article-newspaper article entry-encyclopedia speech post-weblog interview" variable="URL" match="all">
+      <if variable="URL">
         <choose>
-          <if match="any" variable="DOI">
-            <group>
-              <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
-              <text variable="URL"/>
-            </group>
+          <if type="article-journal" variable="URL DOI" match="all">
+            <choose>
+              <if variable="volume" match="none">
+                <group>
+                  <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
+                  <text variable="URL"/>
+                </group>
+              </if>
+            </choose>
           </if>
-          <else>
+          <else-if type="article-journal" variable="DOI" match="none">
             <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
             <text variable="URL"/>
             <group prefix=" (" suffix=")">
@@ -86,7 +90,7 @@
                 <date-part name="year" form="long"/>
               </date>
             </group>
-          </else>
+          </else-if>
         </choose>
       </if>
     </choose>
@@ -132,15 +136,19 @@
   </macro>
   <macro name="locator">
     <choose>
-      <if type="article-journal" variable="DOI">
-        <text variable="DOI" prefix="DOI: "/>
+      <if type="article-journal">
+        <choose>
+          <if variable="volume" match="none">
+            <text variable="DOI" prefix="DOI: "/>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text variable="issue" prefix="(" suffix=")"/>
+            </group>
+          </else>
+        </choose>
       </if>
-      <else-if type="article" match="any">
-        <group delimiter=" ">
-          <text variable="volume"/>
-          <text variable="issue" prefix="(" suffix=")"/>
-        </group>
-      </else-if>
     </choose>
   </macro>
   <macro name="locator-citation">
@@ -161,9 +169,12 @@
   </macro>
   <macro name="pages">
     <choose>
-      <if type="chapter paper-conference article-journal article-magazine article-newspaper" match="any">
+      <if type="article-journal" variable="volume" match="all">
         <text variable="page"/>
       </if>
+      <else-if type="chapter paper-conference article-magazine article-newspaper" match="any">
+        <text variable="page"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="edition">
@@ -265,15 +276,7 @@
           <text macro="publisher"/>
           <text macro="locator"/>
           <text macro="published-date"/>
-          <choose>
-            <if match="any" variable="page">
-              <choose>
-                <if match="none" variable="DOI">
-                  <text macro="pages"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
+          <text macro="pages"/>
         </group>
         <text macro="access"/>
       </group>
