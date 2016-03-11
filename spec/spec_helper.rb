@@ -61,9 +61,8 @@ def load_style(path)
 
   begin
     style = CSL::Style.load(path)
-  rescue => e
+  rescue
     # failed to parse the style. we'll report the error later
-    return [basename, [filename, path, nil, e.message]]
   end
 
   unless style.nil?
@@ -161,7 +160,7 @@ end
 if ENV['CSL_TEST'] != nil
   parent_basenames = []
   
-  Dependents.each_pair do |basename, (filename, path, style, reason)|
+  Dependents.each_pair do |basename, (filename, path, style)|
     if style.has_independent_parent_link?
       parent_basename = style.independent_parent_link[/[^\/]+$/]
       if !parent_basenames.include?(parent_basename)
