@@ -49,11 +49,10 @@ EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
   File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name } || EXTRA_FILES_DIRECTORY_FILTER.any? { |d| d === basedir}
 end
 
-# Default license and rights text
-CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
-CSL::Schema.default_rights_string =
+# License URL and text
+CSL_LICENSE_URL = 'http://creativecommons.org/licenses/by-sa/3.0/'
+CSL_LICENSE_TEXT =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
-
 
 def load_style(path)
   filename = File.basename(path)

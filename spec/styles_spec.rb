@@ -135,8 +135,16 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
       expect(style.info).to have_rights
     end
 
-    it "must have the correct Creative Commons BY-SA license" do
-      expect(style).to be_default_license
+    it "must have the correct Creative Commons BY-SA license URL" do
+      if style.info.has_rights?
+       expect(style.info.rights[:license]).to eq(CSL_LICENSE_URL)
+     end
+    end
+    
+    it "must have the correct Creative Commons BY-SA license text" do
+      if style.info.has_rights?
+        expect(style.info.rights.text).to eq(CSL_LICENSE_TEXT)
+      end
     end
 
   end
