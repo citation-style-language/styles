@@ -26,3 +26,17 @@ describe "The CSL Style Repository" do
     expect(EXTRA_FILES).to eq([])
   end
 end
+
+describe "The file \"renamed-styles.json\"" do
+  it "must be valid JSON" do
+    expect(JSON_IS_VALID).to be true
+  end
+  
+  it "may not contain entries for styles present in the repository" do
+    expect(RENAMED_STYLES_ENTRIES & (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
+  end
+  
+  it "may not redirect to styles not present in the repository" do
+    expect(RENAMED_STYLES_TARGETS - (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
+  end
+end
