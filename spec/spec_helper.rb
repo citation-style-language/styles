@@ -1,4 +1,5 @@
 require 'csl'
+require 'json'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
@@ -153,6 +154,12 @@ if ENV['CSL_TEST'] != nil
 else
   INDEPENDENTS_BASENAMES = Independents.keys
 end
+
+# Store basenames of dependent styles
+DEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].map { |path|
+  filename = File.basename(path)
+  basename = filename[0..-5]
+}
 
 # Make sure the parents of selected dependents are loaded
 # (necessary for citation-format comparison)
