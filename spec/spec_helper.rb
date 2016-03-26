@@ -3,21 +3,6 @@ require 'json'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
-RENAMED_STYLES_ENTRIES = []
-RENAMED_STYLES_TARGETS = []
-
-# Parse renamed-styles.json
-begin
-  renamed_styles_file = File.read(File.join("#{STYLE_ROOT}", "renamed-styles.json"))
-  renamed_styles = JSON.parse(renamed_styles_file)
-  JSON_IS_VALID = true
-  
-  RENAMED_STYLES_ENTRIES.push(*renamed_styles.keys)
-  RENAMED_STYLES_TARGETS.push(*renamed_styles.values)
-rescue JSON::ParserError => e
-  JSON_IS_VALID = false
-end
-
 ISSN = Hash.new { |h,k| h[k] = [] }
 TITLES = Hash.new { |h,k| h[k] = [] }
 

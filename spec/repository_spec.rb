@@ -28,8 +28,25 @@ describe "The CSL Style Repository" do
 end
 
 describe "The file \"renamed-styles.json\"" do
+  before(:all) do
+    RENAMED_STYLES_ENTRIES = []
+    RENAMED_STYLES_TARGETS = []
+
+    # Parse renamed-styles.json
+    begin
+      renamed_styles_file = File.read(File.join("#{STYLE_ROOT}", "renamed-styles.json"))
+      renamed_styles = JSON.parse(renamed_styles_file)
+      RENAMED_STYLES_JSON_IS_VALID = true
+      
+      RENAMED_STYLES_ENTRIES.push(*renamed_styles.keys)
+      RENAMED_STYLES_TARGETS.push(*renamed_styles.values)
+    rescue JSON::ParserError => e
+      RENAMED_STYLES_JSON_IS_VALID = false
+    end
+  end
+  
   it "must be valid JSON" do
-    expect(JSON_IS_VALID).to be true
+    expect(RENAMED_STYLES_JSON_IS_VALID).to be true
   end
   
   it "may not contain entries for styles present in the repository" do
