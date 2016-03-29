@@ -29,31 +29,40 @@ end
 
 describe "The file \"renamed-styles.json\"" do
   before(:all) do
-    RENAMED_STYLES_ENTRIES = []
-    RENAMED_STYLES_TARGETS = []
-
-    # Parse renamed-styles.json
+    renamed_styles_file_path = File.join("#{STYLE_ROOT}", "renamed-styles.json")
+    @renamed_styles_file_exists = File.exist?(renamed_styles_file_path)
+    
+    @renamed_styles_file_validates = false
     begin
-      renamed_styles_file = File.read(File.join("#{STYLE_ROOT}", "renamed-styles.json"))
-      renamed_styles = JSON.parse(renamed_styles_file)
-      RENAMED_STYLES_JSON_IS_VALID = true
-      
-      RENAMED_STYLES_ENTRIES.push(*renamed_styles.keys)
-      RENAMED_STYLES_TARGETS.push(*renamed_styles.values)
+      @renamed_styles = JSON.parse(File.read(renamed_styles_file_path))
+      @renamed_styles_file_validates = true
     rescue JSON::ParserError => e
-      RENAMED_STYLES_JSON_IS_VALID = false
+    end
+    
+    @renamed_styles_entries = []
+    @renamed_styles_targets = []
+    
+    if @renamed_styles_file_validates
+      @renamed_styles_entries.push(*@renamed_styles.keys)
+      @renamed_styles_targets.push(*@renamed_styles.values)
+    end
+  end
+
+  it "must be present" do
+    expect(@renamed_styles_file_exists).to be true
+  end
+
+  it "must be valid JSON" do
+    if @renamed_styles_file_exists
+      expect(@renamed_styles_file_validates).to be true
     end
   end
   
-  it "must be valid JSON" do
-    expect(RENAMED_STYLES_JSON_IS_VALID).to be true
-  end
-  
   it "may not contain entries for styles present in the repository" do
-    expect(RENAMED_STYLES_ENTRIES & (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
+    expect(@renamed_styles_entries & (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
   end
   
   it "may not redirect to styles not present in the repository" do
-    expect(RENAMED_STYLES_TARGETS - (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
+    expect(@renamed_styles_targets - (INDEPENDENTS_BASENAMES + DEPENDENTS_BASENAMES)).to eq([])
   end
 end
