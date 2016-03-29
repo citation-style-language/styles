@@ -1,13 +1,13 @@
 shared_examples "style" do |basename, (filename, path, style), in_dependent_subdir|
-  let(:style_validates) { CSL.validate(path).length.zero? }
+  before(:all) { @style_validates = CSL.validate(path).length.zero? }
   
   it "must validate against the CSL 1.0.1 schema
      Please check your style at http://validator.citationstyles.org/" do
-    expect(style_validates).to be true
+    expect(@style_validates).to be true
   end
 
   it "must be parsable as a CSL style" do
-    if style_validates
+    if @style_validates
       expect(style).to be_a(CSL::Style)
     end
   end
