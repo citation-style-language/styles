@@ -1,4 +1,5 @@
 require 'csl'
+require 'json'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
@@ -11,7 +12,7 @@ ISSN_FILTER = %w{
   1664-2392 1664-302X 1664-3224 1664-462X 1664-8021 2234-943X
   0036-8075 1095-9203 1359-4184 1476-5578 1097-6256 1047-7594
   1546-1726 2108-6419 0035-2969 1958-5691 0943-8610 2194-508X
-  0223-5099
+  0223-5099 0322-8916 1805-6555
 }
 
 # These titles are ignored when checking for duplicate titles
@@ -49,47 +50,45 @@ EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
   File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name } || EXTRA_FILES_DIRECTORY_FILTER.any? { |d| d === basedir}
 end
 
-# Default license and rights text
-CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
-CSL::Schema.default_rights_string =
+# License URL and text
+CSL_LICENSE_URL = 'http://creativecommons.org/licenses/by-sa/3.0/'
+CSL_LICENSE_TEXT =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
-
 
 def load_style(path)
   filename = File.basename(path)
-  id = filename[0..-5]
+  basename = filename[0..-5]
 
   begin
     style = CSL::Style.load(path)
-  rescue => e
+  rescue
     # failed to parse the style. we'll report the error later
-    return [id, [filename, path, nil, e.message]]
   end
 
   unless style.nil?
     begin
       if style.info.has_issn?
         [style.info.issn].flatten(1).each do |issn|
-          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+          ISSN[issn.to_s] << basename unless ISSN_FILTER.include?(issn.to_s)
         end
       end
 
       if style.info.has_eissn?
         [style.info.eissn].flatten(1).each do |issn|
-          ISSN[issn.to_s] << id unless ISSN_FILTER.include?(issn.to_s)
+          ISSN[issn.to_s] << basename unless ISSN_FILTER.include?(issn.to_s)
         end
       end
 
       if style.has_title?
         title = style.title.to_s.downcase
-        TITLES[title] << id unless TITLES_FILTER.include?(title)
+        TITLES[title] << basename unless TITLES_FILTER.include?(title)
       end
     rescue
-      warn "Failed to extract ISSN of style #{id}"
+      warn "Failed to extract ISSN of style #{basename}"
     end
   end
 
-  [id, [filename, path, style]]
+  [basename, [filename, path, style]]
 end
 
 
@@ -145,5 +144,53 @@ Independents = Hash[collect_styles.each_with_index.map { |path, i|
   print '.'  if i % 120 == 0
   load_style(path)
 }]
+
+# Make sure we always have the basenames of all independent styles stored
+if ENV['CSL_TEST'] != nil
+  INDEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, '*.csl')].map { |path|
+    filename = File.basename(path)
+    basename = filename[0..-5]
+  }
+else
+  INDEPENDENTS_BASENAMES = Independents.keys
+end
+
+# Store basenames of dependent styles
+DEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].map { |path|
+  filename = File.basename(path)
+  basename = filename[0..-5]
+}
+
+# Make sure the parents of selected dependents are loaded
+# (necessary for citation-format comparison)
+if ENV['CSL_TEST'] != nil
+  parent_basenames = []
+  
+  Dependents.each_pair do |basename, (filename, path, style)|
+    if style.has_independent_parent_link?
+      parent_basename = style.independent_parent_link[/[^\/]+$/]
+      if !parent_basenames.include?(parent_basename)
+        parent_basenames << parent_basename
+      end
+    end
+  end
+  
+  # eliminate parents that already have been loaded
+  parent_basenames.reject! do |basename|
+    Independents.has_key?(basename)
+  end
+  
+  # load extra parents
+  extra_independents = Hash[parent_basenames.each_with_index.map { |basename, i|
+    print '.'  if i % 120 == 0
+    
+    # convert basename to path
+    path = File.join(STYLE_ROOT, basename + '.csl')
+    load_style(path)
+  }]
+  
+  # combine hashes
+  Independents.merge!(extra_independents)
+end
 
 puts

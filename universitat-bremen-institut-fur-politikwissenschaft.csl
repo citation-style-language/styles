@@ -6,11 +6,11 @@
     <id>http://www.zotero.org/styles/universitat-bremen-institut-fur-politikwissenschaft</id>
     <link href="http://www.zotero.org/styles/universitat-bremen-institut-fur-politikwissenschaft" rel="self"/>
     <link href="http://www.zotero.org/styles/harvard-institut-fur-praxisforschung-de" rel="template"/>
-    <!--Der Link unter dieser Zeile verweist auf die Vorgaben, nach denen dieser Code ausgerichtet ist (Stand November 2013)-->
-    <link href="http://www.politik.uni-bremen.de/downloads/kompendium_wiss_arb.pdf" rel="documentation"/>
+    <!--Der Link unter dieser Zeile verweist auf die Vorgaben, nach denen dieser Code ausgerichtet ist (Stand März 2016)-->
+    <link href="http://www.politik.uni-bremen.de/ccm/cms-service/download/asset/Kompendium.pdf?asset_id=914048" rel="documentation"/>
     <contributor>
       <name>Julian Koepff</name>
-      <email>jkoepff@uni-bremen.de</email>
+      <email>j.koepff@hotmail.com</email>
     </contributor>
     <category citation-format="author-date"/>
     <category field="political_science"/>
@@ -67,24 +67,60 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="webpage article-journal article-magazine article-newspaper article speech" variable="URL" match="all">
-        <group>
-          <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
-          <text variable="URL"/>
-          <group prefix=" (" suffix=")">
-            <text value="Zugriff am" suffix=" "/>
-            <date variable="accessed">
-              <date-part name="day" form="numeric" suffix="."/>
-              <date-part name="month" form="numeric" suffix="."/>
-              <date-part name="year" form="long"/>
-            </date>
-          </group>
-        </group>
+      <if variable="URL">
+        <choose>
+          <if type="article-journal" variable="DOI" match="all">
+            <choose>
+              <if variable="volume" match="none">
+                <group>
+                  <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
+                  <text variable="URL"/>
+                </group>
+              </if>
+            </choose>
+          </if>
+          <else-if type="article-journal">
+            <choose>
+              <if variable="DOI volume" match="none">
+                <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
+                <text variable="URL"/>
+                <group prefix=" (" suffix=")">
+                  <text value="Zugriff am" suffix=" "/>
+                  <date variable="accessed">
+                    <date-part name="day" form="numeric" suffix="."/>
+                    <date-part name="month" form="numeric" suffix="."/>
+                    <date-part name="year" form="long"/>
+                  </date>
+                </group>
+              </if>
+            </choose>
+          </else-if>
+          <else-if type="article-journal" variable="DOI" match="none">
+            <text value="Text abrufbar unter:" prefix=" " suffix=" "/>
+            <text variable="URL"/>
+            <group prefix=" (" suffix=")">
+              <text value="Zugriff am" suffix=" "/>
+              <date variable="accessed">
+                <date-part name="day" form="numeric" suffix="."/>
+                <date-part name="month" form="numeric" suffix="."/>
+                <date-part name="year" form="long"/>
+              </date>
+            </group>
+          </else-if>
+        </choose>
       </if>
     </choose>
   </macro>
   <macro name="title">
     <text variable="title" text-case="title"/>
+    <choose>
+      <if type="book" variable="volume" match="all">
+        <text variable="volume" form="short" prefix=", Bd. "/>
+      </if>
+      <else-if type="book" variable="number-of-volumes" match="all">
+        <text variable="number-of-volumes" prefix=", " suffix=" Bände"/>
+      </else-if>
+    </choose>
   </macro>
   <macro name="genre">
     <choose>
@@ -117,8 +153,17 @@
   <macro name="locator">
     <choose>
       <if type="article-journal">
-        <text variable="volume" suffix=" "/>
-        <text variable="issue" prefix="(" suffix=")"/>
+        <choose>
+          <if variable="volume" match="none">
+            <text variable="DOI" prefix="DOI: "/>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text variable="issue" prefix="(" suffix=")"/>
+            </group>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -129,7 +174,7 @@
   </macro>
   <macro name="published-date">
     <choose>
-      <if type="article-newspaper speech" match="any">
+      <if type="article-newspaper speech interview" match="any">
         <date variable="issued">
           <date-part name="day" form="numeric" suffix=". "/>
           <date-part name="month" form="long" suffix=" "/>
@@ -140,9 +185,12 @@
   </macro>
   <macro name="pages">
     <choose>
-      <if type="chapter paper-conference article-journal article-magazine article-newspaper" match="any">
+      <if type="article-journal" variable="volume" match="all">
         <text variable="page"/>
       </if>
+      <else-if type="chapter paper-conference article-magazine article-newspaper" match="any">
+        <text variable="page"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="edition">
@@ -184,10 +232,23 @@
     </choose>
     <choose>
       <if type="chapter" match="any">
-        <text variable="container-title" text-case="title" prefix=" " suffix="."/>
+        <group delimiter=", " prefix=" " suffix=".">
+          <text variable="container-title" text-case="title"/>
+          <choose>
+            <if variable="volume" match="all">
+              <text variable="volume" form="short" prefix="Bd. "/>
+            </if>
+            <else-if variable="number-of-volumes" match="all">
+              <text variable="number-of-volumes" suffix=" Bände"/>
+            </else-if>
+          </choose>
+        </group>
       </if>
       <else-if type="webpage" match="any">
         <text variable="container-title" suffix="."/>
+      </else-if>
+      <else-if type="interview" match="any">
+        <text value="Interview am" text-case="capitalize-first"/>
       </else-if>
       <else>
         <text variable="container-title" font-style="italic" text-decoration="none" suffix=","/>
@@ -231,11 +292,7 @@
           <text macro="publisher"/>
           <text macro="locator"/>
           <text macro="published-date"/>
-          <choose>
-            <if match="any" variable="page">
-              <text macro="pages"/>
-            </if>
-          </choose>
+          <text macro="pages"/>
         </group>
         <text macro="access"/>
       </group>

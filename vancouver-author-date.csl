@@ -25,6 +25,10 @@
       <date-part name="day"/>
     </date>
     <terms>
+      <term name="collection-editor" form="long">
+        <single>editor</single>
+        <multiple>editors</multiple>
+      </term>
       <term name="retrieved">available</term>
       <term name="section" form="short">sect.</term>
     </terms>
@@ -131,7 +135,17 @@
         </group>
       </else-if>
       <else>
-        <text variable="container-title" suffix="." form="short"/>
+        <group delimiter=", " suffix=".">
+          <choose>
+            <if variable="collection-title" match="none">
+              <group delimiter=" ">
+                <label variable="volume" form="short" text-case="capitalize-first"/>
+                <text variable="volume"/>
+              </group>
+            </if>
+          </choose>
+          <text variable="container-title"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -251,6 +265,29 @@
       </group>
     </layout>
   </citation>
+  <macro name="series-details">
+    <choose>
+      <if type="article-journal article-magazine article-newspaper review review-book" match="none">
+        <choose>
+          <if variable="collection-title">
+            <group delimiter=" " prefix="(" suffix=")">
+              <names variable="collection-editor" suffix=".">
+                <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+                <label form="long" prefix=", "/>
+              </names>
+              <group delimiter="; ">
+                <text variable="collection-title"/>
+                <group delimiter=" ">
+                  <label variable="volume" form="short"/>
+                  <text variable="volume"/>
+                </group>
+              </group>
+            </group>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <bibliography et-al-min="7" et-al-use-first="6" hanging-indent="true">
     <sort>
       <key macro="author"/>
@@ -272,6 +309,7 @@
           <text macro="pages"/>
         </group>
       </group>
+      <text macro="series-details" suffix=". "/>
       <text macro="report-details" suffix=". "/>
       <text macro="access"/>
     </layout>
