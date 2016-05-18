@@ -8,11 +8,11 @@ If you wish to submit a different type of style, please first check our [Criteri
 
 To submit a style, please follow the following steps (for locale files, follow the same steps in the  [locales](https://github.com/citation-style-language/locales) repository):
 
-#### 1. Check that your style meets all our [style requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements).
+#### 1. Check that your style meets all our [style requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements)
 
-#### 2. [Validate](https://github.com/citation-style-language/styles/wiki/Validation) your style against the CSL schema, and correct any validation errors.
+#### 2. [Validate](https://github.com/citation-style-language/styles/wiki/Validation) your style against the CSL schema, and correct any validation errors
 
-#### 3. Submit the style.
+#### 3. Create a pull request
 
 The fastest way to get a style accepted into our repository is by creating a **pull request** on the GitHub website.
 To start, create a GitHub account and sign in.
@@ -46,35 +46,37 @@ To start, create a GitHub account and sign in.
 Instead of relying solely on the GitHub website, you can also use a git client, such as [GitHub Desktop](https://desktop.github.com/) for Mac and Windows, or [SmartGit](http://www.syntevo.com/smartgit/).
 When using a client, [fork](https://help.github.com/articles/fork-a-repo/) the [style repository](https://github.com/citation-style-language/styles), create a branch off of "master", commit your changes, and then create a [pull request](https://help.github.com/articles/using-pull-requests/).
 
-#### 4. Check on your pull request.
+#### 4. Update your pull request
 
-After you create a pull request, tests are automatically run to verify that your style validates and follows our style requirements.
+We often request you to make some changes to your pull request.
+Don't create a new pull request right away if your original submission has issues.
+It's much easier for us if you update your original pull request instead.
 
-These **Travis CI** tests usually finish within a few minutes.
-If Travis CI finds no problems, a green checkmark will appear in your pull request.
-Otherwise, you will see a red X.
-Click this X to see the build report, which describes the identified errors.
-If you have trouble figuring out what's wrong with your pull request, post a comment in the pull request and ask for help. When Travis CI finds problems with your style, don't create a new pull request.
-Instead, correct the existing one (see below).
+After you create a pull request, our @csl-bot will first automatically run a number of tests to check whether your style validates and follows our style requirements.
+These tests usually finish within a few minutes.
+If there are problems, @csl-bot will give a link to the test report, which contains the identified errors.
+If you have trouble understanding these errors, please post a comment in the pull request and ask for help.
 
-We also have a handful of volunteers who review pull requests.
-We will often ask you to provide some extra information about the style you're submitting, or ask you to make some changes to your pull request.
-Once we are satisfied, we will **merge** the pull request.
+We also have a handful of volunteers who review pull requests, usually within a day or two.
 
-Sometimes we merge pull requests within the hour, and sometimes it takes a few days.
-This depends on how busy we are, and on the time it takes to get your style in acceptable shape.
-In general, the closer you follow our instructions detailed here, the faster we can accept your style.
+To update your pull request:
 
-#### 5. Update your pull request.
+1. Visit the "Files changed" tab of your pull request.
+2. Click the edit (pencil) icon at the top-right of your style.
+3. Make your changes, and click the "Commit changes" button.
 
-To make changes to your pull request, visit the "Files changed" tab of your pull request, and then click the "View" button at the top of your style.
-This should bring you to the copy of the style in your own fork of the styles repository.
-Finally, click on the edit icon, and make your changes.
+Any changes made this way will automatically appear in the pull request, and each commit will trigger a new test report.
 
-Any changes made this way will automatically appear in the pull request, and each commit will trigger a new Travis CI report.
+Once we are satisfied, we will **merge** your pull request.
+This can take hours or days, depending on how busy we are, and on how much back and forth is needed to get your style in acceptable shape.
 
-#### 6. Make additional changes after your pull request has been merged.
+#### 5. Make additional changes after merging
 
 Once a pull request has been merged, it can no longer be used to submit further changes.
-If you do wish to make additional changes, create a new pull request.
-Please always start from the latest version of the style from our repository, because we often perform maintenance on styles.
+So, if you wish to make additional changes, just create a new pull request.
+
+Please always start from the latest version of the style from our repository, because we often perform maintenance on the repository styles.
+
+## Asking for help
+
+If you get stuck at a particular step, don't hesitate to ask for help by opening a GitHub issue at https://github.com/citation-style-language/styles/issues (click the "New issue" button).
