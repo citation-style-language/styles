@@ -23,7 +23,7 @@ To start, create a GitHub account and sign in.
    When submitting a [dependent style](https://github.com/citation-style-language/styles/wiki/Requesting-Styles#dependent-styles), first navigate to the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory.
 2. Type in the file name of the style in the "Name your file..." text field at the top.
    Don't forget to add the ".csl" extension (e.g., "journal-of-results.csl" instead of just "journal-of-results")!
-3. Paste the style code into the "<> Edit new file" code editor window below.
+3. Paste the style code into the "<> Edit new file" tab below.
 4. Click the "Propose new file" button.
 5. In the next window, click the "Create pull request" button.
    Describe the changes you've made, and click the "Create pull request" button once more.
@@ -32,20 +32,19 @@ To start, create a GitHub account and sign in.
 
 ##### 3b. Submitting changes to an existing style
 
-If you're *submitting changes to an existing style* instead, see the instructions on [Editing files in another user's repository](https://help.github.com/articles/editing-files-in-another-user-s-repository).
-Here the steps are:
-
 1. Visit https://github.com/citation-style-language/styles and find the style you wish to change (dependent styles are stored in the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory).
-   To search by file name, press "t" to activate GitHub’s [File Finder](https://github.com/blog/793-introducing-the-file-finder) and start typing.
+   To search by file name press "t" (this activates GitHub’s [File Finder](https://github.com/blog/793-introducing-the-file-finder)) and start typing.
 2. Click on the style name, which will bring you to a page like https://github.com/citation-style-language/styles/blob/master/apa.csl.
-3. Click the edit icon.
+3. Click the edit icon (in the shape of a pencil).
    This opens a code editor in which you can make your changes (you can for example copy and paste your modified style into this window).
-4. Once you have made your changes in the "Code" tab (and previewed the changes in the "Preview" tab), click the "Propose file change" button.
-5. In the next window, describe the changes you've made.
-   When finished, click the "Send pull request" button.
+4. Once you have made your changes in the "<> Edit file" tab (and previewed the changes in the "Preview changes" tab), click the "Propose file change" button.
+5. In the next window, click the "Create pull request" button.
+   Describe the changes you've made, and click the "Create pull request" button once more.
 
-Instead of relying solely on the GitHub website, you can also use a git client, such as [GitHub for Mac](http://mac.github.com/), [GitHub for Windows](http://windows.github.com/), or [SmartGit](http://www.syntevo.com/smartgit/index.html).
-When using a client, [fork](http://help.github.com/fork-a-repo/) the [style repository](https://github.com/citation-style-language/styles), create a feature branch, commit your changes, and then create a [pull request](http://help.github.com/send-pull-requests/).
+(for more help, see GitHub's instructions on [Editing files in another user's repository](https://help.github.com/articles/editing-files-in-another-user-s-repository))
+
+Instead of relying solely on the GitHub website, you can also use a git client, such as [GitHub Desktop](https://desktop.github.com/) for Mac and Windows, or [SmartGit](http://www.syntevo.com/smartgit/).
+When using a client, [fork](https://help.github.com/articles/fork-a-repo/) the [style repository](https://github.com/citation-style-language/styles), create a branch off of "master", commit your changes, and then create a [pull request](https://help.github.com/articles/using-pull-requests/).
 
 #### 4. Check on your pull request.
 
