@@ -1,12 +1,12 @@
-# Guide to Submitting CSL Styles (and Locales)
+# Guide to Submitting CSL Styles (and CSL Locales)
 
 The CSL style repository is the central location on the web for collecting and maintaining CSL styles.
-Software like Zotero, Mendeley, and Papers draw their styles directly from our repository.
+Software products like Zotero, Mendeley, and Papers all draw their styles from our repository.
 
 We welcome style submissions (and corrections), and are particularly interested in styles for journals and published style guides.
 If you wish to submit a different type of style, please first check our [Criteria for Accepting Styles](https://github.com/citation-style-language/styles/wiki/Criteria-for-Accepting-Styles).
 
-To submit a style, please follow the following steps:
+To submit a style, please follow the following steps (for locale files, follow the same steps in the  [locales](https://github.com/citation-style-language/locales) repository):
 
 #### 1. Check that your style meets all our [style requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements).
 
@@ -15,21 +15,20 @@ To submit a style, please follow the following steps:
 #### 3. Submit the style.
 
 The fastest way to get a style accepted into our repository is by creating a **pull request** on the GitHub website.
-To start, create a GitHub.com account and sign in.
+To start, create a GitHub account and sign in.
 
 ##### 3a. Submitting a new style
 
-If you're *submitting a new style*, see the instructions on [Creating new files](https://help.github.com/articles/creating-new-files).
-In short, the steps involve:
-
-1. Visit https://github.com/citation-style-language/styles and click the plus icon (with a "Fork this project and create a new file" tooltip).
-   When submitting a dependent style, first navigate to the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory.
-2. Write the file name of the style in the "Name your file..." text field.
-   Make sure to add a ".csl" extension, e.g. "journal-of-results.csl".
-3. Paste the style code into the code editor window.
+1. Visit https://github.com/citation-style-language/styles and click the "Create new file" button.
+   When submitting a [dependent style](https://github.com/citation-style-language/styles/wiki/Requesting-Styles#dependent-styles), first navigate to the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory.
+2. Type in the file name of the style in the "Name your file..." text field at the top.
+   Don't forget to add the ".csl" extension (e.g., "journal-of-results.csl" instead of just "journal-of-results")!
+3. Paste the style code into the "<> Edit new file" code editor window below.
 4. Click the "Propose new file" button.
-5. In the next window, describe the changes you've made.
-   When finished, click the "Send pull request" button.
+5. In the next window, click the "Create pull request" button.
+   Describe the changes you've made, and click the "Create pull request" button once more.
+
+(for more help, see GitHub's instructions on [Creating new files](https://help.github.com/articles/creating-new-files))
 
 ##### 3b. Submitting changes to an existing style
 
@@ -80,7 +79,3 @@ Any changes made this way will automatically appear in the pull request, and eac
 Once a pull request has been merged, it can no longer be used to submit further changes.
 If you do wish to make additional changes, create a new pull request.
 Please always start from the latest version of the style from our repository, because we often perform maintenance on styles.
-
-## Locale files
-
-The steps to submit locale files are largely the same, except that locales need to be submitted to the [locales](https://github.com/citation-style-language/locales) repository.
