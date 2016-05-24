@@ -12,7 +12,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Open University Harvard author-date style</summary>
-    <updated>2015-06-26T15:51:02+00:00</updated>
+    <updated>2016-05-24T06:45:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor">
@@ -30,6 +30,7 @@
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
+        <names variable="director"/>
         <text macro="anon"/>
       </substitute>
     </names>
@@ -50,19 +51,24 @@
       <name and="symbol" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
     </names>
   </macro>
+  <macro name="director">
+    <names variable="author" prefix="Directed by "/>
+  </macro>
   <macro name="access">
     <choose>
       <if variable="URL">
-        <text term="online" prefix="[" suffix="]" text-case="capitalize-first"/>
-        <text value=" Available at: "/>
-        <text variable="URL"/>
-        <group prefix=" (" delimiter=" " suffix=").">
-          <text term="accessed" text-case="capitalize-first"/>
-          <date variable="accessed">
-            <date-part name="day" suffix=" "/>
-            <date-part name="month" suffix=" "/>
-            <date-part name="year"/>
-          </date>
+        <group delimiter=" ">
+          <text term="online" prefix="[" suffix="]." text-case="capitalize-first"/>
+          <text term="available at" suffix=":" text-case="capitalize-first"/>
+          <text variable="URL"/>
+          <group prefix=" (" delimiter=" " suffix=").">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </group>
         </group>
       </if>
     </choose>
@@ -151,16 +157,28 @@
       <key macro="author-short"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <group delimiter=", ">
-          <text macro="author-short"/>
-          <text macro="year-date"/>
-        </group>
-        <group>
-          <text term="page" form="short" suffix=" "/>
-          <text variable="locator"/>
-        </group>
-      </group>
+      <choose>
+        <!-- Specific formats (citation) -->
+        <if type="motion_picture">
+          <group delimiter=", ">
+            <text macro="title"/>
+            <text macro="year-date"/>
+          </group>
+        </if>
+        <!-- Generic/fallback format (bibliography) -->
+        <else>
+          <group delimiter=", ">
+            <group delimiter=", ">
+              <text macro="author-short"/>
+              <text macro="year-date"/>
+            </group>
+            <group>
+              <text term="page" form="short" suffix=" "/>
+              <text variable="locator"/>
+            </group>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <bibliography>
@@ -170,27 +188,40 @@
       <key variable="title"/>
     </sort>
     <layout suffix=".">
-      <group delimiter=" ">
-        <text macro="author"/>
-        <text macro="year-date" prefix="(" suffix=")"/>
-        <group delimiter=" " suffix=",">
-          <text macro="title"/>
-          <text macro="translator" prefix="(" suffix=")"/>
-        </group>
-        <text macro="edition"/>
-        <text macro="container-prefix"/>
-        <group delimiter=", ">
-          <text macro="editor"/>
-          <text variable="container-title" font-style="italic"/>
-          <text variable="collection-title"/>
-          <text variable="genre"/>
-          <text macro="publisher"/>
-          <text macro="locators"/>
-          <text macro="published-date"/>
-          <text macro="pages"/>
-          <text macro="access"/>
-        </group>
-      </group>
+      <choose>
+        <!-- Specific formats (bibliography) -->
+        <if type="motion_picture">
+          <group delimiter=" " suffix=" [Film].">
+            <text macro="title"/>
+            <text macro="year-date" prefix="(" suffix=")"/>
+            <text macro="director"/>
+          </group>
+        </if>
+        <!-- Generic/fallback format (bibliography) -->
+        <else>
+          <group delimiter=" ">
+            <text macro="author"/>
+            <text macro="year-date" prefix="(" suffix=")"/>
+            <group delimiter=" " suffix=",">
+              <text macro="title"/>
+              <text macro="translator" prefix="(" suffix=")"/>
+            </group>
+            <text macro="edition"/>
+            <text macro="container-prefix"/>
+            <group delimiter=", ">
+              <text macro="editor"/>
+              <text variable="container-title" font-style="italic"/>
+              <text variable="collection-title"/>
+              <text variable="genre"/>
+              <text macro="publisher"/>
+              <text macro="locators"/>
+              <text macro="published-date"/>
+              <text macro="pages"/>
+              <text macro="access"/>
+            </group>
+          </group>
+        </else>
+      </choose>
     </layout>
   </bibliography>
 </style>
