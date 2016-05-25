@@ -1,14 +1,19 @@
-shared_examples "style" do |basename, (filename, path, style, reason), in_dependent_subdir|
-  it "must validate against the CSL 1.0.1 schema" do
-    expect(CSL.validate(path)).to eq([])
+shared_examples "style" do |basename, (filename, path, style), in_dependent_subdir|
+  before(:all) { @style_validates = CSL.validate(path).length.zero? }
+  
+  it "must validate against the CSL 1.0.1 schema
+     Please check your style at http://validator.citationstyles.org/" do
+    expect(@style_validates).to be true
+  end
+
+  it "must be parsable as a CSL style" do
+    if @style_validates
+      expect(style).to be_a(CSL::Style)
+    end
   end
 
   it "must have a conventional file name" do
     expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
-  end
-
-  it "must be parsable as a CSL style" do
-    expect(style).to be_a(CSL::Style), reason
   end
   
   unless style.nil?
@@ -27,9 +32,9 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
           link_prefix = "http://www.zotero.org/styles/"
           
           expect(template_link).to match(%r{^#{link_prefix}})
-          parent_ID = template_link[link_prefix.length..-1]
+          template_ID = template_link[link_prefix.length..-1]
           
-          expect(Independents).to have_key(parent_ID)
+          expect(INDEPENDENTS_BASENAMES).to include(template_ID)
         end
       end
       
@@ -83,7 +88,7 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
         expect(parent_ID_link).to match(%r{^#{link_prefix}})
         parent_ID = parent_ID_link[link_prefix.length..-1]
         
-        expect(Independents).to have_key(parent_ID)
+        expect(INDEPENDENTS_BASENAMES).to include(parent_ID)
       end
       
       it 'may not have <macro/>, <citation/>, or <bibliography/> elements' do
@@ -130,23 +135,31 @@ shared_examples "style" do |basename, (filename, path, style, reason), in_depend
       expect(style.info).to have_rights
     end
 
-    it "must have the correct Creative Commons BY-SA license" do
-      expect(style).to be_default_license
+    it "must have the correct Creative Commons BY-SA license URL" do
+      if style.info.has_rights?
+       expect(style.info.rights[:license]).to eq(CSL_LICENSE_URL)
+     end
+    end
+    
+    it "must have the correct Creative Commons BY-SA license text" do
+      if style.info.has_rights?
+        expect(style.info.rights.text).to eq(CSL_LICENSE_TEXT)
+      end
     end
 
   end
 end
 
-Independents.each_pair do |basename, (filename, path, style, reason)|
+Independents.each_pair do |basename, (filename, path, style)|
   in_dependent_subdir = false
   describe "#{basename}:" do
-    include_examples "style", basename, [filename, path, style, reason], in_dependent_subdir
+    include_examples "style", basename, [filename, path, style], in_dependent_subdir
   end
 end
 
-Dependents.each_pair do |basename, (filename, path, style, reason)|
+Dependents.each_pair do |basename, (filename, path, style)|
   in_dependent_subdir = true
   describe "dependent/#{basename}:" do
-    include_examples "style", basename, [filename, path, style, reason], in_dependent_subdir
+    include_examples "style", basename, [filename, path, style], in_dependent_subdir
   end
 end
