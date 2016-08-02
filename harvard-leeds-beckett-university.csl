@@ -7,7 +7,7 @@
     <link href="http://skillsforlearning.leedsbeckett.ac.uk/local/Quote_Unquote.pdf" rel="documentation"/>
     <author>
       <name>Joe Joiner</name>
-      <email>joe@joejoiner.me</email>
+      <email>work@joejoiner.me</email>
       <uri>http://twitter.com/joejoinerr</uri>
     </author>
     <category citation-format="author-date"/>
@@ -15,6 +15,77 @@
     <updated>2015-03-23T12:34:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="presented at">presented at</term>
+    </terms>
+  </locale>
+  <macro name="sort-term">
+    <choose>
+      <if type="entry-dictionary">
+        <choose>
+          <if variable="author">
+            <names variable="author">
+              <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+            </names>
+          </if>
+          <else>
+            <text macro="container-title"/>
+          </else>
+        </choose>
+      </if>
+      <else-if type="legal_case legislation" match="any">
+        <text macro="title"/>
+      </else-if>
+      <else-if type="bill">
+        <text macro="title"/>
+        <text macro="container-title" prefix=". " suffix=" Bill"/>
+      </else-if>
+      <else-if type="webpage">
+        <choose>
+          <if variable="author">
+            <names variable="author">
+              <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+            </names>
+          </if>
+          <else-if variable="container-title">
+            <text macro="container-title"/>
+          </else-if>
+          <else>
+            <text macro="title"/>
+          </else>
+        </choose>
+      </else-if>
+      <else-if type="song" variable="composer">
+        <names variable="composer">
+          <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+        </names>
+      </else-if>
+      <else-if type="motion_picture" variable="URL" match="all">
+        <names variable="author">
+          <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+        </names>
+      </else-if>
+      <else-if type="motion_picture">
+        <text macro="title"/>
+      </else-if>
+      <else-if variable="author editor" match="any">
+        <names variable="author">
+          <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+          <label form="short" prefix=" "/>
+          <substitute>
+            <names variable="editor"/>
+          </substitute>
+        </names>
+      </else-if>
+      <else-if type="book" variable="publisher">
+        <text variable="publisher"/>
+      </else-if>
+      <else>
+        <text macro="title"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="online">
     <choose>
       <if variable="URL">
@@ -132,17 +203,27 @@
   </macro>
   <macro name="year">
     <choose>
-      <if variable="issued">
-        <date variable="issued">
+      <if variable="event-date">
+        <date variable="event-date">
           <date-part name="year"/>
         </date>
       </if>
+      <else-if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </else-if>
       <else>
         <text term="no date" form="short"/>
       </else>
     </choose>
   </macro>
   <citation disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="all-names-with-initials" disambiguate-add-year-suffix="true">
+    <sort>
+      <key macro="sort-term"/>
+      <key macro="year"/>
+      <key variable="title"/>
+    </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <names variable="composer">
@@ -151,6 +232,7 @@
             <names variable="author"/>
             <names variable="editor"/>
             <text variable="container-title"/>
+            <text variable="publisher"/>
           </substitute>
         </names>
         <text macro="year"/>
@@ -164,65 +246,13 @@
   </citation>
   <bibliography hanging-indent="true">
     <sort>
-      <key variable="author"/>
+      <key macro="sort-term"/>
+      <key macro="year"/>
       <key variable="title"/>
     </sort>
     <layout>
       <!-- Author/Title -->
-      <choose>
-        <if type="entry-dictionary">
-          <choose>
-            <if variable="author">
-              <names variable="author">
-                <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
-              </names>
-            </if>
-            <else>
-              <text macro="container-title"/>
-            </else>
-          </choose>
-        </if>
-        <else-if type="legal_case legislation" match="any">
-          <text macro="title"/>
-        </else-if>
-        <else-if type="bill">
-          <text macro="title"/>
-          <text macro="container-title" prefix=". " suffix=" Bill"/>
-        </else-if>
-        <else-if type="webpage">
-          <choose>
-            <if variable="author">
-              <names variable="author">
-                <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
-              </names>
-            </if>
-            <else-if variable="container-title">
-              <text macro="container-title"/>
-            </else-if>
-            <else>
-              <text macro="title"/>
-            </else>
-          </choose>
-        </else-if>
-        <else-if type="song" variable="composer">
-          <names variable="composer">
-            <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
-          </names>
-        </else-if>
-        <else-if variable="author">
-          <names variable="author">
-            <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
-          </names>
-        </else-if>
-        <else-if variable="editor">
-          <names variable="author">
-            <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol" suffix=" ed."/>
-          </names>
-        </else-if>
-        <else>
-          <text macro="title"/>
-        </else>
-      </choose>
+      <text macro="sort-term"/>
       <!-- Year -->
       <choose>
         <if type="legal_case">
@@ -407,7 +437,7 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="motion_picture">
+        <else-if type="motion_picture" variable="URL" match="all">
           <group prefix=" " delimiter=". " suffix=".">
             <group delimiter=", ">
               <group>
@@ -424,6 +454,19 @@
               </date>
             </group>
             <text macro="access"/>
+          </group>
+        </else-if>
+        <else-if type="motion_picture">
+          <group prefix=" " delimiter=". " suffix=".">
+            <group>
+              <names variable="author" prefix="Directed by ">
+                <name delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+              </names>
+            </group>
+            <group delimiter=" ">
+              <text macro="publisher"/>
+              <text variable="medium" prefix="[" suffix="]"/>
+            </group>
           </group>
         </else-if>
         <else-if type="legislation">
@@ -508,6 +551,9 @@
                 <if variable="author">
                   <text macro="title"/>
                 </if>
+                <else-if type="book" variable="publisher">
+                  <text macro="title"/>
+                </else-if>
               </choose>
               <choose>
                 <if type="entry-encyclopedia" match="none">
@@ -523,8 +569,8 @@
                 <else-if type="chapter paper-conference" match="any">
                   <choose>
                     <if variable="container-title">
-                      <group delimiter=" ">
-                        <text term="in" text-case="capitalize-first" prefix=". " suffix=":"/>
+                      <text term="in" text-case="capitalize-first" prefix=". " suffix=": "/>
+                      <group delimiter=", ">
                         <choose>
                           <if variable="container-author">
                             <names variable="container-author">
@@ -532,12 +578,51 @@
                             </names>
                           </if>
                           <else>
-                            <names variable="editor" suffix=" ed.">
-                              <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
-                            </names>
+                            <group>
+                              <names variable="editor">
+                                <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="symbol"/>
+                              </names>
+                              <text term="editor" form="short" prefix=" "/>
+                            </group>
                           </else>
                         </choose>
                         <text macro="container-title"/>
+                        <choose>
+                          <if type="paper-conference">
+                            <choose>
+                              <if variable="event-date">
+                                <date variable="event-date" font-style="italic">
+                                  <date-part name="month" suffix=" "/>
+                                  <date-part name="day" suffix=", "/>
+                                  <date-part name="year"/>
+                                </date>
+                              </if>
+                              <else>
+                                <date variable="issued" font-style="italic">
+                                  <date-part name="month" suffix=" "/>
+                                  <date-part name="day" suffix=", "/>
+                                  <date-part name="year"/>
+                                </date>
+                              </else>
+                            </choose>
+                          </if>
+                        </choose>
+                      </group>
+                    </if>
+                  </choose>
+                </else-if>
+                <else-if type="speech">
+                  <choose>
+                    <if variable="title">
+                      <text term="presented at" text-case="capitalize-first" prefix=". " suffix=": "/>
+                      <group font-style="italic" delimiter=", ">
+                        <text variable="event"/>
+                        <date variable="issued">
+                          <date-part name="month" suffix=" "/>
+                          <date-part name="day" suffix=", "/>
+                          <date-part name="year"/>
+                        </date>
+                        <text variable="event-place"/>
                       </group>
                     </if>
                   </choose>
@@ -546,6 +631,11 @@
               <choose>
                 <if type="thesis">
                   <text variable="genre" prefix=" [" suffix="]"/>
+                </if>
+              </choose>
+              <choose>
+                <if type="book" variable="medium">
+                  <text variable="medium" prefix=" [" suffix="]"/>
                 </if>
               </choose>
             </group>
@@ -571,10 +661,14 @@
                 <text macro="volume-edition"/>
               </else>
             </choose>
-            <group delimiter=", ">
-              <text macro="publisher"/>
-              <text macro="page-range"/>
-            </group>
+            <choose>
+              <if type="speech" match="none">
+                <group delimiter=", ">
+                  <text macro="publisher"/>
+                  <text macro="page-range"/>
+                </group>
+              </if>
+            </choose>
             <text macro="access"/>
           </group>
         </else>
