@@ -74,6 +74,59 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
         end
       end
 
+      describe "name nodes" do
+        it "must have valid et-al-min and et-al-use-first attributes" do
+          style.each_descendant do |node|
+            if node.is_a? CSL::Style::Names
+
+              # Make a copy of the name node and inherit options from root
+              # and citation/bibliography depending on node's location.
+              if node.has_name?
+                name = node.name.dup
+              else
+                name = CSL::Style::Name.new
+              end
+
+              parents = [node.closest(/^(citation|bibliography|macro)$/)]
+
+              # For macros, check inheritance for both rendering modes!
+              if parents[0].is_a? CSL::Style::Macro
+                parents = [style.citation, style.bibliography]
+              end
+
+              parents.each do |parent|
+                nn = name.dup.reverse_merge!(name.inherited_name_options(parent, style))
+
+                # We expect both attributes to return be values
+                # of the same type: either String or NilClass.
+                # Using #fetch here resolves inherited values!
+                min = nn.attributes.fetch(:'et-al-min')
+                first = nn.attributes.fetch(:'et-al-use-first')
+
+                expect(min).to be_an_instance_of(first.class),
+                  "expected et-al-min (#{min}) and et-al-use-first (#{first}) to be of same type"
+
+                unless min.nil?
+                  expect(min.to_i).to be >= first.to_i,
+                    "expected et-al-min (#{min}) to be greater than et-al-use-first (#{first})"
+                end
+
+                min = nn.attributes.fetch(:'et-al-subsequent-min')
+                first = nn.attributes.fetch(:'et-al-subsequent-use-first')
+
+                expect(min).to be_an_instance_of(first.class),
+                  "expected et-al-subsequent-min (#{min}) and et-al-subsequent-use-first (#{first}) to be of same type"
+
+                unless min.nil?
+                  expect(min.to_i).to be >= first.to_i,
+                    "expected et-al-subsequent-min (#{min}) to be greater than et-al-subsequent-use-first (#{first})"
+                end
+              end
+            end
+          end
+        end
+      end
+
     end
 
     if in_dependent_subdir
