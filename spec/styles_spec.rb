@@ -1,6 +1,6 @@
 shared_examples "style" do |basename, (filename, path, style), in_dependent_subdir|
   before(:all) { @style_validates = CSL.validate(path).length.zero? }
-  
+
   it "must validate against the CSL 1.0.1 schema
      Please check your style at http://validator.citationstyles.org/" do
     expect(@style_validates).to be true
@@ -15,29 +15,29 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
   it "must have a conventional file name" do
     expect(filename).to match(/^[a-z\d]+(-[a-z\d]+)*\.csl$/)
   end
-  
+
   unless style.nil?
     if !in_dependent_subdir
       it 'must be an independent style (dependent styles must be placed in the "dependent" subdirectory)' do
         expect(style).to be_independent
       end
-      
+
       it 'must have a "self" link' do
         expect(style).to have_self_link
       end
-      
+
       it '"template" link must point to an existing independent style' do
         if style.has_template_link?
           template_link = style.template_link
           link_prefix = "http://www.zotero.org/styles/"
-          
+
           expect(template_link).to match(%r{^#{link_prefix}})
           template_ID = template_link[link_prefix.length..-1]
-          
+
           expect(INDEPENDENTS_BASENAMES).to include(template_ID)
         end
       end
-      
+
       unless CITATION_FORMAT_FILTER.include?(basename)
 
         it 'must define a citation-format (<category citation-format="..."/>)' do
@@ -52,7 +52,7 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
           end
         end
       end
-      
+
       it "must define all macros that are called by <text/> and <key/> elements" do
         style.descendants!.each do |node|
           if node.matches?(/^key|text$/, :macro => /./)
@@ -60,7 +60,7 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
           end
         end
       end
-      
+
       unless UNUSED_MACROS_FILTER.include?(basename)
         it "may not have any unused macros" do
           available_macros = style.macros.keys.sort
@@ -73,24 +73,24 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
           expect(available_macros - used_macros).to eq([])
         end
       end
-      
+
     end
-    
-    if in_dependent_subdir      
+
+    if in_dependent_subdir
       it "must be a dependent style (independent styles must be placed in the root directory)" do
         expect(style).to be_dependent
       end
-      
+
       it '"independent-parent" link must point to an existing independent style' do
         parent_ID_link = style.independent_parent_link
         link_prefix = "http://www.zotero.org/styles/"
-        
+
         expect(parent_ID_link).to match(%r{^#{link_prefix}})
         parent_ID = parent_ID_link[link_prefix.length..-1]
-        
+
         expect(INDEPENDENTS_BASENAMES).to include(parent_ID)
       end
-      
+
       it 'may not have <macro/>, <citation/>, or <bibliography/> elements' do
         expect(style).not_to have_macro
         expect(style).not_to have_citation
@@ -99,7 +99,7 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
 
       it 'may not have a "template" link' do
         expect(style).not_to have_template_link
-      end  
+      end
 
       it 'must define a citation-format (<category citation-format="..."/>)' do
         expect(style.citation_format).not_to be_nil
@@ -110,7 +110,7 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
         parent = Independents[parent][-1]
 
         expect(style.citation_format).to eq(parent.citation_format)
-      end    
+      end
     end
 
     it "must have an <info/> element" do
@@ -138,9 +138,9 @@ shared_examples "style" do |basename, (filename, path, style), in_dependent_subd
     it "must have the correct Creative Commons BY-SA license URL" do
       if style.info.has_rights?
        expect(style.info.rights[:license]).to eq(CSL_LICENSE_URL)
-     end
+      end
     end
-    
+
     it "must have the correct Creative Commons BY-SA license text" do
       if style.info.has_rights?
         expect(style.info.rights.text).to eq(CSL_LICENSE_TEXT)
