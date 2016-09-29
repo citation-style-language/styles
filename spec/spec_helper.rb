@@ -61,8 +61,8 @@ def load_style(path)
 
   begin
     style = CSL::Style.load(path)
-  rescue
-    # failed to parse the style. we'll report the error later
+  rescue => error
+    return [basename, [filename, path, nil, error]]
   end
 
   unless style.nil?
