@@ -1,4 +1,5 @@
 require 'csl'
+require 'json'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
@@ -49,11 +50,10 @@ EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
   File.extname(file) == '.csl' || EXTRA_FILES_FILTER.any? { |f| f === name } || EXTRA_FILES_DIRECTORY_FILTER.any? { |d| d === basedir}
 end
 
-# Default license and rights text
-CSL::Schema.default_license = 'http://creativecommons.org/licenses/by-sa/3.0/'
-CSL::Schema.default_rights_string =
+# License URL and text
+CSL_LICENSE_URL = 'http://creativecommons.org/licenses/by-sa/3.0/'
+CSL_LICENSE_TEXT =
   'This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License'
-
 
 def load_style(path)
   filename = File.basename(path)
@@ -61,9 +61,8 @@ def load_style(path)
 
   begin
     style = CSL::Style.load(path)
-  rescue => e
-    # failed to parse the style. we'll report the error later
-    return [basename, [filename, path, nil, e.message]]
+  rescue => error
+    return [basename, [filename, path, nil, error]]
   end
 
   unless style.nil?
@@ -149,19 +148,23 @@ Independents = Hash[collect_styles.each_with_index.map { |path, i|
 # Make sure we always have the basenames of all independent styles stored
 if ENV['CSL_TEST'] != nil
   INDEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, '*.csl')].map { |path|
-    filename = File.basename(path)
-    basename = filename[0..-5]
+    File.basename(path, '.csl')
   }
 else
   INDEPENDENTS_BASENAMES = Independents.keys
 end
 
+# Store basenames of dependent styles
+DEPENDENTS_BASENAMES = Dir[File.join(STYLE_ROOT, 'dependent', '*.csl')].map { |path|
+  File.basename(path, '.csl')
+}
+
 # Make sure the parents of selected dependents are loaded
 # (necessary for citation-format comparison)
 if ENV['CSL_TEST'] != nil
   parent_basenames = []
-  
-  Dependents.each_pair do |basename, (filename, path, style, reason)|
+
+  Dependents.each_pair do |basename, (filename, path, style)|
     if style.has_independent_parent_link?
       parent_basename = style.independent_parent_link[/[^\/]+$/]
       if !parent_basenames.include?(parent_basename)
@@ -169,21 +172,21 @@ if ENV['CSL_TEST'] != nil
       end
     end
   end
-  
+
   # eliminate parents that already have been loaded
   parent_basenames.reject! do |basename|
     Independents.has_key?(basename)
   end
-  
+
   # load extra parents
   extra_independents = Hash[parent_basenames.each_with_index.map { |basename, i|
     print '.'  if i % 120 == 0
-    
+
     # convert basename to path
     path = File.join(STYLE_ROOT, basename + '.csl')
     load_style(path)
   }]
-  
+
   # combine hashes
   Independents.merge!(extra_independents)
 end
