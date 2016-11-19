@@ -32,18 +32,34 @@
       <name name-as-sort-order="all" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="never" form="long" initialize-with=". "/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
-        <names variable="editor"/>
-        <text macro="anon"/>
+        <choose>
+          <if type="webpage">
+            <text variable="container-title"/>
+            <text variable="URL"/>
+          </if>
+          <else>
+            <names variable="editor"/>
+            <text macro="anon"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
   <macro name="author-short">
     <names variable="author">
-      <name form="short" and="symbol" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
+      <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
       <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <text macro="anon"/>
+        <choose>
+          <if type="webpage">
+            <text variable="container-title"/>
+            <text variable="URL"/>
+          </if>
+          <else>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <text macro="anon"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -61,7 +77,7 @@
       <if variable="URL">
         <group delimiter=" ">
           <text term="online" prefix="[" suffix="]." text-case="capitalize-first"/>
-          <text term="available at" suffix=":" text-case="capitalize-first"/>
+          <text term="available at" text-case="capitalize-first"/>
           <text variable="URL"/>
           <group prefix="(" delimiter=" " suffix=").">
             <text term="accessed" text-case="capitalize-first"/>
@@ -77,7 +93,7 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture report song webpage" match="any">
         <text variable="title" font-style="italic"/>
       </if>
       <else>
@@ -187,6 +203,7 @@
     <sort>
       <key macro="author"/>
       <key macro="year-date"/>
+      <key variable="citation-number"/>
       <key variable="title"/>
     </sort>
     <layout suffix=".">
@@ -202,6 +219,14 @@
             <text macro="publisher"/>
           </group>
         </if>
+        <else-if type="webpage">
+          <group delimiter=" ">
+            <text macro="author"/>
+            <text macro="year-date" prefix="(" suffix=")"/>
+            <text macro="title"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
         <!-- Generic/fallback format (bibliography) -->
         <else>
           <group delimiter=" ">
