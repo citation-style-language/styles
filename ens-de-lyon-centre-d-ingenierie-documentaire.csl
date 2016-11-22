@@ -19,7 +19,7 @@
     <category field="social_science"/>
     <category field="philosophy"/>
     <category field="literature"/>
-    <updated>2016-11-17T16:34:49+00:00</updated>
+    <updated>2016-11-22T11:03:49+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -175,16 +175,25 @@
       </else-if>
       <!-- Pour les chapter paper-conference entry-dictionary entry-encyclopedia -->
       <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
-        <choose>
-          <if variable="container-author" match="none">
-            <text macro="editor" prefix=" dans "/>
-            <text variable="container-title" prefix=", " font-style="italic" text-case="capitalize-first"/>
-          </if>
-          <else-if variable="container-author" match="any">
-            <text macro="book_author" prefix=" dans "/>
-            <text variable="container-title" prefix=", " font-style="italic" text-case="capitalize-first"/>
-          </else-if>
-        </choose>
+        <group prefix="dans " delimiter=", ">
+          <choose>
+            <if variable="container-author" match="none">
+              <choose>
+                <if variable="editor" match="any">
+                  <text macro="editor"/>
+                  <text variable="container-title" font-style="italic" text-case="capitalize-first"/>
+                </if>
+                <else>
+                  <text variable="container-title" font-style="italic" text-case="capitalize-first"/>
+                </else>
+              </choose>
+            </if>
+            <else>
+              <text macro="book_author"/>
+              <text variable="container-title" font-style="italic" text-case="capitalize-first"/>
+            </else>
+          </choose>
+        </group>
       </else-if>
       <!-- Pour les webpage et weblog -->
       <else-if type="webpage" match="any">
@@ -349,20 +358,15 @@
   </macro>
   <!-- MACRO COLLECTION (ndbp et biblio)-->
   <macro name="collection">
-    <choose>
-      <if is-numeric="collection-number">
-        <group prefix="coll. ">
-          <text variable="collection-title" quotes="true"/>
-        </group>
-        <text term="issue" form="short" prefix=", " suffix="&#160;"/>
+    <group delimiter=", ">
+      <group prefix="coll. ">
+        <text variable="collection-title" quotes="true"/>
+      </group>
+      <group>
+        <text term="issue" form="short" prefix="" suffix="&#160;"/>
         <text variable="collection-number"/>
-      </if>
-      <else>
-        <group prefix="coll. ">
-          <text variable="collection-title" quotes="true"/>
-        </group>
-      </else>
-    </choose>
+      </group>
+    </group>
   </macro>
   <!-- MACRO PAGES PAR TYPE DE DOCUMENT (ndbp et biblio)-->
   <macro name="pages">
@@ -386,7 +390,7 @@
     </choose>
   </macro>
   <!--_-_-_-_-_-SECTION DEFINITION DES NDBP (citation)-_-_-_-_-_-_-->
-  <citation>
+  <citation et-al-min="4" et-al-use-first="1">
     <layout delimiter="&#160;; ">
       <choose>
         <!-- Si la référence vient d'être citée, et qu'un numéro de page est indiqué -->
@@ -409,7 +413,7 @@
                 <text variable="title" form="short" font-style="italic"/>
               </if>
               <else>
-                <text variable="title" text-case="capitalize-first" form="short" quotes="true"/>
+                <text variable="title" form="short" text-case="capitalize-first" quotes="true"/>
               </else>
             </choose>
             <text term="cited" font-style="italic"/>
@@ -438,6 +442,11 @@
             </choose>
             <choose>
               <if variable="container-title event" match="none">
+                <choose>
+                  <if variable="author" match="any">
+                    <text macro="editor"/>
+                  </if>
+                </choose>
                 <text macro="translator"/>
               </if>
             </choose>
@@ -482,6 +491,11 @@
         </choose>
         <choose>
           <if variable="container-title event" match="none">
+            <choose>
+              <if variable="author" match="any">
+                <text macro="editor"/>
+              </if>
+            </choose>
             <text macro="translator"/>
           </if>
         </choose>
