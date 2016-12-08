@@ -9,19 +9,20 @@
       <name>Michael Berkowitz</name>
       <email>mberkowi@gmu.edu</email>
     </author>
+    <category citation-format="numeric"/>
     <category field="science"/>
     <category field="generic-base"/>
-    <category citation-format="numeric"/>
     <issn>0028-0836</issn>
-    <issn>1476-4687</issn>
-    <updated>2012-01-01T00:00:00+00:00</updated>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
+    <eissn>1476-4687</eissn>
+    <updated>2014-09-10T06:11:43+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <text variable="title" font-style="italic"/>
       </if>
+      <else-if type="chapter" match="any"/>
       <else>
         <text variable="title"/>
       </else>
@@ -30,6 +31,7 @@
   <macro name="author">
     <names variable="author">
       <name sort-separator=", " delimiter=", " and="symbol" initialize-with=". " delimiter-precedes-last="never" name-as-sort-order="all"/>
+      <label form="short" prefix=", "/>
       <et-al font-style="italic"/>
     </names>
   </macro>
@@ -39,28 +41,55 @@
       <else-if variable="DOI">
         <text variable="DOI" prefix="doi:"/>
       </else-if>
-      <else-if variable="URL">
-        <text term="at"/>
-        <text variable="URL" prefix=" &lt;" suffix="&gt;"/>
+      <else-if type="webpage" variable="URL" match="all">
+        <text term="available at" text-case="capitalize-first" suffix=": "/>
+        <text variable="URL" suffix=". "/>
+        <group prefix="(" suffix=")" delimiter=": ">
+          <text term="accessed" text-case="capitalize-first"/>
+          <date variable="accessed">
+            <date-part name="day" suffix=" " form="ordinal"/>
+            <date-part name="month" suffix=" "/>
+            <date-part name="year"/>
+          </date>
+        </group>
       </else-if>
     </choose>
   </macro>
   <macro name="issuance">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <group prefix=" (" suffix=").">
-          <text variable="publisher" suffix=": "/>
-          <text variable="publisher-place" suffix=", "/>
+      <if type="bill book graphic legal_case legislation motion_picture report song thesis chapter paper-conference" match="any">
+        <group delimiter=", " prefix="(" suffix=").">
+          <text variable="publisher" form="long"/>
           <date variable="issued">
             <date-part name="year"/>
           </date>
         </group>
       </if>
       <else>
-        <date prefix=" (" suffix=")." variable="issued">
+        <date prefix="(" suffix=")." variable="issued">
           <date-part name="year"/>
         </date>
       </else>
+    </choose>
+  </macro>
+  <macro name="container-title">
+    <choose>
+      <if type="article-journal">
+        <text variable="container-title" font-style="italic" form="short"/>
+      </if>
+      <else>
+        <text variable="container-title" font-style="italic"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="editor">
+    <choose>
+      <if type="chapter paper-conference" match="any">
+        <names variable="editor" prefix="(" suffix=")">
+          <label form="short" suffix=" "/>
+          <name and="symbol" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all"/>
+        </names>
+      </if>
     </choose>
   </macro>
   <citation collapse="citation-number">
@@ -71,16 +100,26 @@
       <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography et-al-min="6" et-al-use-first="1" second-field-align="flush" entry-spacing="0">
+  <bibliography et-al-min="6" et-al-use-first="1" second-field-align="flush" entry-spacing="0" line-spacing="2">
     <layout>
       <text variable="citation-number" suffix="."/>
-      <text macro="author"/>
-      <text macro="title" prefix=" " suffix=". "/>
-      <text variable="container-title" font-style="italic" suffix=" " form="short"/>
-      <text variable="volume" suffix=", " font-weight="bold"/>
-      <text variable="page"/>
-      <text macro="issuance"/>
-      <text macro="access"/>
+      <group delimiter=" ">
+        <text macro="author" suffix="."/>
+        <text macro="title" suffix="."/>
+        <choose>
+          <if type="chapter paper-conference" match="any">
+            <text term="in" form="long" plural="false"/>
+          </if>
+        </choose>
+        <text macro="container-title"/>
+        <text macro="editor"/>
+        <group font-weight="bold">
+          <text variable="volume" suffix=","/>
+        </group>
+        <text variable="page"/>
+        <text macro="issuance"/>
+        <text macro="access"/>
+      </group>
     </layout>
   </bibliography>
 </style>

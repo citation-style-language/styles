@@ -4,20 +4,20 @@
     <title>Harvard - Imperial College London</title>
     <id>http://www.zotero.org/styles/harvard-imperial-college-london</id>
     <link href="http://www.zotero.org/styles/harvard-imperial-college-london" rel="self"/>
+    <link href="http://www3.imperial.ac.uk/library/subjectsandsupport/referencemanagement/harvard/references" rel="documentation"/>
     <author>
       <name>Lawrence Greenfield</name>
     </author>
     <category citation-format="author-date"/>
     <category field="medicine"/>
-    <updated>2011-07-23T13:54:00+01:00</updated>
     <summary>Harvard author-date style edited for Imperial College London</summary>
-    <link href="http://www3.imperial.ac.uk/library/subjectsandsupport/referencemanagement/harvard/references" rel="documentation"/>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
+    <updated>2012-09-27T22:06:38+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor">
     <names variable="editor" delimiter=", ">
       <name and="symbol" delimiter=", "/>
-      <label form="short" prefix=" (" text-case="lowercase" suffix=".)" strip-periods="true"/>
+      <label form="short" prefix=" (" suffix=")"/>
     </names>
   </macro>
   <macro name="anon">
@@ -26,7 +26,7 @@
   <macro name="author">
     <names variable="author">
       <name and="symbol" name-as-sort-order="all" sort-separator=", " initialize-with="." delimiter-precedes-last="never" delimiter=", "/>
-      <label form="short" prefix=" " suffix="." text-case="lowercase" strip-periods="true"/>
+      <label form="short" prefix=" "/>
       <substitute>
         <text macro="editor"/>
         <text macro="anon"/>
@@ -44,18 +44,29 @@
     </names>
   </macro>
   <macro name="access">
-    <group>
-      <text value="Available from: "/>
-      <text variable="DOI" prefix="doi:" suffix=""/>
-      <group prefix=" [" suffix="]">
-        <text term="accessed" text-case="capitalize-first" suffix=": "/>
-        <date variable="accessed">
-          <date-part name="day" suffix=" "/>
-          <date-part name="month" suffix=" "/>
-          <date-part name="year"/>
-        </date>
-      </group>
-    </group>
+    <choose>
+      <if variable="URL DOI" match="any">
+        <group>
+          <text value="Available from: "/>
+          <choose>
+            <if variable="DOI">
+              <text variable="DOI" prefix="doi:"/>
+            </if>
+            <else>
+              <text variable="URL"/>
+            </else>
+          </choose>
+          <group prefix=" [" suffix="]">
+            <text term="accessed" text-case="capitalize-first" suffix=": "/>
+            <date variable="accessed">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </group>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="title">
     <choose>
@@ -71,8 +82,10 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <text variable="publisher-place" suffix=", "/>
-    <text variable="publisher" suffix="."/>
+    <group delimiter=", " suffix=".">
+      <text variable="publisher-place"/>
+      <text variable="publisher"/>
+    </group>
   </macro>
   <macro name="year-date">
     <choose>
@@ -91,11 +104,11 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="long" suffix="" text-case="lowercase" strip-periods="true"/>
+          <text term="edition" form="long" strip-periods="true"/>
         </group>
       </if>
       <else>
-        <text variable="edition" suffix=""/>
+        <text variable="edition"/>
       </else>
     </choose>
   </macro>
@@ -106,7 +119,7 @@
   </macro>
   <macro name="online">
     <choose>
-      <if variable="DOI">
+      <if variable="DOI URL" match="any">
         <text value="[Online]"/>
       </if>
     </choose>
@@ -116,7 +129,7 @@
       <if type="article-newspaper paper-conference broadcast" match="any">
         <date variable="issued">
           <date-part name="day" suffix=" "/>
-          <date-part name="month" suffix=""/>
+          <date-part name="month"/>
         </date>
       </if>
     </choose>
@@ -134,7 +147,7 @@
         <text macro="author-short"/>
         <text macro="year-date"/>
         <group>
-          <label variable="locator" suffix="." form="short" strip-periods="true"/>
+          <label variable="locator" form="short"/>
           <text variable="locator"/>
         </group>
       </group>
@@ -160,7 +173,7 @@
         </if>
         <else-if type="webpage">
           <group prefix=" " delimiter=". " suffix=".">
-            <text macro="title" suffix=". "/>
+            <text macro="title"/>
             <text macro="edition"/>
             <text macro="online"/>
           </group>
@@ -173,7 +186,7 @@
             <text variable="container-title"/>
           </group>
         </else-if>
-        <else-if type="article-journal article-newspaper broadcast personal_communication thesis webpage" match="any">
+        <else-if type="article-journal article-newspaper broadcast personal_communication thesis" match="any">
           <group suffix=".">
             <text macro="title" prefix=" "/>
             <text macro="editor" prefix=" "/>
@@ -183,14 +196,12 @@
               <text variable="container-title" font-style="italic" prefix=" " suffix="."/>
             </if>
           </choose>
-          <text macro="online" prefix=" " suffix=""/>
-          <group prefix=" " suffix="." delimiter="">
-            <group prefix="">
-              <text variable="volume"/>
-              <text variable="issue" prefix=" (" suffix="), "/>
+          <text macro="online" prefix=" "/>
+          <group prefix=" " suffix=".">
+            <text variable="volume"/>
+            <group delimiter=", ">
+              <text variable="issue" prefix=" (" suffix=")"/>
               <text macro="issued"/>
-            </group>
-            <group prefix="">
               <text macro="pages"/>
             </group>
           </group>
@@ -211,34 +222,34 @@
         </else-if>
         <else-if type="chapter paper-conference" match="any">
           <text macro="title" prefix=" " suffix=". "/>
-          <group prefix=" " delimiter=" ">
+          <group delimiter=" ">
             <text term="in" text-case="capitalize-first" suffix=":"/>
             <text macro="editor" suffix=". "/>
             <text variable="container-title" font-style="italic" suffix="."/>
             <text variable="collection-title" suffix="."/>
             <text macro="edition" prefix=" " suffix="."/>
-            <text macro="online" suffix="." prefix=""/>
+            <text macro="online" suffix="."/>
             <text macro="issued"/>
-            <text macro="publisher" prefix="" suffix="."/>
-            <label variable="page" form="short" suffix=""/>
+            <text macro="publisher" suffix="."/>
+            <label variable="page" form="short"/>
             <text macro="pages" suffix="."/>
           </group>
         </else-if>
         <else>
-          <group suffix=".">
-            <text macro="title" prefix=" "/>
-            <text macro="editor" prefix=" "/>
+          <group prefix=" " suffix="." delimiter=" ">
+            <text macro="title"/>
+            <text macro="editor"/>
           </group>
           <text variable="container-title" font-style="italic" prefix=" " suffix="."/>
           <text macro="online" prefix=" " suffix=". "/>
-          <group prefix=" " suffix=".">
-            <group prefix=" ">
+          <group suffix="." delimiter=" ">
+            <group>
               <text variable="volume"/>
               <text variable="issue" prefix=" (" suffix=")"/>
               <text macro="issued"/>
             </group>
-            <group prefix=" ">
-              <label variable="locator" suffix="." form="short" strip-periods="true"/>
+            <group>
+              <label variable="page" form="short"/>
               <text macro="pages"/>
             </group>
           </group>

@@ -11,7 +11,11 @@ end
 require 'rspec/core'
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color }
+  if ENV['TRAVIS']
+    spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color }
+  else
+    spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color }
+  end
 end
 
 task :default => [:spec]
