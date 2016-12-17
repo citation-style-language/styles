@@ -11,6 +11,7 @@
     </author>
     <contributor>
       <name>Pablo Melchor</name>
+      <uri>https://pablomelchor.com/hello/</uri>
     </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
@@ -21,7 +22,7 @@
   <macro name="editor">
     <names variable="editor" delimiter=", ">
       <name and="text" initialize-with=". " delimiter=", " sort-separator=", " name-as-sort-order="all"/>
-      <label form="short" prefix=" (" suffix=")"/>
+      <label form="short" prefix=" (" suffix=")"  strip-periods="true"/>
     </names>
   </macro>
   <macro name="anon">
@@ -32,8 +33,16 @@
       <name name-as-sort-order="all" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="never" form="long" initialize-with=". "/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
-        <names variable="editor"/>
-        <text macro="anon"/>
+        <choose>
+          <if type="webpage">
+            <text variable="container-title"/>
+            <text variable="URL"/>
+          </if>
+          <else>
+            <names variable="editor"/>
+            <text macro="anon"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -41,9 +50,17 @@
     <names variable="author">
       <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
       <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <text macro="anon"/>
+        <choose>
+          <if type="webpage">
+            <text variable="container-title"/>
+            <text variable="URL"/>
+          </if>
+          <else>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <text macro="anon"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -77,7 +94,7 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture report song webpage" match="any">
         <text variable="title" font-style="italic"/>
       </if>
       <else>
@@ -148,8 +165,8 @@
   </macro>
   <macro name="container-prefix">
     <choose>
-      <if type="chapter paper-conference" match="any">
-        <text term="in" text-case="capitalize-first"/>
+      <if type="chapter">
+        <text term="in"/>
       </if>
     </choose>
   </macro>
@@ -187,6 +204,7 @@
     <sort>
       <key macro="author"/>
       <key macro="year-date"/>
+      <key variable="citation-number"/>
       <key variable="title"/>
     </sort>
     <layout suffix=".">
@@ -202,6 +220,14 @@
             <text macro="publisher"/>
           </group>
         </if>
+        <else-if type="webpage">
+          <group delimiter=" ">
+            <text macro="author"/>
+            <text macro="year-date" prefix="(" suffix=")"/>
+            <text macro="title"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
         <!-- Generic/fallback format (bibliography) -->
         <else>
           <group delimiter=" ">
