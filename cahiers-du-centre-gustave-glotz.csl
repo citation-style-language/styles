@@ -15,7 +15,7 @@
     <category field="humanities"/>
     <issn>1016-9008</issn>
     <summary>Feuille de style pour les Cahiers du Centre Gustave-Glotz. L'utilisation de 'in' pour les articles en langue étrangère doit être effectuée manuellement.</summary>
-    <updated>2014-09-30T22:02:33+00:00</updated>
+    <updated>2017-02-14T14:52:58+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -47,6 +47,15 @@
       <name sort-separator=", " initialize-with="." delimiter=", "/>
       <et-al font-variant="normal" font-style="italic"/>
       <label form="short" prefix=" (" text-case="lowercase" suffix=")"/>
+      <substitute>
+        <text macro="container-author"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="container-author">
+    <names variable="container-author" delimiter=", ">
+      <name sort-separator=", " initialize-with="." delimiter=", "/>
+      <et-al font-variant="normal" font-style="italic"/>
     </names>
   </macro>
   <macro name="volume">
@@ -72,7 +81,7 @@
   </macro>
   <macro name="access">
     <group>
-      <text term="accessed" suffix=" le "/>
+      <text term="accessed" suffix=" "/>
       <date variable="accessed">
         <date-part name="day" suffix=" "/>
         <date-part name="month" suffix=" "/>
@@ -195,8 +204,23 @@
                 <text variable="container-title" form="short" font-style="italic"/>
                 <text variable="volume"/>
                 <text variable="issue"/>
-                <text macro="pages"/>
               </group>
+              <choose>
+                <if variable="page" match="any">
+                  <text macro="pages" prefix=", "/>
+                </if>
+                <else>
+                  <group prefix=" [" suffix="]">
+                    <text term="online"/>
+                    <choose>
+                      <if variable="URL" match="any">
+                        <text variable="URL" prefix="&#160;: "/>
+                        <text macro="access" prefix=", "/>
+                      </if>
+                    </choose>
+                  </group>
+                </else>
+              </choose>
             </else-if>
             <else-if type="book graphic" match="any">
               <group>
@@ -208,37 +232,33 @@
                 <text macro="collection" prefix=" "/>
               </group>
             </else-if>
-            <else-if type="entry-dictionary entry-encyclopedia" match="any">
-              <group delimiter=", " prefix=", ">
-                <text macro="title" quotes="true"/>
-                <choose>
-                  <if variable="title-short" match="any">
-                    <text variable="title" form="short" font-style="italic"/>
-                  </if>
-                  <else>
-                    <text variable="container-title" font-style="italic"/>
-                  </else>
-                </choose>
-                <group delimiter="&#160;">
-                  <label variable="volume" form="short"/>
-                  <text variable="volume"/>
-                </group>
-                <text macro="year-date"/>
-                <text macro="pages"/>
-              </group>
-            </else-if>
-            <else-if type="chapter paper-conference" match="any">
+            <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
               <text macro="title" quotes="true" suffix=", "/>
-              <group>
-                <text term="in" suffix="&#160;"/>
-                <text macro="editor" suffix=", "/>
+              <text term="in" suffix="&#160;"/>
+              <group delimiter=", ">
+                <text macro="editor"/>
                 <text variable="container-title" font-style="italic" text-case="title"/>
-                <text macro="volume" prefix=", "/>
-                <text macro="publisher" prefix=", " suffix=", "/>
+                <text macro="volume"/>
+                <text macro="publisher"/>
                 <text macro="year-date"/>
-                <text macro="pages" prefix=", "/>
-                <text macro="collection" prefix=" "/>
               </group>
+              <choose>
+                <if variable="page" match="any">
+                  <text macro="pages" prefix=", "/>
+                  <text macro="collection" prefix=" "/>
+                </if>
+                <else>
+                  <group prefix=" [" suffix="]">
+                    <text term="online"/>
+                    <choose>
+                      <if variable="URL" match="any">
+                        <text variable="URL" prefix="&#160;: "/>
+                        <text macro="access" prefix=", "/>
+                      </if>
+                    </choose>
+                  </group>
+                </else>
+              </choose>
             </else-if>
           </choose>
         </group>

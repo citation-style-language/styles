@@ -24,10 +24,14 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
+    <contributor>
+      <name> Brenton M. Wiernik</name>
+      <email>zotero@wiernik.org</email>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="psychology"/>
     <category field="generic-base"/>
-    <updated>2015-10-25T09:01:49+00:00</updated>
+    <updated>2016-09-28T13:09:49+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -45,7 +49,7 @@
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=", " suffix=", ">
+        <group delimiter=", ">
           <names variable="container-author" delimiter=", ">
             <name and="symbol" initialize-with=". " delimiter=", "/>
             <label form="short" prefix=" (" text-case="title" suffix=")"/>
@@ -107,8 +111,11 @@
           <else-if type="legal_case">
             <text variable="title" font-style="italic"/>
           </else-if>
-          <else-if type="bill book graphic legislation motion_picture song" match="any">
+          <else-if type="book graphic  motion_picture song" match="any">
             <text variable="title" form="short" font-style="italic"/>
+          </else-if>
+          <else-if type="bill legislation" match="any">
+            <text variable="title" form="short"/>
           </else-if>
           <else-if variable="reviewed-author">
             <choose>
@@ -131,14 +138,17 @@
     <choose>
       <if type="thesis report" match="any">
         <choose>
-          <if variable="archive" match="any">
+          <if variable="DOI" match="any">
+            <text variable="DOI" prefix="https://doi.org/"/>
+          </if>
+          <else-if variable="archive" match="any">
             <group>
               <text term="retrieved" text-case="capitalize-first" suffix=" "/>
               <text term="from" suffix=" "/>
               <text variable="archive" suffix="."/>
               <text variable="archive_location" prefix=" (" suffix=")"/>
             </group>
-          </if>
+          </else-if>
           <else>
             <group>
               <text term="retrieved" text-case="capitalize-first" suffix=" "/>
@@ -151,7 +161,7 @@
       <else>
         <choose>
           <if variable="DOI">
-            <text variable="DOI" prefix="http://doi.org/"/>
+            <text variable="DOI" prefix="https://doi.org/"/>
           </if>
           <else>
             <choose>
@@ -485,7 +495,15 @@
       <else-if type="legal_case">
         <group prefix=" (" suffix=")" delimiter=" ">
           <text variable="authority"/>
-          <date variable="issued" form="text"/>
+          <choose>
+            <if variable="container-title" match="any">
+              <!--Only print year for cases published in reporters-->
+              <date variable="issued" form="numeric" date-parts="year"/>
+            </if>
+            <else>
+              <date variable="issued" form="text"/>
+            </else>
+          </choose>
         </group>
       </else-if>
       <else-if type="bill legislation" match="any">
@@ -517,9 +535,11 @@
               <text term="in" text-case="capitalize-first" suffix=" "/>
             </if>
           </choose>
-          <text macro="container-contributors"/>
-          <text macro="secondary-contributors"/>
-          <text macro="container-title"/>
+          <group delimiter=", ">
+            <text macro="container-contributors"/>
+            <text macro="secondary-contributors"/>
+            <text macro="container-title"/>
+          </group>
         </group>
       </if>
     </choose>
@@ -536,8 +556,8 @@
   </macro>
   <macro name="legal-cites">
     <choose>
-      <if type="bill legal_case legislation" match="any">
-        <group delimiter=" " prefix=", ">
+      <if type="legal_case" match="any">
+        <group prefix=", " delimiter=" ">
           <choose>
             <if variable="container-title">
               <text variable="volume"/>
@@ -550,23 +570,40 @@
               <text variable="page"/>
             </if>
             <else>
-              <choose>
-                <if type="legal_case">
-                  <text variable="number" prefix="No. "/>
-                </if>
-                <else>
-                  <text variable="number" prefix="Pub. L. No. "/>
-                  <group delimiter=" ">
-                    <!--change to label variable="section" as that becomes available -->
-                    <text term="section" form="symbol"/>
-                    <text variable="section"/>
-                  </group>
-                </else>
-              </choose>
+              <text variable="number" prefix="No. "/>
             </else>
           </choose>
         </group>
       </if>
+      <else-if type="bill legislation" match="any">
+        <group delimiter=", " prefix=", ">
+          <choose>
+            <if variable="number">
+              <!--There's a public law number-->
+              <text variable="number" prefix="Pub. L. No. "/>
+              <group delimiter=" ">
+                <!--change to label variable="section" as that becomes available -->
+                <text term="section" form="symbol"/>
+                <text variable="section"/>
+              </group>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <text variable="page-first"/>
+              </group>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <!--change to label variable="section" as that becomes available -->
+                <text term="section" form="symbol"/>
+                <text variable="section"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="original-date">
