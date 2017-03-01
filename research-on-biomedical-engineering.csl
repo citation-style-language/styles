@@ -15,7 +15,7 @@
     <category field="biology"/>
     <issn>2446-4732</issn>
     <eissn>2446-4740</eissn>
-    <updated>2017-02-28T10:09:51+00:00</updated>
+    <updated>2017-03-01T13:21:32+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -63,13 +63,9 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter="; ">
-      <group delimiter=": ">
-        <text variable="publisher-place"/>
-        <text variable="publisher"/>
-      </group>
-      <text macro="year-date"/>
-    </group>
+    <text variable="publisher-place" suffix=": " text-case="title"/>
+    <text variable="publisher" suffix="; "/>
+    <text macro="year-date"/>
   </macro>
   <macro name="edition">
     <choose>
@@ -85,7 +81,11 @@
     </choose>
   </macro>
   <macro name="access">
-    <text variable="PMID" prefix="PMid:" suffix=". "/>
+    <choose>
+      <if match="any" variable="PMID">
+        <text variable="PMID" prefix="PMid:" suffix=". "/>
+      </if>
+    </choose>
     <choose>
       <if variable="DOI">
         <text variable="DOI" prefix="doi: http://dx.doi.org/"/>
@@ -99,14 +99,16 @@
             <date-part name="day"/>
           </date>
         </group>
-        <group delimiter=": ">
-          <text term="available at" text-case="capitalize-first"/>
-          <text variable="URL"/>
-        </group>
+        <choose>
+          <if variable="URL">
+            <text term="available at" text-case="capitalize-first" suffix=": "/>
+            <text variable="URL"/>
+          </if>
+        </choose>
       </else-if>
     </choose>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true" collapse="year" cite-group-delimiter=", ">
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year" cite-group-delimiter="; ">
     <sort>
       <key macro="author"/>
       <key macro="year-date" sort="descending"/>
@@ -171,17 +173,21 @@
         <else-if type="thesis">
           <group delimiter=". ">
             <text variable="title"/>
-            <text variable="genre"/>
+            <text variable="genre" prefix="[" suffix="]"/>
             <group delimiter=", ">
-              <text variable="publisher"/>
               <text macro="year-date"/>
+            </group>
+            <group delimiter=": ">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
             </group>
           </group>
         </else-if>
         <else>
+          <text variable="title" suffix=". "/>
           <group delimiter=":">
             <group delimiter=" ">
-              <group delimiter=". ">
+              <group delimiter=". " suffix=".">
                 <text variable="container-title" form="short" text-case="title" strip-periods="true"/>
               </group>
               <group delimiter=";">
