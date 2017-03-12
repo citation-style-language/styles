@@ -4,7 +4,7 @@
     <title>Proceedings of the Royal Society B</title>
     <id>http://www.zotero.org/styles/proceedings-of-the-royal-society-b</id>
     <link href="http://www.zotero.org/styles/proceedings-of-the-royal-society-b" rel="self"/>
-    <link href="http://rspb.royalsocietypublishing.org/site/misc/preparing-article.xhtml#question8" rel="documentation"/>
+    <link href="https://royalsociety.org/journals/authors/author-guidelines/" rel="documentation"/>
     <author>
       <name>Josefa Bleu</name>
       <email>josefa.bleu@gmail.com</email>
@@ -20,6 +20,10 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
+    <contributor>
+      <name>Michael Doube</name>
+      <email>mdoube@rvc.ac.uk</email>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="biology"/>
     <issn>0962-8452</issn>
@@ -29,12 +33,14 @@
   </info>
   <locale>
     <terms>
+      <term name="accessed">accessed on</term>
       <term name="edition" form="short">edn</term>
     </terms>
   </locale>
   <macro name="author">
-    <names variable="author" suffix=" ">
-      <name sort-separator=", " initialize-with=". " name-as-sort-order="all" delimiter=", " and="symbol" delimiter-precedes-last="never" et-al-min="10" et-al-use-first="1"/>
+    <names variable="author" suffix=". ">
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" et-al-min="10" et-al-use-first="1"/>
+      <et-al font-style="italic"/>
       <label form="long" prefix=", "/>
       <substitute>
         <names variable="editor"/>
@@ -42,9 +48,9 @@
     </names>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix=")">
-      <label form="short" prefix=" (" suffix=" " strip-periods="true"/>
-      <name sort-separator=", " initialize-with=". " delimiter=" " and="symbol" delimiter-precedes-last="never"/>
+    <names variable="editor" prefix="(" suffix=")">
+      <label form="short" suffix=" " strip-periods="true"/>
+      <name sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
     </names>
   </macro>
   <macro name="publisher">
@@ -52,21 +58,6 @@
       <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
-    <text macro="accessed-date" suffix=". "/>
-  </macro>
-  <macro name="accessed-date">
-    <choose>
-      <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
-          <text term="cited"/>
-          <date variable="accessed">
-            <date-part name="year"/>
-            <date-part name="month" prefix=" " form="short"/>
-            <date-part name="day" prefix=" "/>
-          </date>
-        </group>
-      </if>
-    </choose>
   </macro>
   <macro name="journal-title">
     <choose>
@@ -75,6 +66,15 @@
           <text variable="container-title" form="short" font-style="italic"/>
         </group>
       </if>
+      <else-if type="article-newspaper">
+        <group delimiter=", " suffix=". ">
+          <text variable="container-title" form="short" font-style="italic"/>
+          <date variable="issued">
+            <date-part name="day" suffix=" "/>
+            <date-part name="month"/>
+          </date>
+        </group>
+      </else-if>
       <else>
         <text variable="container-title" suffix=". " form="short" font-style="italic"/>
       </else>
@@ -117,6 +117,34 @@
       </else>
     </choose>
   </macro>
+  <macro name="access">
+    <choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="(doi:" suffix=")"/>
+      </if>
+      <else-if variable="URL">
+        <group suffix=".">
+          <choose>
+            <if type="article-newspaper article-magazine dataset book webpage" match="any">
+              <text variable="URL" prefix=" See "/>
+            </if>
+          </choose>
+          <choose>
+            <if type="webpage">
+              <group prefix=" (" delimiter=" " suffix=")">
+                <text term="accessed"/>
+                <date variable="accessed">
+                  <date-part name="day" suffix=" "/>
+                  <date-part name="month" suffix=" "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </if>
+          </choose>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -137,8 +165,8 @@
           <text macro="publisher"/>
         </if>
         <else-if type="chapter paper-conference" match="any">
-          <group prefix=" " suffix=", ">
-            <text term="in" suffix=" " text-case="capitalize-first"/>
+          <group prefix=" " delimiter=" " suffix=", ">
+            <text term="in" text-case="capitalize-first"/>
             <text variable="container-title" font-style="italic"/>
             <text macro="editor"/>
           </group>
@@ -153,7 +181,7 @@
           </group>
         </else>
       </choose>
-      <text variable="DOI" prefix="(doi:" suffix=")"/>
+      <text macro="access"/>
     </layout>
   </bibliography>
 </style>
