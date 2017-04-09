@@ -71,6 +71,16 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
         end
       end
 
+      it "must not use sentence case for title and container-title variables" do
+        style.descendants!.each do |node|
+          if node.matches?("text")
+            if node[:'text-case'] == 'sentence'
+              expect(node[:'variable']).not_to match(/^title|container-title$/)
+            end
+          end
+        end
+      end
+
       describe "name nodes" do
         it "must have valid et-al-min and et-al-use-first attributes" do
           style.each_descendant do |node|
