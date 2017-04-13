@@ -18,7 +18,7 @@
     <category field="philosophy"/>
     <category field="humanities"/>
     <category field="political_science"/>
-    <updated>2017-01-23T16:34:49+00:00</updated>
+    <updated>2017-01-25T13:45:07+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -75,9 +75,9 @@
               <label form="short" prefix=" (" suffix=".)"/>
             </names>
           </else-if>
-          <else>
+          <else-if type="entry-dictionary entry-encyclopedia" match="none">
             <text term="anonymous" form="short" text-case="capitalize-first"/>
-          </else>
+          </else-if>
         </choose>
       </else>
     </choose>
@@ -112,9 +112,9 @@
               <label form="short" prefix="&#160;(" suffix=".)"/>
             </names>
           </else-if>
-          <else>
+          <else-if type="entry-dictionary entry-encyclopedia" match="none">
             <text term="anonymous" text-case="capitalize-first"/>
-          </else>
+          </else-if>
         </choose>
       </else>
     </choose>
@@ -231,7 +231,7 @@
   <!-- MACRO PUB-PLACE (ndbp)-->
   <macro name="pub-place-ndbp">
     <choose>
-      <if type="bill book chapter entry-dictionary entry-encyclopedia legal_case manuscript paper-conference" match="any">
+      <if type="bill book chapter legal_case manuscript paper-conference" match="any">
         <choose>
           <if variable="publisher-place" match="any">
             <text variable="publisher-place"/>
@@ -241,7 +241,7 @@
           </else>
         </choose>
       </if>
-      <else-if type="thesis graphic motion_picture broadcast report song" match="any">
+      <else-if type="thesis graphic motion_picture broadcast report song entry-dictionary entry-encyclopedia" match="any">
         <text variable="publisher-place"/>
       </else-if>
       <else-if type="speech" match="any">
@@ -252,7 +252,7 @@
   <!-- MACRO PUB-PLACE (biblio)-->
   <macro name="pub-place-bib">
     <choose>
-      <if type="bill book chapter entry-dictionary entry-encyclopedia legal_case manuscript paper-conference" match="any">
+      <if type="bill book chapter legal_case manuscript paper-conference" match="any">
         <choose>
           <if variable="publisher-place" match="any">
             <text variable="publisher-place"/>
@@ -262,7 +262,7 @@
           </else>
         </choose>
       </if>
-      <else-if type="thesis graphic motion_picture broadcast report song" match="any">
+      <else-if type="thesis graphic motion_picture broadcast report song entry-dictionary entry-encyclopedia" match="any">
         <text variable="publisher-place"/>
       </else-if>
       <else-if type="speech" match="any">
@@ -274,7 +274,7 @@
   <macro name="publisher">
     <text variable="publisher"/>
   </macro>
-  <!-- MACRO URL ET DATE PAR TYPE DE DOCUMENT (ndbp)-->
+  <!-- MACRO DATE PAR TYPE DE DOCUMENT (ndbp)-->
   <macro name="date-ndbp">
     <choose>
       <!-- Pour les article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript -->
@@ -292,7 +292,7 @@
           </else>
         </choose>
       </if>
-      <!-- Pour les webpage post-weblog -->
+      <!-- Pour les webpage post-weblog (comprend l'URL) -->
       <else-if type="webpage post-weblog" match="any">
         <group delimiter=", ">
           <text variable="URL"/>
@@ -318,18 +318,19 @@
               <date-part name="year"/>
             </date>
           </if>
-          <else>
+          <else-if type="song" match="none">
+            <!-- l'entrée podcast ne propose pas de champ pour la date -->
             <text term="no date" form="short"/>
-          </else>
+          </else-if>
         </choose>
       </else>
     </choose>
   </macro>
-  <!-- MACRO URL ET DATE PAR TYPE DE DOCUMENT (biblio)-->
+  <!-- MACRO DATE PAR TYPE DE DOCUMENT (biblio)-->
   <macro name="date-bib">
     <choose>
-      <!-- Pour les article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript -->
-      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript" match="any">
+      <!-- Pour les article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia -->
+      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" ">
           <choose>
             <if variable="issued" match="any">
@@ -343,14 +344,6 @@
               <text term="no date"/>
             </else>
           </choose>
-          <group delimiter=", " prefix="(en ligne&#160;: " suffix=")">
-            <text variable="URL"/>
-            <date variable="accessed" form="text" prefix="consulté le ">
-              <date-part name="day" form="ordinal"/>
-              <date-part name="month"/>
-              <date-part name="year"/>
-            </date>
-          </group>
         </group>
       </if>
       <!-- Pour les webpage post-weblog (comprend l'URL) -->
@@ -387,11 +380,41 @@
               <date-part name="year"/>
             </date>
           </if>
-          <else>
+          <else-if type="song" match="none">
             <text term="no date"/>
-          </else>
+          </else-if>
         </choose>
       </else>
+    </choose>
+  </macro>
+  <!-- MACRO URL/DOI (biblio seulement)-->
+  <!-- pour les webpage et post-weblog, l'URL est dans la macro date -->
+  <macro name="url_doi">
+    <choose>
+      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia paper-conference" match="any">
+        <choose>
+          <if variable="DOI" match="any">
+            <group delimiter=", " prefix="(DOI&#160;: " suffix=")">
+              <text variable="DOI"/>
+              <date variable="accessed" form="text" prefix="consulté le ">
+                <date-part name="day" form="ordinal"/>
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>
+            </group>
+          </if>
+          <else-if variable="URL" match="any">
+            <group delimiter=", " prefix="(en ligne&#160;: " suffix=")">
+              <text variable="URL"/>
+              <date variable="accessed" form="text" prefix="consulté le ">
+                <date-part name="day" form="ordinal"/>
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else-if>
+        </choose>
+      </if>
     </choose>
   </macro>
   <!-- MACRO EDITION, FORMAT ET TYPE/GENRE (ndbp et biblio)-->
@@ -430,7 +453,7 @@
       </choose>
       <!-- type/genre -->
       <choose>
-        <if type="thesis manuscript personal_communication">
+        <if type="thesis manuscript personal_communication speech">
           <text variable="genre"/>
         </if>
       </choose>
@@ -702,6 +725,7 @@
           <text macro="pages"/>
         </group>
         <group>
+          <text macro="url_doi" prefix=" "/>
           <text macro="extra" prefix=". "/>
           <text macro="firstedition-bib" prefix=" "/>
         </group>
