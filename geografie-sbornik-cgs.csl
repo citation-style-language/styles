@@ -18,7 +18,7 @@
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="cs">
-   <terms>
+    <terms>
       <term name="editor" form="short">
         <single>ed.</single>
         <multiple>eds.</multiple>
@@ -28,40 +28,28 @@
   </locale>
   <!--MACROS-->
   <macro name="responsibility">
-    <choose>
-      <if variable="author editor translator" match="any">
-        <names variable="author">
-          <name name-as-sort-order="all" delimiter=", " initialize-with=". " delimiter-precedes-last="never">
-            <name-part name="family" text-case="uppercase"/>
-            <name-part name="given"/>
-          </name>
-          <label form="short" prefix=" " text-case="lowercase"/>
-          <substitute>
-            <names variable="editor"/>
-            <names variable="translator"/>
-          </substitute>
-        </names>
-      </if>
-      <else>
-        <text term="anonymous" form="short" text-case="uppercase"/>
-      </else>
-    </choose>
+    <names variable="author">
+      <name name-as-sort-order="all" delimiter=", " initialize-with=". " delimiter-precedes-last="never">
+        <name-part name="family" text-case="uppercase"/>
+        <name-part name="given"/>
+      </name>
+      <label form="short" prefix=" " text-case="lowercase"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text variable="title"/>
+      </substitute>
+    </names>
   </macro>
   <macro name="author-citation">
-    <choose>
-      <if variable="author editor translator" match="any">
-        <names variable="author">
-          <name form="short"/>
-          <substitute>
-            <names variable="editor"/>
-            <names variable="translator"/>
-          </substitute>
-        </names>
-      </if>
-      <else>
-        <text term="anonymous" form="short" text-case="uppercase"/>
-      </else>
-    </choose>
+    <names variable="author">
+      <name form="short"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text variable="title" form="short"/>
+      </substitute>
+    </names>
   </macro>
   <macro name="container-author">
     <names variable="container-author">
@@ -159,7 +147,7 @@
     <text macro="accessed" prefix=" "/>
   </macro>
   <!--CITATION-->
-  <citation disambiguate-add-year-suffix="true" collapse="year" year-suffix-delimiter=", " after-collapse-delimiter="; " et-al-min="3" et-al-use-first="1" delimiter-precedes-last="never">
+  <citation disambiguate-add-year-suffix="true" collapse="year" year-suffix-delimiter=", " after-collapse-delimiter="; " et-al-min="4" et-al-use-first="1" delimiter-precedes-last="never">
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <group delimiter=" ">
@@ -190,10 +178,13 @@
       <!-- Rest of Citation -->
       <choose>
         <!-- Specific Formats -->
-        <if type="book report" match="any">
+        <if type="book report thesis" match="any">
           <group delimiter=". " suffix=". ">
             <text variable="title"/>
-            <text variable="number"/>
+            <group delimiter=" ">
+              <text variable="genre"/>
+              <text variable="number"/>
+            </group>
             <group delimiter=", ">
               <text variable="publisher"/>
               <text variable="publisher-place"/>
@@ -208,10 +199,14 @@
               <group delimiter=": ">
                 <text term="in" text-case="capitalize-first"/>
                 <text macro="container-responsibility"/>
-                <group delimiter=" ">
-                  <text variable="container-title"/>
-                  <text variable="event"/>
-                </group>
+                <choose>
+                  <if variable="container-title">
+                    <text variable="container-title"/>
+                  </if>
+                  <else>
+                    <text variable="event"/>
+                  </else>
+                </choose>
               </group>
             </group>
             <group delimiter=", ">
