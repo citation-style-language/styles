@@ -109,7 +109,7 @@
                 <name-part name="family" font-variant="small-caps"/>
               </name>
               <et-al font-style="italic"/>
-              <label form="short" prefix="&#160;(" suffix=".)"/>
+              <label form="short" prefix=" (" suffix=".)"/>
             </names>
           </else-if>
           <else-if type="entry-dictionary entry-encyclopedia" match="none">
@@ -132,7 +132,7 @@
         <names variable="editor">
           <name form="long" and="text" delimiter-precedes-last="never" sort-separator=" " initialize-with="."/>
           <et-al font-style="italic"/>
-          <label form="short" prefix="&#160;(" suffix=".)"/>
+          <label form="short" prefix=" (" suffix=".)"/>
         </names>
       </else>
     </choose>
@@ -149,14 +149,14 @@
     <names variable="translator">
       <name form="long" and="text" delimiter-precedes-last="never" sort-separator=" " initialize-with="."/>
       <et-al font-style="italic"/>
-      <label form="short" prefix="&#160;(" suffix=".)"/>
+      <label form="short" prefix=" (" suffix=".)"/>
     </names>
   </macro>
   <!-- MACRO TITLE, PAR TYPE DE DOCUMENT (ndbp et biblio)-->
   <macro name="title">
     <choose>
-      <!-- Pour les bill book legal_case report song motion_picture graphic thesis -->
-      <if type="bill book legal_case report song motion_picture graphic thesis" match="any">
+      <!-- Pour les book legal_case report song motion_picture graphic thesis -->
+      <if type="book legal_case report song motion_picture graphic thesis" match="any">
         <text variable="title" text-case="capitalize-first" font-style="italic"/>
       </if>
       <!-- Pour les personal_communication (lettres) -->
@@ -211,8 +211,8 @@
           </group>
         </group>
       </else-if>
-      <!-- Pour les webpage et weblog -->
-      <else-if type="webpage post-weblog" match="any">
+      <!-- Pour les webpage, weblog et forum -->
+      <else-if type="webpage post post-weblog" match="any">
         <text variable="container-title" font-style="italic" prefix=" sur "/>
       </else-if>
       <!-- Pour les présentations -->
@@ -231,7 +231,7 @@
   <!-- MACRO PUB-PLACE (ndbp)-->
   <macro name="pub-place-ndbp">
     <choose>
-      <if type="bill book chapter legal_case manuscript paper-conference" match="any">
+      <if type="book chapter legal_case manuscript paper-conference" match="any">
         <choose>
           <if variable="publisher-place" match="any">
             <text variable="publisher-place"/>
@@ -252,7 +252,7 @@
   <!-- MACRO PUB-PLACE (biblio)-->
   <macro name="pub-place-bib">
     <choose>
-      <if type="bill book chapter legal_case manuscript paper-conference" match="any">
+      <if type="book chapter legal_case manuscript paper-conference" match="any">
         <choose>
           <if variable="publisher-place" match="any">
             <text variable="publisher-place"/>
@@ -277,8 +277,8 @@
   <!-- MACRO DATE PAR TYPE DE DOCUMENT (ndbp)-->
   <macro name="date-ndbp">
     <choose>
-      <!-- Pour les article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript -->
-      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript" match="any">
+      <!-- Pour les article-journal article-newspaper article-magazine bill broadcast speech personal_communication interview manuscript -->
+      <if type="article-journal article-newspaper article-magazine bill broadcast speech personal_communication interview manuscript" match="any">
         <choose>
           <if variable="issued" match="any">
             <date variable="issued" form="text">
@@ -292,8 +292,8 @@
           </else>
         </choose>
       </if>
-      <!-- Pour les webpage post-weblog (comprend l'URL) -->
-      <else-if type="webpage post-weblog" match="any">
+      <!-- Pour les webpage post de forum et post-weblog (comprend l'URL) -->
+      <else-if type="webpage post post-weblog" match="any">
         <group delimiter=", ">
           <text variable="URL"/>
           <choose>
@@ -329,8 +329,8 @@
   <!-- MACRO DATE PAR TYPE DE DOCUMENT (biblio)-->
   <macro name="date-bib">
     <choose>
-      <!-- Pour les article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia -->
-      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia" match="any">
+      <!-- Pour les article-journal article-newspaper article-magazine bill broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia -->
+      <if type="article-journal article-newspaper article-magazine bill broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" ">
           <choose>
             <if variable="issued" match="any">
@@ -346,8 +346,8 @@
           </choose>
         </group>
       </if>
-      <!-- Pour les webpage post-weblog (comprend l'URL) -->
-      <else-if type="webpage post-weblog" match="any">
+      <!-- Pour les webpage post de forum et post-weblog (comprend l'URL) -->
+      <else-if type="webpage post post-weblog" match="any">
         <group delimiter=", ">
           <text variable="URL"/>
           <choose>
@@ -388,30 +388,50 @@
     </choose>
   </macro>
   <!-- MACRO URL/DOI (biblio seulement)-->
-  <!-- pour les webpage et post-weblog, l'URL est dans la macro date -->
+  <!-- pour les webpage post et post-weblog, l'URL est dans la macro date -->
   <macro name="url_doi">
     <choose>
-      <if type="article-journal article-newspaper article-magazine broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia paper-conference" match="any">
+      <if type="article-journal article-newspaper article-magazine bill broadcast speech personal_communication interview manuscript entry-dictionary entry-encyclopedia paper-conference" match="any">
+        <!-- le "choose" qui suit permet d'éviter l'affichage du DOI pour les ressources imprimées (de même que l'interface de Zotero permet de choisir d'afficher ou non l'URL pour les articles qui contiennent une indication de pages). Pour toujours afficher le DOI quand il est disponible, supprimer <choose><if variable="page" match="none">, les balises fermantes correspondantes, ainsi que l'alternative -->
         <choose>
-          <if variable="DOI" match="any">
-            <group delimiter=", " prefix="(DOI&#160;: " suffix=")">
-              <text variable="DOI"/>
-              <date variable="accessed" form="text" prefix="consulté le ">
-                <date-part name="day" form="ordinal"/>
-                <date-part name="month"/>
-                <date-part name="year"/>
-              </date>
-            </group>
+          <if variable="page" match="none">
+            <choose>
+              <if variable="DOI" match="any">
+                <group delimiter=", " prefix="(DOI&#160;: " suffix=")">
+                  <text variable="DOI"/>
+                  <date variable="accessed" form="text" prefix="consulté le ">
+                    <date-part name="day" form="ordinal"/>
+                    <date-part name="month"/>
+                    <date-part name="year"/>
+                  </date>
+                </group>
+              </if>
+              <else-if variable="URL" match="any">
+                <group delimiter=", " prefix="(en ligne&#160;: " suffix=")">
+                  <text variable="URL"/>
+                  <date variable="accessed" form="text" prefix="consulté le ">
+                    <date-part name="day" form="ordinal"/>
+                    <date-part name="month"/>
+                    <date-part name="year"/>
+                  </date>
+                </group>
+              </else-if>
+            </choose>
           </if>
-          <else-if variable="URL" match="any">
-            <group delimiter=", " prefix="(en ligne&#160;: " suffix=")">
-              <text variable="URL"/>
-              <date variable="accessed" form="text" prefix="consulté le ">
-                <date-part name="day" form="ordinal"/>
-                <date-part name="month"/>
-                <date-part name="year"/>
-              </date>
-            </group>
+          <else-if variable="page" match="any">
+            <choose>
+              <!-- temporarily, we do not allow DOI to appear when there is a page indication, because it couldn't be chosen by the user in Zotero settings, whether or not to display the information (as is the case for URL and accessed variables) -->
+              <if variable="URL" match="any">
+                <group delimiter=", " prefix="(en ligne&#160;: " suffix=")">
+                  <text variable="URL"/>
+                  <date variable="accessed" form="text" prefix="consulté le ">
+                    <date-part name="day" form="ordinal"/>
+                    <date-part name="month"/>
+                    <date-part name="year"/>
+                  </date>
+                </group>
+              </if>
+            </choose>
           </else-if>
         </choose>
       </if>
@@ -422,7 +442,7 @@
     <group delimiter=", ">
       <!-- édition -->
       <choose>
-        <if type="bill book legal_case report song chapter paper-conference" match="any">
+        <if type="book legal_case report song chapter paper-conference" match="any">
           <choose>
             <if is-numeric="edition">
               <group delimiter=" ">
@@ -435,7 +455,7 @@
             </else>
           </choose>
         </if>
-        <else-if type="motion_picture broadcast" match="any">
+        <else-if type="bill broadcast legislation report patent song" match="any">
           <group>
             <text term="issue" form="short" prefix="" suffix="&#160;"/>
             <text variable="number"/>
@@ -453,7 +473,7 @@
       </choose>
       <!-- type/genre -->
       <choose>
-        <if type="thesis manuscript personal_communication speech">
+        <if type="thesis manuscript personal_communication speech motion_picture">
           <text variable="genre"/>
         </if>
       </choose>
@@ -532,7 +552,7 @@
   <macro name="pages">
     <choose>
       <!-- Pour les textes qui sont déjà une partie d'ouvrage -->
-      <if type="article-journal article-newspaper article-magazine chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+      <if type="article-journal article-newspaper article-magazine bill chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <choose>
           <if variable="locator" match="any">
             <group delimiter="&#160;">
