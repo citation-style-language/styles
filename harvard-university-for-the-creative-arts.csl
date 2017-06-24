@@ -14,7 +14,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>University for the Creative Arts Harvard style</summary>
-    <updated>2017-06-19T14:14:37+00:00</updated>
+    <updated>2017-06-24T11:51:19+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -97,11 +97,11 @@
                   </if>
                 </choose>
                 <text macro="edition-no"/>
-                <group>
+                <group delimiter=": " suffix=".">
                   <choose>
-                    <if match="any" variable="collection-title">
-                      <text term="in" text-case="capitalize-first" suffix=": "/>
-                      <text variable="collection-title" font-style="normal" suffix="."/>
+                    <if type="song" match="any">
+                      <text term="in" text-case="capitalize-first"/>
+                      <text variable="collection-title"/>
                     </if>
                   </choose>
                 </group>
@@ -151,8 +151,10 @@
       </else-if>
       <else-if type="speech personal_communication" match="any">
         <group delimiter=" " prefix="[" suffix="]">
+          <names variable="recipient" prefix="Email sent to " suffix=",">
+            <name/>
+          </names>
           <text variable="genre" suffix=" "/>
-          <text variable="note"/>
           <text variable="event-place" suffix=":"/>
           <date form="text" variable="issued"/>
         </group>
@@ -189,37 +191,30 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="thesis">
-        <group delimiter=", ">
-          <text variable="publisher" suffix="."/>
-        </group>
+      <if match="any" variable="publisher">
+        <text variable="publisher" prefix=" " suffix="."/>
       </if>
-      <else-if type="manuscript">
-        <group delimiter=", ">
+      <else-if type="manuscript" match="any">
+        <group delimiter=". ">
+          <text variable="archive_location"/>
           <text variable="archive"/>
-          <group delimiter=". ">
-            <text variable="archive_location"/>
-            <text variable="publisher-place"/>
-          </group>
         </group>
       </else-if>
+      <else-if match="any" variable="URL"/>
       <else>
-        <choose>
-          <if match="any" variable="publisher" type="motion_picture broadcast report musical_score song entry-dictionary entry-encyclopedia">
-            <text variable="publisher" suffix="."/>
-          </if>
-          <else>
-            <text value="s.n." prefix="(" suffix=")."/>
-          </else>
-        </choose>
+        <text value="s.n." prefix=" (" suffix=")."/>
       </else>
     </choose>
   </macro>
   <macro name="publisher-place">
     <choose>
-      <if match="any" variable="publisher-place" type="broadcast motion_picture report musical_score song entry-dictionary entry-encyclopedia manuscript">
+      <if match="any" variable="publisher-place">
         <text variable="publisher-place"/>
       </if>
+      <else-if type="report entry-dictionary entry-encyclopedia motion_picture chapter speech song paper-conference article-journal book" match="all" variable="URL">
+        <text variable="publisher-place"/>
+      </else-if>
+      <else-if type="manuscript" match="any"/>
       <else>
         <text value="s.l." prefix="(" suffix=")"/>
       </else>
@@ -267,7 +262,7 @@
       <else-if type="patent">
         <text variable="number" suffix="."/>
       </else-if>
-      <else-if type="broadcast">
+      <else-if type="broadcast motion_picture">
         <choose>
           <if match="any" variable="collection-title container-title">
             <text term="in" text-case="capitalize-first" suffix=": "/>
@@ -355,14 +350,14 @@
       </if>
       <else-if type="book chapter paper-conference entry-dictionary entry-encyclopedia motion_picture report manuscript article bill map song" match="any">
         <group>
-          <text variable="event" suffix=". "/>
-          <group>
-            <text macro="publisher-place" suffix=": "/>
+          <text variable="event" suffix=" "/>
+          <group delimiter=":" suffix=".">
+            <text macro="publisher-place"/>
             <text macro="publisher"/>
-            <group>
-              <label prefix=". " variable="page" form="short"/>
-              <text variable="page" suffix="."/>
-            </group>
+          </group>
+          <group>
+            <label prefix="  " variable="page" form="short"/>
+            <text variable="page" suffix="."/>
           </group>
         </group>
       </else-if>
@@ -458,13 +453,11 @@
         </group>
         <text macro="legal-detail"/>
         <text macro="locator"/>
-        <group>
-          <choose>
-            <if type="map" match="any">
-              <text variable="collection-title" prefix="(" suffix=")"/>
-            </if>
-          </choose>
-        </group>
+        <choose>
+          <if type="map" match="any">
+            <text variable="collection-title" prefix="(" suffix=")"/>
+          </if>
+        </choose>
       </group>
       <text macro="online-access"/>
     </layout>
