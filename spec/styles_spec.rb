@@ -114,7 +114,7 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
                   "expected et-al-min (#{min}) and et-al-use-first (#{first}) to be of same type"
 
                 unless min.nil?
-                  expect(min.to_i).to be >= first.to_i,
+                  expect(min.to_i).to be > first.to_i,
                     "expected et-al-min (#{min}) to be greater than et-al-use-first (#{first})"
                 end
 
@@ -125,7 +125,7 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
                   "expected et-al-subsequent-min (#{min}) and et-al-subsequent-use-first (#{first}) to be of same type"
 
                 unless min.nil?
-                  expect(min.to_i).to be >= first.to_i,
+                  expect(min.to_i).to be > first.to_i,
                     "expected et-al-subsequent-min (#{min}) to be greater than et-al-subsequent-use-first (#{first})"
                 end
               end
