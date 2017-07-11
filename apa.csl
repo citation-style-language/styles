@@ -98,41 +98,58 @@
     </names>
   </macro>
   <macro name="author-short">
-    <names variable="author">
-      <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <choose>
-          <if type="report">
-            <text variable="publisher"/>
-            <text variable="title" form="short" font-style="italic"/>
-          </if>
-          <else-if type="legal_case">
-            <text variable="title" font-style="italic"/>
-          </else-if>
-          <else-if type="book graphic  motion_picture song" match="any">
-            <text variable="title" form="short" font-style="italic"/>
-          </else-if>
-          <else-if type="bill legislation" match="any">
-            <text variable="title" form="short"/>
-          </else-if>
-          <else-if variable="reviewed-author">
+    <choose>
+      <if type="patent" variable="number" match="all">
+        <text macro="patent-number"/>
+      </if>
+      <else>
+        <names variable="author">
+          <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
+          <substitute>
+            <names variable="editor"/>
+            <names variable="translator"/>
             <choose>
-              <if variable="reviewed-title" match="none">
-                <text variable="title" form="short" font-style="italic" prefix="Review of "/>
+              <if type="report">
+                <text variable="publisher"/>
+                <text variable="title" form="short" font-style="italic"/>
               </if>
+              <else-if type="legal_case">
+                <text variable="title" font-style="italic"/>
+              </else-if>
+              <else-if type="book graphic  motion_picture song" match="any">
+                <text variable="title" form="short" font-style="italic"/>
+              </else-if>
+              <else-if type="bill legislation" match="any">
+                <text variable="title" form="short"/>
+              </else-if>
+              <else-if variable="reviewed-author">
+                <choose>
+                  <if variable="reviewed-title" match="none">
+                    <text variable="title" form="short" font-style="italic" prefix="Review of "/>
+                  </if>
+                  <else>
+                    <text variable="title" form="short" quotes="true"/>
+                  </else>
+                </choose>
+              </else-if>
               <else>
                 <text variable="title" form="short" quotes="true"/>
               </else>
             </choose>
-          </else-if>
-          <else>
-            <text variable="title" form="short" quotes="true"/>
-          </else>
-        </choose>
-      </substitute>
-    </names>
+          </substitute>
+        </names>
+      </else>
+    </choose>
+  </macro>
+  <macro name="patent-number">
+    <!-- genre: U.S. Patent number: 123,445-->
+    <group delimiter=" ">
+      <group delimiter=" ">
+	<text variable="genre"/>
+	<text term="issue" form="short" text-case="capitalize-first"/>
+      </group>
+      <text variable="number"/>
+    </group>
   </macro>
   <macro name="access">
     <choose>
@@ -227,6 +244,9 @@
           </else>
         </choose>
       </else-if>
+      <else-if type="patent" variable="number" match="all">
+        <text macro="patent-number" font-style="italic"/>
+      </else-if>
       <else>
         <text variable="title"/>
       </else>
@@ -289,6 +309,19 @@
         <group delimiter=", ">
           <text variable="publisher"/>
           <text variable="publisher-place"/>
+        </group>
+      </else-if>
+      <else-if type="patent">
+        <group delimiter=": ">
+          <text variable="publisher-place"/>
+          <choose>
+            <if variable="publisher">
+              <text variable="publisher"/>
+            </if>
+            <else>
+              <text variable="authority"/>
+            </else>
+          </choose>
         </group>
       </else-if>
       <else-if type="post-weblog webpage" match="none">
