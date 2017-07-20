@@ -15,21 +15,13 @@
     <issn>0198-6325</issn>
     <eissn>1098-1128</eissn>
     <summary>Vancouver superscript style for SAGE modified to fit Medicinal Research Reviews guidelines.</summary>
-    <updated>2017-01-11T12:50:50+00:00</updated>
+    <updated>2017-07-20T20:10:33+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale>
-    <terms>
-      <term name="page" form="short">
-        <single>p</single>
-        <multiple>p</multiple>
-      </term>
-    </terms>
-  </locale>
   <macro name="author">
     <names variable="author" suffix=". ">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
-      <label form="short" prefix=" (" suffix=")" strip-periods="true"/>
+      <label form="short" text-case="capitalize-first" strip-periods="false" prefix=", "/>
       <substitute>
         <names variable="editor"/>
       </substitute>
@@ -38,7 +30,7 @@
   <macro name="editor">
     <names variable="editor">
       <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
-      <label strip-periods="true" prefix=", " suffix="."/>
+      <label form="short" text-case="capitalize-first" strip-periods="false" prefix=", " suffix="."/>
     </names>
   </macro>
   <macro name="date">
@@ -74,22 +66,19 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="page" match="none">
+      <if type="article-journal" match="any">
         <choose>
-          <if variable="DOI" match="any">
-            <group prefix=". " delimiter=". ">
-              <date variable="issued" form="text" prefix="Epub ahead of print "/>
-              <text variable="DOI" prefix="DOI: "/>
-            </group>
+          <if variable="page volume" match="none">
+            <text value="epub ahead of print" text-case="capitalize-first" prefix=" [" suffix="]"/>
           </if>
-          <else>
-            <group delimiter=" " prefix=". ">
-              <text variable="URL"/>
-              <text macro="accessed-date"/>
-            </group>
-          </else>
         </choose>
       </if>
+      <else-if type="webpage post-weblog" match="any">
+        <group delimiter=" " prefix=". ">
+          <text variable="URL"/>
+          <text macro="accessed-date"/>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="accessed-date">
@@ -115,21 +104,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="title">
-    <choose>
-      <if type="book patent report thesis" match="any">
-        <text variable="title"/>
-      </if>
-      <else>
-        <text variable="title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="page">
-    <group>
-      <text variable="page"/>
-    </group>
-  </macro>
+  <macro name="page"/>
   <macro name="edition">
     <choose>
       <if is-numeric="edition">
@@ -155,14 +130,14 @@
     <layout suffix=".">
       <text variable="citation-number" suffix=". "/>
       <text macro="author"/>
-      <text macro="title"/>
+      <text variable="title"/>
       <choose>
         <if type="bill book graphic legal_case legislation motion_picture patent report song thesis" match="any">
           <group delimiter=". " prefix=". ">
             <text macro="edition"/>
             <text macro="publisher"/>
             <group>
-              <text variable="number-of-pages" prefix=" "/>
+              <text variable="number-of-pages"/>
               <label prefix=" " variable="page" form="short"/>
             </group>
           </group>
@@ -177,15 +152,17 @@
               </group>
               <text macro="publisher"/>
             </group>
-            <label variable="page" form="short" prefix=" "/>
-            <text macro="page"/>
+            <group delimiter=" " prefix=" ">
+              <label variable="page" form="short" plural="never" strip-periods="true" />
+              <text variable="page"/>
+            </group>
           </group>
         </else-if>
         <else-if type="article-newspaper article-magazine" match="any">
           <group delimiter=", " prefix=". ">
             <text macro="container-title"/>
             <text macro="date"/>
-            <text macro="page"/>
+            <text variable="page"/>
           </group>
         </else-if>
         <else>
