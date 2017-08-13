@@ -14,7 +14,7 @@
     <category field="biology"/>
     <issn>1526-498X</issn>
     <eissn>1526-4998</eissn>
-    <updated>2017-08-13T11:07:37+00:00</updated>
+    <updated>2017-08-13T22:06:18+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -22,16 +22,6 @@
       <term name="available at">available</term>
     </terms>
   </locale>
-  <macro name="type-number">
-    <group delimiter=" ">
-      <choose>
-        <if type="patent" match="none">
-          <text variable="genre"/>
-        </if>
-      </choose>
-      <text variable="number"/>
-    </group>
-  </macro>
   <macro name="edition">
     <choose>
       <if is-numeric="edition">
@@ -47,14 +37,14 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <name initialize-with=". " delimiter=", " and="text"/>
-      <label form="short" prefix=", " text-case="title"/>
+      <label form="verb-short" suffix=" "/>
+      <name and="text" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
     </names>
   </macro>
   <macro name="author">
     <group>
       <names variable="author">
-        <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+        <name and="text" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
         <et-al font-style="italic"/>
         <label form="short" prefix=", "/>
         <substitute>
@@ -66,9 +56,7 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="report">
-        <text variable="title" quotes="true"/>
-      </if>
+      <if type="report"/>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <text variable="title"/>
         <text macro="edition"/>
@@ -94,9 +82,16 @@
   <macro name="access">
     <choose>
       <if type="webpage post-weblog">
-        <group delimiter=": ">
-          <text term="available at" text-case="capitalize-first"/>
+        <group delimiter=" ">
           <text variable="URL"/>
+          <group delimiter=" " prefix="[" suffix="]">
+            <text term="accessed"/>
+            <date variable="accessed">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" form="long" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </group>
         </group>
       </if>
     </choose>
@@ -110,13 +105,6 @@
   </macro>
   <macro name="issued-year">
     <date variable="issued" prefix=" (" suffix=")">
-      <date-part name="year"/>
-    </date>
-  </macro>
-  <macro name="accessed">
-    <date variable="accessed">
-      <date-part name="day" suffix=" "/>
-      <date-part name="month" form="long" suffix=" "/>
       <date-part name="year"/>
     </date>
   </macro>
@@ -156,19 +144,20 @@
       <text macro="author" suffix=", "/>
       <choose>
         <if type="webpage post-weblog">
-          <group delimiter=", ">
-            <text macro="title"/>
-            <text macro="container"/>
-            <text macro="issued"/>
+          <group delimiter=". ">
+            <group delimiter=", ">
+              <text macro="title"/>
+              <text macro="container"/>
+              <text macro="issued"/>
+            </group>
             <text macro="access"/>
           </group>
-          <text macro="accessed" prefix="[" suffix="]"/>
         </if>
         <else-if type="chapter">
           <group delimiter=", ">
             <text macro="title"/>
             <text macro="editor"/>
-            <text variable="container-title" prefix="[" suffix="]"/>
+            <text variable="container-title"/>
             <text macro="publisher"/>
             <group delimiter=" ">
               <label variable="page" form="short"/>
@@ -236,12 +225,13 @@
         <else>
           <group delimiter=", ">
             <text macro="title"/>
-            <text macro="type-number"/>
             <text macro="container"/>
             <text macro="editor"/>
             <text variable="page"/>
             <text macro="publisher"/>
           </group>
+          <text variable="number"/>
+          <text variable="genre"/>
           <text macro="issued-year"/>
           <text macro="access"/>
         </else>
