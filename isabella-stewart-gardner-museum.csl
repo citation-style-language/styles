@@ -12,7 +12,7 @@
     </author>
     <category citation-format="note"/>
     <category field="humanities"/>
-    <updated>2017-08-15T16:46:22+00:00</updated>
+    <updated>2017-08-16T09:36:05+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="citation-locator">
@@ -25,7 +25,6 @@
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <text variable="title"/>
       </substitute>
     </names>
   </macro>
@@ -115,25 +114,13 @@
     </choose>
   </macro>
   <macro name="volume-and-collection-title">
-    <choose>
-      <if variable="volume collection-title" match="all">
-        <group delimiter=" ">
-          <text term="volume" form="short" text-case="capitalize-first"/>
-          <number variable="volume"/>
-          <text value="of"/>
-          <text variable="collection-title" font-style="italic"/>
-        </group>
-      </if>
-      <else-if variable="volume">
-        <group delimiter=" ">
-          <text term="volume" form="short" text-case="capitalize-first"/>
-          <number variable="volume"/>
-        </group>
-      </else-if>
-      <else>
-        <text variable="collection-title"/>
-      </else>
-    </choose>
+    <group delimiter=", ">
+      <text variable="collection-title" font-style="italic"/>
+      <group delimiter=" ">
+        <text term="volume" form="short"/>
+        <number variable="volume"/>
+      </group>
+    </group>
   </macro>
   <macro name="technical-report">
     <choose>
@@ -152,6 +139,19 @@
       </if>
       <else>
         <text value="Technical report"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="series">
+    <choose>
+      <if match="any" variable="collection-title">
+        <group delimiter=" ">
+          <number form="ordinal" variable="collection-number"/>
+          <label variable="collection-number" form="short"/>
+        </group>
+      </if>
+      <else>
+        <text value="n.s."/>
       </else>
     </choose>
   </macro>
@@ -199,23 +199,49 @@
     </sort>
     <layout suffix=".">
       <group display="block" delimiter=" ">
-        <text macro="author-short" font-variant="normal"/>
+        <choose>
+          <if variable="author">
+            <names variable="author">
+              <name form="short"/>
+            </names>
+          </if>
+          <else-if match="any" variable="editor">
+            <names variable="editor">
+              <name form="short"/>
+            </names>
+          </else-if>
+          <else-if variable="translator">
+            <names variable="translator">
+              <name form="short"/>
+            </names>
+          </else-if>
+          <else>
+            <text variable="title"/>
+          </else>
+        </choose>
         <text macro="year-date"/>
       </group>
-      <group display="block">
+      <group display="block" delimiter=".">
         <choose>
-          <if type="book">
-            <text macro="author-or-editor" suffix="."/>
+          <if variable="author">
+            <names variable="author"/>
           </if>
+          <else-if match="any" variable="editor">
+            <names variable="editor"/>
+          </else-if>
+          <else-if match="any" variable="translator">
+            <names variable="translator"/>
+          </else-if>
           <else>
-            <text macro="author" suffix="."/>
+            <text variable="title"/>
           </else>
         </choose>
         <choose>
           <if type="article-journal">
-            <text variable="title" quotes="true" font-style="normal" prefix=" " suffix="."/>
+            <text variable="title" text-case="title" quotes="true" font-style="normal" prefix=" " suffix="."/>
             <group delimiter=" " prefix=" " suffix=".">
-              <text variable="container-title" font-style="italic"/>
+              <text variable="container-title" font-style="italic" suffix=","/>
+              <text macro="series" suffix=","/>
               <group delimiter=", ">
                 <group delimiter=" ">
                   <label text-case="capitalize-first" suffix=" " variable="volume" form="short"/>
@@ -231,21 +257,24 @@
             </group>
           </if>
           <else-if type="book">
-            <text variable="title" prefix=" " suffix="." font-style="italic"/>
-            <group delimiter=", " prefix=" " suffix=".">
-              <text macro="volume-and-collection-title"/>
-              <text macro="edition"/>
-            </group>
-            <group delimiter=", " prefix=" (" suffix=")">
-              <group delimiter=": ">
-                <text variable="publisher-place"/>
-                <text variable="publisher"/>
+            <group delimiter=" ">
+              <text variable="title" font-style="italic" text-case="title" prefix=" "/>
+              <group delimiter=", " prefix=" " suffix=".">
+                <text macro="volume-and-collection-title"/>
+                <text macro="edition"/>
               </group>
-              <text macro="year-date"/>
+              <text variable="note"/>
+              <group delimiter=", " prefix=" (" suffix=")">
+                <group delimiter=": ">
+                  <text variable="publisher-place"/>
+                  <text variable="publisher"/>
+                </group>
+                <text macro="year-date"/>
+              </group>
             </group>
           </else-if>
           <else-if type="chapter">
-            <text variable="title" quotes="true" prefix=" " suffix="."/>
+            <text variable="title" quotes="true" text-case="title" prefix=" " suffix="."/>
             <group delimiter=", " prefix=" " suffix=".">
               <text variable="container-title" font-style="italic"/>
               <text macro="editor"/>
@@ -256,6 +285,7 @@
                 <number variable="chapter-number"/>
               </group>
             </group>
+            <text variable="note" suffix=". "/>
             <group delimiter=", ">
               <group delimiter=", " prefix=" (" suffix=")">
                 <group delimiter=": ">
