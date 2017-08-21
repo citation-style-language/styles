@@ -11,8 +11,8 @@
     </author>
     <category citation-format="note"/>
     <category field="generic-base"/>
-    <summary>Chicago format adapted for FOM Hochschule with notes and bibliography. Adapted for use with Mendeley. Short titles for note references to be saved under "Notes" in Mendeley.</summary>
-    <updated>2017-08-17T13:39:00+00:00</updated>
+    <summary>Chicago format adapted for FOM Hochschule with notes and bibliography. Adapted for use with Mendeley. Short titles for note references to be saved under &quot;Notes&quot; in Mendeley.</summary>
+    <updated>2017-08-21T22:25:39+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -449,38 +449,42 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <choose>
-      <if type="thesis">
-        <text variable="publisher"/>
-      </if>
-      <else-if type="speech">
-        <text variable="event-place"/>
-      </else-if>
-      <else>
-        <group delimiter=": ">
-          <choose>
-            <if variable="publisher-place">
-              <text variable="publisher-place"/>
-            </if>
-            <else>
-              <text value="o. O."/>
-            </else>
-          </choose>
-          <choose>
-            <if variable="publisher">
-              <text variable="publisher"/>
-            </if>
-            <else>
-              <text value="o. V."/>
-            </else>
-          </choose>
-        </group>
-      </else>
-    </choose>
+    <group delimiter=": ">
+      <choose>
+        <if variable="publisher-place">
+          <text variable="publisher-place"/>
+        </if>
+        <else>
+          <text value="o. O."/>
+        </else>
+      </choose>
+      <choose>
+        <if variable="publisher">
+          <text variable="publisher"/>
+        </if>
+        <else>
+          <text value="o. V."/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="issued">
     <choose>
-      <if variable="issued">
+      <if type="webpage post-weblog" match="any">
+        <choose>
+          <if variable="issued">
+            <date variable="issued">
+              <date-part name="day" suffix="-"/>
+              <date-part name="month" form="numeric" suffix="-"/>
+              <date-part name="year"/>
+            </date>
+          </if>
+          <else>
+            <text value="keine Datumsangabe"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="issued">
         <choose>
           <if type="graphic report" match="any">
             <date variable="issued" form="text"/>
@@ -497,20 +501,6 @@
                 </else>
               </choose>
             </group>
-          </else-if>
-          <else-if type="webpage post-weblog" match="any">
-            <choose>
-              <if variable="issued">
-                <date variable="issued">
-                  <date-part name="day" suffix="-"/>
-                  <date-part name="month" form="numeric" suffix="-"/>
-                  <date-part name="year"/>
-                </date>
-              </if>
-              <else>
-                <text value="keine Datumsangabe"/>
-              </else>
-            </choose>
           </else-if>
           <else-if type="book bill chapter graphic legislation motion_picture paper-conference report song thesis" match="any">
             <date variable="issued">
@@ -538,7 +528,7 @@
             <date date-parts="year" form="text" variable="issued"/>
           </else>
         </choose>
-      </if>
+      </else-if>
       <else-if variable="status">
         <text variable="status"/>
       </else-if>
@@ -756,7 +746,7 @@
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
-      <else-if variable="publisher-place publisher" match="any">
+      <else-if type="book bill chapter graphic legislation motion_picture paper-conference report song thesis" match="any" >
         <group delimiter=", ">
           <choose>
             <if type="thesis">
@@ -788,9 +778,9 @@
           <text variable="URL"/>
           <group delimiter=" " prefix="(" suffix=")">
             <text term="accessed" text-case="capitalize-first"/>
-            <date variable="accessed">
-              <date-part name="day" suffix="-"/>
-              <date-part name="month" form="numeric" suffix="-"/>
+            <date variable="accessed" suffix=", MEZ">
+              <date-part name="day" form="numeric-leading-zeros" suffix="-"/>
+              <date-part name="month" form="numeric-leading-zeros" suffix="-"/>
               <date-part name="year"/>
             </date>
           </group>
@@ -846,6 +836,7 @@
             <text macro="contributors-short"/>
             <group delimiter=" ">
               <group delimiter=", ">
+			    <text variable="note"/>
                 <choose>
                   <if variable="issued">
                     <text macro="issued"/>
@@ -868,11 +859,9 @@
       </choose>
     </layout>
   </citation>
-  <bibliography subsequent-author-substitute="&#8212;&#8212;&#8212;" entry-spacing="0" hanging-indent="true">
+  <bibliography subsequent-author-substitute="———" entry-spacing="0" hanging-indent="true">
     <sort>
       <key macro="contributors-sort"/>
-      <key variable="title-short"/>
-      <key variable="genre"/>
       <key variable="issued"/>
     </sort>
     <layout>
@@ -887,7 +876,8 @@
                       <group delimiter=" ">
                         <text macro="contributors"/>
                         <group delimiter=", " prefix="(" suffix="):">
-                          <choose>
+                          <text variable="note"/>
+						  <choose>
                             <if variable="issued">
                               <date date-parts="year" form="text" variable="issued"/>
                             </if>
@@ -895,6 +885,7 @@
                               <text value="o. J."/>
                             </else>
                           </choose>
+						  
                         </group>
                         <text macro="title"/>
                       </group>
