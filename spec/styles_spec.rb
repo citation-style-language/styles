@@ -71,6 +71,16 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
         end
       end
 
+      it "must not use sentence case for title and container-title variables" do
+        style.descendants!.each do |node|
+          if node.matches?("text")
+            if node[:'text-case'] == 'sentence'
+              expect(node[:'variable']).not_to match(/^title|container-title$/)
+            end
+          end
+        end
+      end
+
       describe "name nodes" do
         it "must have valid et-al-min and et-al-use-first attributes" do
           style.each_descendant do |node|
@@ -104,7 +114,7 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
                   "expected et-al-min (#{min}) and et-al-use-first (#{first}) to be of same type"
 
                 unless min.nil?
-                  expect(min.to_i).to be >= first.to_i,
+                  expect(min.to_i).to be > first.to_i,
                     "expected et-al-min (#{min}) to be greater than et-al-use-first (#{first})"
                 end
 
@@ -115,7 +125,7 @@ shared_examples "style" do |basename, (filename, path, style, error), in_depende
                   "expected et-al-subsequent-min (#{min}) and et-al-subsequent-use-first (#{first}) to be of same type"
 
                 unless min.nil?
-                  expect(min.to_i).to be >= first.to_i,
+                  expect(min.to_i).to be > first.to_i,
                     "expected et-al-subsequent-min (#{min}) to be greater than et-al-subsequent-use-first (#{first})"
                 end
               end

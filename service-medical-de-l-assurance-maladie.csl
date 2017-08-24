@@ -11,10 +11,10 @@
       <email>pierre.morlanne-fendan@ersm-sudest.cnamts.fr</email>
       <uri>http://www.ameli.fr</uri>
     </author>
-    <category citation-format="numeric"/>
+    <category citation-format="author-date"/>
     <category field="medicine"/>
     <summary>Adaptation pour Zotero de l'adaptation de la norme de Vancouver en vigeur au Service Médical de l'Assurance Maladie</summary>
-    <updated>2016-09-19T09:55:19+00:00</updated>
+    <updated>2016-12-16T10:15:01+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -39,6 +39,7 @@
       <term name="accessed">consulté le</term>
       <term name="page" form="short">p</term>
       <term name="page-range-delimiter">-</term>
+      <term name="anonymous">anonyme</term>
     </terms>
   </locale>
   <macro name="auteur">
@@ -53,6 +54,28 @@
       <if type="patent" match="all">
         <text term="original-author" prefix=", "/>
       </if>
+    </choose>
+  </macro>
+  <macro name="auteur-court">
+    <names variable="author">
+      <name form="short" delimiter-precedes-last="never" initialize="false"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text macro="anonyme"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="date-annee">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
     </choose>
   </macro>
   <macro name="auteur-contenant">
@@ -288,20 +311,36 @@
       <date form="text" variable="accessed"/>
     </group>
   </macro>
-  <citation>
-    <sort>
-      <key variable="citation-number"/>
-    </sort>
-    <layout delimiter="," prefix="(" suffix=")">
-      <text variable="citation-number"/>
+  <macro name="anonyme">
+    <text term="anonymous" text-case="capitalize-first" strip-periods="true"/>
+  </macro>
+  <macro name="details-rapport">
+    <choose>
+      <if type="report">
+        <text variable="number" prefix="Rapport no "/>
+      </if>
+    </choose>
+  </macro>
+  <citation et-al-min="2" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true">
+    <layout delimiter="; " prefix="(" suffix=")">
+      <group delimiter=", ">
+        <group delimiter=", ">
+          <text macro="auteur-court"/>
+          <text macro="date-annee"/>
+        </group>
+        <group>
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </group>
     </layout>
   </citation>
-  <bibliography et-al-min="6" et-al-use-first="6" second-field-align="flush">
+  <bibliography et-al-min="7" et-al-use-first="6">
     <sort>
-      <key variable="citation-number"/>
+      <key variable="issued" sort="descending"/>
+      <key variable="author"/>
     </sort>
     <layout>
-      <text variable="citation-number" suffix=". "/>
       <choose>
         <if type="article article-journal article-magazine article-newspaper" match="any">
           <text macro="auteur" suffix=". "/>
@@ -311,6 +350,16 @@
           <text macro="localisation-revue" suffix=":"/>
           <text macro="pages" suffix="."/>
         </if>
+        <else-if type="report" match="any">
+          <text macro="auteur" suffix=". "/>
+          <text macro="titre" suffix=". "/>
+          <text macro="editeur" suffix=" "/>
+          <group suffix=". ">
+            <text macro="date"/>
+            <text macro="pages"/>
+          </group>
+          <text macro="details-rapport" suffix="."/>
+        </else-if>
         <else-if type="book" match="any">
           <text macro="auteur" suffix=". "/>
           <text macro="titre" suffix=". "/>
