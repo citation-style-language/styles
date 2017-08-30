@@ -4,6 +4,7 @@
     <title>U.S. Geological Survey</title>
     <id>http://www.zotero.org/styles/us-geological-survey</id>
     <link href="http://www.zotero.org/styles/us-geological-survey" rel="self"/>
+    <link href="http://www.nwrc.usgs.gov/techrpt/sta28.pdf" rel="documentation"/>
     <author>
       <name>Rintze Zelle</name>
       <uri>http://twitter.com/rintzezelle</uri>
@@ -11,24 +12,26 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
-    <category field="geology"/>
+    <contributor>
+      <name>Jason Bellino</name>
+    </contributor>
     <category citation-format="author-date"/>
-    <link href="http://www.nwrc.usgs.gov/techrpt/sta28.pdf" rel="documentation"/>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
-    <updated>2009-09-17T23:54:25+00:00</updated>
+    <category field="geology"/>
+    <updated>2017-05-05T11:43:00+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor-translator">
     <names variable="editor translator" prefix="(" suffix=")" delimiter=", ">
       <name and="symbol" initialize-with=". " delimiter=", "/>
       <et-al term="and others"/>
-      <label form="short" prefix=", " text-case="capitalize-first" suffix="." strip-periods="true"/>
+      <label form="short" prefix=", " text-case="capitalize-first"/>
     </names>
   </macro>
   <macro name="author">
     <names variable="author">
       <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with="." delimiter=", " delimiter-precedes-last="always"/>
       <et-al term="and others"/>
-      <label form="short" prefix=" (" suffix=".)" text-case="capitalize-first" strip-periods="true"/>
+      <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -43,14 +46,7 @@
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <choose>
-          <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-            <text variable="title" form="short" font-style="italic"/>
-          </if>
-          <else>
-            <text variable="title" form="short" quotes="true"/>
-          </else>
-        </choose>
+        <text variable="title" form="short"/>
       </substitute>
     </names>
   </macro>
@@ -60,7 +56,11 @@
       <text variable="publisher-place"/>
     </group>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true">
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="false">
+    <sort>
+      <key macro="author-short"/>
+      <key variable="issued"/>
+    </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <text macro="author-short"/>
@@ -68,15 +68,16 @@
           <date-part name="year"/>
         </date>
         <group>
-          <label variable="locator" suffix="." form="short" strip-periods="true"/>
+          <label variable="locator" form="short"/>
           <text variable="locator" prefix=" "/>
         </group>
       </group>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="15" et-al-use-first="15">
+  <bibliography hanging-indent="true" et-al-min="15" et-al-use-first="14">
     <sort>
       <key macro="author-short"/>
+      <key variable="issued"/>
       <key variable="title"/>
     </sort>
     <layout suffix=".">
@@ -88,28 +89,95 @@
       </group>
       <choose>
         <if type="report">
-          <text variable="title" prefix=" " suffix=":"/>
-          <text variable="publisher" prefix=" " suffix=","/>
-          <text variable="collection-title" prefix=" "/>
+          <group prefix=" " delimiter=", ">
+            <group delimiter=" ">
+              <text variable="title" suffix=":"/>
+              <text variable="publisher"/>
+              <text variable="collection-title"/>
+              <text variable="number"/>
+            </group>
+            <group>
+              <text variable="page" suffix=" "/>
+              <label variable="page" form="short" plural="never"/>
+            </group>
+            <group prefix=" ">
+              <text term="accessed"/>
+              <group prefix=" " suffix=",">
+                <date variable="accessed">
+                  <date-part name="month" form="long" suffix=" "/>
+                  <date-part name="day" form="numeric" suffix=", "/>
+                  <date-part name="year" form="long"/>
+                </date>
+              </group>
+              <group prefix=" ">
+                <text term="at"/>
+                <text variable="container-title" prefix=" "/>
+              </group>
+              <group prefix=" ">
+                <text term="at"/>
+                <text variable="URL" prefix=" "/>
+              </group>
+            </group>
+          </group>
         </if>
-        <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <else-if variable="version" type="book" match="all">
+          <group prefix=" " delimiter=", ">
+            <!--
+                -This is a hack until we have a computer program type
+                -->
+            <text variable="title"/>
+            <group prefix=" " delimiter=" ">
+              <text term="version"/>
+              <text variable="version"/>
+            </group>
+            <text variable="URL"/>
+          </group>
+        </else-if>
+        <else-if type="bill book graphic legal_case legislation motion_picture song" match="any">
           <group suffix=":">
             <text variable="title" prefix=" "/>
             <text macro="editor-translator" prefix=" "/>
           </group>
-          <text prefix=" " suffix="." macro="publisher"/>
+          <group prefix=" " suffix="." delimiter=", ">
+            <text variable="collection-title"/>
+            <text macro="publisher"/>
+            <text variable="number-of-pages" suffix=" p."/>
+          </group>
+        </else-if>
+        <else-if type="webpage">
+          <group prefix=" " delimiter=", ">
+            <text variable="title"/>
+            <group delimiter=" ">
+              <text term="accessed"/>
+              <date variable="accessed">
+                <date-part name="month" form="long" suffix=" "/>
+                <date-part name="day" form="numeric" suffix=", "/>
+                <date-part name="year" form="long"/>
+              </date>
+            </group>
+            <group delimiter=" ">
+              <group delimiter=" ">
+                <text term="at"/>
+                <text variable="container-title"/>
+              </group>
+              <group delimiter=" ">
+                <text term="at"/>
+                <text variable="URL"/>
+              </group>
+            </group>
+          </group>
         </else-if>
         <else-if type="chapter paper-conference" match="any">
           <text variable="title" prefix=" "/>
           <group prefix=", ">
-            <text term="in" text-case="lowercase" font-style="italic"/>
+            <text term="in" font-style="italic"/>
             <names variable="editor translator" prefix=" " suffix="," delimiter=", ">
               <name and="text" sort-separator=", " initialize-with="." name-as-sort-order="all"/>
               <et-al term="and others"/>
-              <label form="short" prefix=" " suffix="." text-case="lowercase" strip-periods="true"/>
+              <label form="short" prefix=" "/>
             </names>
-            <text variable="container-title" prefix=" " suffix=","/>
-            <text variable="collection-title" prefix=" " suffix=","/>
+            <text variable="event" prefix=" " suffix=" &#8211;"/>
+            <text variable="container-title" prefix=" " suffix=":"/>
             <group suffix=".">
               <text macro="publisher" prefix=" "/>
               <group prefix=", ">
@@ -123,18 +191,23 @@
           <text variable="collection-title" prefix=": "/>
           <text variable="note" prefix=", scale "/>
         </else-if>
+        <else-if type="speech">
+          <text variable="title" prefix=" " suffix=":"/>
+          <text variable="event" prefix=" "/>
+          <text variable="event-place" prefix=", "/>
+        </else-if>
         <else>
           <group suffix=":">
             <text variable="title" prefix=" "/>
             <text macro="editor-translator" prefix=" "/>
           </group>
-          <group prefix=" " suffix=".">
-            <text variable="container-title" suffix=","/>
-            <group prefix=" ">
+          <group prefix=" " suffix="." delimiter=", ">
+            <text variable="container-title"/>
+            <group delimiter=", ">
               <text variable="volume" prefix="v. "/>
-              <text variable="issue" prefix=", no. "/>
+              <text variable="issue" prefix="no. "/>
             </group>
-            <text variable="page" prefix=", p. "/>
+            <text variable="page" prefix="p. "/>
           </group>
         </else>
       </choose>
