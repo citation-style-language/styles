@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" page-range-format="chicago" default-locale="de-DE">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" default-locale="de-DE">
   <info>
     <title>FOM Hochschule für Oekonomie und Management</title>
     <id>http://www.zotero.org/styles/fom-hochschule-fuer-oekonomie-und-management</id>
@@ -11,8 +11,8 @@
     </author>
     <category citation-format="note"/>
     <category field="generic-base"/>
-    <summary>Chicago format adapted for FOM Hochschule with notes and bibliography. Adapted for use with Mendeley. Short titles for note references to be saved under "Notes" in Mendeley.</summary>
-    <updated>2017-08-21T22:25:39+00:00</updated>
+    <summary>Chicago format adapted for FOM Hochschule with notes and bibliography.</summary>
+    <updated>2017-09-03T17:36:37+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -58,7 +58,7 @@
   </macro>
   <macro name="secondary-contributors">
     <choose>
-      <if type="chapter paper-conference" match="none">
+      <if type="chapter paper-conference book" match="none">
         <names variable="editor translator" delimiter=". ">
           <name name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
           <label form="short" prefix=" (" suffix=")"/>
@@ -449,24 +449,40 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter=": ">
-      <choose>
-        <if variable="publisher-place">
-          <text variable="publisher-place"/>
-        </if>
-        <else>
-          <text value="o. O."/>
-        </else>
-      </choose>
-      <choose>
-        <if variable="publisher">
-          <text variable="publisher"/>
-        </if>
-        <else>
-          <text value="o. V."/>
-        </else>
-      </choose>
-    </group>
+    <choose>
+      <if type="book" match="any">
+        <group delimiter=": ">
+          <choose>
+            <if variable="publisher-place">
+              <text variable="publisher-place"/>
+            </if>
+            <else>
+              <text value="o. O."/>
+            </else>
+          </choose>
+          <choose>
+            <if variable="publisher">
+              <text variable="publisher"/>
+            </if>
+            <else>
+              <text value="o. V."/>
+            </else>
+          </choose>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="issued-note">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text value="o. J."/>
+      </else>
+    </choose>
   </macro>
   <macro name="issued">
     <choose>
@@ -474,9 +490,9 @@
         <choose>
           <if variable="issued">
             <date variable="issued">
-              <date-part name="day" suffix="-"/>
-              <date-part name="month" form="numeric" suffix="-"/>
               <date-part name="year"/>
+              <date-part name="month" form="numeric" prefix="-"/>
+              <date-part name="day" prefix="-"/>
             </date>
           </if>
           <else>
@@ -779,9 +795,9 @@
           <group delimiter=" " prefix="(" suffix=")">
             <text term="accessed" text-case="capitalize-first"/>
             <date variable="accessed" suffix=", MEZ">
-              <date-part name="day" form="numeric-leading-zeros" suffix="-"/>
-              <date-part name="month" form="numeric-leading-zeros" suffix="-"/>
               <date-part name="year"/>
+              <date-part name="month" form="numeric-leading-zeros" prefix="-"/>
+              <date-part name="day" form="numeric-leading-zeros" prefix="-"/>
             </date>
           </group>
         </group>
@@ -800,8 +816,11 @@
   </macro>
   <macro name="locator-note">
     <choose>
-      <if type="article-journal book chapter webpage post-weblog" match="any">
-        <text variable="page"/>
+      <if type="article-journal book chapter webpage post-weblog " match="any">
+        <group delimiter=" ">
+          <label variable="page" form="short"/>
+          <text variable="page"/>
+        </group>
       </if>
       <else>
         <text value="o. S."/>
@@ -826,6 +845,13 @@
       </if>
     </choose>
   </macro>
+  <macro name="chapter-number">
+    <choose>
+      <if type="book">
+        <text variable="chapter-number"/>
+      </if>
+    </choose>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
     <sort>
       <key variable="issued"/>
@@ -846,15 +872,8 @@
             <text macro="contributors-short"/>
             <group delimiter=" ">
               <group delimiter=", ">
-                <text variable="note"/>
-                <choose>
-                  <if variable="issued">
-                    <text macro="issued"/>
-                  </if>
-                  <else>
-                    <text value="o. J."/>
-                  </else>
-                </choose>
+                <text variable="title-short"/>
+                <text macro="issued-note"/>
                 <text macro="locator-note"/>
                 <text macro="case-locator-subsequent"/>
               </group>
@@ -876,9 +895,9 @@
       <key variable="issued"/>
     </sort>
     <layout>
-      <group delimiter=", ">
+      <group delimiter=" ">
         <group delimiter=", ">
-          <group delimiter=", ">
+          <group delimiter=" ">
             <group>
               <group delimiter=", ">
                 <group delimiter=", ">
@@ -887,7 +906,7 @@
                       <group delimiter=" ">
                         <text macro="contributors"/>
                         <group delimiter=", " prefix="(" suffix="):">
-                          <text variable="note"/>
+                          <text variable="title-short"/>
                           <choose>
                             <if variable="issued">
                               <date date-parts="year" form="text" variable="issued"/>
@@ -903,7 +922,7 @@
                       <text macro="secondary-contributors"/>
                       <group delimiter=" ">
                         <text macro="container-title"/>
-                        <text variable="chapter-number"/>
+                        <text macro="chapter-number"/>
                         <choose>
                           <if type="bill legislation legal_case" match="none">
                             <group delimiter=", ">
