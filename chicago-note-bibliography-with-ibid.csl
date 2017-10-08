@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="display-and-sort" page-range-format="chicago">
   <info>
-    <title>Chicago Manual of Style 16th edition (note, no Ibid.)</title>
-    <id>http://www.zotero.org/styles/chicago-note-biblio-no-ibid</id>
-    <link href="http://www.zotero.org/styles/chicago-note-biblio-no-ibid" rel="self"/>
+    <title>Chicago Manual of Style 17th edition (note with ibid)</title>
+    <id>http://www.zotero.org/styles/chicago-note-bibliography-with-ibid</id>
+    <link href="http://www.zotero.org/styles/chicago-note-bibliography-with-ibid" rel="self"/>
     <link href="http://www.chicagomanualofstyle.org/tools_citationguide.html" rel="documentation"/>
     <author>
       <name>Julian Onions</name>
@@ -25,9 +25,12 @@
       <name>Andrew Dunning</name>
       <email>andrew.dunning@utoronto.ca</email>
     </contributor>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
     <category citation-format="note"/>
     <category field="generic-base"/>
-    <summary>Chicago format with short notes and bibliography, no ibid</summary>
+    <summary>Chicago format with short notes and bibliography</summary>
     <updated>2012-10-25T21:15:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
@@ -234,7 +237,7 @@
       <if variable="title" match="none">
         <text variable="genre"/>
       </if>
-      <else-if type="book graphic motion_picture song" match="any">
+      <else-if type="book graphic map motion_picture song" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
         <group delimiter=" " prefix=", ">
           <text term="version"/>
@@ -341,6 +344,14 @@
           <text variable="genre"/>
         </else>
       </choose>
+      <choose>
+        <if type="map">
+          <text variable="scale"/>
+        </if>
+        <else-if type="graphic">
+          <text variable="dimensions"/>
+        </else-if>
+      </choose>
     </group>
   </macro>
   <macro name="description">
@@ -362,6 +373,14 @@
           <text variable="genre" text-case="capitalize-first"/>
         </else>
       </choose>
+      <choose>
+        <if type="map">
+          <text variable="scale"/>
+        </if>
+        <else-if type="graphic">
+          <text variable="dimensions"/>
+        </else-if>
+      </choose>
     </group>
   </macro>
   <macro name="container-title-note">
@@ -372,9 +391,15 @@
         </if>
       </choose>
       <choose>
-        <if type="bill legislation legal_case" match="none">
-          <text variable="container-title" text-case="title" font-style="italic"/>
+        <if type="webpage">
+          <text variable="container-title"/>
         </if>
+        <else-if type="post-weblog">
+          <text variable="container-title" text-case="title" font-style="italic" suffix=" (blog)"/>
+        </else-if>      
+        <else-if type="bill legislation legal_case" match="none">
+          <text variable="container-title" text-case="title" font-style="italic"/>
+        </else-if>
       </choose>
     </group>
   </macro>
@@ -386,9 +411,15 @@
         </if>
       </choose>
       <choose>
-        <if type="bill legislation legal_case" match="none">
-          <text variable="container-title" text-case="title" font-style="italic"/>
+        <if type="webpage">
+          <text variable="container-title"/>
         </if>
+        <else-if type="post-weblog">
+          <text variable="container-title" text-case="title" font-style="italic" suffix=" (blog)"/>
+        </else-if>
+        <else-if type="bill legislation legal_case" match="none">
+          <text variable="container-title" text-case="title" font-style="italic"/>
+        </else-if>
       </choose>
     </group>
   </macro>
@@ -1013,6 +1044,18 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="issue-map-graphic">
+    <!--See CMoS 17th ed. 14.235 and 14.237-->
+    <choose>
+      <if type="graphic map" match="any">
+        <choose>
+          <if variable="publisher publisher-place" match="none">
+            <text macro="issued"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <macro name="issue-note">
     <choose>
       <if type="bill legislation legal_case" match="any">
@@ -1031,14 +1074,8 @@
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
-      <else-if variable="publisher-place event-place publisher genre" match="any">
+      <else-if variable="publisher-place event-place publisher" match="any">
         <group prefix="(" suffix=")" delimiter=", ">
-          <choose>
-            <if variable="title" match="none"/>
-            <else-if type="manuscript thesis speech" match="any">
-              <text variable="genre"/>
-            </else-if>
-          </choose>
           <text macro="event-note"/>
           <group delimiter="; ">
             <text macro="originally-published"/>
@@ -1049,6 +1086,26 @@
           </group>
           <text macro="issued"/>
         </group>
+      </else-if>
+      <else-if variable="title" match="none">
+        <choose>
+          <if variable="genre">
+            <choose>
+              <if type="manuscript thesis speech" match="any">
+                <group delimiter=", " prefix="(" suffix=")">
+                  <text variable="genre"/>
+                  <text macro="issued"/>
+                </group>           
+              </if>
+              <else>
+                <text macro="issued"/>
+              </else>
+            </choose>
+          </if>
+          <else>
+            <text macro="issued"/>
+          </else>
+        </choose>
       </else-if>
       <else>
         <text macro="issued"/>
@@ -1149,9 +1206,10 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <else>
+      <!--location for data for maps and artwork is different-->
+      <else-if type="graphic map" match="none">
         <text macro="issued"/>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="access-note">
@@ -1176,7 +1234,7 @@
         <if type="legal_case" match="none">
           <choose>
             <if variable="DOI">
-              <text variable="DOI" prefix="doi:"/>
+              <text variable="DOI" prefix="https://doi.org/"/>
             </if>
             <else>
               <text variable="URL"/>
@@ -1208,7 +1266,7 @@
         <if type="legal_case" match="none">
           <choose>
             <if variable="DOI">
-              <text variable="DOI" prefix="doi:"/>
+              <text variable="DOI" prefix="https://doi.org/"/>
             </if>
             <else>
               <text variable="URL"/>
@@ -1248,23 +1306,36 @@
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true">
     <layout suffix="." delimiter="; ">
-      <group delimiter=", ">
-        <text macro="contributors-short"/>
-        <group delimiter=" ">
+      <choose>
+        <if position="ibid-with-locator">
           <group delimiter=", ">
-            <text macro="title-short"/>
-            <!--if title & author are the same: -->
-            <text macro="date-disambiguate"/>
-            <text macro="case-locator-subsequent"/>
-          </group>
-          <text macro="case-pinpoint-subsequent"/>
-        </group>
-        <choose>
-          <if match="none" type="legal_case">
+            <text term="ibid"/>
             <text macro="point-locators-subsequent"/>
-          </if>
-        </choose>
-      </group>
+          </group>
+        </if>
+        <else-if position="ibid">
+          <text term="ibid"/>
+        </else-if>
+        <else>
+          <group delimiter=", ">
+            <text macro="contributors-short"/>
+            <group delimiter=" ">
+              <group delimiter=", ">
+                <text macro="title-short"/>
+                <!--if title & author are the same: -->
+                <text macro="date-disambiguate"/>
+                <text macro="case-locator-subsequent"/>
+              </group>
+              <text macro="case-pinpoint-subsequent"/>
+            </group>
+            <choose>
+              <if match="none" type="legal_case">
+                <text macro="point-locators-subsequent"/>
+              </if>
+            </choose>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="11" et-al-use-first="7" subsequent-author-substitute="&#8212;&#8212;&#8212;" entry-spacing="0">
@@ -1286,6 +1357,7 @@
                       <group delimiter=". ">
                         <text macro="contributors"/>
                         <text macro="title"/>
+                        <text macro="issue-map-graphic"/>
                       </group>
                       <text macro="description"/>
                       <text macro="secondary-contributors"/>
