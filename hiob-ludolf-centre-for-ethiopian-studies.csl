@@ -10,31 +10,36 @@
       <name>Eugenia Sokolinski</name>
       <email>eugenia.sokolinski@uni-hamburg.de</email>
     </author>
+    <contributor>
+      <name>Alessandro Bausi</name>
+      <email>alessandro.bausi@uni-hamburg.de</email>
+    </contributor>
+    <contributor>
+      <name>Pietro Liuzzo</name>
+      <email>pietro.liuzzo@uni-hamburg.de</email>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="humanities"/>
-    <updated>2016-03-30T21:24:28+00:00</updated>
+    <updated>2017-10-02T08:36:15+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-GB">
     <terms>
-      <term name="ordinal">th</term>
-      <term name="ordinal-01">st</term>
-      <term name="ordinal-02">nd</term>
-      <term name="ordinal-03">rd</term>
-      <term name="ordinal-04">th</term>
-      <term name="ordinal-11">th</term>
-      <term name="ordinal-12">th</term>
-      <term name="ordinal-13">th</term>
       <term name="available at">see</term>
       <term name="editor" form="short">
         <single>ed.</single>
         <multiple>eds</multiple>
       </term>
+      <term name="translator" form="short">tr.</term>
+      <term name="editortranslator" form="short">
+        <single>ed., tr.</single>
+        <multiple>eds, trans.</multiple>
+      </term>
     </terms>
   </locale>
   <macro name="container-contributors">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter entry-encyclopedia paper-conference" match="any">
         <names variable="editor translator" delimiter=", " prefix=" ">
           <name and="text" initialize-with="."/>
           <label form="short" prefix=", " suffix=","/>
@@ -44,15 +49,11 @@
   </macro>
   <macro name="secondary-contributors">
     <choose>
-      <if type="chapter paper-conference" match="none">
+      <if type="chapter entry-encyclopedia paper-conference" match="none">
         <group delimiter=", " prefix=", ">
-          <names variable="editor" delimiter=", ">
-            <label form="short" plural="never" suffix=" "/>
+          <names variable="editor translator" delimiter=", ">
+            <label form="short" suffix=" "/>
             <name and="text" initialize-with="." sort-separator=""/>
-          </names>
-          <names variable="translator">
-            <label form="short" plural="always" suffix=" "/>
-            <name initialize-with="." sort-separator=""/>
           </names>
         </group>
       </if>
@@ -60,12 +61,22 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name and="text" delimiter-precedes-et-al="never" et-al-subsequent-min="3" initialize-with="." name-as-sort-order="first"/>
+      <name and="text" delimiter-precedes-et-al="never" initialize-with="." name-as-sort-order="first"/>
       <label form="short" text-case="lowercase" prefix=", " suffix=","/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
         <text macro="title"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-with-initials">
+    <names variable="author">
+      <name and="text" delimiter-precedes-et-al="never" initialize-with="." sort-separator=" "/>
+      <label form="short" text-case="lowercase" prefix=", " suffix=","/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
       </substitute>
     </names>
   </macro>
@@ -91,8 +102,7 @@
       <if type="webpage">
         <choose>
           <if match="any" variable="URL">
-            <group prefix=" (" suffix=")">
-              <text term="available at" suffix=" "/>
+            <group prefix=" " suffix="">
               <text variable="URL" prefix="&lt;" suffix="&gt;"/>
               <choose>
                 <if variable="accessed">
@@ -113,10 +123,14 @@
   <macro name="title">
     <choose>
       <if type="report webpage" match="any">
-        <text variable="title" quotes="true"/>
-        <group prefix=" " suffix=" ">
+        <text variable="title" font-style="italic"/>
+        <group prefix=" (" suffix=") ">
           <text variable="genre"/>
-          <text variable="number" prefix=" No. "/>
+          <choose>
+            <if variable="number">
+              <text variable="number" prefix=" No. "/>
+            </if>
+          </choose>
         </group>
       </if>
       <else-if type="bill book graphic legal_case legislation manuscript motion_picture report song speech webpage thesis" match="any">
@@ -130,13 +144,13 @@
   <macro name="publisher">
     <choose>
       <if type="thesis" match="any">
-        <group delimiter=", " prefix="(" suffix=")">
-          <text value="Diss."/>
+        <group suffix="">
+          <text variable="genre" suffix=", "/>
           <group delimiter=": ">
             <text variable="publisher-place"/>
             <text variable="publisher"/>
           </group>
-          <date date-parts="year" form="text" variable="issued"/>
+          <date date-parts="year" form="text" variable="issued" prefix=" (" suffix=")"/>
         </group>
       </if>
       <else>
@@ -193,14 +207,18 @@
   </macro>
   <macro name="issued">
     <choose>
-      <if variable="issued">
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
+      <if type="webpage" match="none">
+        <choose>
+          <if variable="issued">
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </if>
+          <else>
+            <text term="no date" form="short"/>
+          </else>
+        </choose>
       </if>
-      <else>
-        <text term="no date" form="short"/>
-      </else>
     </choose>
   </macro>
   <macro name="issued-year">
@@ -224,7 +242,7 @@
         </group>
       </if>
       <else>
-        <text variable="edition" suffix="."/>
+        <text variable="edition"/>
       </else>
     </choose>
   </macro>
@@ -260,7 +278,7 @@
   <macro name="container-phrase">
     <group>
       <choose>
-        <if type="chapter" match="any">
+        <if type="chapter entry-encyclopedia paper-conference" match="any">
           <text term="in" suffix=" "/>
         </if>
       </choose>
@@ -272,13 +290,30 @@
       <key macro="issued-year"/>
     </sort>
     <layout delimiter="; ">
-      <group delimiter=", ">
-        <group delimiter=" ">
-          <text macro="author-short"/>
-          <text macro="issued-year"/>
-        </group>
-        <text macro="citation-locator"/>
-      </group>
+      <choose>
+        <if type="entry-encyclopedia">
+          <group delimiter=", ">
+            <text variable="title" quotes="true"/>
+            <text variable="title-short" font-style="italic"/>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text macro="issued-year" prefix=" (" suffix=")"/>
+            </group>
+            <text variable="page"/>
+            <text macro="citation-locator"/>
+          </group>
+          <text macro="author-with-initials" prefix=" (" suffix=")"/>
+        </if>
+        <else>
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <text macro="author-short"/>
+              <text macro="issued-year"/>
+            </group>
+            <text macro="citation-locator"/>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <bibliography entry-spacing="1" line-spacing="1" hanging-indent="true">
@@ -287,6 +322,17 @@
       <key macro="issued-year" sort="ascending"/>
     </sort>
     <layout>
+      <choose>
+        <if type="book" match="any">
+          <choose>
+            <if variable="title-short" match="any">
+              <group suffix=". ">
+                <text variable="title-short"/>
+              </group>
+            </if>
+          </choose>
+        </if>
+      </choose>
       <group suffix=".">
         <text macro="author"/>
         <text macro="issued" prefix=" " suffix="."/>
@@ -305,6 +351,11 @@
               <if type="article article-journal article-magazine article-newspaper" match="any">
                 <text value=","/>
               </if>
+              <else-if type="paper-conference" match="any">
+                <group prefix=", ">
+                  <number variable="volume"/>
+                </group>
+              </else-if>
               <else>
                 <group prefix=", ">
                   <number variable="volume" form="ordinal"/>
@@ -316,7 +367,7 @@
             <text variable="collection-title"/>
             <number variable="collection-number"/>
           </group>
-          <text macro="locators" prefix=" "/>
+          <text macro="locators" prefix=", "/>
         </group>
         <group delimiter=", " prefix=" ">
           <text macro="event"/>
