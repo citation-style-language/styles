@@ -95,7 +95,7 @@
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" text-case="capitalize-first" font-style="italic"/>
+         <text variable="title" text-case="capitalize-first" font-style="italic"/>
       </if>
       <else-if type="article article-journal" match="any">
         <group delimiter=", ">
@@ -112,13 +112,9 @@
           </group>
         </group>
       </else-if>
-      <else-if type="thesis" match="any">
-        <text variable="title" text-case="capitalize-first" quotes="true"/>
+      <else-if type="thesis report manuscript" match="any">
+        <text variable="title" text-case="capitalize-first" quotes="true" suffix=", " font-style="italic"/>
         <text variable="genre" suffix=", "/>
-      </else-if>
-      <else-if type="manuscript" match="any">
-        <text variable="title" text-case="capitalize-first" quotes="true" suffix=", "/>
-        <text variable="genre" prefix=" " suffix=", "/>
       </else-if>
       <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <group suffix=", ">
@@ -168,24 +164,28 @@
             <text variable="locator"/>
           </group>
           <group>
-            <text variable="number-of-pages" suffix="&amp;#8239;"/>
+            <text variable="number-of-pages" suffix="&amp;#160;"/>
             <label variable="number-of-pages" form="short"/>
           </group>
         </group>
       </if>
       <else-if type="manuscript thesis report" match="any">
-        <group delimiter=", ">
-          <group delimiter=", ">
+        <group>
+          <group>
             <text variable="number-of-volumes" form="short" suffix="&amp;#160;"/>
-            <text term="volume" form="short" suffix="."/>
+            <text term="volume" form="short" suffix="., "/>
           </group>
           <group>
-            <label suffix=" (inédit) " variable="locator" form="short"/>
-            <text variable="locator"/>
+            <label variable="locator" form="short"/>
+            <text variable="locator" suffix=", "/>
           </group>
           <group>
-            <text variable="number-of-pages" suffix="&amp;#8239;"/>
+            <text variable="number-of-pages" prefix="inédit, " suffix="&amp;#160;"/>
             <label variable="number-of-pages" form="short"/>
+          </group>
+           <group>
+            <text variable="page" prefix="inédit, " suffix="&amp;#160;"/>
+            <label variable="page" form="short"/>
           </group>
         </group>
       </else-if>
@@ -198,16 +198,16 @@
           </group>
           <group>
             <label variable="page" form="short"/>
-            <text variable="page" prefix="p.&amp;#8239;"/>
+            <text variable="page" prefix="&amp;#160;"/>
           </group>
         </group>
       </else-if>
-      <else-if type="article-magazine article-newspaper article-journal" match="any">
+      <else-if type="article-magazine article-newspaper article-journal article" match="any">
         <choose>
           <if match="any" is-numeric="page">
             <group>
               <label variable="page" form="short"/>
-              <text variable="page" prefix="&amp;#8239;"/>
+              <text variable="page" prefix="&amp;#160;"/>
             </group>
           </if>
           <else>
@@ -218,14 +218,17 @@
     </choose>
   </macro>
   <macro name="collection">
-    <group delimiter=", " prefix="(coll. " suffix=")">
+    <group delimiter=" ">
       <text variable="collection-title" font-weight="normal"/>
+      <group>
+      <text term="issue" form="short"  prefix=" " suffix=" "/>
       <text variable="collection-number"/>
+      </group>
     </group>
   </macro>
   <macro name="edition">
     <choose>
-      <if type="bill book chapter graphic legal_case legislation motion_picture song report" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture song report" match="any">
         <choose>
           <if match="any" is-numeric="edition">
             <group delimiter=" ">
@@ -239,6 +242,16 @@
         </choose>
         <text macro="issue" prefix=", "/>
       </if>
+      <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
+       <group delimiter=", ">
+       <text variable="publisher-place" font-style="italic"/>
+       </group>
+      </else-if>
+      <else-if type="manuscript thesis report" match="any">
+       <group delimiter=", ">
+       <text variable="publisher-place" font-weight="normal"/>
+       </group>
+      </else-if>
       <else-if type="article-magazine article-newspaper" match="any">
         <group delimiter=" ">
           <text macro="voljournal" font-weight="normal"/>
@@ -324,7 +337,7 @@
   <bibliography>
     <sort>
       <key macro="author" names-min="3" names-use-first="3"/>
-      <key variable="issued" sort="descending"/>
+      <key variable="issued" sort="ascending"/>
       <key variable="page-first"/>
       <key variable="title"/>
     </sort>
@@ -332,14 +345,14 @@
       <group display="block">
         <text macro="author-bib"/>
       </group>
-      <group display="left-margin">
-        <text macro="year-date" suffix="&amp;#160;:&amp;#8194;"/>
+      <group>
+        <text macro="year-date" suffix="&amp;#160;: "/>
       </group>
       <group delimiter=", ">
         <text macro="title"/>
         <text macro="edition"/>
-        <text macro="publisher"/>
         <text macro="collection"/>
+        <text macro="publisher"/>
         <text macro="vol-pages"/>
       </group>
     </layout>
