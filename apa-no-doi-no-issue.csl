@@ -300,6 +300,7 @@
             <text variable="genre" text-case="capitalize-first"/>
           </if>
           <else>
+            <!-- This should be localized -->
             <text value="Data set"/>
           </else>
         </choose>
@@ -447,7 +448,9 @@
     <choose>
       <if variable="issued">
         <group delimiter="/">
-          <date variable="original-date" form="text"/>
+          <date variable="original-date">
+            <date-part name="year"/>
+          </date>
           <group>
             <date variable="issued">
               <date-part name="year"/>
@@ -649,12 +652,31 @@
   </macro>
   <macro name="original-date">
     <choose>
-      <if variable="original-date">
-        <group prefix="(" suffix=")" delimiter=" ">
-          <!---This should be localized-->
-          <text value="Original work published"/>
-          <date variable="original-date" form="text"/>
-        </group>
+      <if type="bill legal_case legislation" match="none">
+        <choose>
+          <if variable="original-date">
+            <group prefix=" (" suffix=")" delimiter=" ">
+              <!---This should be localized-->
+              <text value="Original work published"/>
+              <choose>
+                <if type="speech" match="any">
+                  <date variable="original-date" delimiter=" ">
+                    <date-part name="month"/>
+                    <date-part name="year"/>
+                  </date>
+                </if>
+                <else-if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song dataset" match="none">
+                  <date variable="original-date" form="text"/>
+                </else-if>
+                <else>
+                  <date variable="original-date">
+                    <date-part name="year"/>
+                  </date>
+                </else>
+              </choose>
+            </group>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
