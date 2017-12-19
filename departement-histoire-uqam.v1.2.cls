@@ -2,8 +2,8 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" default-locale="fr-FR" version="1.0" page-range-format="expanded">
   <info>
     <title>Département Histoire UQAM</title>
-    <id>http://www.zotero.org/styles/departement-histoire-uqam.v1.2</id>
-    <link href="http://www.zotero.org/styles/departement-histoire-uqam.v1.2" rel="self"/>
+    <id>http://www.zotero.org/styles/departement-histoire-uqam-v12</id>
+    <link href="http://www.zotero.org/styles/departement-histoire-uqam-v12" rel="self"/>
     <author>
       <name>Patrice Fiset</name>
       <email>fiset.patrice@courrier.uqam.ca</email>
