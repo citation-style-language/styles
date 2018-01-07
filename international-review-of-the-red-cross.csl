@@ -18,7 +18,7 @@
     <category field="sociology"/>
     <issn>1816-3831</issn>
     <eissn>1607-5889</eissn>
-    <updated>2018-01-04T18:29:44+00:00</updated>
+    <updated>2018-01-06T00:42:59+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -40,7 +40,7 @@
   </locale>
   <macro name="author">
     <names variable="author">
-      <name and="text" initialize-with="." delimiter=", "/>
+      <name and="text" initialize="false" initialize-with="."/>
       <et-al font-style="italic"/>
       <label form="short" strip-periods="false" prefix=" (" suffix=")"/>
       <substitute>
@@ -76,9 +76,12 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case motion_picture report song" match="any">
+      <if type="book graphic legal_case motion_picture report song" match="any">
         <text variable="title" font-style="italic"/>
       </if>
+      <else-if type="bill legislation treaty" match="any">
+        <text variable="title"/>
+      </else-if>
       <else>
         <text variable="title" quotes="true"/>
       </else>
@@ -90,7 +93,7 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="paper-conference">
+      <if type="paper-conference" match="all">
         <group delimiter=" ">
           <text term="presented at"/>
           <text variable="event"/>
@@ -183,7 +186,7 @@
       <group delimiter=", ">
         <choose>
           <if match="any" position="ibid-with-locator">
-            <group>
+            <group delimiter=", ">
               <text term="ibid"/>
               <text macro="pageref-subsequent"/>
             </group>
@@ -192,7 +195,7 @@
             <text term="ibid"/>
           </else-if>
           <else-if position="subsequent">
-            <group>
+            <group delimiter=", ">
               <group>
                 <choose>
                   <if match="any" variable="author">
@@ -208,19 +211,60 @@
                   <text macro="title"/>
                 </if>
               </choose>
-              <text value="above note"/>
-              <text variable="first-reference-note-number" prefix=" "/>
+              <group delimiter=" ">
+                <text value="above note"/>
+                <text variable="first-reference-note-number" prefix=" "/>
+              </group>
               <choose>
                 <if match="any" locator="page chapter">
-                  <text macro="pageref-subsequent" prefix=", "/>
+                  <text macro="pageref-subsequent"/>
                 </if>
               </choose>
+            </group>
+          </else-if>
+          <else-if type="treaty legislation" match="any">
+            <group delimiter=", ">
+              <text macro="title"/>
+              <text variable="container-title"/>
+              <date delimiter=" " variable="issued">
+                <date-part name="day"/>
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>
+              <text variable="note" prefix="(entered into force " suffix=")"/>
+            </group>
+          </else-if>
+          <else-if type="bill" match="any">
+            <group>
+              <text variable="container-title"/>
+              <text variable="number"/>
+              <date delimiter=" " variable="issued">
+                <date-part name="day"/>
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>
+              <text macro="pageref"/>
+            </group>
+          </else-if>
+          <else-if type="legal_case" match="any">
+            <group delimiter=", ">
+              <text variable="authority"/>
+              <text macro="title"/>
+              <text variable="number" prefix="Case No. "/>
+              <text variable="references"/>
+              <text variable="note"/>
+              <date delimiter=" " variable="issued">
+                <date-part name="day"/>
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>
+              <text macro="pageref"/>
             </group>
           </else-if>
           <else>
             <text macro="author"/>
             <choose>
-              <if type="report thesis" match="any">
+              <if type="report thesis manuscript" match="any">
                 <group delimiter=", ">
                   <text macro="title"/>
                   <text variable="genre"/>
@@ -231,7 +275,7 @@
                 <text macro="date"/>
                 <text macro="pageref"/>
               </if>
-              <else-if type="bill book graphic legal_case motion_picture song" match="any">
+              <else-if type="book graphic motion_picture song" match="any">
                 <group delimiter=", ">
                   <text macro="title"/>
                   <text macro="editor-translator"/>
@@ -241,7 +285,7 @@
                   <text macro="volref"/>
                 </group>
                 <group delimiter=", ">
-                  <group delimiter=", " prefix=", ">
+                  <group delimiter=", ">
                     <text macro="publisher"/>
                     <text macro="date"/>
                   </group>
@@ -258,7 +302,7 @@
                   <text macro="volumes"/>
                 </group>
                 <group delimiter=", ">
-                  <group delimiter=", " prefix=", ">
+                  <group delimiter=", ">
                     <text macro="publisher"/>
                     <text macro="date"/>
                   </group>
