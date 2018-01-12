@@ -792,40 +792,65 @@
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true">
     <layout suffix="." delimiter="; ">
       <choose>
-        <if position="ibid-with-locator">
-          <group delimiter=", ">
-            <text term="ibid"/>
-            <text macro="point-locators-subsequent"/>
-          </group>
+        <!-- Lexicon/Dictionary/Encyclopedia -->
+        <if type="entry-dictionary entry-encyclopedia" match="any">
+          <choose>
+            <if match="none" variable="author">
+              <!-- Unsigned Lexicon/Dictionary/Encyclopedia -->
+              <text macro="unsigned-dictionary-note"/>
+            </if>
+            <else>
+              <!-- Signed Lexicon/Dictionary/Encyclopedia -->
+              <text macro="signed-dictionary-note"/>
+            </else>
+          </choose>
         </if>
-        <else-if position="ibid">
-          <text term="ibid"/>
-        </else-if>
-        <else-if position="subsequent">
-          <group delimiter=", ">
-            <text macro="contributors-short"/>
-            <text macro="title-short"/>
-            <text macro="disambiguate-chapter"/>
-            <text macro="point-locators-subsequent"/>
-          </group>
-        </else-if>
-        <else>
-          <group delimiter=", ">
-            <text macro="contributors-note"/>
-            <text macro="title-note"/>
-            <text macro="description-note"/>
-            <text macro="secondary-contributors-note"/>
-            <text macro="container-title-note"/>
-            <text macro="container-contributors-note"/>
-            <text macro="locators-note"/>
-            <text macro="collection-title-note"/>
-            <text macro="collection-editor-note"/>
-          </group>
-          <text macro="issue-note"/>
-          <text macro="locators-newspaper" prefix=", "/>
-          <text macro="point-locators"/>
-          <text macro="access-note" prefix=", "/>
-        </else>
+        <!-- Not Lexicon/Dictionary/Encyclopedia -->
+            <else-if position="subsequent">
+                  <group delimiter=", ">
+                    <text macro="contributors-short"/>
+                    <!-- Implements conditional check to exclude title in ibid entries (see CMS 14.34) -->
+                    <choose>
+                      <if type="post-weblog">
+                        <text macro="title-short"/>
+                      </if>
+                      <else-if position="ibid" match="none">
+                        <text macro="title-short"/>
+                        <text macro="disambiguate-chapter"/>
+                      </else-if>
+                    </choose>
+                    <text macro="point-locators-subsequent"/>
+                  </group>
+            </else-if>
+            <else>
+              <group delimiter=", ">
+                <text macro="contributors-note"/>
+                <text macro="title-note"/>
+                <text macro="description-note"/>
+                <text macro="secondary-contributors-note"/>
+                <text macro="container-title-note"/>
+                <text macro="container-contributors-note"/>
+                <choose>
+                  <if variable="volume collection-title" match="all">
+                  <!--If Volume # and collection-title -->
+                      <group delimiter=" ">
+                      <!--Added group to prevent comma between vol # of...and collection-title-->
+                        <text macro="locators-note"/>
+                        <text macro="collection-title-note"/>
+                      </group>
+                  </if>
+                  <else>
+                    <text macro="locators-note"/>
+                    <text macro="collection-title-note"/>
+                  </else>
+                </choose>
+                <text macro="collection-editor-note"/>
+              </group>
+              <text macro="issue-note"/>
+              <text macro="locators-newspaper" prefix=", "/>
+              <text macro="point-locators"/>
+              <text macro="access-note" prefix=", "/>
+            </else>
       </choose>
     </layout>
   </citation>
