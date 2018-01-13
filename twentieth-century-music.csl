@@ -14,9 +14,14 @@
     <category field="history"/>
     <issn>1478-5722</issn>
     <eissn>1478-5730</eissn>
-    <updated>2018-01-12T16:25:36+00:00</updated>
+    <updated>2018-01-13T15:28:43+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="presented at">presented at the conference</term>
+    </terms>
+  </locale>
   <macro name="editor-translator">
     <group delimiter=", ">
       <choose>
@@ -40,8 +45,8 @@
       <choose>
         <if variable="author editor" match="any">
           <names variable="translator" delimiter=", ">
-            <name delimiter=", "/>
-            <label form="short" text-case="lowercase" strip-periods="true" prefix=" (" suffix=") "/>
+            <label form="short" text-case="lowercase" strip-periods="false"/>
+            <name prefix=" "/>
           </names>
         </if>
       </choose>
@@ -134,7 +139,7 @@
   </macro>
   <macro name="contributors-short">
     <names variable="author">
-      <name form="short" initialize-with="."/>
+      <name form="short" and="text" initialize-with="."/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -208,11 +213,8 @@
           </else-if>
         </choose>
       </if>
-      <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" form="short"/>
-      </else-if>
       <else>
-        <text variable="title" form="short" quotes="true"/>
+        <text variable="title" form="short" quotes="false" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -247,12 +249,14 @@
   <macro name="container-title">
     <choose>
       <if type="legal_case" match="none">
-        <choose>
-          <if type="chapter paper-conference" match="any">
-            <text term="in" suffix=" "/>
-          </if>
-        </choose>
-        <text variable="container-title" text-case="title" font-style="italic"/>
+        <group delimiter=" ">
+          <choose>
+            <if type="chapter" match="any">
+              <text term="in"/>
+            </if>
+          </choose>
+          <text variable="container-title" text-case="title" font-style="italic"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -309,20 +313,32 @@
     </choose>
   </macro>
   <macro name="event">
-    <group>
+    <group prefix=", ">
       <text term="presented at" suffix=" "/>
-      <text variable="event"/>
+      <text variable="event" font-style="italic"/>
     </group>
   </macro>
   <macro name="publisher">
     <choose>
       <if type="article-newspaper" match="any">
-        <text variable="publisher"/>
-      </if>
-      <else>
-        <group delimiter=": ">
-          <text variable="publisher-place"/>
+        <group delimiter=", " prefix="(" suffix=")">
           <text variable="publisher"/>
+          <text macro="issued"/>
+        </group>
+      </if>
+      <else-if type="paper-conference" match="any">
+        <group delimiter=", ">
+          <text variable="publisher-place"/>
+          <text macro="issued"/>
+        </group>
+      </else-if>
+      <else>
+        <group delimiter=", " prefix="(" suffix=")">
+          <group delimiter=": ">
+            <text variable="publisher-place"/>
+            <text variable="publisher"/>
+          </group>
+          <text macro="issued"/>
         </group>
       </else>
     </choose>
@@ -352,6 +368,12 @@
           <else-if type="article-journal">
             <date variable="issued" prefix="(" suffix=")">
               <date-part name="year"/>
+            </date>
+          </else-if>
+          <else-if type="paper-conference" match="any">
+            <date form="text" variable="issued">
+              <date-part name="month"/>
+              <date-part name="year" prefix=" "/>
             </date>
           </else-if>
           <else>
@@ -450,9 +472,8 @@
             </choose>
             <text macro="event"/>
           </group>
-          <group delimiter=", " prefix="(" suffix=")">
+          <group delimiter=", ">
             <text macro="publisher"/>
-            <text macro="issued"/>
           </group>
         </group>
       </else-if>
@@ -532,6 +553,7 @@
             <text macro="contributors-short"/>
             <text macro="title-short"/>
             <text macro="point-locators-subsequent" suffix="."/>
+            <text macro="issued"/>
           </group>
         </if>
         <else>
