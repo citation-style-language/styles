@@ -37,6 +37,7 @@
           <single>ed.</single>
           <multiple>eds.</multiple>
       </term>
+      <term name="collection-editor" form="verb">edited by</term>
     </terms>
   </locale>
   <macro name="editor-translator">
@@ -95,6 +96,14 @@
       <label form="short" suffix=" "/>
       <name and="text" sort-separator=", " delimiter=", "/>
     </names>
+  </macro>
+  <macro name="collection-editor">
+    <group delimiter=", " prefix=". "><!--TODO: Refactor? Bib uses prefix whereas CSL style prefers groups with delimeters.-->
+      <names variable="collection-editor" delimiter=", ">
+        <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
+        <name and="text" delimiter=", "/>
+      </names>
+    </group>
   </macro>
   <macro name="translator-note">
     <names variable="translator">
@@ -323,8 +332,32 @@
     </choose>
   </macro>
   <macro name="collection-title">
-    <text variable="collection-title" form="short" text-case="title"/>
-    <text variable="collection-number" prefix=" "/>
+    <!--TODO: Macro is identical to collection-title-note. Seperate macros not needed?-->
+    <choose>
+      <if variable="volume number-of-volumes" match="any">
+      <!-- Presence of Volume info indicates multivolume work rather than series -->
+          <choose>
+            <!--TODO: Is this needed? Creates double "in".-->
+            <!--TODO: Determine best location.-->
+            <!--This section required here rather than in title-note because the group delimiter inserts an unneeded comma otherwise-->
+            <if type="chapter" variable="container-title" match="all"> <!--Filter SBL 6.2.23-->
+            </if>
+            <else-if type="chapter" variable="collection-title" match="all"> <!--Filter SBL 6.2.22-->
+              <group>
+                <text term="volume" form="short" suffix=" "/>
+                <number variable="volume" form="numeric"/>
+                <text value=" of "/>
+              </group>
+            </else-if>
+          </choose>
+        <text variable="collection-title" form="short" text-case="title" font-style="italic"/>
+        <text variable="collection-number" prefix=" "/>
+      </if>
+      <else>
+        <text variable="collection-title" form="short" text-case="title"/>
+        <text variable="collection-number" prefix=" "/>
+      </else>
+    </choose>
   </macro>
   <macro name="collection-title-note">
     <choose>
@@ -351,11 +384,24 @@
   </macro>
   <macro name="container-title">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <!-- Added dictionary and encyclopedia to get page and volume information TODO: Refactor as no longer needed?-->
+      <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" " suffix=" ">
           <label variable="page" form="long" text-case="capitalize-first"/>
           <text variable="page"/>
           <text term="in"/>
+          <choose>
+            <!-- Added dictionary and encyclopedia to get volume information TODO: Refactor?-->
+            <if type="entry-dictionary entry-encyclopedia" match="any">
+              <choose>
+                <if match="any" variable="volume">
+                  <label suffix=" " variable="volume" form="short"/>
+                  <number variable="volume"/>
+                  <text value="of" suffix=" "/>
+                </if>
+              </choose>
+            </if>
+          </choose>
         </group>
       </if>
     </choose>
@@ -454,15 +500,48 @@
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group prefix=". " delimiter=". ">
-          <group>
-            <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-            <number variable="volume" form="numeric"/>
-          </group>
-          <group>
-            <number variable="number-of-volumes" form="numeric"/>
-            <text term="volume" form="short" prefix=" " plural="true"/>
-          </group>
+          <!--Repositioned Edition to proceed volume-->
           <text macro="edition"/>
+          <choose>
+            <if variable="volume"><!--If volume-->
+                <choose>
+                    <if type="book" variable="collection-title" match="all"> <!--SBL 6.2.21-->
+                          <group>
+                            <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                            <number variable="volume" form="numeric"/>
+                            <text value=" of"/>
+                          </group>
+                    </if>
+                    <else-if type="chapter" variable="container-title" match="all"> <!--SBL 6.2.23-->
+                          <group>
+                            <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                            <number variable="volume" form="numeric"/>
+                            <text value=" of"/>
+                          </group>
+                    </else-if>
+                    <else-if variable="locator page" match="none">
+                      <group>
+                        <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                        <number variable="volume" form="numeric"/>
+                      </group>
+                    </else-if>
+                  </choose>
+            </if>
+            <else>
+              <group>
+                <number variable="number-of-volumes" form="numeric"/>
+                <text term="volume" form="short" prefix=" " plural="true"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </else-if>
+
+      <!-- Added dictionary and encyclopedia to properly display volume information TODO: Refactor?-->
+      <else-if type="entry-dictionary entry-encyclopedia">
+        <group prefix=". ">
+          <number variable="number-of-volumes" form="numeric"/>
+          <text term="volume" form="short" prefix=" " plural="true"/>
         </group>
       </else-if>
     </choose>
@@ -704,7 +783,7 @@
           </else>
         </choose>
         <text macro="event" prefix=" "/>
-        <text variable="event-place" prefix=", "/>
+        <text variable="event-place" prefix=". "/>
         <text macro="issued" prefix=", "/>
       </else-if>
       <else-if variable="publisher-place publisher" match="any">
@@ -789,6 +868,16 @@
       </else>
     </choose>
   </macro>
+  <macro name="signed-dictionary-bib">
+    <group delimiter="">
+      <group delimiter=". ">
+        <text macro="contributors"/>
+        <text macro="title-note"/>
+        <text macro="container-title-note"/>
+      </group>
+      <text macro="point-locators"/>
+    </group>
+  </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true">
     <layout suffix="." delimiter="; ">
       <choose>
@@ -861,20 +950,47 @@
       <key variable="genre"/>
     </sort>
     <layout suffix=".">
-      <group delimiter=". ">
-        <text macro="contributors"/>
-        <text macro="title"/>
-        <text macro="description"/>
-        <text macro="secondary-contributors"/>
-        <text macro="container-title"/>
-        <text macro="container-contributors"/>
-      </group>
-      <text macro="locators"/>
-      <text macro="collection-title" text-case="title" prefix=". "/>
-      <text macro="issue"/>
-      <text macro="locators-newspaper" prefix=", "/>
-      <text macro="locators-journal"/>
-      <text macro="access" prefix=". "/>
+      <choose>
+        <!-- Dictionary -->
+        <if type="entry-dictionary entry-encyclopedia" match="any">
+          <choose>
+            <if match="none" variable="author">
+              <!-- Unsigned Not Listed -->
+            </if>
+            <else>
+              <!-- Signed -->
+              <text macro="signed-dictionary-bib"/>
+            </else>
+          </choose>
+        </if>
+        <!-- Not Dictionary -->
+        <else>
+            <group delimiter=". ">
+              <text macro="contributors"/>
+              <text macro="title"/>
+              <text macro="description"/>
+              <text macro="secondary-contributors"/>
+              <text macro="container-title"/>
+              <text macro="container-contributors"/>
+            </group>
+            <choose>
+              <if variable="volume collection-title" match="all">
+              <!--If Volume # and collection-title -->
+                  <text macro="locators"/>
+                  <text macro="collection-title" text-case="title" prefix=" "/>
+              </if>
+              <else>
+                <text macro="locators"/>
+                <text macro="collection-title" text-case="title" prefix=". "/>
+              </else>
+            </choose>
+            <text macro="collection-editor"/>
+            <text macro="issue"/>
+            <text macro="locators-newspaper" prefix=", "/>
+            <text macro="locators-journal"/>
+            <text macro="access" prefix=". "/>
+        </else>
+      </choose>
     </layout>
   </bibliography>
 </style>
