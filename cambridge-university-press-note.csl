@@ -13,7 +13,7 @@
     </author>
     <category citation-format="note"/>
     <category field="generic-base"/>
-    <updated>2018-01-11T14:53:30+00:00</updated>
+    <updated>2018-01-15T14:34:39+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -31,6 +31,17 @@
     <names variable="author">
       <name form="short" and="text" delimiter=", "/>
       <label form="short" prefix=", " strip-periods="true"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text macro="title"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-bibliography">
+    <names variable="author">
+      <name and="text" initialize-with=". " name-as-sort-order="first"/>
+      <label form="short" strip-periods="false" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -109,7 +120,10 @@
   </macro>
   <macro name="volref">
     <group delimiter=" ">
-      <text variable="volume"/>
+      <group delimiter="/">
+        <text variable="volume"/>
+        <text variable="issue"/>
+      </group>
       <text macro="date" prefix="(" suffix=")"/>
     </group>
   </macro>
@@ -205,10 +219,63 @@
                 </else>
               </choose>
             </group>
-            <text macro="pageref" prefix=", "/>
+            <text macro="pageref"/>
           </group>
         </else>
       </choose>
     </layout>
   </citation>
+  <bibliography>
+    <layout suffix="." delimiter="; ">
+      <group delimiter=", ">
+        <text macro="author-bibliography"/>
+        <text macro="title"/>
+        <group>
+          <choose>
+            <if type="article-journal" match="any">
+              <group delimiter=", ">
+                <text macro="container"/>
+                <text macro="volref"/>
+                <text macro="pageno"/>
+              </group>
+            </if>
+            <else-if type="chapter paper-conference" match="any">
+              <group delimiter=", " prefix=" ">
+                <text macro="container"/>
+                <text macro="publisher"/>
+                <text macro="pageno"/>
+              </group>
+            </else-if>
+            <else-if type="book" match="any">
+              <group delimiter=" ">
+                <group delimiter=", ">
+                  <text macro="volumes"/>
+                  <text macro="edition"/>
+                </group>
+                <group delimiter=", ">
+                  <text macro="publisher"/>
+                  <text macro="volume"/>
+                </group>
+              </group>
+            </else-if>
+            <else-if type="thesis" match="any">
+              <group delimiter=", ">
+                <text variable="container-title"/>
+                <text variable="genre"/>
+                <group delimiter=" ">
+                  <text macro="publisher"/>
+                  <date form="text" date-parts="year-month-day" variable="issued"/>
+                </group>
+              </group>
+            </else-if>
+            <else>
+              <text macro="publisher"/>
+              <text macro="date" prefix="(" suffix=")"/>
+            </else>
+          </choose>
+        </group>
+        <text macro="pageref"/>
+      </group>
+    </layout>
+  </bibliography>
 </style>
