@@ -14,7 +14,7 @@
     </author>
     <category citation-format="note"/>
     <category field="law"/>
-    <updated>2018-01-17T15:22:30+00:00</updated>
+    <updated>2018-01-18T13:16:08+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -40,7 +40,7 @@
   </macro>
   <macro name="author-bibliography">
     <names variable="author">
-      <name form="short" and="text" initialize-with=". " name-as-sort-order="first"/>
+      <name and="text" initialize-with=". " name-as-sort-order="first"/>
       <label form="short" strip-periods="false" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
@@ -92,9 +92,16 @@
     </choose>
   </macro>
   <macro name="date">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
+    <choose>
+      <if type="webpage post-weblog" match="any">
+        <date date-parts="year-month" form="text" variable="issued"/>
+      </if>
+      <else>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </else>
+    </choose>
   </macro>
   <macro name="volume">
     <group delimiter=" ">
@@ -184,9 +191,11 @@
           </group>
         </if>
         <else>
-          <group>
-            <text macro="author" suffix=", "/>
-            <text macro="title"/>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="author"/>
+              <text macro="title"/>
+            </group>
             <group>
               <choose>
                 <if type="article-journal" match="any">
@@ -243,7 +252,7 @@
       <key macro="author-bibliography"/>
       <key macro="date"/>
     </sort>
-    <layout suffix=".">
+    <layout>
       <group delimiter=" ">
         <text macro="author-bibliography" suffix=","/>
         <text macro="title"/>
@@ -287,9 +296,15 @@
               </group>
             </else-if>
             <else-if type="webpage post-weblog" match="any">
-              <group>
-                <text macro="date"/>
-                <text variable="URL"/>
+              <group delimiter=", ">
+                <group delimiter=", ">
+                  <text macro="date"/>
+                  <text variable="URL"/>
+                  <group delimiter=" ">
+                    <text term="accessed"/>
+                    <date form="text" variable="accessed"/>
+                  </group>
+                </group>
               </group>
             </else-if>
             <else>
