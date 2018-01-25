@@ -8,14 +8,13 @@
     <link href="http://www.springer.com/cda/content/document/cda_downloaddocument/Key_Style_Points_1.0.pdf" rel="documentation"/>
     <link href="https://www.ligue.org/uploads/documents/Cycle%202017/Springer%20Instructions%20for%20Authors_%20Law.pdf" rel="documentation"/>
     <link href="https://doi.org/10.1007/978-981-10-6129-5_1" rel="documentation"/>
-    <!-- Citations in published chapters differ from documentation - year is given in parentheses -->
     <contributor>
       <name>Brenton M. Wiernik</name>
     </contributor>
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Springer note style for law and related disciplines.</summary>
-    <updated>2015-03-07T12:00:00+00:00</updated>
+    <updated>2018-01-25T12:31:41+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -77,20 +76,19 @@
   </macro>
   <macro name="bibliography">
     <choose>
-      <!-- = Court, Name of the case, Date, [Issue] Journal Title, Number, Locators -->
       <if type="legal_case">
         <group delimiter=", ">
           <text variable="authority"/>
           <text variable="title"/>
-          <date variable="issued" delimiter=" ">
-            <date-part name="day" prefix="Judgment of "/>
+          <text variable="number"/>
+          <date delimiter=" " variable="issued" prefix="Judgment of ">
+            <date-part name="day"/>
             <date-part name="month"/>
             <date-part name="year"/>
           </date>
           <group delimiter=" ">
             <text variable="volume" prefix="[" suffix="]"/>
-            <text variable="container-title" form="short" strip-periods="true"/>
-            <text variable="number"/>
+            <text variable="container-title" form="short" strip-periods="false"/>
           </group>
         </group>
       </if>
@@ -101,10 +99,6 @@
           <text macro="title"/>
         </group>
         <choose>
-          <!--    Book chapter
-               Brown B, Aaron M (2001) The politics of nature.
-               In: Smith J (ed) The rise of modern genomics, 3rd edn.
-               Wiley, New York, pp 230-257 -->
           <if type="chapter paper-conference" match="any">
             <group delimiter=" " prefix=". ">
               <text term="in" text-case="capitalize-first" suffix=":"/>
@@ -129,14 +123,6 @@
           <else-if type="article-journal">
             <choose>
               <if variable="page volume" match="any">
-                <!--    Journal article
-                     Gamelin FX, Baquet G, Berthoin S, Thevenet D, Nourry C, Nottin S, Bosquet L (2009)
-                     Effect of high intensity intermittent training on heart rate variability in prepubescent children.
-                     Eur J Appl Physiol 105:731-738. doi: 10.1007/s00421-008-0955-8
-                     Ideally, the names of all authors should be provided, but the usage of "et al"
-                     in long author lists will also be accepted:
-                     Smith J, Jones M Jr, Houghton L et al (1999)
-                     Future of health insurance. N Engl J Med 965:325-329   -->
                 <group prefix=". ">
                   <group delimiter=" ">
                     <text variable="container-title" form="short" strip-periods="true"/>
@@ -149,9 +135,6 @@
                 </group>
               </if>
               <else>
-                <!--    Article by DOI
-         Slifka MK, Whitton JL (2000) Clinical implications of dysregulated cytokine production.
-         J Mol Med. doi:10.1007/s001090000086     -->
                 <group prefix=". " delimiter=". ">
                   <text variable="container-title" form="short" strip-periods="true"/>
                   <text prefix="doi: " variable="DOI"/>
@@ -160,19 +143,12 @@
             </choose>
           </else-if>
           <else-if type="bill book graphic legislation motion_picture report song" match="any">
-            <!--    Book
-                 South J, Blass B (2001) The future of modern genomics. Blackwell, London    -->
             <group prefix=". " delimiter=", ">
               <text variable="publisher"/>
               <text variable="publisher-place"/>
             </group>
           </else-if>
           <else-if type="webpage post-weblog" match="any">
-            <!--    Online document
-                 Doe J (1999) Title of subordinate document. In: The dictionary of substances and their effects.
-                 Royal Society of Chemistry. Available via DIALOG.
-                 http://www.rsc.org/dose/title of subordinate document. Accessed 15 Jan 1999
-                 Unfortunately, "Royal Society of Chemistry. Available via DIALOG." cannot seem to be mapped here -->
             <group prefix=". " delimiter=". ">
               <text prefix="In: " variable="container-title" form="short"/>
               <text variable="URL"/>
@@ -184,15 +160,12 @@
             </group>
           </else-if>
           <else-if type="thesis">
-            <!--    Dissertation
-                 Trent JW (1975) Experimental acute renal failure. Dissertation, University of California       -->
             <group prefix=". " delimiter=", ">
               <text variable="genre" text-case="capitalize-first"/>
               <text variable="publisher"/>
             </group>
           </else-if>
           <else>
-            <!--    None of the provided formats need to add manually (some data provided) -->
             <group prefix=". " delimiter=" ">
               <text variable="container-title" form="short"/>
               <group delimiter=":">
@@ -205,20 +178,74 @@
       </else>
     </choose>
   </macro>
+  <macro name="legal-cites">
+    <choose>
+      <if type="legal_case" match="any">
+        <group prefix=", " delimiter=" ">
+          <choose>
+            <if variable="container-title">
+              <text variable="volume"/>
+              <text variable="container-title"/>
+              <group delimiter=" ">
+                <text term="section" form="symbol"/>
+                <text variable="section"/>
+              </group>
+              <text variable="page"/>
+            </if>
+            <else>
+              <text variable="number" prefix="No. "/>
+            </else>
+          </choose>
+        </group>
+      </if>
+      <else-if type="bill legislation" match="any">
+        <group delimiter=", " prefix=", ">
+          <choose>
+            <if variable="number">
+              <text variable="number" prefix="Pub. L. No. "/>
+              <group delimiter=" ">
+                <text term="section" form="symbol"/>
+                <text variable="section"/>
+              </group>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <text variable="page-first"/>
+              </group>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <text term="section" form="symbol"/>
+                <text variable="section"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
     <layout delimiter="; " suffix=".">
       <choose>
-        <if type="article-journal book chapter paper-conference" match="any">
-          <group delimiter=" ">
-            <text macro="author-short"/>
-            <text macro="year-parenth"/>
-          </group>
+        <if match="any" position="ibid">
+          <text term="ibid"/>
         </if>
         <else>
-          <text macro="bibliography"/>
+          <choose>
+            <if type="article-journal book chapter paper-conference" match="any">
+              <group delimiter=" ">
+                <text macro="author-short"/>
+                <text macro="year-parenth"/>
+              </group>
+            </if>
+            <else>
+              <text macro="bibliography"/>
+            </else>
+          </choose>
         </else>
       </choose>
-      <!-- Different books are inconsistent with placement of locator. Most books have them oustide year parentheses -->
       <group delimiter=" " prefix=", ">
         <label variable="locator" form="short"/>
         <text variable="locator"/>
@@ -226,12 +253,7 @@
     </layout>
   </citation>
   <bibliography et-al-min="5" et-al-use-first="3" hanging-indent="true">
-    <sort>
-      <key macro="author"/>
-      <key variable="author" sort="ascending"/>
-    </sort>
     <layout>
-      <!-- Per publisher, only include references in the bibliography that have not already been printed in full in the footnotes -->
       <choose>
         <if type="article-journal book chapter paper-conference" match="any">
           <text macro="bibliography"/>
