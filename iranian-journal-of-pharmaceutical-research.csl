@@ -35,7 +35,7 @@
   </locale>
   <macro name="author">
     <names variable="author">
-      <name initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+      <name initialize-with="" and="text" name-as-sort-order="all" sort-separator=" "/>
       <label form="long" prefix=", "/>
       <substitute>
         <names variable="editor"/>
@@ -43,7 +43,7 @@
     </names>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix=".">
+    <names variable="editor">
       <name initialize-with="" name-as-sort-order="all" sort-separator=" "/>
       <label form="short" prefix=". (" suffix=")"/>
     </names>
@@ -59,13 +59,16 @@
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="none">
         <group delimiter=", ">
-          <text variable="publisher"/>
           <choose>
-            <if type="thesis">
-              <text variable="publisher-place" prefix="[" suffix="]"/>
+            <if type="speech">
+              <text variable="publisher"/>
             </if>
-            <else-if type="speech"/>
+            <else-if type="thesis">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+            </else-if>
             <else>
+              <text variable="publisher"/>
               <text variable="publisher-place"/>
             </else>
           </choose>
@@ -73,9 +76,24 @@
       </if>
     </choose>
   </macro>
+  <macro name="access">
+    <choose>
+      <if variable="URL">
+        <group delimiter=": ">
+          <text term="available at" text-case="capitalize-first"/>
+          <text variable="URL" prefix="URL: "/>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <macro name="accessed-date">
     <choose>
-      <if variable="URL"/>
+      <if variable="URL">
+        <group prefix="[" suffix="]" delimiter=" ">
+          <text term="cited"/>
+          <date variable="accessed" form="text"/>
+        </group>
+      </if>
     </choose>
   </macro>
   <macro name="container-title">
@@ -87,7 +105,7 @@
               <text variable="container-title" form="short" font-style="italic"/>
             </if>
             <else>
-              <text variable="container-title" font-style="italic"/>
+              <text variable="container-title" font-style="italic" text-case="title"/>
             </else>
           </choose>
         </group>
@@ -133,11 +151,6 @@
     <text variable="title"/>
     <choose>
       <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
-        <choose>
-          <if variable="URL">
-            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
-          </if>
-        </choose>
         <text macro="edition" prefix=". "/>
       </if>
     </choose>
@@ -163,10 +176,7 @@
   <macro name="date">
     <choose>
       <if type="article-journal article-magazine article-newspaper review review-book" match="any">
-        <group>
-          <date date-parts="year" form="text" variable="issued"/>
-          <text macro="accessed-date"/>
-        </group>
+        <date date-parts="year" form="text" variable="issued"/>
       </if>
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
@@ -184,7 +194,6 @@
           <date-part name="year"/>
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
-        <text macro="accessed-date" prefix=" "/>
       </else-if>
       <else-if type="patent">
         <group suffix=".">
@@ -194,7 +203,6 @@
               <date-part name="year"/>
             </date>
           </group>
-          <text macro="accessed-date" prefix=" "/>
         </group>
       </else-if>
       <else-if type="speech">
@@ -205,7 +213,6 @@
               <date-part name="month" form="short" strip-periods="true"/>
               <date-part name="day"/>
             </date>
-            <text macro="accessed-date"/>
           </group>
           <text variable="event-place"/>
         </group>
@@ -215,7 +222,6 @@
           <date variable="issued">
             <date-part name="year"/>
           </date>
-          <text macro="accessed-date" prefix=" "/>
         </group>
       </else>
     </choose>
@@ -262,7 +268,7 @@
   </macro>
   <citation collapse="citation-number">
     <sort>
-      <key variable="author"/>
+      <key variable="citation-number"/>
     </sort>
     <layout delimiter=", " prefix="(" suffix=")">
       <text variable="citation-number"/>
@@ -286,12 +292,14 @@
         <text macro="publisher"/>
         <group delimiter=" ">
           <text macro="date" prefix="(" suffix=")"/>
+          <text macro="accessed-date"/>
           <text macro="journal-location" suffix=":"/>
           <text macro="pages"/>
         </group>
       </group>
       <text macro="collection-details" suffix=". "/>
       <text macro="report-details" suffix=". "/>
+      <text macro="access"/>
     </layout>
   </bibliography>
 </style>
