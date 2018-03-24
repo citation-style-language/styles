@@ -35,12 +35,20 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name name-as-sort-order="all" and="symbol" sort-separator=" " initialize-with="." delimiter=", " delimiter-precedes-last="never"/>
-      <label form="short" prefix=" "/>
+      <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+      <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <text variable="title"/>
+        <choose>
+          <if type="report">
+            <text variable="publisher"/>
+            <text macro="title"/>
+          </if>
+          <else>
+            <text macro="title"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -56,13 +64,73 @@
     </names>
   </macro>
   <macro name="title">
-    <text variable="title"/>
+    <choose>
+      <if type="book dataset graphic manuscript motion_picture report song speech thesis" match="any">
+        <choose>
+          <if variable="version" type="book" match="all">
+            <!---This is a hack until we have a computer program type -->
+            <text variable="title"/>
+          </if>
+          <else>
+            <text variable="title" font-style="italic"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="reviewed-author">
+        <choose>
+          <if variable="reviewed-title">
+            <group delimiter=" ">
+              <text variable="title"/>
+              <group delimiter=", " prefix="[" suffix="]">
+                <text variable="reviewed-title" font-style="italic" prefix="Review of "/>
+                <names variable="reviewed-author" delimiter=", ">
+                  <label form="verb-short" suffix=" "/>
+                  <name and="symbol" initialize-with=". " delimiter=", "/>
+                </names>
+              </group>
+            </group>
+          </if>
+          <else>
+            <!-- assume `title` is title of reviewed work -->
+            <group delimiter=", " prefix="[" suffix="]">
+              <text variable="title" font-style="italic" prefix="Review of "/>
+              <names variable="reviewed-author" delimiter=", ">
+                <label form="verb-short" suffix=" "/>
+                <name and="symbol" initialize-with=". " delimiter=", "/>
+              </names>
+            </group>
+          </else>
+        </choose>
+      </else-if>
+      <else-if type="patent" variable="number" match="all">
+        <text macro="patent-number" font-style="italic"/>
+      </else-if>
+      <else>
+        <text variable="title"/>
+      </else>
+    </choose>
   </macro>
   <macro name="publisher">
     <group delimiter=", ">
       <text variable="publisher"/>
       <text variable="publisher-place"/>
     </group>
+  </macro>
+  <macro name="issued-sort">
+    <choose>
+      <if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song dataset" match="none">
+        <date variable="issued">
+          <date-part name="year"/>
+          <date-part name="month"/>
+          <date-part name="day"/>
+        </date>
+      </if>
+      <else>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </else>
+    </choose>
   </macro>
   <macro name="year-date">
     <date variable="issued">
@@ -98,7 +166,8 @@
   <bibliography hanging-indent="true" entry-spacing="0">
     <sort>
       <key macro="author"/>
-      <key variable="title"/>
+      <key macro="issued-sort" sort="ascending"/>
+      <key macro="title"/>
     </sort>
     <layout suffix=".">
       <text macro="author"/>
