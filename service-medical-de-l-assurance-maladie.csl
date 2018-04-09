@@ -14,7 +14,7 @@
     <category citation-format="author-date"/>
     <category field="medicine"/>
     <summary>Adaptation pour Zotero de l'adaptation de la norme de Vancouver en vigeur au Service Médical de l'Assurance Maladie</summary>
-    <updated>2017-07-03T03:48:18+00:00</updated>
+    <updated>2018-04-09T14:28:25+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -29,6 +29,10 @@
       <term name="cited">consulté le</term>
       <term name="internet">en ligne</term>
       <term name="editor">
+        <single>éditeur</single>
+        <multiple>éditeurs</multiple>
+      </term>
+      <term name="container-author">
         <single>rédacteur</single>
         <multiple>rédacteurs</multiple>
       </term>
@@ -45,7 +49,6 @@
   <macro name="auteur">
     <names variable="author">
       <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
-      <label prefix=", "/>
       <et-al font-style="italic"/>
       <substitute>
         <names variable="editor collection-editor"/>
@@ -60,7 +63,7 @@
   <macro name="auteur-court">
     <names variable="author">
       <name form="short" delimiter-precedes-last="never" initialize="false"/>
-	    <et-al font-style="italic"/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -84,7 +87,8 @@
     <choose>
       <if type="paper-conference" match="any">
         <names variable="container-author">
-          <name delimiter-precedes-last="always" initialize-with=""/>
+          <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+          <et-al font-style="italic"/>
           <substitute>
             <names variable="editor collection-editor"/>
           </substitute>
@@ -93,7 +97,7 @@
       <else>
         <names variable="container-author">
           <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
-          <label prefix=", "/>
+          <et-al font-style="italic"/>
           <substitute>
             <names variable="editor collection-editor"/>
           </substitute>
@@ -109,7 +113,20 @@
   </macro>
   <macro name="acces-url">
     <choose>
-      <if variable="URL">
+      <if variable="URL" type="article article-journal article-magazine article-newspaper entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="none" variable="page">
+            <group delimiter=" " prefix="(" suffix=").">
+              <group delimiter=" ">
+                <text term="retrieved" text-case="capitalize-first"/>
+              </group>
+              <text variable="URL" prefix="&lt; " suffix=" &gt;"/>
+              <text macro="date-acces"/>
+            </group>
+          </if>
+        </choose>
+      </if>
+      <else-if match="any" variable="URL">
         <group delimiter=" " prefix="(" suffix=").">
           <group delimiter=" ">
             <text term="retrieved" text-case="capitalize-first"/>
@@ -117,7 +134,7 @@
           <text variable="URL" prefix="&lt; " suffix=" &gt;"/>
           <text macro="date-acces"/>
         </group>
-      </if>
+      </else-if>
     </choose>
   </macro>
   <macro name="titre-contenant">
@@ -138,8 +155,12 @@
           </choose>
           <text macro="edition"/>
           <choose>
-            <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+            <if variable="URL" type="article article-journal article-magazine article-newspaper entry-encyclopedia entry-dictionary">
+              <choose>
+                <if match="none" variable="page">
+                  <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+                </if>
+              </choose>
             </if>
           </choose>
         </group>
@@ -165,7 +186,7 @@
     <text variable="title"/>
     <choose>
       <if type="thesis">
-        <text variable="genre" prefix=". Thèse d'exercice : "/>
+        <text variable="genre" prefix=". Thèse "/>
       </if>
     </choose>
     <choose>
@@ -242,17 +263,17 @@
             <date date-parts="year" form="text" variable="issued" prefix=" " suffix=" ,"/>
           </if>
           <else>
-            <date date-parts="year" form="text" variable="issued"/>
+            <date date-parts="year" form="text" variable="issued" suffix="."/>
           </else>
         </choose>
       </else-if>
       <else-if type="paper-conference" match="any">
         <choose>
           <if match="any" variable="page number-of-pages">
-            <date date-parts="year" form="text" variable="issued" suffix=" :"/>
+            <date date-parts="year" form="text" variable="issued" prefix=" " suffix=" :"/>
           </if>
           <else>
-            <date date-parts="year" form="text" variable="issued"/>
+            <date date-parts="year" form="text" variable="issued" prefix=" " suffix="."/>
           </else>
         </choose>
       </else-if>
@@ -348,9 +369,11 @@
           <text macro="auteur" suffix=". "/>
           <text macro="titre" suffix=". "/>
           <text macro="titre-contenant" suffix=" "/>
-          <text macro="date"/>
-          <text macro="localisation-revue" suffix=":"/>
-          <text macro="pages" suffix="."/>
+          <group suffix=".">
+            <text macro="date"/>
+            <text macro="localisation-revue" suffix=""/>
+            <text macro="pages" suffix="."/>
+          </group>
         </if>
         <else-if type="report" match="any">
           <text macro="auteur" suffix=". "/>
@@ -397,7 +420,7 @@
           <text macro="auteur" suffix=". "/>
           <text macro="titre" suffix=". "/>
           <text macro="titre-contenant" suffix=","/>
-          <group prefix=" ">
+          <group prefix=" " suffix=".">
             <text variable="collection-title"/>
             <date variable="issued" prefix=" ">
               <date-part name="year"/>
@@ -423,7 +446,7 @@
           <text macro="pages" suffix="."/>
         </else-if>
         <else-if type="legal_case" match="any">
-          <text variable="title"/>
+          <text variable="title" suffix="."/>
         </else-if>
         <else-if type="legislation" match="any">
           <text macro="auteur"/>
@@ -434,6 +457,21 @@
             <date-part name="month"/>
           </date>
           <text macro="pages"/>
+        </else-if>
+        <else-if type="speech" match="any">
+          <text macro="auteur" suffix=". "/>
+          <text macro="titre" suffix=". "/>
+          <group delimiter=" : " suffix=";">
+            <group delimiter=" ">
+              <text variable="genre" text-case="capitalize-first"/>
+              <text term="presented at"/>
+            </group>
+            <group delimiter=" ">
+              <text variable="event"/>
+            </group>
+          </group>
+          <text macro="date" prefix=" "/>
+          <text variable="publisher-place" prefix=" " suffix="."/>
         </else-if>
       </choose>
       <text macro="acces-url" prefix=" "/>
