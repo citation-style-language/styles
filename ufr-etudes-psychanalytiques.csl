@@ -12,7 +12,7 @@
     </author>
     <category citation-format="note"/>
     <category field="psychology"/>
-    <updated>2018-04-18T12:41:12+00:00</updated>
+    <updated>2018-02-08T11:57:47+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -85,8 +85,8 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="director">
-    <names variable="director">
+  <macro name="editor">
+    <names variable="editor">
       <name form="long" and="text" delimiter-precedes-last="never" sort-separator=" " font-style="normal"/>
       <label form="short" prefix=" (" suffix=".)"/>
     </names>
@@ -127,7 +127,7 @@
           <text variable="title" text-case="capitalize-first" quotes="true"/>
           <text macro="datepub" prefix=" "/>
           <text value="dans" suffix=" " prefix=" "/>
-          <text macro="director" suffix=", "/>
+          <text macro="editor" suffix=", "/>
           <text variable="container-title" text-case="capitalize-first" font-style="italic"/>
         </group>
       </else-if>
@@ -167,11 +167,29 @@
       </if>
     </choose>
   </macro>
-  <macro name="yearpage">
+  <macro name="yearpage-bib">
     <choose>
-      <if type="bill book graphic legal_case motion_picture paper-conference manuscript report song thesis" match="any">
+      <if type="bill book graphic legal_case motion_picture paper-conference report song thesis" match="any">
+        <group delimiter=", ">
+          <group delimiter=", " font-style="normal">
+            <date date-parts="year" form="numeric" variable="issued">
+              <date-part name="year"/>
+            </date>
+            <group>
+              <text term="volume" form="short" suffix="."/>
+              <text variable="number-of-volumes" prefix=". " suffix="/"/>
+              <text variable="volume"/>
+            </group>
+          </group>
+          <group>
+            <label variable="locator" form="short"/>
+            <text variable="locator"/>
+          </group>
+        </group>
+      </if>
+      <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=", " font-style="normal">
-          <date date-parts="year" variable="issued">
+          <date date-parts="year" form="numeric" variable="issued">
             <date-part name="year"/>
           </date>
           <group>
@@ -179,83 +197,47 @@
             <text variable="number-of-volumes" prefix=". " suffix="/"/>
             <text variable="volume"/>
           </group>
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none"/>
-          </choose>
-        </group>
-      </if>
-      <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=" " font-style="normal">
-          <date date-parts="year" variable="issued">
-            <date-part name="year" suffix=", "/>
-          </date>
           <group>
-            <text term="volume" form="short" suffix="."/>
-            <text variable="number-of-volumes" prefix=". " suffix="/"/>
-            <text variable="volume" suffix=","/>
+            <label variable="page" form="short"/>
+            <text variable="page" prefix=" "/>
           </group>
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-              <text variable="page"/>
-            </else-if>
-          </choose>
         </group>
       </else-if>
-      <else-if type="article-journal" match="any">
-        <group delimiter=" " font-style="normal">
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-              <text variable="page"/>
-            </else-if>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="article-newspaper article-magazine" match="any">
-        <date variable="issued">
-          <date-part name="day" suffix=" "/>
-          <date-part name="month" form="short" suffix=" "/>
-          <date-part name="year"/>
-        </date>
+      <else-if type="article-journal chapter" match="any">
         <group delimiter=" " font-style="normal">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
+      </else-if>
+      <else-if type="article-newspaper article-magazine" match="any">
         <group delimiter=" " font-style="normal">
+          <date variable="issued">
+            <date-part name="day" suffix=" "/>
+            <date-part name="month" form="short" suffix=" "/>
+            <date-part name="year"/>
+          </date>
+          <label variable="page" form="short"/>
+          <text variable="page"/>
+        </group>
+      </else-if>
+      <else-if type="manuscript">
+        <group delimiter="" font-style="normal">
           <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
+            <if variable="issued">
+              <date variable="issued">
+                <date-part name="day" suffix=" "/>
+                <date-part name="month" suffix=" "/>
+                <date-part name="year"/>
+              </date>
             </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-            </else-if>
+            <else>
+              <text value="s. d."/>
+            </else>
           </choose>
         </group>
       </else-if>
       <else-if type="webpage post-weblog" match="any">
-        <group delimiter=" " prefix="(" suffix=")">
+        <group delimiter=" " font-style="normal">
           <text value="consulté le" suffix=" " prefix=" "/>
           <date variable="accessed" form="text">
             <date-part name="day"/>
@@ -385,7 +367,7 @@
                 <text variable="archive_location"/>
                 <text variable="call-number"/>
                 <text macro="title"/>
-                <text macro="yearpage"/>
+                <text macro="yearpage-bib"/>
               </group>
             </if>
             <else-if type="bill chapter article-journal article-newspaper interview book graphic legal_case motion_picture paper-conference report song thesis webpage post-weblog" match="any">
@@ -396,7 +378,7 @@
                 <text macro="edition"/>
                 <text macro="pub-place"/>
                 <text macro="publisher"/>
-                <text macro="yearpage"/>
+                <text macro="yearpage-bib"/>
               </group>
             </else-if>
           </choose>
@@ -417,7 +399,7 @@
             <text variable="archive_location"/>
             <text variable="call-number"/>
             <text macro="title"/>
-            <text macro="yearpage"/>
+            <text macro="yearpage-bib"/>
           </group>
         </if>
         <else-if type="bill chapter article-journal article-newspaper interview book graphic legal_case motion_picture paper-conference report song thesis webpage post-weblog" match="any">
@@ -431,7 +413,7 @@
               <text macro="publisher"/>
               <text macro="collection"/>
             </group>
-            <text macro="yearpage"/>
+            <text macro="yearpage-bib"/>
           </group>
         </else-if>
       </choose>
