@@ -9,18 +9,22 @@
       <name>Julian Onions</name>
       <email>julian.onions@gmail.com</email>
     </author>
-    <category citation-format="numeric"/>
+    <contributor>
+      <name>David M. Miller</name>
+      <email>dmiller@briercrest.ca</email>
+    </contributor>
+    <category citation-format="note"/>
     <category field="history"/>
     <issn>0018-246X</issn>
-    <issn>1469-5103</issn>
+    <eissn>1469-5103</eissn>
     <summary>History journal style</summary>
-    <updated>2012-09-27T22:06:38+00:00</updated>
+    <updated>2017-12-29T22:35:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter=", "/>
-      <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+      <label form="short" prefix=", "/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -31,7 +35,7 @@
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="text" delimiter=", "/>
-      <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+      <label form="short" prefix=", "/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -44,7 +48,7 @@
       <text term="in" suffix=" "/>
       <names variable="editor">
         <name and="text" delimiter=", "/>
-        <label form="short" prefix=", " suffix="." strip-periods="true"/>
+        <label form="short" prefix=", "/>
         <substitute>
           <names variable="container-author"/>
           <names variable="translator"/>
@@ -55,7 +59,7 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <label form="short" suffix=". " strip-periods="true"/>
+      <label form="short" suffix=" "/>
       <name and="text" delimiter=", "/>
       <substitute>
         <names variable="translator"/>
@@ -64,22 +68,23 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="thesis">
-        <text variable="title" form="short" quotes="true"/>
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <text variable="title" form="long" font-style="italic"/>
       </if>
-      <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <else>
+        <text variable="title" form="long" quotes="true"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-short">
+    <choose>
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
         <text variable="title" form="short" font-style="italic"/>
-      </else-if>
+      </if>
       <else>
         <text variable="title" form="short" quotes="true"/>
       </else>
     </choose>
-  </macro>
-  <macro name="publisher">
-    <group delimiter=": ">
-      <text variable="publisher"/>
-      <text variable="publisher-place"/>
-    </group>
   </macro>
   <macro name="date">
     <date variable="issued">
@@ -96,14 +101,14 @@
   <macro name="pageno">
     <choose>
       <if variable="locator" match="none">
-        <label variable="page" suffix=". " form="short" strip-periods="true"/>
+        <label variable="page" suffix=" " form="short"/>
         <text variable="page"/>
       </if>
     </choose>
   </macro>
   <macro name="pageref">
     <group>
-      <label variable="locator" suffix=". " form="short" strip-periods="true"/>
+      <label variable="locator" suffix=" " form="short"/>
       <text variable="locator"/>
     </group>
   </macro>
@@ -126,7 +131,7 @@
         <if position="subsequent">
           <group delimiter=", ">
             <text macro="author-short"/>
-            <text macro="title"/>
+            <text macro="title-short"/>
             <text macro="pageref"/>
           </group>
         </if>
@@ -135,32 +140,36 @@
             <text macro="author"/>
             <choose>
               <if type="thesis">
-                <text macro="title"/>
-                <group delimiter=", ">
-                  <group prefix=" (" suffix=")" delimiter=", ">
+                <group delimiter=" ">
+                  <text macro="title"/>
+                  <group prefix="(" suffix=")" delimiter=", ">
                     <text variable="genre"/>
-                    <text macro="publisher"/>
+                    <text variable="publisher"/>
                     <text macro="container"/>
                     <text macro="date"/>
                   </group>
+                </group>
+                <group>
                   <text macro="volref"/>
                   <text macro="pageref"/>
                 </group>
               </if>
               <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-                <group delimiter=", ">
-                  <text macro="title"/>
-                  <text macro="editor"/>
-                </group>
-                <group delimiter=", ">
-                  <group prefix=" (" suffix=")" delimiter=", ">
-                    <text macro="volumes"/>
-                    <text macro="publisher"/>
-                    <text macro="container"/>
-                    <text macro="date"/>
+                <group delimiter=" ">
+                  <group delimiter=", ">
+                    <text macro="title"/>
+                    <text macro="editor"/>
                   </group>
-                  <text macro="volref"/>
-                  <text macro="pageref"/>
+                  <group delimiter=", ">
+                    <group prefix="(" suffix=")" delimiter=", ">
+                      <text macro="volumes"/>
+                      <text variable="publisher-place"/>
+                      <text macro="container"/>
+                      <text macro="date"/>
+                    </group>
+                    <text macro="volref"/>
+                    <text macro="pageref"/>
+                  </group>
                 </group>
               </else-if>
               <else-if type="chapter paper-conference" match="any">
@@ -171,9 +180,9 @@
                     <text macro="container"/>
                     <text macro="volref"/>
                   </group>
-                  <group prefix=" (" suffix=")" delimiter=", ">
+                  <group prefix="(" suffix=")," delimiter=", ">
                     <text macro="volumes"/>
-                    <text macro="publisher"/>
+                    <text variable="publisher-place"/>
                     <text macro="date"/>
                   </group>
                   <text macro="pageno"/>
@@ -181,13 +190,17 @@
                 </group>
               </else-if>
               <else>
-                <group delimiter=", ">
-                  <text macro="title"/>
-                  <text macro="publisher"/>
-                  <text macro="container"/>
-                  <group delimiter=" ">
-                    <text macro="volref"/>
-                    <text macro="date" prefix="(" suffix=")"/>
+                <group delimiter=" ">
+                  <group delimiter=", ">
+                    <text macro="title"/>
+                    <text macro="container"/>
+                    <group delimiter=" ">
+                      <text macro="volref"/>
+                    </group>
+                  </group>
+                  <group prefix=" (" suffix=")," delimiter=", ">
+                    <text variable="publisher-place"/>
+                    <text macro="date"/>
                   </group>
                   <text macro="volumes"/>
                   <text macro="pageno"/>

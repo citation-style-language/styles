@@ -14,6 +14,8 @@
     </contributor>
     <category citation-format="author-date"/>
     <category field="social_science"/>
+    <issn>0047-4045</issn>
+    <eissn>1469-8013</eissn>
     <summary>Style for the Cambridge University Press Journal Language in Society</summary>
     <updated>2012-09-27T22:06:38+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
@@ -21,19 +23,17 @@
   <macro name="editor">
     <names variable="editor" delimiter=", ">
       <name and="symbol" delimiter=", "/>
-      <label form="short" prefix=" (" text-case="lowercase" suffix=".)"/>
+      <label form="short" prefix=" (" suffix=")"/>
     </names>
-  </macro>
-  <macro name="anon">
-    <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
   </macro>
   <macro name="author">
     <names variable="author">
       <name name-as-sort-order="all" and="symbol" sort-separator=", " delimiter="; "/>
-      <label form="short" prefix=" " suffix="." text-case="lowercase"/>
+      <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
-        <text macro="anon"/>
+        <names variable="translator"/>
+        <text macro="title"/>
       </substitute>
     </names>
   </macro>
@@ -43,23 +43,27 @@
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <text macro="anon"/>
+        <text macro="title"/>
       </substitute>
     </names>
   </macro>
   <macro name="access">
-    <group>
-      <text value="Available at:" suffix=" "/>
-      <text variable="URL"/>
-      <group prefix=" [" suffix="]">
-        <text term="accessed" text-case="capitalize-first" suffix=" "/>
-        <date variable="accessed">
-          <date-part name="month" suffix=" "/>
-          <date-part name="day" suffix=", "/>
-          <date-part name="year"/>
-        </date>
-      </group>
-    </group>
+    <choose>
+      <if variable="URL">
+        <group>
+          <text term="online" text-case="capitalize-first" suffix=": "/>
+          <text variable="URL"/>
+          <group prefix="; ">
+            <text term="accessed" suffix=" "/>
+            <date variable="accessed" delimiter=" ">
+              <date-part name="day"/>
+              <date-part name="month"/>
+              <date-part name="year"/>
+            </date>
+          </group>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="title">
     <choose>
@@ -94,7 +98,7 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" suffix="." strip-periods="true"/>
+          <text term="edition" form="short"/>
         </group>
       </if>
       <else>
@@ -125,19 +129,21 @@
       <key macro="author"/>
       <key variable="title"/>
     </sort>
-    <layout>
+    <layout suffix=".">
       <text macro="author" suffix=" "/>
       <date variable="issued" prefix="(" suffix=").">
         <date-part name="year"/>
       </date>
       <choose>
         <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <group prefix=" " delimiter=" " suffix=",">
-            <text macro="title"/>
-            <text macro="edition"/>
-            <text macro="editor"/>
+          <group delimiter=". ">
+            <group prefix=" " delimiter=", ">
+              <text macro="title"/>
+              <text macro="edition"/>
+              <text macro="editor"/>
+            </group>
+            <text macro="publisher" suffix="."/>
           </group>
-          <text prefix=" " suffix="." macro="publisher"/>
         </if>
         <else-if type="chapter paper-conference" match="any">
           <text macro="title" prefix=" " suffix="."/>
@@ -169,20 +175,19 @@
             <text macro="title" prefix=" "/>
             <text macro="editor" prefix=" "/>
           </group>
-          <group prefix=" " suffix=".">
+          <group prefix=" " delimiter=" ">
             <text variable="container-title" font-style="italic"/>
-            <group prefix=", ">
-              <text variable="volume"/>
-              <text variable="issue" prefix="(" suffix=")"/>
-            </group>
-            <group prefix=", ">
-              <label variable="locator" suffix="." form="short" strip-periods="true"/>
+            <group delimiter=":">
+              <group>
+                <text variable="volume"/>
+                <text variable="issue" prefix="(" suffix=")"/>
+              </group>
               <text variable="page"/>
             </group>
           </group>
         </else>
       </choose>
-      <text prefix=" " macro="access" suffix="."/>
+      <text prefix=". " macro="access"/>
     </layout>
   </bibliography>
 </style>

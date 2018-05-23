@@ -1,82 +1,82 @@
-# Submitting Styles
+# Guide to Submitting CSL Styles (and CSL Locales)
 
-**Before submitting styles to our repository, please make sure that they
-[validate](https://github.com/citation-style-language/styles/wiki/Validation)
-and meet our other
-[requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements).**
+The CSL style repository is the central location on the web for collecting and maintaining CSL styles.
+Software products like Zotero, Mendeley, and Papers all draw their styles from our repository.
 
-The preferred way to submit styles is to create a *pull request*. This can be
-done via the GitHub.com website (option A, see instructions below), or by using
-the website in combination with a Git client (option B). The latter gives
-greater flexibility, such as the ability to submit multiple styles with a single
-pull request. Finally, if you have trouble figuring out options A and B, you can
-also create a *gist* on the GitHub website (option C).
+We welcome style submissions (and corrections), and are particularly interested in styles for journals and published style guides.
+If you wish to submit a different type of style, please first check our [Criteria for Accepting Styles](https://github.com/citation-style-language/styles/wiki/Criteria-for-Accepting-Styles).
 
-Styles submitted via a pull request are automatically validated and checked for
-additional requirements. For this we rely on a
-[Test-Environment](https://github.com/citation-style-language/styles/wiki/Test-Environment)
-set up at
-[Travis-CI.org](http://travis-ci.org/#!/citation-style-language/styles). A few
-minutes after creating a pull request, Travis CI will generate a test report
-(see the [Travis blog]
-(http://about.travis-ci.org/blog/2012-09-04-pull-requests-just-got-even-more-awesome/)).
-If there are any problems, the report will describe what is wrong.
+To submit a style, please follow the following steps (for locale files, follow the same steps in the  [locales](https://github.com/citation-style-language/locales) repository):
 
-## (A) Pull Request - GitHub Website Only
+#### 1. Check that your style meets all our [style requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements)
 
-If you wish to **add** a new style:
+#### 2. [Validate](https://github.com/citation-style-language/styles/wiki/Validation) your style against the CSL schema, and correct any validation errors
 
-1. Create a GitHub.com account and sign in.
-2. Go to https://github.com/citation-style-language/styles and click the plus
-button (with a "Fork this project and create a new file" tooltip, see [Creating
-files on GitHub](https://github.com/blog/1327-creating-files-on-github)). If you
-wish to submit a dependent style, first navigate to the "dependent" directory.
-3. Name your new style (use the file name, e.g. "journal-of-results.csl") and paste
-the style code into the code editor window.
-4. Click the "Propose New File" button.
-5. In the next window, describe the changes you've made. When
-finished, click the "Send pull request" button.
+#### 3. Create a pull request
 
-If you wish to **edit** an existing style:
+The fastest way to get a style accepted into our repository is by creating a **pull request** on the GitHub website.
+To start, create a GitHub account and sign in.
 
-1. Create a GitHub.com account and sign in.
-2. Go to https://github.com/citation-style-language/styles, and find the style
-you want to change (dependent styles are stored in the "dependent" directory).
-3. Click on the style name, which will bring you to a page like
-https://github.com/citation-style-language/styles/blob/master/apa.csl.
-4. Click the "Edit" button (see [Forking with the Edit
-Button](https://github.com/blog/844-forking-with-the-edit-button). This will
-open a code editor in which you can make your changes (e.g. you can copy and
-paste your modified style into this window).
-5. Once you have made your changes in the "Code" tab (and previewed the changes
-in the "Preview" tab), click the "Propose File Change" button.
-6. In the next window, describe the changes you've made. When
-finished, click the "Send pull request" button.
+##### 3a. Submitting a new style
 
-Based on your GitHub notification settings, you will now automatically receive
-updates when your changes have been accepted, or when the CSL team has comments
-or questions about your changes.
+1. Visit https://github.com/citation-style-language/styles and click the "Create new file" button.
+   When submitting a [dependent style](https://github.com/citation-style-language/styles/wiki/Requesting-Styles#dependent-styles), first navigate to the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory.
+2. Type in the file name of the style in the "Name your file..." text field at the top.
+   Don't forget to add the ".csl" extension (e.g., "journal-of-results.csl" instead of just "journal-of-results")!
+3. Paste the style code into the "<> Edit new file" tab below.
+4. Click the "Propose new file" button.
+5. In the next window, click the "Create pull request" button.
+   Describe the changes you've made, and click the "Create pull request" button once more.
 
-## (B) Pull Request - GitHub Website and Git Client
+(for more help, see GitHub's instructions on [Creating new files](https://help.github.com/articles/creating-new-files))
 
-Start by [forking](http://help.github.com/fork-a-repo/) the [style
-repository](https://github.com/citation-style-language/styles). Commit your
-changes, and create a [pull
-request](http://help.github.com/send-pull-requests/). You can use your git
-client of choice, such as [GitHub for Mac](http://mac.github.com/), [GitHub for
-Windows](http://windows.github.com/), or
-[SmartGit](http://www.syntevo.com/smartgit/index.html).
+##### 3b. Submitting changes to an existing style
 
-## (C) Creating a gist
+1. Visit https://github.com/citation-style-language/styles and find the style you wish to change (dependent styles are stored in the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory).
+   To search by file name press "t" (this activates GitHub’s [File Finder](https://github.com/blog/793-introducing-the-file-finder)) and start typing.
+2. Click on the style name, which will bring you to a page like https://github.com/citation-style-language/styles/blob/master/apa.csl.
+3. Click the edit icon (in the shape of a pencil).
+   This opens a code editor in which you can make your changes (you can for example copy and paste your modified style into this window).
+4. Once you have made your changes in the "<> Edit file" tab (and previewed the changes in the "Preview changes" tab), click the "Propose file change" button.
+5. In the next window, click the "Create pull request" button.
+   Describe the changes you've made, and click the "Create pull request" button once more.
 
-Visit http://gist.github.com and paste the style code into the text box. Give
-the style a name ("name this file...") and click the "Create Public Gist"
-button. Copy the URL of the gist (e.g. https://gist.github.com/rmzelle/1320111) and
-include it in your message to us. You can either start a new discussion in the
-[Citation Styles](http://forums.zotero.org/11/) section of the Zotero forums, or
-[create a new GitHub
-issue](https://github.com/citation-style-language/styles/issues/new) in the
-_styles_ repository.
+(for more help, see GitHub's instructions on [Editing files in another user's repository](https://help.github.com/articles/editing-files-in-another-user-s-repository))
 
-Gists have to be checked by hand and take longer to get accepted, so please try
-option A first.
+Instead of relying solely on the GitHub website, you can also use a git client, such as [GitHub Desktop](https://desktop.github.com/) for Mac and Windows, or [SmartGit](http://www.syntevo.com/smartgit/).
+When using a client, [fork](https://help.github.com/articles/fork-a-repo/) the [style repository](https://github.com/citation-style-language/styles), create a branch off of "master", commit your changes, and then create a [pull request](https://help.github.com/articles/using-pull-requests/).
+
+#### 4. Update your pull request
+
+We often request you to make some changes to your pull request.
+Don't create a new pull request right away if your original submission has issues.
+It's much easier for us if you update your original pull request instead.
+
+After you create a pull request, our @csl-bot will first automatically run a number of tests to check whether your style validates and follows our style requirements.
+These tests usually finish within a few minutes.
+If there are problems, @csl-bot will give a link to the test report, which contains the identified errors.
+If you have trouble understanding these errors, please post a comment in the pull request and ask for help.
+
+We also have a handful of volunteers who review pull requests, usually within a day or two.
+
+To update your pull request:
+
+1. Visit the "Files changed" tab of your pull request.
+2. Click the edit (pencil) icon at the top-right of your style.
+3. Make your changes, and click the "Commit changes" button.
+
+Any changes made this way will automatically appear in the pull request, and each commit will trigger a new test report.
+
+Once we are satisfied, we will **merge** your pull request.
+This can take hours or days, depending on how busy we are, and on how much back and forth is needed to get your style in acceptable shape.
+
+#### 5. Make additional changes after merging
+
+Once a pull request has been merged, it can no longer be used to submit further changes.
+So, if you wish to make additional changes, just create a new pull request.
+
+Please always start from the latest version of the style from our repository, because we often perform maintenance on the repository styles.
+
+## Asking for help
+
+If you get stuck at a particular step, don't hesitate to ask for help by opening a GitHub issue at https://github.com/citation-style-language/styles/issues (click the "New issue" button).
