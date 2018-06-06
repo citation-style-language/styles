@@ -12,7 +12,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>A style for legal citations in Poland.</summary>
-    <updated>2018-03-27T16:16:42+01:00</updated>
+    <updated>2018-05-21T16:16:42+01:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pl">
@@ -31,13 +31,24 @@
       <term name="month-12" gender="masculine">grudnia</term>
     </terms>
   </locale>
-  <macro name="editor-translator"> <!-- Dodaje (red.) do oznaczenia redaktora. -->
+  <macro name="editor-translator"> <!-- Dodaje oznaczenie redaktora -->
     <names variable="editor translator" delimiter=", ">
-      <name delimiter=", " delimiter-precedes-last="always" initialize-with=". "/>
+      <name initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
       <label form="short" prefix=" (" suffix=".)"/>
     </names>
   </macro>
   <macro name="author"> <!-- Wstawia autora. -->
+    <names variable="author">
+      <name form="long" initialize-with=". " delimiter=", " delimiter-precedes-last="always" sort-separator=", "/>
+      <label form="short" prefix=" (" suffix=")"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text macro="title"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-subsequent"> <!-- Wstawia autora w kolejnych przypisach. -->
     <names variable="author">
       <name form="long" delimiter=", " delimiter-precedes-last="always" sort-separator=", " initialize-with=". "/>
       <label form="short" prefix=" (" suffix=")"/>
@@ -50,7 +61,7 @@
   </macro>
   <macro name="author-bibliography"> <!--Wstawia autora imię z tyłu. -->
     <names variable="author">
-      <name name-as-sort-order="all" form="long" delimiter=", " delimiter-precedes-last="always" sort-separator=", " initialize-with=". "/>
+      <name name-as-sort-order="first" form="long" initialize-with=". " delimiter=", " delimiter-precedes-last="always" sort-separator=", " />
       <label form="short" prefix=" (" suffix=".)"/>
       <substitute>
         <names variable="editor"/>
@@ -60,7 +71,12 @@
     </names>
   </macro>
   <macro name="title"> <!-- Tytuł. -->
-    <text variable="title" text-case="capitalize-first" font-style="italic"/>
+    <group delimiter=", ">
+      <text variable="title" text-case="capitalize-first" font-style="italic"/>
+      <names variable="translator" delimiter=", " prefix="tłum. ">
+        <name and="text" delimiter=", " initialize-with=". " />
+      </names>
+    </group>
   </macro>
   <macro name="title-short"> <!-- Skrócony tytuł. -->
     <text variable="title" text-case="capitalize-first" suffix="..." font-style="italic" form="short"/>
@@ -109,7 +125,7 @@
         <group>
           <label variable="volume" form="short" text-case="lowercase" suffix=". "/>
           <text variable="volume" />
-        </group >
+        </group>
         <group>
           <label variable="issue" form="short" text-case="lowercase" suffix=" "/>
           <text variable="issue" />
@@ -166,7 +182,10 @@
                 <text macro="author"/>
                 <text macro="title"/>
               </group>
-              <text macro="container"/>
+              <group delimiter=", ">
+                <text macro="container"/>
+                <text macro="locator"/>
+            </group>
             </else-if>
             <else-if type="webpage post-weblog" match="any">
               <group delimiter=", ">
@@ -219,7 +238,7 @@
           <choose>
             <if type="book">
               <group delimiter=", ">
-                <text macro="author"/>
+                <text macro="author-subsequent"/>
                 <text macro="title-short"/>
                 <text macro="volume"/>
                 <text macro="locator"/>
@@ -227,7 +246,7 @@
             </if>
             <else>
               <group delimiter=", ">
-                <text macro="author"/>
+                <text macro="author-subsequent"/>
                 <text macro="title-short"/>
                 <text macro="locator"/>
               </group>
