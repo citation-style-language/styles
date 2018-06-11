@@ -13,19 +13,19 @@
     <category field="biology"/>
     <issn>0016-6731</issn>
     <eissn>1943-2631</eissn>
-    <updated>2012-09-27T22:06:38+00:00</updated>
+    <updated>2018-06-11T07:52:51+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor-translator">
     <names variable="editor translator" prefix="(" suffix=")" delimiter=", ">
-      <name and="text" initialize-with="" delimiter=", "/>
+      <name and="text" initialize-with=". " delimiter=", " delimiter-precedes-last="always" sort-separator=" "/>
       <et-al font-style="italic"/>
       <label form="short" prefix=", " text-case="capitalize-first"/>
     </names>
   </macro>
   <macro name="author">
     <names variable="author">
-      <name name-as-sort-order="all" sort-separator=" " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+      <name and="text" delimiter-precedes-last="always" initialize-with=". " name-as-sort-order="first" sort-separator=" "/>
       <et-al font-style="italic"/>
       <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
       <substitute>
@@ -69,6 +69,13 @@
       <text variable="publisher-place"/>
     </group>
   </macro>
+  <macro name="access">
+    <choose>
+      <if type="article-journal" match="any">
+        <text variable="DOI" prefix="https://doi.org/"/>
+      </if>
+    </choose>
+  </macro>
   <citation collapse="year-suffix" et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
     <sort>
       <key variable="issued"/>
@@ -80,7 +87,7 @@
         <date variable="issued">
           <date-part name="year"/>
         </date>
-        <group>
+        <group delimiter=" ">
           <label variable="locator" form="short"/>
           <text variable="locator" prefix=" "/>
         </group>
@@ -100,45 +107,51 @@
       </date>
       <choose>
         <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <group suffix=".">
-            <text macro="title" prefix=" "/>
-            <text macro="editor-translator" prefix=" "/>
+          <group suffix="." prefix=" ">
+            <text macro="title"/>
+            <text macro="editor-translator"/>
           </group>
           <text prefix=" " suffix="." macro="publisher"/>
         </if>
         <else-if type="chapter paper-conference" match="any">
           <text macro="title" prefix=" "/>
-          <group prefix=".">
-            <group prefix=" In:">
-              <names variable="editor translator">
-                <name name-as-sort-order="all" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="always" prefix=" "/>
-                <et-al font-style="italic"/>
-                <label form="short" prefix=" (" suffix="), " text-case="capitalize-first"/>
-              </names>
+          <group delimiter=" " prefix=", " suffix=".">
+            <group delimiter=" ">
+              <label variable="page" form="short"/>
+              <text variable="page"/>
+            </group>
+            <text term="in"/>
+            <group delimiter=", ">
               <text variable="container-title" font-style="italic" prefix=" " suffix=","/>
               <text variable="collection-title" prefix=" " suffix="."/>
-              <group suffix=".">
-                <text macro="publisher" prefix=" "/>
-                <label variable="page" form="short" prefix=", " suffix=" "/>
-                <text variable="page" suffix="."/>
-              </group>
+            </group>
+            <group delimiter=". ">
+              <names variable="editor translator">
+                <label form="verb" suffix=" "/>
+                <name name-as-sort-order="all" sort-separator=" " initialize-with=". " delimiter=", " delimiter-precedes-last="always" prefix=" "/>
+                <et-al font-style="italic"/>
+              </names>
+              <text macro="publisher"/>
             </group>
           </group>
         </else-if>
         <else>
-          <group suffix=".">
-            <text macro="title" prefix=" "/>
-            <text macro="editor-translator" prefix=" "/>
-          </group>
-          <group prefix=" " suffix=".">
-            <text variable="container-title" form="short"/>
-            <group prefix=" ">
-              <text variable="volume"/>
+          <group delimiter=". ">
+            <group delimiter=", "  prefix=" ">
+              <text macro="title"/>
+              <text macro="editor-translator"/>
             </group>
-            <text variable="page" prefix=": "/>
+            <group delimiter=" " prefix=" " suffix=".">
+              <text variable="container-title" form="short"/>
+              <group delimiter=": ">
+                <text variable="volume"/>
+                <text variable="page"/>
+              </group>
+            </group>
           </group>
         </else>
       </choose>
+      <text macro="access" prefix=". "/>
     </layout>
   </bibliography>
 </style>
