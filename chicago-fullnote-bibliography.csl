@@ -758,10 +758,7 @@
     <choose>
       <if variable="issued">
         <choose>
-          <if type="graphic report" match="any">
-            <date variable="issued" form="text"/>
-          </if>
-          <else-if type="legal_case">
+          <if type="legal_case">
             <group delimiter=" ">
               <text variable="authority"/>
               <choose>
@@ -774,11 +771,16 @@
                 </else>
               </choose>
             </group>
-          </else-if>
-          <else-if type="book bill chapter graphic legislation motion_picture paper-conference report song thesis" match="any">
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
+          </if>
+          <else-if type="book bill chapter  legislation motion_picture paper-conference song thesis" match="any">
+            <choose>
+              <if is-uncertain-date="issued">
+                <date variable="issued" form="numeric" date-parts="year" prefix="[" suffix="?]"/>
+              </if>
+              <else>
+                <date variable="issued" form="numeric" date-parts="year"/>
+              </else>
+            </choose>
           </else-if>
           <else-if type="patent">
             <group delimiter=", ">
@@ -800,7 +802,14 @@
             </group>
           </else-if>
           <else>
-            <date variable="issued" form="text"/>
+            <choose>
+              <if is-uncertain-date="issued">
+                <date variable="issued" form="text" prefix="[" suffix="?]"/>
+              </if>
+              <else>
+                <date variable="issued" form="text"/>
+              </else>
+            </choose>
           </else>
         </choose>
       </if>
@@ -1068,6 +1077,17 @@
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
+      <else-if type="manuscript thesis speech" match="any">
+        <group delimiter=", " prefix="(" suffix=")">
+          <choose>
+            <if variable="title" match="any">
+              <text variable="genre"/>
+            </if>
+          </choose>
+          <text variable="publisher"/>
+          <text macro="issued"/>
+        </group>
+      </else-if>
       <else-if variable="publisher-place event-place publisher" match="any">
         <group prefix="(" suffix=")" delimiter=", ">
           <text macro="event-note"/>
@@ -1080,26 +1100,6 @@
           </group>
           <text macro="issued"/>
         </group>
-      </else-if>
-      <else-if variable="title" match="none">
-        <choose>
-          <if variable="genre">
-            <choose>
-              <if type="manuscript thesis speech" match="any">
-                <group delimiter=", " prefix="(" suffix=")">
-                  <text variable="genre"/>
-                  <text macro="issued"/>
-                </group>
-              </if>
-              <else>
-                <text macro="issued"/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <text macro="issued"/>
-          </else>
-        </choose>
       </else-if>
       <else>
         <text macro="issued"/>
