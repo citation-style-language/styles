@@ -392,29 +392,55 @@
       <if type="bill legal_case legislation" match="none">
         <choose>
           <if variable="issued">
-            <group prefix=" (" suffix=")">
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-              <text variable="year-suffix"/>
-              <choose>
-                <if type="speech" match="any">
+            <choose>
+              <if is-uncertain-date="issued">
+                <group prefix=" [" suffix="]">
+                  <text term="circa" form="short" suffix=" "/>
                   <date variable="issued">
-                    <date-part prefix=", " name="month"/>
+                    <date-part name="year"/>
                   </date>
-                </if>
-                <else-if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song dataset" match="none">
+                  <text variable="year-suffix"/>
+                  <choose>
+                    <if type="speech" match="any">
+                      <date variable="issued">
+                        <date-part prefix=", " name="month"/>
+                      </date>
+                    </if>
+                    <else-if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song dataset" match="none">
+                      <date variable="issued">
+                        <date-part prefix=", " name="month"/>
+                        <date-part prefix=" " name="day"/>
+                      </date>
+                    </else-if>
+                  </choose>
+                </group>
+              </if>
+              <else>
+                <group prefix=" (" suffix=")">
                   <date variable="issued">
-                    <date-part prefix=", " name="month"/>
-                    <date-part prefix=" " name="day"/>
+                    <date-part name="year"/>
                   </date>
-                </else-if>
-              </choose>
-            </group>
+                  <text variable="year-suffix"/>
+                  <choose>
+                    <if type="speech" match="any">
+                      <date variable="issued">
+                        <date-part prefix=", " name="month"/>
+                      </date>
+                    </if>
+                    <else-if type="article-journal bill book chapter graphic legal_case legislation motion_picture paper-conference report song dataset" match="none">
+                      <date variable="issued">
+                        <date-part prefix=", " name="month"/>
+                        <date-part prefix=" " name="day"/>
+                      </date>
+                    </else-if>
+                  </choose>
+                </group>
+              </else>
+            </choose>
           </if>
           <else-if variable="status">
             <group prefix=" (" suffix=")">
-              <text variable="status"/>
+              <text variable="status" text-case="lowercase"/>
               <text variable="year-suffix" prefix="-"/>
             </group>
           </else-if>
@@ -448,19 +474,46 @@
     <choose>
       <if variable="issued">
         <group delimiter="/">
-          <date variable="original-date">
-            <date-part name="year"/>
-          </date>
-          <group>
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
-            <text variable="year-suffix"/>
-          </group>
+          <choose>
+            <if is-uncertain-date="original-date">
+              <group prefix="[" suffix="]" delimiter=" ">
+                <text term="circa" form="short"/>
+                <date variable="original-date">
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </if>
+            <else>
+              <date variable="original-date">
+                <date-part name="year"/>
+              </date>
+            </else>
+          </choose>
+          <choose>
+            <if is-uncertain-date="issued">
+              <group prefix="[" suffix="]" delimiter=" ">
+                <text term="circa" form="short"/>
+                <group>
+                  <date variable="issued">
+                    <date-part name="year"/>
+                  </date>
+                  <text variable="year-suffix"/>
+                </group>
+              </group>
+            </if>
+            <else>
+              <group>
+                <date variable="issued">
+                  <date-part name="year"/>
+                </date>
+                <text variable="year-suffix"/>
+              </group>
+            </else>
+          </choose>
         </group>
       </if>
       <else-if variable="status">
-        <text variable="status"/>
+        <text variable="status" text-case="lowercase"/>
         <text variable="year-suffix" prefix="-"/>
       </else-if>
       <else>
@@ -497,7 +550,7 @@
           <if variable="issued">
             <choose>
               <if variable="page issue" match="none">
-                <text variable="status" prefix=". "/>
+                <text variable="status" text-case="capitalize-first" prefix=". "/>
               </if>
             </choose>
           </if>
