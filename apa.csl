@@ -10,6 +10,10 @@
       <name>Simon Kornblith</name>
       <email>simon@simonster.com</email>
     </author>
+    <author>
+      <name> Brenton M. Wiernik</name>
+      <email>zotero@wiernik.org</email>
+    </author>
     <contributor>
       <name>Bruce D'Arcus</name>
     </contributor>
@@ -23,10 +27,6 @@
     </contributor>
     <contributor>
       <name>Sebastian Karcher</name>
-    </contributor>
-    <contributor>
-      <name> Brenton M. Wiernik</name>
-      <email>zotero@wiernik.org</email>
     </contributor>
     <category citation-format="author-date"/>
     <category field="psychology"/>
@@ -50,7 +50,7 @@
   </locale>
   <macro name="container-contributors">
     <choose>
-      <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+      <if type="chapter paper-conference entry entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=", ">
           <names variable="container-author" delimiter=", ">
             <name and="symbol" initialize-with=". " delimiter=", "/>
@@ -66,7 +66,7 @@
   </macro>
   <macro name="secondary-contributors">
     <choose>
-      <if type="article-journal chapter paper-conference entry-dictionary entry-encyclopedia" match="none">
+      <if type="article-journal chapter paper-conference entry entry-dictionary entry-encyclopedia" match="none">
         <group delimiter=", " prefix=" (" suffix=")">
           <names variable="container-author" delimiter=", ">
             <name and="symbol" initialize-with=". " delimiter=", "/>
@@ -155,55 +155,41 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="thesis report" match="any">
-        <choose>
-          <if variable="DOI" match="any">
-            <text variable="DOI" prefix="https://doi.org/"/>
-          </if>
-          <else-if variable="URL" match="any">
-            <group>
-              <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-              <text term="from" suffix=" "/>
-              <text variable="URL"/>
-            </group>
-          </else-if>
-          <else-if variable="archive" match="any">
-            <group>
-              <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-              <text term="from" suffix=" "/>
-              <text variable="archive" suffix="."/>
-              <text variable="archive_location" prefix=" (" suffix=")"/>
-            </group>
-          </else-if>
-        </choose>
+      <if variable="DOI" match="any">
+        <text variable="DOI" prefix="https://doi.org/"/>
       </if>
+      <else-if variable="URL">
+        <group delimiter=" ">
+          <text term="retrieved" text-case="capitalize-first"/>
+          <choose>
+            <if type="post post-weblog webpage" match="any">
+              <date variable="accessed" form="text" suffix=","/>
+            </if>
+          </choose>
+          <text term="from"/>
+          <choose>
+            <if type="report">
+              <choose>
+                <if variable="author editor translator" match="none">
+                  <!-- This should be localized -->
+                  <text variable="publisher" suffix=" website"/>
+                </if>
+              </choose>
+            </if>
+          </choose>
+          <text variable="URL" prefix=": "/>
+        </group>
+      </else-if>
+      <else-if variable="archive" type="report thesis pamphlet" match="all">
+        <group delimiter=" ">
+          <text term="retrieved" text-case="capitalize-first"/>
+          <text term="from"/>
+          <text variable="archive" suffix="."/>
+          <text variable="archive_location" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
       <else>
-        <choose>
-          <if variable="DOI">
-            <text variable="DOI" prefix="https://doi.org/"/>
-          </if>
-          <else>
-            <choose>
-              <if type="post post-weblog webpage" match="any">
-                <group delimiter=" ">
-                  <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-                  <group>
-                    <date variable="accessed" form="text" suffix=", "/>
-                  </group>
-                  <text term="from"/>
-                  <text variable="URL"/>
-                </group>
-              </if>
-              <else>
-                <group>
-                  <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-                  <text term="from" suffix=" "/>
-                  <text variable="URL"/>
-                </group>
-              </else>
-            </choose>
-          </else>
-        </choose>
+        <text macro="publisher" suffix="."/>
       </else>
     </choose>
   </macro>
@@ -226,6 +212,7 @@
             <group delimiter=" ">
               <text variable="title"/>
               <group delimiter=", " prefix="[" suffix="]">
+                <!-- This should be localized -->
                 <text variable="reviewed-title" font-style="italic" prefix="Review of "/>
                 <names variable="reviewed-author" delimiter=", ">
                   <label form="verb-short" suffix=" "/>
@@ -237,6 +224,7 @@
           <else>
             <!-- assume `title` is title of reviewed work -->
             <group delimiter=", " prefix="[" suffix="]">
+              <!-- This should be localized -->
               <text variable="title" font-style="italic" prefix="Review of "/>
               <names variable="reviewed-author" delimiter=", ">
                 <label form="verb-short" suffix=" "/>
@@ -300,7 +288,7 @@
             <text variable="genre" text-case="capitalize-first"/>
           </if>
           <else>
-            <!-- This should be localized -->
+            
             <text value="Data set"/>
           </else>
         </choose>
@@ -309,10 +297,11 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="report" match="any">
-        <group delimiter=": ">
-          <text variable="publisher-place"/>
+      <if type="manuscript dataset" match="any">
+        <group delimiter=", ">
+          <text variable="genre">
           <text variable="publisher"/>
+          <text variable="publisher-place"/>
         </group>
       </if>
       <else-if type="thesis" match="any">
@@ -334,35 +323,24 @@
           </choose>
         </group>
       </else-if>
-      <else-if type="post-weblog webpage" match="none">
-        <group delimiter=", ">
+      <else-if type="article-journal article-magazine article-newspaper post post-weblog webpage" match="none">
+        <group delimiter=": ">
           <choose>
-            <if variable="event version" type="speech dataset motion_picture" match="none">
-              <!-- Including version is to avoid printing the programming language for computerProgram /-->
-              <text variable="genre"/>
+            <if variable="publisher-place">
+              <text variable="publisher-place"/>
             </if>
+            <else>
+              <text variable="event-place"/>
+            </else>
           </choose>
-          <choose>
-            <if type="article-journal article-magazine article-newspaper" match="none">
-              <group delimiter=": ">
-                <choose>
-                  <if variable="publisher-place">
-                    <text variable="publisher-place"/>
-                  </if>
-                  <else>
-                    <text variable="event-place"/>
-                  </else>
-                </choose>
-                <text variable="publisher"/>
-              </group>
-            </if>
-          </choose>
+          <text variable="publisher"/>
         </group>
       </else-if>
     </choose>
   </macro>
   <macro name="event">
     <choose>
+      <!-- Don't print event info if published in a proceedings -->
       <if variable="container-title" match="none">
         <choose>
           <if variable="event">
@@ -552,7 +530,7 @@
           <text variable="page"/>
         </group>
         <choose>
-          <!--for advanced online publication-->
+          <!--for advance online publication-->
           <if variable="issued">
             <choose>
               <if variable="page issue" match="none">
@@ -568,7 +546,7 @@
           <text variable="page"/>
         </group>
       </else-if>
-      <else-if type="book graphic motion_picture report song chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
+      <else-if type="book chapter entry entry-dictionary entry-encyclopedia graphic motion_picture paper-conference report song" match="any">
         <group prefix=" (" suffix=")" delimiter=", ">
           <choose>
             <if type="report" match="none">
@@ -635,7 +613,7 @@
       <if type="post-weblog webpage" match="none">
         <group>
           <choose>
-            <if type="chapter paper-conference entry-encyclopedia" match="any">
+            <if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
               <text term="in" text-case="capitalize-first" suffix=" "/>
             </if>
           </choose>
@@ -745,14 +723,10 @@
             </else>
           </choose>
           <text macro="title-plus-extra"/>
-          <text macro="container"/>
         </group>
         <text macro="legal-cites"/>
         <text macro="locators"/>
-        <group delimiter=", " prefix=". ">
-          <text macro="event"/>
-          <text macro="publisher"/>
-        </group>
+        <text macro="event" prefix=". "/>
       </group>
       <text macro="access" prefix=" "/>
       <choose>
