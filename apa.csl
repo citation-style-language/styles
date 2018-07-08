@@ -48,37 +48,48 @@
       <term name="from">de</term>
     </terms>
   </locale>
-  <macro name="container-contributors">
+  <macro name="additional-contributors">
     <choose>
-      <if type="chapter paper-conference entry entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=", ">
-          <names variable="container-author" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-            <label form="short" prefix=" (" text-case="title" suffix=")"/>
-          </names>
-          <names variable="editor translator" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-            <label form="short" prefix=" (" text-case="title" suffix=")"/>
-          </names>
-        </group>
+      <if type="report">
+        <choose>
+          <if variable="container-title">
+            <text macro="container-contributors"/>
+          </if>
+          <else>
+            <text macro="secondary-contributors"/>
+          </else>
+        </choose>
       </if>
-    </choose>
+      <else-if type="chapter entry entry-dictionary entry-encyclopedia paper-conference">
+        <text macro="container-contributors"/>
+      </else-if>
+      <else-if type="article-journal" match="none">
+        <text macro="secondary-contributors"/>
+      </else-if>
+  </macro>
+  <macro name="container-contributors">
+    <group delimiter=", ">
+      <names variable="container-author" delimiter=", ">
+        <name and="symbol" initialize-with=". " delimiter=", "/>
+        <label form="short" prefix=" (" text-case="title" suffix=")"/>
+      </names>
+      <names variable="editor translator" delimiter=", ">
+        <name and="symbol" initialize-with=". " delimiter=", "/>
+        <label form="short" prefix=" (" text-case="title" suffix=")"/>
+      </names>
+    </group>
   </macro>
   <macro name="secondary-contributors">
-    <choose>
-      <if type="article-journal chapter paper-conference entry entry-dictionary entry-encyclopedia" match="none">
-        <group delimiter=", " prefix=" (" suffix=")">
-          <names variable="container-author" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-            <label form="short" prefix=", " text-case="title"/>
-          </names>
-          <names variable="editor translator" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-            <label form="short" prefix=", " text-case="title"/>
-          </names>
-        </group>
-      </if>
-    </choose>
+    <group delimiter=", " prefix=" (" suffix=")">
+      <names variable="container-author" delimiter=", ">
+        <name and="symbol" initialize-with=". " delimiter=", "/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+      <names variable="editor translator" delimiter=", ">
+        <name and="symbol" initialize-with=". " delimiter=", "/>
+        <label form="short" prefix=", " text-case="title"/>
+      </names>
+    </group>
   </macro>
   <macro name="author">
     <names variable="author">
@@ -609,29 +620,27 @@
     </group>
   </macro>
   <macro name="container">
-    <choose>
-      <if type="post-weblog webpage" match="none">
-        <group>
-          <choose>
-            <if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
-              <text term="in" text-case="capitalize-first" suffix=" "/>
-            </if>
-          </choose>
-          <group delimiter=", ">
-            <text macro="container-contributors"/>
-            <text macro="secondary-contributors"/>
-            <text macro="container-title"/>
-          </group>
-        </group>
-      </if>
-    </choose>
+    <group>
+      <choose>
+        <if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
+          <text term="in" text-case="capitalize-first" suffix=" "/>
+        </if>
+        <else-if type="report" variable="container-title" match="all">
+          <text term="in" text-case="capitalize-first" suffix=" "/>
+        </else-if>
+      </choose>
+      <group delimiter=", ">
+        <text macro="additional-contributors"/>
+        <text macro="container-title"/>
+      </group>
+    </group>
   </macro>
   <macro name="container-title">
     <choose>
       <if type="article article-journal article-magazine article-newspaper" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="bill legal_case legislation" match="none">
+      <else-if type="bill legal_case legislation post-weblog webpage" match="none">
         <text variable="container-title" font-style="italic"/>
       </else-if>
     </choose>
