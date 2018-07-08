@@ -31,17 +31,17 @@ Please note the following remarks (some concerning only the use of the style wit
 
 - The style supports using variables for which there are no distinct fields of entry in Zotero (see comments below). These variables can be set through Zotero’s 'Extra' field like this:
 
-{:event-place: Abbey Road Studios}
-{:reviewed-author: Kafka || Franz}
-{:original-date: 1899}
+event-place: Abbey Road Studios
+reviewed-author: Kafka || Franz
+original-date: 1899
 
 - All types can have 'original-date'.
 
 - Dates can be given in Extended Date/Time Format 1.0 (EDTF) like this:
 
-{:issued: 1503/1506}
-{:issued: -27500~}
-{:event-date: 1975-04-11/1975-04-13}
+issued: 1503/1506
+issued: -27500~
+event-date: 1975-04-11/1975-04-13
 
 CAVEAT: Support for EDTF in Zotero 5.x is flaky and output will likely be wrong!
 
@@ -51,17 +51,17 @@ CAVEAT: Support for EDTF in Zotero 5.x is flaky and output will likely be wrong!
 
 - To get the right 'Buchtitel' / 'container-title' in recurring references of author’s collected volumes using 'Buchteil' / 'chapter' (like Freud: Gesammelte Werke or Heidegger: Gesamtausgabe), either correct the output manually _or_ set 'version' (through Zotero’s 'Extra' field) to any value, e.g. "zfm-Sammelwerk", like this:
 
-{:version: zfm-Sammelwerk}
+version: zfm-Sammelwerk
 
 - Info on catalogues using 'Buch' / 'book' must be set through Zotero’s 'Extra' field like this:
 
-{:genre: Ausst.-Kat. Akademie der Künste Berlin}
+genre: Ausst.-Kat. Akademie der Künste Berlin
 
 - 'Blog-Post' / 'blogPost' can have 'publisher' (for publisher of blog).
 
 - In Zotero, the country for 'Film' / 'motion_picture' must be set through Zotero’s 'Extra' field like this:
 
-{:publisher-place: USA}
+publisher-place: USA
 
 - The style tries hard to get the prefixes "dort datiert" for dates and "online unter" for URls right. They will have to be corrected manually in some instances, though.
 
@@ -75,7 +75,7 @@ Bd. 7
 
 - In Zotero, 'Ort' / 'publisher-place' for types 'Zeitschriftenartikel' / 'article-journal' must be set through Zotero’s 'Extra' field like this:
 
-{:publisher-place: Drexel Hill, Pennsylvania}
+publisher-place: Drexel Hill, Pennsylvania
 
 - Detection of language as Not-English (through default-locale="de-DE" in header of style file) does not work for 'original-title' and 'reviewed-title'. Therefore, output for these variables will be formatted according to text-case="title".
 
@@ -274,16 +274,13 @@ Bd. 7
     <choose>
       <if variable="title" match="none">
 	<choose>
-	  <if variable="reviewed-author reviewed-title" match="all">
+	  <if variable="reviewed-author reviewed-title" match="any">
 	    <text value="Rezension zu"/>
-	    <names prefix=" " variable="reviewed-author"/>
-    	    <text prefix=": " variable="reviewed-title" font-style="italic" text-case="title"/>
-	  </if>
-	  <else-if variable="reviewed-author reviewed-title" match="any">
-	    <text value="Rezension zu"/>
-	    <names prefix=" " variable="reviewed-author"/>
-    	    <text prefix=" " variable="reviewed-title" font-style="italic" text-case="title"/>
-	  </else-if>
+		  <group delimiter=": " prefix=" ">
+	    <names variable="reviewed-author"/>
+    	    <text variable="reviewed-title" font-style="italic" text-case="title"/>
+		  </group>
+		</if>
 	</choose>
       </if>
     </choose>
@@ -291,14 +288,7 @@ Bd. 7
   <macro name="main-title-short">
     <choose>
       <if type="book">
-	<choose>
-	  <if variable="title-short">
-            <text variable="title-short" font-style="italic" text-case="title"/>
-	  </if>
-	  <else>
             <text variable="title" font-style="italic" text-case="title" form="short"/>
-	  </else>
-	</choose>
 	<choose>
 	  <if variable="title-short" match="none">
 	    <text prefix=", " macro="volume-and-issue"/>
@@ -310,9 +300,6 @@ Bd. 7
 	  <if variable="original-title">
 	    <text variable="original-title" font-style="italic" text-case="title"/>
   	  </if>
-	  <else-if variable="title-short">
-	    <text variable="title-short" font-style="italic" text-case="title"/>
-	  </else-if>
   	  <else>
   	    <text variable="title" font-style="italic" text-case="title" form="short"/>
   	  </else>
@@ -320,24 +307,10 @@ Bd. 7
 	<text prefix=", " macro="volume-and-issue"/>
       </else-if>
       <else-if type="chapter" variable="version" match="all">
-	<choose>
-	  <if variable="container-title-short">
-	    <text variable="container-title-short" font-style="italic" text-case="title" form="short"/>
-	  </if>
-	  <else>
 	    <text variable="container-title" font-style="italic" text-case="title" form="short"/>
-	  </else>
-	</choose>
       </else-if>
       <else>
-	<choose>
-	  <if variable="title-short">
-            <text variable="title-short" text-case="title"/>
-	  </if>
-	  <else>
             <text variable="title" text-case="title" form="short"/>
-	  </else>
-	</choose>
       </else>
     </choose>
     <choose>
@@ -379,17 +352,13 @@ Bd. 7
     <choose>
       <if variable="title title-short" match="any">
 	<choose>
-	  <if variable="reviewed-author reviewed-title" match="all">
-	    <text value=", Rezension zu"/>
-	    <names prefix=" " variable="reviewed-author"/>
-    	    <text prefix=": " variable="reviewed-title" font-style="italic" text-case="title"/>
+	  <if variable="reviewed-author reviewed-title" match="any">
+	    <group delimiter=": " prefix=", Rezension zu ">
+	    <names variable="reviewed-author"/>
+    	    <text variable="reviewed-title" font-style="italic" text-case="title"/>
 	  </if>
-	  <else-if variable="reviewed-author reviewed-title" match="any">
-	    <text value=", Rezension zu"/>
-	    <names prefix=" " variable="reviewed-author"/>
-    	    <text prefix=" " variable="reviewed-title" font-style="italic" text-case="title"/>
-	  </else-if>
-	</choose>
+		  </group>
+	      </choose>
       </if>
     </choose>
     <choose>
@@ -433,9 +402,9 @@ Bd. 7
   </macro>
   <macro name="tertiary-title">
     <choose>
-      <if type="book">
+      <if type="book chapter" match="any">
 	<choose>
-	  <if variable="author editor title title-short" match="any">
+	  <if variable="author editor title title-short" type="chapter" match="any">
 	    <choose>
 	      <if is-numeric="collection-number">
 		<group delimiter="&#160;">
@@ -453,22 +422,6 @@ Bd. 7
 	  </if>
 	</choose>
       </if>
-      <else-if type="chapter">
-	<choose>
-	  <if is-numeric="collection-number">
-	    <group delimiter="&#160;">
-	      <text variable="collection-title" text-case="title"/>
-	      <text variable="collection-number"/>
-	    </group>
-	  </if>
-	  <else>
-	    <group delimiter=", " >
-	      <text variable="collection-title" text-case="title"/>
-	      <text variable="collection-number"/>
-	    </group>
-	  </else>
-	</choose>
-      </else-if>
     </choose>
   </macro>
   <macro name="published">
@@ -530,19 +483,13 @@ Bd. 7
       </if>
       <else-if type="book chapter" match="any">
 	<choose>
-	  <if variable="volume number-of-volumes" match="all">
+	  <if variable="volume" match="all">
 	    <group delimiter=" ">
 	      <text term="volume" plural="false" form="short"/>
 	      <text variable="volume"/>
 	      <text prefix=" (von " variable="number-of-volumes" suffix=")"/>
 	    </group>
 	  </if>
-	  <else-if variable="volume">
-	    <group delimiter=" ">
-	      <text term="volume" plural="false" form="short"/>
-	      <text variable="volume"/>
-	    </group>
-	  </else-if>
 	  <else-if variable="number-of-volumes">
 	    <text variable="number-of-volumes" form="short"/>
 	    <text prefix=" " term="volume" plural="true" form="short"/>
@@ -601,7 +548,7 @@ Bd. 7
   </macro>
   <macro name="original-date">
     <choose>
-      <if is-uncertain-date="issued">
+      <if is-uncertain-date="original-date">
     	<text term="circa" form="short" suffix=" "/>
       </if>
     </choose>
