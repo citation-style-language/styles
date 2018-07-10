@@ -165,8 +165,9 @@
           </substitute>
         </names>
       </if>
+      <else-if type="treaty"/>
       <else>
-        <names variable="author">
+        <names variable="author illustrator director">
           <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
           <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
           <substitute>
@@ -191,6 +192,9 @@
       <if type="patent" variable="number" match="all">
         <text macro="patent-number"/>
       </if>
+      <else-if type="treaty">
+        <text variable="title" form="short"/>
+      </else-if>
       <else-if type="song">
         <names variable="composer original-author">
           <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
@@ -202,7 +206,7 @@
         </names>
       </else-if>
       <else>
-        <names variable="author">
+        <names variable="author illustrator director">
           <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
           <substitute>
             <names variable="editor"/>
@@ -303,6 +307,12 @@
           </else>
         </choose>
       </if>
+      <else-if type="treaty">
+        <group delimiter=", ">
+          <text variable="title" text-case="title"/>
+          <names variable="author" delimiter="-" initialize-with="." form="short"/>
+        </group>
+      </else-if>
       <else-if variable="reviewed-author">
         <choose>
           <if variable="reviewed-title">
@@ -699,26 +709,7 @@
           <text variable="page"/>
         </group>
       </else-if>
-      <else-if type="legal_case">
-        <group prefix=" (" suffix=")" delimiter=" ">
-          <text variable="authority"/>
-          <choose>
-            <if variable="container-title" match="any">
-              <!--Only print year for cases published in reporters-->
-              <date variable="issued" form="numeric" date-parts="year"/>
-            </if>
-            <else>
-              <date variable="issued" form="text"/>
-            </else>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="bill legislation" match="any">
-        <date variable="issued" prefix=" (" suffix=")">
-          <date-part name="year"/>
-        </date>
-      </else-if>
-      <else-if type="broadcast interview patent post post-weblog speech treaty webpage" match="none">
+      <else-if type="bill broadcast interview legal_case legislation patent post post-weblog speech treaty webpage" match="none">
         <group delimiter=", ">
           <text macro="edition"/>
           <text variable="version"/>
@@ -798,11 +789,8 @@
           </group>
         </group>
       </else-if>
-      <else-if type="bill legal_case legislation">
-        <group delimiter=" ">
-          <text macro="legal-cites"/>
-          <text macro="locators"/>
-        </group>
+      <else-if type="bill legal_case legislation treaty">
+        <text macro="legal-cites"/>
       </else-if>     
     </choose>
   </macro>
@@ -820,51 +808,76 @@
     <choose>
       <if type="legal_case" match="any">
         <group prefix=", " delimiter=" ">
-          <choose>
-            <if variable="container-title">
-              <text variable="volume"/>
-              <text variable="container-title"/>
-              <group delimiter=" ">
-                <!--change to label variable="section" as that becomes available -->
-                <text term="section" form="symbol"/>
-                <text variable="section"/>
-              </group>
-              <text variable="page"/>
-            </if>
-            <else>
-              <text variable="number" prefix="No. "/>
-            </else>
-          </choose>
+          <group delimter=" ">
+            <choose>
+              <if variable="container-title">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <group delimiter=" ">
+                  <!--change to label variable="section" as that becomes available -->
+                  <text term="section" form="symbol"/>
+                  <text variable="section"/>
+                </group>
+                <text variable="page"/>
+              </if>
+              <else>
+                <text variable="number" prefix="No. "/>
+              </else>
+            </choose>
+          </group>
+          <group prefix="(" suffix=")" delimiter=" ">
+            <text variable="authority"/>
+            <choose>
+              <if variable="container-title" match="any">
+                <!--Only print year for cases published in reporters-->
+                <date variable="issued" form="numeric" date-parts="year"/>
+              </if>
+              <else>
+                <date variable="issued" form="text"/>
+              </else>
+            </choose>
+          </group>
         </group>
       </if>
       <else-if type="bill legislation" match="any">
-        <group delimiter=", " prefix=", ">
-          <choose>
-            <if variable="number">
-              <!--There's a public law number-->
-              <text variable="number" prefix="Pub. L. No. "/>
-              <group delimiter=" ">
-                <!--change to label variable="section" as that becomes available -->
-                <text term="section" form="symbol"/>
-                <text variable="section"/>
-              </group>
-              <group delimiter=" ">
-                <text variable="volume"/>
-                <text variable="container-title"/>
-                <text variable="page-first"/>
-              </group>
-            </if>
-            <else>
-              <group delimiter=" ">
-                <text variable="volume"/>
-                <text variable="container-title"/>
-                <!--change to label variable="section" as that becomes available -->
-                <text term="section" form="symbol"/>
-                <text variable="section"/>
-              </group>
-            </else>
-          </choose>
+        <group prefix=", " delimiter=" ">
+          <group delimiter=", ">
+            <choose>
+              <if variable="number">
+                <!--There's a public law number-->
+                <text variable="number" prefix="Pub. L. No. "/>
+                <group delimiter=" ">
+                  <!--change to label variable="section" as that becomes available -->
+                  <text term="section" form="symbol"/>
+                  <text variable="section"/>
+                </group>
+                <group delimiter=" ">
+                  <text variable="volume"/>
+                  <text variable="container-title"/>
+                  <text variable="page-first"/>
+                </group>
+              </if>
+              <else>
+                <group delimiter=" ">
+                  <text variable="volume"/>
+                  <text variable="container-title"/>
+                  <!--change to label variable="section" as that becomes available -->
+                  <text term="section" form="symbol"/>
+                  <text variable="section"/>
+                </group>
+              </else>
+            </choose>
+          </group>
+          <date variable="issued" prefix="(" suffix=")">
+            <date-part name="year"/>
+          </date>
         </group>
+      </else-if>
+      <else-if type="treaty">
+        <group delimiter=" ">
+          <number variable="volume"/>
+          <text variable="container-title" form="short"/>
+          <number variable="page"/>
       </else-if>
     </choose>
   </macro>
