@@ -41,6 +41,7 @@
         <multiple>eds. &amp; trans.</multiple>
       </term>
       <term name="translator" form="short">trans.</term>
+      <term name="interviewer" form="short">interviewer</term>
     </terms>
   </locale>
   <locale xml:lang="es">
@@ -50,7 +51,7 @@
   </locale>
   <macro name="container-contributors">
     <choose>
-      <if type="broadcast chapter entry entry-dictionary entry-encyclopedia paper-conference personal_communication report">
+      <if type="broadcast chapter entry entry-dictionary entry-encyclopedia paper-conference personal_communication report" variable="container-title" match="all">
         <choose>
           <!-- If broadcast, personal_communication, or report don't have container titles, use secondary-contributors -->
           <if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" variable="container-title" match="none"/>
@@ -81,11 +82,17 @@
   <macro name="secondary-contributors">
     <choose>
       <if type="broadcast report" variable="container-title" match="all">
-          <names variable="interviewer" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-            <label form="short" prefix=", " text-case="title"/>
-          </names>
+        <names variable="interviewer" delimiter=", ">
+          <name and="symbol" initialize-with=". " delimiter=", "/>
+          <label form="short" prefix=", " text-case="title"/>
+        </names>
       </if>
+      <else-if type="chapter entry entry-dictionary entry-encyclopedia paper-conference">
+        <names variable="interviewer" delimiter=", ">
+          <name and="symbol" initialize-with=". " delimiter=", "/>
+          <label form="short" prefix=", " text-case="title"/>
+        </names>
+      </else-if>
       <else-if type="personal_communication">
         <group delimiter="; ">
           <group delimiter=" ">
@@ -195,6 +202,32 @@
       <else-if type="treaty">
         <text variable="title" form="short"/>
       </else-if>
+      <else-if type="personal_communication">
+        <choose>
+          <if variable="archive DOI publisher URL" match="none">
+            <group delimiter=", ">
+              <names variable="author">
+                <name and="symbol" delimiter=", " initialize-with=". "/>
+                <substitute>
+                  <text variable="title" form="short" quotes="true"/>
+                </substitute>
+              </names>
+              <!-- This should be localized -->
+              <text value="personal communication"/>
+            </group>
+          </if>
+          <else>
+            <names variable="author illustrator director">
+              <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
+              <substitute>
+                <names variable="editor"/>
+                <names variable="translator"/>
+                <text variable="title" form="short" quotes="true"/>
+              </substitute>
+            </names>
+          </else>
+        </choose>
+      </else-if>
       <else-if type="song">
         <names variable="composer original-author">
           <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
@@ -261,27 +294,29 @@
       </if>
       <else-if variable="URL">
         <group delimiter=" ">
-          <text term="retrieved" text-case="capitalize-first"/>
-          <choose>
-            <if type="post post-weblog webpage" match="any">
-              <date variable="accessed" form="text" suffix=","/>
-            </if>
-          </choose>
-          <text term="from"/>
-          <choose>
-            <if type="report">
-              <choose>
-                <if variable="author editor translator" match="none">
-                  <!-- This should be localized -->
-                  <text variable="publisher" suffix=" website"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
-          <text variable="URL" prefix=": "/>
+          <group delimiter=" " suffix=":">
+            <text term="retrieved" text-case="capitalize-first"/>
+            <choose>
+              <if type="post post-weblog webpage" match="any">
+                <date variable="accessed" form="text" suffix=","/>
+              </if>
+            </choose>
+            <text term="from"/>
+            <choose>
+              <if type="report">
+                <choose>
+                  <if variable="author editor translator" match="any">
+                    <!-- This should be localized -->
+                    <text variable="publisher" suffix=" website"/>
+                  </if>
+                </choose>
+              </if>
+            </choose>
+          </group>
+          <text variable="URL"/>
         </group>
       </else-if>
-      <else-if variable="archive" type="report thesis pamphlet" match="all">
+      <else-if variable="archive" type="report thesis" match="all">
         <group delimiter=" ">
           <text term="retrieved" text-case="capitalize-first"/>
           <text term="from"/>
@@ -296,21 +331,16 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="book dataset graphic manuscript motion_picture report song speech thesis" match="any">
-        <choose>
-          <if variable="version" type="book" match="all">
-            <!---This is a hack until we have a computer program type -->
-            <text variable="title"/>
-          </if>
-          <else>
-            <text variable="title" font-style="italic"/>
-          </else>
-        </choose>
+      <if variable="version" type="book" match="all">
+        <!---This is a hack until we have a software type -->
+        <text variable="title"/>
       </if>
       <else-if type="treaty">
         <group delimiter=", ">
           <text variable="title" text-case="title"/>
-          <names variable="author" delimiter="-" initialize-with="." form="short"/>
+          <names variable="author" delimiter="-" >
+            <name initialize-with="." form="short"/>
+          </names>
         </group>
       </else-if>
       <else-if variable="reviewed-author">
@@ -344,8 +374,11 @@
       <else-if type="patent" variable="number" match="all">
         <text macro="patent-number" font-style="italic"/>
       </else-if>
-      <else>
+      <else-if variable="container-title">
         <text variable="title"/>
+      </else-if>
+      <else>
+        <text variable="title" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -368,7 +401,7 @@
           </choose>
         </if>
         <else-if type="thesis">
-          <group delimiter="; " prefix="(" suffix=")">
+          <group delimiter="; ">
             <text variable="genre" text-case="capitalize-first"/>
             <text macro="locators"/>
             <text macro="secondary-contributors"/>
@@ -395,7 +428,7 @@
         <else-if type="report">
           <choose>
             <if variable="container-title" match="none">
-              <text macro="description-report"/>
+              <text macro="format-report"/>
             </if>
           </choose>
         </else-if>
@@ -414,7 +447,17 @@
           </choose>
         </else-if>
         <else-if type="personal_communication song">
-          <text macro="secondary-contributors" prefix="[" suffix="]"/>
+          <text macro="secondary-contributors"/>
+        </else-if>
+        <else-if type="paper-conference">
+          <group delimiter=", ">
+            <choose>
+              <if variable="container-title">
+                <text variable="genre" text-case="capitalize-first"/>
+              </if>
+            </choose>
+            <text variable="medium" text-case="capitalize-first"/>
+          </group>
         </else-if>
         <else-if type="bill legislation legal_case patent treaty" match="none">
           <group delimiter=", ">
@@ -469,11 +512,29 @@
     <choose>
       <if type="manuscript" match="any">
         <group delimiter=", ">
-          <text variable="genre"/>
+          <choose>
+            <if variable="archive" match="none">
+              <text variable="genre"/>
+            </if>
+          </choose>
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text variable="archive_location" prefix="(" suffix=")"/>
+          </group>
           <text variable="publisher"/>
           <text variable="publisher-place"/>
         </group>
       </if>
+      <else-if type="pamphlet personal_communication" match="any">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text variable="archive_location" prefix="(" suffix=")"/>
+          </group> 
+          <text variable="publisher"/>
+          <text variable="publisher-place"/>
+        </group>
+      </else-if>
       <else-if type="thesis" match="any">
         <group delimiter=", ">
           <text variable="publisher"/>
@@ -494,36 +555,51 @@
         </group>
       </else-if>
       <else-if type="article-journal article-magazine article-newspaper post post-weblog webpage" match="none">
-        <group delimiter=": ">
-          <text variable="publisher-place"/>
-          <text variable="publisher"/>
-        </group>
+        <choose>
+          <if variable="event">
+            <choose>
+              <if variable="container-title">
+                <group delimiter=": ">
+                  <text variable="publisher-place"/>
+                  <text variable="publisher"/>
+                </group>
+              </if>
+            </choose>
+          </if>
+          <else> 
+            <group delimiter=": ">
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+            </group>
+          </else>
+        </choose>
       </else-if>
     </choose>
   </macro>
   <macro name="event">
     <choose>
-      <!-- Don't print event info if published in a proceedings -->
-      <if variable="container-title" match="none">
+      <if variable="event" type="speech paper-conference" match="any">
         <choose>
-          <if variable="event">
-            <choose>
-              <if variable="genre" match="none">
-                <text term="presented at" text-case="capitalize-first" suffix=" "/>
-                <text variable="event"/>
-              </if>
-              <else>
-                <group delimiter=" ">
-                  <text variable="genre" text-case="capitalize-first"/>
-                  <text term="presented at"/>
+          <!-- Don't print event info if published in a proceedings -->
+          <if variable="container-title" match="none">
+            <group delimiter=" ">
+              <text variable="genre" text-case="capitalize-first"/>
+              <group delimiter=" ">
+                <choose>
+                  <if variable="genre">
+                    <text term="presented at"/>
+                  </if>
+                  <else>
+                    <text term="presented at" text-case="capitalize-first"/>
+                  </else>
+                </choose>
+                <group delimiter=", ">
                   <text variable="event"/>
+                  <text variable="event-place"/>
                 </group>
-              </else>
-            </choose>
+              </group>
+            </group>
           </if>
-          <else-if type="speech">
-            <text variable="genre" text-case="capitalize-first"/>
-          </else-if>
         </choose>
       </if>
     </choose>
@@ -607,18 +683,50 @@
               <group prefix="[" suffix="]" delimiter=" ">
                 <text term="circa" form="short"/>
                 <group>
-                  <date variable="issued">
-                    <date-part name="year"/>
-                  </date>
+                  <choose>
+                    <if type="personal_communication">
+                      <choose>
+                        <if variable="archive DOI publisher URL" match="none">
+                          <date variable="issued" form="text"/>
+                        </if>
+                        <else>
+                          <date variable="issued">
+                            <date-part name="year"/>
+                          </date>
+                        </else>
+                      </choose>
+                    </if>
+                    <else>
+                      <date variable="issued">
+                        <date-part name="year"/>
+                      </date>
+                    </else>
+                  </choose>
                   <text variable="year-suffix"/>
                 </group>
               </group>
             </if>
             <else>
               <group>
-                <date variable="issued">
-                  <date-part name="year"/>
-                </date>
+                <choose>
+                  <if type="personal_communication">
+                    <choose>
+                      <if variable="archive DOI publisher URL" match="none">
+                        <date variable="issued" form="text"/>
+                      </if>
+                      <else>
+                        <date variable="issued">
+                          <date-part name="year"/>
+                        </date>
+                      </else>
+                    </choose>
+                  </if>
+                  <else>
+                    <date variable="issued">
+                      <date-part name="year"/>
+                    </date>
+                  </else>
+                </choose>
                 <text variable="year-suffix"/>
               </group>
             </else>
@@ -712,7 +820,10 @@
       <else-if type="bill broadcast interview legal_case legislation patent post post-weblog speech treaty webpage" match="none">
         <group delimiter=", ">
           <text macro="edition"/>
-          <text variable="version"/>
+          <group delimiter=" ">
+            <text term="version" text-case="capitalize-first"/>
+            <text variable="version"/>
+          </group>
           <choose>
             <if variable="volume" match="any">
               <group>
@@ -808,7 +919,7 @@
     <choose>
       <if type="legal_case" match="any">
         <group prefix=", " delimiter=" ">
-          <group delimter=" ">
+          <group delimiter=" ">
             <choose>
               <if variable="container-title">
                 <text variable="volume"/>
@@ -877,7 +988,8 @@
         <group delimiter=" ">
           <number variable="volume"/>
           <text variable="container-title" form="short"/>
-          <number variable="page"/>
+          <text variable="page"/>
+        </group>
       </else-if>
     </choose>
   </macro>
