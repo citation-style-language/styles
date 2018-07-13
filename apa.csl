@@ -56,12 +56,8 @@
           <!-- If broadcast, personal_communication, or report don't have container titles, use secondary-contributors -->
           <if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" variable="container-title" match="none"/>
           <else-if variable="container-author">
-            <group delimiter="; ">
-              <names variable="container-author" delimiter=", ">
-                <name and="symbol" initialize-with=". " delimiter=", "/>
-                <label form="short" prefix=" (" text-case="title" suffix=")"/>
-              </names>
-              <names variable="translator" delimiter=", ">
+            <group>
+              <names variable="container-author translator" delimiter=", &amp; ">
                 <name and="symbol" initialize-with=". " delimiter=", "/>
                 <label form="short" prefix=" (" text-case="title" suffix=")"/>
               </names>
@@ -69,7 +65,7 @@
           </else-if>
           <else>
             <group>
-              <names variable="editor translator" delimiter=", ">
+              <names variable="editor translator" delimiter=", &amp; ">
                 <name and="symbol" initialize-with=". " delimiter=", "/>
                 <label form="short" prefix=" (" text-case="title" suffix=")"/>
               </names>
@@ -82,13 +78,13 @@
   <macro name="secondary-contributors">
     <choose>
       <if type="broadcast report" variable="container-title" match="all">
-        <names variable="interviewer" delimiter=", ">
+        <names variable="interviewer" delimiter="; ">
           <name and="symbol" initialize-with=". " delimiter=", "/>
           <label form="short" prefix=", " text-case="title"/>
         </names>
       </if>
       <else-if type="chapter entry entry-dictionary entry-encyclopedia paper-conference">
-        <names variable="interviewer" delimiter=", ">
+        <names variable="interviewer" delimiter="; ">
           <name and="symbol" initialize-with=". " delimiter=", "/>
           <label form="short" prefix=", " text-case="title"/>
         </names>
@@ -112,7 +108,7 @@
           <text variable="medium" text-case="capitalize-first"/>
           <choose>
             <if variable="container-title" match="none">
-              <names variable="editor translator" delimiter=", ">
+              <names variable="editor translator" delimiter="; ">
                 <name and="symbol" initialize-with=". " delimiter=", "/>
                 <label form="short" prefix=", " text-case="title"/>
               </names>
@@ -125,11 +121,11 @@
           <if variable="original-author composer" match="any">
             <group delimiter="; ">
               <!-- Replace prefix with performer label as that becomes available -->
-              <names variable="author" delimiter=", " prefix="Recorded by ">
-                <label form="verb" prefix=", " text-case="title"/>
+              <names variable="author" delimiter="; " prefix="Recorded by ">
+                <label form="verb" text-case="title"/>
                 <name and="symbol" initialize-with=". " delimiter=", "/>
               </names>
-              <names variable="translator" delimiter=", ">
+              <names variable="translator" delimiter="; ">
                 <name and="symbol" initialize-with=". " delimiter=", "/>
                 <label form="short" prefix=", " text-case="title"/>
               </names>
@@ -139,19 +135,19 @@
       </else-if>
       <else-if type="article-journal article-magazine article-newspaper">
         <group>
-          <names variable="interviewer translator" delimiter=", ">
+          <names variable="interviewer translator" delimiter="; ">
             <name and="symbol" initialize-with=". " delimiter=", "/>
             <label form="short" prefix=", " text-case="title"/>
           </names>
         </group>
       </else-if>
       <else>
-        <group delimiter=", ">
-          <names variable="interviewer" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
+        <group delimiter="; ">
+          <names variable="interviewer" delimiter="; ">
+            <name and="symbol" initialize-with=". " delimiter="; "/>
             <label form="short" prefix=", " text-case="title"/>
           </names>
-          <names variable="editor translator" delimiter=", ">
+          <names variable="editor translator" delimiter="; ">
             <name and="symbol" initialize-with=". " delimiter=", "/>
             <label form="short" prefix=", " text-case="title"/>
           </names>
@@ -162,22 +158,29 @@
   <macro name="author">
     <choose>
       <if type="song">
-        <names variable="composer original-author">
+        <names variable="composer" delimiter=", ">
           <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-          <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
           <substitute>
+            <names variable="original-author"/>
             <names variable="author"/>
-            <names variable="translator"/>
+            <names variable="translator">
+              <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+              <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
+            </names>
             <text macro="title"/>
           </substitute>
         </names>
       </if>
       <else-if type="treaty"/>
       <else>
-        <names variable="author illustrator director">
+        <names variable="author" delimiter=", ">
           <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
           <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
           <substitute>
+            <names variable="illustrator">
+              <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+            </names>
+            <names variable="director"/>
             <names variable="editor"/>
             <names variable="translator"/>
             <choose>
@@ -217,7 +220,7 @@
             </group>
           </if>
           <else>
-            <names variable="author illustrator director">
+            <names variable="author" delimiter=", ">
               <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
               <substitute>
                 <names variable="editor"/>
@@ -229,9 +232,10 @@
         </choose>
       </else-if>
       <else-if type="song">
-        <names variable="composer original-author">
+        <names variable="composer" delimiter=", ">
           <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
           <substitute>
+            <names variable="original-author"/>
             <names variable="author"/>
             <names variable="translator"/>
             <text variable="title" form="short" font-style="italic"/>
@@ -239,9 +243,11 @@
         </names>
       </else-if>
       <else>
-        <names variable="author illustrator director">
+        <names variable="author" delimiter=", ">
           <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
           <substitute>
+            <names variable="illustrator"/>
+            <names variable="director"/>
             <names variable="editor"/>
             <names variable="translator"/>
             <choose>
@@ -338,8 +344,8 @@
       <else-if type="treaty">
         <group delimiter=", ">
           <text variable="title" text-case="title"/>
-          <names variable="author" delimiter="-" >
-            <name initialize-with="." form="short"/>
+          <names variable="author">
+            <name initialize-with="." form="short" delimiter="-"/>
           </names>
         </group>
       </else-if>
@@ -890,7 +896,7 @@
               <text macro="locators" prefix="(" suffix=")"/>
               <choose>
                 <if type="song">
-                  <group delimiter=", ">
+                  <group delimiter=", " prefix="[" suffix="]">
                     <text variable="genre" text-case="capitalize-first"/>
                     <text variable="medium" text-case="capitalize-first"/>
                   </group>
