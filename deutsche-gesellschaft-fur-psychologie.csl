@@ -29,6 +29,11 @@
       <term name="et-al">et al.</term>
       <term name="retrieved">Zugriff am</term>
     </terms>
+    <date form="text">
+      <date-part name="year"/>
+      <date-part name="month" prefix=", "/>
+      <date-part name="day" prefix=" "/>
+    </date>
   </locale>
   <macro name="container-contributors">
     <choose>
@@ -84,7 +89,7 @@
       <if type="article-newspaper" match="none">
         <choose>
           <if variable="DOI">
-            <text value="doi:"/>
+            <text value="https://doi.org/"/>
             <text variable="DOI"/>
           </if>
           <else-if variable="URL">
@@ -173,36 +178,46 @@
     </choose>
   </macro>
   <macro name="issued">
-    <choose>
-      <if variable="issued">
-        <group prefix=" (" suffix=").">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-          <choose>
-            <if type="bill book graphic legal_case motion_picture report song article-journal chapter paper-conference" match="none">
-              <date variable="issued">
-                <date-part prefix=", " name="month"/>
-                <date-part prefix=" " name="day"/>
-              </date>
-            </if>
-          </choose>
-        </group>
-      </if>
-      <else>
-        <text prefix=" (" term="no date" suffix=")." form="short"/>
-      </else>
-    </choose>
+    <group prefix=" (" suffix=").">
+      <choose>
+        <if variable="issued">
+          <group delimiter=", ">
+            <group>
+              <date variable="issued" form="text" date-parts="year"/>
+              <text variable="year-suffix"/>
+            </group>
+            <choose>
+              <if type="bill book graphic legal_case motion_picture report song article-journal chapter paper-conference" match="none">
+                <date variable="issued">
+                  <date-part name="month"/>
+                  <date-part name="day" form="numeric" prefix=" "/>
+                </date>
+              </if>
+            </choose>
+          </group>
+        </if>
+        <else>
+          <group delimiter="-">
+            <text term="no date" form="short"/>
+            <text variable="year-suffix"/>
+          </group>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="issued-year">
     <choose>
       <if variable="issued">
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
+        <group>
+          <date variable="issued" form="text" date-parts="year"/>
+          <text variable="year-suffix"/>
+        </group>
       </if>
       <else>
-        <text term="no date" form="short"/>
+        <group delimiter="-">
+          <text term="no date" form="short"/>
+          <text variable="year-suffix"/>
+        </group>
       </else>
     </choose>
   </macro>
