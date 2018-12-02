@@ -43,6 +43,7 @@
       <term name="translator" form="short">trans.</term>
       <term name="interviewer" form="short">interviewer</term>
       <term name="circa" form="short">ca.</term>
+      <term name="collection-editor" form="short">series ed.</term>
     </terms>
   </locale>
   <locale xml:lang="es">
@@ -69,6 +70,9 @@
                   <names variable="editor translator" delimiter=", &amp; ">
                     <name and="symbol" initialize-with=". " delimiter=", "/>
                     <label form="short" prefix=" (" text-case="title" suffix=")"/>
+                    <substitute>
+                      <names variable="collection-editor"/>
+                    </substitute>
                   </names>
                 </group>
               </else>
@@ -82,14 +86,14 @@
     <choose>
       <if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map paper-conference report" match="any">
         <group delimiter="; ">
-          <names variable="interviewer" delimiter="; ">
+          <names variable="interviewer">
             <name and="symbol" initialize-with=". " delimiter=", "/>
             <label form="short" prefix=", " text-case="title"/>
           </names>
           <choose>
             <if variable="container-title" match="none">
               <group delimiter="; ">
-                <names variable="container-author" delimiter="; ">
+                <names variable="container-author">
                   <name and="symbol" initialize-with=". " delimiter=", "/>
                   <label form="short" prefix=", " text-case="title"/>
                 </names>
@@ -134,11 +138,11 @@
           <if variable="original-author composer" match="any">
             <group delimiter="; ">
               <!-- Replace prefix with performer label as that becomes available -->
-              <names variable="author" delimiter="; " prefix="Recorded by ">
+              <names variable="author" prefix="Recorded by ">
                 <label form="verb" text-case="title"/>
                 <name and="symbol" initialize-with=". " delimiter=", "/>
               </names>
-              <names variable="translator" delimiter="; ">
+              <names variable="translator">
                 <name and="symbol" initialize-with=". " delimiter=", "/>
                 <label form="short" prefix=", " text-case="title"/>
               </names>
@@ -156,7 +160,7 @@
       </else-if>
       <else>
         <group delimiter="; ">
-          <names variable="interviewer" delimiter="; ">
+          <names variable="interviewer">
             <name and="symbol" initialize-with=". " delimiter="; "/>
             <label form="short" prefix=", " text-case="title"/>
           </names>
@@ -220,6 +224,10 @@
                 <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
             </names>
             <names variable="translator">
+              <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+                <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
+            </names>
+            <names variable="collection-editor">
               <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
                 <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
             </names>
@@ -907,10 +915,24 @@
           </group>
           <choose>
             <if variable="volume" match="any">
-              <group>
-                <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-                <number variable="volume" form="numeric"/>
-              </group>
+              <choose>
+                <if variable="editor translator" match="none">
+                  <choose>
+                    <if variable="collection-number">
+                      <group>
+                        <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                        <number variable="volume" form="numeric"/>
+                      </group>
+                    </if>
+                  </choose>
+                </if>
+                <else>
+                  <group>
+                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                    <number variable="volume" form="numeric"/>
+                  </group>
+                </else>
+              </choose>
             </if>
             <else>
               <group>
@@ -1009,13 +1031,34 @@
       </else-if>
       <else-if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map paper-conference" match="any">
         <choose>
-          <if variable="container-title">
+          <if variable="container-title collection-title" match="any">
             <group delimiter=" ">
               <text term="in" text-case="capitalize-first"/>
               <group delimiter=", ">
                 <text macro="container-contributors"/>
                 <group delimiter=" ">
-                  <text macro="container-title"/>
+                  <choose>
+                    <if variable="editor translator" match="none">
+                      <group delimiter=". ">
+                        <group delimiter=": ">
+                          <text variable="collection-title" font-style="italic" text-case="title"/>
+                          <group>
+                            <text term="volume" form="short" font-style="italic" text-case="capitalize-first" suffix=" "/>
+                            <number variable="collection-number" font-style="italic" form="numeric"/>
+                            <choose>
+                              <if variable="collection-number" match="none">
+                                <number variable="volume" font-style="italic" form="numeric"/>
+                              </if>
+                            </choose>
+                          </group>
+                        </group>
+                        <text macro="container-title"/>
+                      </group>
+                    </if>
+                    <else>
+                      <text macro="container-title"/>
+                    </else>
+                  </choose>
                   <group delimiter="; " prefix="(" suffix=")">
                     <text macro="locators"/>
                     <choose>
@@ -1066,8 +1109,12 @@
               </if>
               <else>
                 <group delimiter=" ">
-                  <!-- Replace with term="number" if that becomes available -->
-                  <text term="issue" form="short" text-case="capitalize-first"/>
+                  <choose>
+                    <if is-numeric="number">
+                      <!-- Replace with term="number" if that becomes available -->
+                      <text term="issue" form="short" text-case="capitalize-first"/>
+                    </if>
+                  </choose>
                   <text variable="number"/>
                 </group>
               </else>
