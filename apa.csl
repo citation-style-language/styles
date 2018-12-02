@@ -264,7 +264,11 @@
                 <text variable="publisher"/>
               </if>
             </choose>
-            <text macro="title"/>
+            <group delimiter=" ">
+              <text macro="title"/>
+              <text macro="description"/>
+              <text macro="format"/>
+            </group>
             <text macro="format"/>
           </substitute>
         </names>
@@ -975,16 +979,21 @@
       <choose>
         <if variable="volume" match="any">
           <choose>
-            <if variable="collection-title">
+            <if is-numeric="volume" match="none"/>
+            <else-if variable="collection-title">
               <choose>
-                <if variable="editor translator collection-number" match="none">
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                  </group>
+                <if variable="editor translator" match="none">
+                  <choose>
+                    <if variable="collection-number">
+                      <group>
+                        <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                        <number variable="volume" form="numeric"/>
+                      </group>
+                    </if>
+                  </choose>
                 </if>
               </choose>
-            </if>
+            </else-if>
             <else>
               <group>
                 <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
@@ -1122,8 +1131,8 @@
                       <text variable="collection-title" font-style="italic" text-case="title"/>
                       <choose>
                         <if variable="collection-title">
-                          <group>
-                            <text term="volume" form="short" font-style="italic" text-case="capitalize-first" suffix=" "/>
+                          <group delimiter=" ">
+                            <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
                             <number variable="collection-number" font-style="italic" form="numeric"/>
                             <choose>
                               <if variable="collection-number" match="none">
@@ -1138,7 +1147,18 @@
                   </group>
                 </if>
                 <else>
-                  <text macro="container-title"/>
+                  <!-- Replace with volume-title as that becomes available -->
+                  <group delimiter=": ">
+                    <text macro="container-title"/>
+                    <choose>
+                      <if is-numeric="volume" match="none">
+                        <group delimiter=" ">
+                          <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
+                          <text variable="volume" font-style="italic"/>
+                        </group>
+                      </if>
+                    </choose>
+                  </group>
                 </else>
               </choose>
               <group delimiter="; " prefix="(" suffix=")">
