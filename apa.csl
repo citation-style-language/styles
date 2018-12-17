@@ -421,6 +421,9 @@
               <text variable="archive_location" prefix="(" suffix=")"/>
             </group>
           </if>
+          <else>
+            <text macro="publisher" suffix="."/>
+          </else>
         </choose>
       </else-if>
       <else>
@@ -487,7 +490,15 @@
         </if>
         <else-if type="thesis">
           <group delimiter="; ">
-            <text variable="genre" text-case="capitalize-first"/>
+            <group delimiter=", ">
+              <text variable="genre" text-case="capitalize-first"/>
+              <choose>
+                <!-- In APA journals, the university of a thesis is always cited, even if another locator is given -->
+                <if variable="DOI URL archive" match="any">
+                  <text variable="publisher"/>
+                </if>
+              </choose>
+            </group>
             <text macro="locators"/>
             <text macro="secondary-contributors"/>
           </group>
@@ -610,19 +621,8 @@
           </if>
         </choose>
       </else-if>
-      <else-if type="manuscript">
-        <choose>
-          <if variable="archive">
-            <!-- Assume manuscript with archive is historical/archival manuscript -->
-            <group delimiter=", ">
-              <text variable="genre" text-case="capitalize-first"/>
-              <text variable="medium" text-case="capitalize-first"/>
-            </group>
-          </if>
-          <else>
-            <text variable="medium" text-case="capitalize-first"/>
-          </else>
-        </choose>
+      <else-if type="manuscript pamphlet" match="any">
+        <text variable="medium" text-case="capitalize-first"/>
       </else-if>
       <else-if type="personal_communication">
         <text macro="secondary-contributors"/>
@@ -698,24 +698,24 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="manuscript" match="any">
-        <group delimiter=", ">
-          <choose>
-            <if variable="archive" match="none">
-              <text variable="genre"/>
-            </if>
-            <else>
-              <group delimiter=" ">
-                <text variable="archive"/>
-                <text variable="archive_location" prefix="(" suffix=")"/>
-              </group>
-            </else>
-          </choose>
-          <text variable="publisher"/>
-          <text variable="publisher-place"/>
+      <if type="manuscript pamphlet" match="any">
+        <group delimiter=". ">
+          <group delimiter=", ">
+            <text variable="genre"/>
+            <group delimiter=" ">
+              <!-- Replace "archive" with "archive_collection" as that becomes available -->
+              <text variable="archive"/>
+              <text variable="archive_location" prefix="(" suffix=")"/>
+            </group>         
+          </group>
+          <group delimiter=", ">
+            <!-- Move "archive" here when "archive_collection" becomes available -->
+            <text variable="publisher"/>
+            <text variable="publisher-place"/>
+          </group>
         </group>
       </if>
-      <else-if type="graphic pamphlet personal_communication" match="any">
+      <else-if type="graphic personal_communication" match="any">
         <group delimiter=", ">
           <group delimiter=" ">
             <text variable="archive"/>
