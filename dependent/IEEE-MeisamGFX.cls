@@ -31,7 +31,7 @@
     <category field="engineering"/>
     <category field="generic-base"/>
     <summary>Best Citation Group</summary>
-    <published>IsoGFX</published>
+    
     <updated>2019-01-31T13:49:10+00:00</updated>
   </info>
   <locale xml:lang="en">
