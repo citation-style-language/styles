@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only">
   <info>
-    <title>IEEE - MeisamGFX</title>
+    <title>IsoGFX-MeisamGFX</title>
     <id>https://csl.mendeley.com/styles/534736941/ieee-IsoGFX</id>
-    <link href="http://www.zotero.org/styles/ieee" rel="self"/>
-    <link href="https://www.ieee.org/content/dam/ieee-org/ieee/web/org/conferences/style_references_manual.pdf" rel="documentation"/>
     <author>
       <name>MeisamGFX</name>
       <email>IsoGFX@Yahoo.com</email>
