@@ -80,12 +80,12 @@
   </macro>
   <macro name="container-contributors">
     <choose>
-      <if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map personal_communication report" match="any">
+      <if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map personal_communication report speech" match="any">
         <text macro="container-contributors-booklike"/>
       </if>
       <else-if type="paper-conference">
         <choose>
-          <if variable="editor collection-editor" match="any">
+          <if variable="collection-editor container-author editor" match="any">
             <text macro="container-contributors-booklike"/>
           </if>
         </choose>
@@ -173,7 +173,7 @@
       </else-if>
       <else-if type="paper-conference">
         <choose>
-          <if variable="editor collection-editor" match="any">
+          <if variable="collection-editor editor" match="any">
             <text macro="secondary-contributors-booklike"/>
           </if>
           <else>
@@ -409,13 +409,20 @@
       </else-if>
       <else-if variable="archive">
         <choose>
-          <if type="article article-journal article-magazine article-newspaper dataset report thesis" match="any">
-            <group delimiter=" ">
-              <text term="retrieved" text-case="capitalize-first"/>
-              <text term="from"/>
-              <text variable="archive" suffix="."/>
-              <text variable="archive_location" prefix="(" suffix=")"/>
-            </group>
+          <if type="article article-journal article-magazine article-newspaper dataset paper-conference report speech thesis" match="any">
+            <choose>
+              <if variable="archive-place" match="none">
+                <group delimiter=" ">
+                  <text term="retrieved" text-case="capitalize-first"/>
+                  <text term="from"/>
+                  <text variable="archive" suffix="."/>
+                  <text variable="archive_location" prefix="(" suffix=")"/>
+                </group>
+              </if>
+              <else>
+                <text macro="publisher" suffix="."/>
+              </else>
+            </choose>
           </if>
           <else>
             <text macro="publisher" suffix="."/>
@@ -639,7 +646,7 @@
       <else-if type="paper-conference">
         <group delimiter=", ">
           <choose>
-            <if variable="container-title">
+            <if variable="collection-editor editor issue page volume" match="any">
               <text variable="genre" text-case="capitalize-first"/>
             </if>
           </choose>
@@ -692,61 +699,71 @@
       </else>
     </choose>
   </macro>
+  <macro name="archive">
+    <group delimiter=". ">
+      <group delimiter=", ">
+        <choose>
+          <if type="manuscript">
+            <text variable="genre"/>
+          </if>
+        </choose>
+        <group delimiter=" ">
+          <!-- Replace "archive" with "archive_collection" as that becomes available -->
+          <text variable="archive"/>
+          <text variable="archive_location" prefix="(" suffix=")"/>
+        </group>         
+      </group>
+      <group delimiter=", ">
+        <!-- Move "archive" here when "archive_collection" becomes available -->
+        <text variable="archive-place"/>
+      </group>
+    </group>
+  </macro>
   <macro name="publisher">
     <choose>
       <if type="manuscript pamphlet" match="any">
         <group delimiter=". ">
-          <group delimiter=", ">
-            <text variable="genre"/>
-            <group delimiter=" ">
-              <!-- Replace "archive" with "archive_collection" as that becomes available -->
-              <text variable="archive"/>
-              <text variable="archive_location" prefix="(" suffix=")"/>
-            </group>         
+          <group delimiter=": ">
+            <text variable="publisher-place"/>
+            <text variable="publisher"/>
           </group>
+          <text macro="archive"/>
+        </group>
+      </if>
+      <else-if type="thesis" match="any">
+        <group delimiter=". ">
           <group delimiter=", ">
-            <!-- Move "archive" and "archive-place" here when "archive_collection" becomes available -->
-            <!-- Move "publisher" and "publisher-place" between "genre" and "archive_collection"/"archive_location" when "archive_collection" becomes available -->
             <text variable="publisher"/>
             <text variable="publisher-place"/>
           </group>
-        </group>
-      </if>
-      <else-if type="thesis patent article-journal article-magazine article-newspaper post post-weblog webpage" match="none">
-        <group delimiter=", ">
-          <group delimiter=" ">
-            <text variable="archive"/>
-            <text variable="archive_location" prefix="(" suffix=")"/>
-            <!-- Same details as above regarding archive_collection -->
-          </group> 
-          <text variable="publisher"/>
-          <text variable="publisher-place"/>
-        </group>
-      </else-if>
-      <else-if type="thesis" match="any">
-        <group delimiter=", ">
-          <text variable="publisher"/>
-          <text variable="publisher-place"/>
+          <text macro="archive"/>
         </group>
       </else-if>
       <else-if type="patent">
-        <group delimiter=": ">
-          <text variable="publisher-place"/>
-          <choose>
-            <if variable="publisher">
-              <text variable="publisher"/>
-            </if>
-            <else>
-              <text variable="authority"/>
-            </else>
-          </choose>
+        <group delimiter=". ">
+          <group delimiter=": ">
+            <text variable="publisher-place"/>
+            <choose>
+              <if variable="publisher">
+                <text variable="publisher"/>
+              </if>
+              <else>
+                <text variable="authority"/>
+              </else>
+            </choose>
+          </group>
+          <text macro="archive"/>
         </group>
       </else-if>
-      <else-if type="article-journal article-magazine article-newspaper post post-weblog webpage" match="none">
+      <else-if type="article article-journal article-magazine article-newspaper" match="any">
+        <text macro="archive"/>
+      </else-if>
+      <else-if type="post post-weblog webpage" match="none">
         <choose>
           <if variable="event">
             <choose>
-              <if variable="container-title">
+              <!-- Only print publisher info if published in a proceedings -->
+              <if variable="collection-editor editor issue page volume" match="any">
                 <group delimiter=": ">
                   <text variable="publisher-place"/>
                   <text variable="publisher"/>
@@ -761,6 +778,7 @@
             </group>
           </else>
         </choose>
+        <text macro="archive"/>
       </else-if>
     </choose>
   </macro>
@@ -769,7 +787,7 @@
       <if variable="event" type="speech paper-conference" match="any">
         <choose>
           <!-- Don't print event info if published in a proceedings -->
-          <if variable="container-title" match="none">
+          <if variable="collection-editor editor issue page volume" match="none">
             <group delimiter=" ">
               <text variable="genre" text-case="capitalize-first"/>
               <group delimiter=" ">
@@ -989,7 +1007,7 @@
       </else-if>
       <else-if type="paper-conference">
         <choose>
-          <if variable="editor collection-editor" match="any">
+          <if variable="collection-editor editor" match="any">
             <text macro="locators-booklike"/>
           </if>
           <else>
@@ -1136,7 +1154,7 @@
       </else-if>
       <else-if type="paper-conference">
         <choose>
-          <if variable="editor collection-editor" match="any">
+          <if variable="editor collection-editor container-author" match="any">
             <text macro="container-booklike"/>
           </if>
           <else>
@@ -1147,7 +1165,7 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map" match="any">
+      <else-if type="broadcast chapter entry entry-dictionary entry-encyclopedia graphic map speech" match="any">
         <text macro="container-booklike"/>
       </else-if>
       <else-if type="bill legal_case legislation treaty" match="any">
@@ -1164,7 +1182,7 @@
             <text macro="container-contributors"/>
             <group delimiter=" ">
               <choose>
-                <if variable="editor translator" match="none">
+                <if variable="container-author editor translator" match="none">
                   <group delimiter=". ">
                     <group delimiter=": ">
                       <text variable="collection-title" font-style="italic" text-case="title"/>
@@ -1222,9 +1240,9 @@
       <if type="article article-journal article-magazine article-newspaper dataset" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="paper-conference">
+      <else-if type="paper-conference speech">
         <choose>
-          <if variable="editor collection-editor" match="any">
+          <if variable="collection-editor container-author editor" match="any">
             <text variable="container-title" font-style="italic"/>
           </if>
           <else>
