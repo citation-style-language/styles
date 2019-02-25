@@ -79,19 +79,31 @@
   <macro name="author-short">
     <choose>
       <if type="interview">
-        <group delimiter=", ">
-          <names variable="interviewer">
-            <name delimiter-precedes-last="never" and="text" form="short" delimiter=", " initialize="false" initialize-with=""/>
-          </names>
-          <names variable="author" prefix="Interview with ">
-            <name delimiter-precedes-last="never" and="text" form="short" delimiter=", " initialize="false" initialize-with=""/>
+        <group delimiter=" ">
+          <choose>
+            <if variable="genre">
+              <text variable="genre" text-case="capitalize-first"/>
+            </if>
+            <else>
+              <text value="Interview"/>
+            </else>
+          </choose>
+          <names variable="author" prefix="with ">
+            <name delimiter-precedes-last="never" and="text" delimiter=", " initialize="false" initialize-with=""/>
           </names>
         </group>
       </if>
       <else-if type="personal_communication">
         <group delimiter=" ">
           <group delimiter=" from ">
-            <text variable="genre"/>
+            <choose>
+              <if variable="genre">
+                <text variable="genre" text-case="capitalize-first"/>
+              </if>
+              <else>
+                <text value="Letter"/>
+              </else>
+            </choose>
             <names variable="author">
               <name delimiter-precedes-last="never" and="text" delimiter=", " form="short" initialize="false" initialize-with=""/>
             </names>
@@ -100,6 +112,9 @@
             <name delimiter-precedes-last="never" and="text" delimiter=", " initialize="false" form="short" initialize-with=""/>
           </names>
         </group>
+      </else-if>
+      <else-if type="patent">
+        <text macro="patent"/>
       </else-if>
       <else>
         <names variable="author">
@@ -276,13 +291,17 @@
     </choose>
   </macro>
   <macro name="patent">
-    <group delimiter=" " font-style="italic">
-      <text variable="authority"/>
-      <group delimiter=" ">
-        <text term="number" form="short" text-case="capitalize-first"/>
-        <text variable="number"/>
-      </group>
-    </group>
+    <choose>
+      <if type="patent">
+        <group delimiter=" " font-style="italic">
+          <text variable="authority"/>
+          <group delimiter=" ">
+            <text term="number" form="short" text-case="capitalize-first"/>
+            <text variable="number"/>
+          </group>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="letter">
     <choose>
@@ -575,7 +594,7 @@
             </choose>
           </group>
           <group prefix=" (" suffix=")" delimiter=" ">
-            <text variable="first-reference-note-number" prefix="above n "/>
+            <text variable="first-reference-note-number" prefix="n "/>
             <text variable="locator"/>
           </group>
         </else-if>
@@ -603,7 +622,7 @@
             </group>
           </group>
           <group delimiter=", ">
-            <text macro="manuscript-catchall"/>
+            <text macro="manuscript-catchall" prefix=", "/>
             <text macro="letter"/>
             <text macro="patent"/>
             <group delimiter=" " prefix=" ">
@@ -655,7 +674,7 @@
         </group>
       </group>
       <group delimiter=", ">
-        <text macro="manuscript-catchall"/>
+        <text macro="manuscript-catchall" prefix=", "/>
         <text macro="letter"/>
         <text macro="patent"/>
         <group delimiter=" " prefix=" ">
