@@ -59,6 +59,7 @@
       <term name="number">Numéro</term>
       <term name="circa" form="short">ca</term>
       <term name="interviewer" form="verb">Interviewé par</term>
+      <term name="author" form="verb">Enregistré par</term>
     </terms>
   </locale>
   <macro name="container-contributors">
@@ -85,34 +86,40 @@
     </choose>
   </macro>
   <macro name="author">
-    <names variable="author">
-      <name and="text" delimiter-precedes-last="never" et-al-use-last="true" initialize-with=". " name-as-sort-order="all"/>
-      <label form="short" prefix=" (" suffix=")"/>
-      <substitute>
-        <choose>
-          <if type="entry-dictionary entry-encyclopedia webpage manuscript legislation legal_case bill treaty article map" match="any">
-            <text macro="title"/>
-          </if>
-          <else-if type="book" match="any">
-            <names variable="editor"/>
-            <text macro="title" font-style="italic"/>
-          </else-if>
-          <else>
-            <names variable="editor"/>
-            <names variable="translator"/>
-          </else>
-        </choose>
-        <choose>
-          <if type="report">
-            <text variable="publisher"/>
-            <text variable="title" font-style="italic" suffix="."/>
-          </if>
-        </choose>
-      </substitute>
-    </names>
-    <names variable="composer">
-      <name and="text" delimiter-precedes-last="never" et-al-use-last="true" initialize-with="." name-as-sort-order="all"/>
-    </names>
+    <choose>
+      <if match="any" variable="composer">
+        <names variable="composer">
+          <name and="text" delimiter-precedes-last="never" et-al-use-last="true" initialize-with="." name-as-sort-order="all"/>
+        </names>
+      </if>
+      <else>
+        <names variable="author">
+          <name and="text" delimiter-precedes-last="never" et-al-use-last="true" initialize-with=". " name-as-sort-order="all"/>
+          <label form="short" prefix=" (" suffix=")"/>
+          <substitute>
+            <choose>
+              <if type="entry-dictionary entry-encyclopedia webpage manuscript legislation legal_case bill treaty article map article-journal article-magazine article-newspaper" match="any">
+                <text macro="title"/>
+              </if>
+              <else-if type="book" match="any">
+                <names variable="editor"/>
+                <text macro="title" font-style="italic"/>
+              </else-if>
+              <else>
+                <names variable="editor"/>
+                <names variable="translator"/>
+              </else>
+            </choose>
+            <choose>
+              <if type="report">
+                <text variable="publisher"/>
+                <text variable="title" font-style="italic" suffix="."/>
+              </if>
+            </choose>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="author-short">
     <choose>
@@ -122,6 +129,11 @@
           <text variable="number"/>
         </group>
       </if>
+      <else-if match="any" variable="composer">
+        <names variable="composer">
+          <name form="short" and="text" initialize-with="."/>
+        </names>
+      </else-if>
       <else>
         <names variable="author">
           <name form="short" and="text" initialize-with=". "/>
@@ -267,7 +279,7 @@
           <text variable="medium" prefix=" [" suffix="]"/>
         </group>
       </else-if>
-      <else-if type="book graphic manuscript dataset" match="any">
+      <else-if type="book graphic manuscript dataset legal_case" match="any">
         <choose>
           <if variable="version">
             <group delimiter=" ">
@@ -293,31 +305,30 @@
       </else-if>
       <else-if type="article-journal" match="any">
         <choose>
-          <if match="all" variable="title">
-            <choose>
-              <if match="any" variable="container-title">
-                <group delimiter=" ">
-                  <text variable="title"/>
-                  <text variable="genre" prefix="[" suffix="]"/>
-                </group>
-              </if>
-              <else>
-                <group delimiter=". ">
-                  <text variable="title" font-style="italic"/>
-                  <text variable="genre"/>
-                </group>
-              </else>
-            </choose>
+          <if match="any" variable="container-title">
+            <group delimiter=" ">
+              <text variable="title"/>
+              <text variable="genre" prefix="[" suffix="]"/>
+            </group>
           </if>
+          <else>
+            <group delimiter=". ">
+              <text variable="title" font-style="italic"/>
+              <text variable="genre"/>
+            </group>
+          </else>
         </choose>
       </else-if>
       <else-if type="review-book" match="any">
         <group delimiter=", " prefix="[" suffix="]">
           <text variable="title"/>
           <text variable="reviewed-title" font-style="italic" prefix="Compte rendu du livre "/>
-          <names variable="reviewed-author" prefix="par ">
-            <name and="text" delimiter-precedes-last="never" et-al-min="8" et-al-use-first="6" et-al-subsequent-min="8" et-al-subsequent-use-first="6" et-al-use-last="true" initialize-with="."/>
-          </names>
+          <group delimiter=" ">
+            <text term="by"/>
+            <names variable="reviewed-author">
+              <name and="text" delimiter-precedes-last="never" et-al-use-last="true" initialize-with="."/>
+            </names>
+          </group>
         </group>
       </else-if>
       <else-if type="patent" match="any">
@@ -341,19 +352,31 @@
         <choose>
           <if match="any" variable="container-title">
             <text variable="title"/>
-            <text variable="note" prefix=" [" suffix="]"/>
           </if>
           <else>
             <group delimiter=" ">
               <text variable="title" font-style="italic"/>
-              <group delimiter="; " prefix="[" suffix="]">
-                <text variable="note"/>
-                <text variable="medium"/>
-                <text variable="genre"/>
-              </group>
               <text variable="number" prefix="(épisode " suffix=")"/>
             </group>
           </else>
+        </choose>
+        <choose>
+          <if match="any" variable="composer">
+            <group delimiter=";  " prefix=" [" suffix="]">
+              <group delimiter=" ">
+                <text term="author" form="verb"/>
+                <names variable="author">
+                  <name and="text" delimiter-precedes-last="never"/>
+                </names>
+              </group>
+              <choose>
+                <if match="none" variable="container-title">
+                  <text variable="medium"/>
+                  <text variable="genre"/>
+                </if>
+              </choose>
+            </group>
+          </if>
         </choose>
       </else-if>
       <else-if type="chapter" match="any">
@@ -589,7 +612,7 @@
                 </date>
               </group>
             </if>
-            <else-if type="musical_score" match="any">
+            <else-if type="musical_score book" match="any">
               <group>
                 <date form="text" variable="issued">
                   <date-part name="year"/>
@@ -603,7 +626,7 @@
       <else-if variable="issued">
         <group prefix="(" suffix=")">
           <choose>
-            <if type="legal_case" match="all">
+            <if type="legal_case" match="any">
               <choose>
                 <if match="any" variable="references">
                   <text variable="authority" suffix=", "/>
@@ -679,6 +702,11 @@
   <macro name="issued-year">
     <choose>
       <if variable="issued">
+        <choose>
+          <if type="book" match="any">
+            <date form="text" variable="original-date" suffix="/"/>
+          </if>
+        </choose>
         <date variable="issued">
           <date-part name="year"/>
         </date>
@@ -871,11 +899,11 @@
       </else-if>
       <else-if type="report" match="any">
         <group delimiter=", " prefix=", ">
-          <group>
+          <group delimiter=" ">
             <text term="volume" form="short"/>
             <number variable="volume"/>
           </group>
-          <group>
+          <group delimiter=" ">
             <label variable="page" form="short"/>
             <text variable="page"/>
           </group>
@@ -992,6 +1020,12 @@
       </else-if>
       <else-if type="webpage" match="any">
         <text variable="volume" prefix=" (" suffix=")"/>
+      </else-if>
+      <else-if type="book" match="all" variable="original-date">
+        <group delimiter=" " prefix=" (" suffix=").">
+          <text value="Oeuvre originale publiée en "/>
+          <date form="text" variable="original-date" prefix="&amp;#169;"/>
+        </group>
       </else-if>
     </choose>
   </macro>
