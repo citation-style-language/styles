@@ -39,14 +39,8 @@
       <term name="editor" form="verb-short">ed.</term>
       <term name="translator" form="verb-short">trans.</term>
       <term name="translator" form="short">trans.</term>
-      <term name="editortranslator" form="verb-short">
-        <single>ed. and trans.</single>
-        <multiple>ed. and trans.</multiple>
-      </term>
-      <term name="editortranslator" form="verb">
-        <single>Edited and translated by</single>
-        <multiple>Edited and translated by</multiple>
-      </term>
+      <term name="editortranslator" form="verb-short">ed. and trans.</term>
+      <term name="editortranslator" form="verb">Edited and translated by</term>
       <term name="translator" form="short">trans.</term>
     </terms>
   </locale>
@@ -72,21 +66,21 @@
   </macro>
   <macro name="secondary-contributors-note">
     <choose>
-      <if type="chapter paper-conference" match="none">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="none">
         <text macro="editor-translator"/>
       </if>
     </choose>
   </macro>
   <macro name="container-contributors-note">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <text macro="editor-translator"/>
       </if>
     </choose>
   </macro>
   <macro name="secondary-contributors">
     <choose>
-      <if type="chapter paper-conference" match="none">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="none">
         <names variable="editor translator" delimiter=". ">
           <label form="verb" text-case="capitalize-first" suffix=" "/>
           <name and="text" delimiter=", "/>
@@ -96,7 +90,7 @@
   </macro>
   <macro name="container-contributors">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=", ">
           <choose>
             <if variable="author">
@@ -386,7 +380,7 @@
   <macro name="container-title-note">
     <group delimiter=" ">
       <choose>
-        <if type="chapter paper-conference" match="any">
+        <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
           <text term="in"/>
         </if>
       </choose>
@@ -406,7 +400,7 @@
   <macro name="container-title">
     <group delimiter=" ">
       <choose>
-        <if type="chapter paper-conference" match="any">
+        <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
           <text term="in" text-case="capitalize-first"/>
         </if>
       </choose>
@@ -664,7 +658,7 @@
           </group>
         </group>
       </else-if>
-      <else-if type="chapter paper-conference" match="any">
+      <else-if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=". ">
           <text macro="edition"/>
           <choose>
@@ -764,10 +758,7 @@
     <choose>
       <if variable="issued">
         <choose>
-          <if type="graphic report" match="any">
-            <date variable="issued" form="text"/>
-          </if>
-          <else-if type="legal_case">
+          <if type="legal_case">
             <group delimiter=" ">
               <text variable="authority"/>
               <choose>
@@ -780,11 +771,16 @@
                 </else>
               </choose>
             </group>
-          </else-if>
-          <else-if type="book bill chapter graphic legislation motion_picture paper-conference report song thesis" match="any">
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
+          </if>
+          <else-if type="book bill chapter  legislation motion_picture paper-conference song thesis" match="any">
+            <choose>
+              <if is-uncertain-date="issued">
+                <date variable="issued" form="numeric" date-parts="year" prefix="[" suffix="?]"/>
+              </if>
+              <else>
+                <date variable="issued" form="numeric" date-parts="year"/>
+              </else>
+            </choose>
           </else-if>
           <else-if type="patent">
             <group delimiter=", ">
@@ -806,7 +802,14 @@
             </group>
           </else-if>
           <else>
-            <date variable="issued" form="text"/>
+            <choose>
+              <if is-uncertain-date="issued">
+                <date variable="issued" form="text" prefix="[" suffix="?]"/>
+              </if>
+              <else>
+                <date variable="issued" form="text"/>
+              </else>
+            </choose>
           </else>
         </choose>
       </if>
@@ -937,7 +940,7 @@
   </macro>
   <macro name="locators-chapter">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <choose>
           <if variable="author container-author" match="all"/>
           <else>
@@ -1074,6 +1077,17 @@
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
+      <else-if type="manuscript thesis speech" match="any">
+        <group delimiter=", " prefix="(" suffix=")">
+          <choose>
+            <if variable="title" match="any">
+              <text variable="genre"/>
+            </if>
+          </choose>
+          <text variable="publisher"/>
+          <text macro="issued"/>
+        </group>
+      </else-if>
       <else-if variable="publisher-place event-place publisher" match="any">
         <group prefix="(" suffix=")" delimiter=", ">
           <text macro="event-note"/>
@@ -1086,26 +1100,6 @@
           </group>
           <text macro="issued"/>
         </group>
-      </else-if>
-      <else-if variable="title" match="none">
-        <choose>
-          <if variable="genre">
-            <choose>
-              <if type="manuscript thesis speech" match="any">
-                <group delimiter=", " prefix="(" suffix=")">
-                  <text variable="genre"/>
-                  <text macro="issued"/>
-                </group>
-              </if>
-              <else>
-                <text macro="issued"/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <text macro="issued"/>
-          </else>
-        </choose>
       </else-if>
       <else>
         <text macro="issued"/>
