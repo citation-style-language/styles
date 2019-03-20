@@ -398,18 +398,33 @@
     </choose>
   </macro>
   <macro name="patent-number">
-    <!-- genre: U.S. Patent number: 123,445-->
+    <!-- authority: U.S. ; genre: patent ; number: 123,445 -->
     <group delimiter=" ">
-      <text variable="genre"/>
-      <text term="issue" form="short" text-case="capitalize-first"/>
-      <text variable="number"/>
+      <text variable="authority"/>
+      <choose>
+        <if variable="genre">
+          <text variable="genre" text-case="capitalize-first"/>
+        </if>
+        <else>
+          <!-- This should be localized -->
+          <text value="patent" text-case="capitalize-first"/>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <text term="issue" form="short" text-case="capitalize-first"/>
+        <text variable="number"/>
+      </group>
     </group>
   </macro>
   <macro name="access">
     <choose>
-      <if variable="DOI" match="any">
+      <if type="bill legal_case legislation" match="any"/>
+      <else-if type="patent">
+        <text macro="publisher" suffix="."/>
+      </else-if>
+      <else-if variable="DOI" match="any">
         <text variable="DOI" prefix="https://doi.org/"/>
-      </if>
+      </else-if>
       <else-if variable="URL">
         <group delimiter=" ">
           <text term="retrieved" text-case="capitalize-first"/>
@@ -797,14 +812,7 @@
         <group delimiter=". ">
           <group delimiter=": ">
             <text variable="publisher-place"/>
-            <choose>
-              <if variable="publisher">
-                <text variable="publisher"/>
-              </if>
-              <else>
-                <text variable="authority"/>
-              </else>
-            </choose>
+            <text variable="publisher"/>
           </group>
           <text macro="archive"/>
         </group>
