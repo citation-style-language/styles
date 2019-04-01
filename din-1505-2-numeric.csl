@@ -86,13 +86,6 @@
       <!-- needed: Label should appear as suffix to EVERY name...!-->
     </names>
   </macro>
-  <!--  <macro name="contributor">
-    <names variable=" " delimiter=" ; ">
-    <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=" ; "
-    delimiter-precedes-last="always" font-variant="small-caps"/>
-    <label form="short" prefix=" (" suffix=")"/>
-    </names>
-    </macro>-->
   <macro name="translator">
     <names variable="translator" delimiter=" ; ">
       <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=" ; " delimiter-precedes-last="always" font-variant="small-caps"/>
@@ -153,10 +146,17 @@
     </group>
   </macro>
   <macro name="edition">
-    <group>
-      <number variable="edition" form="numeric" suffix=". "/>
-      <text term="edition" form="short" plural="false"/>
-    </group>
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="numeric" suffix=". "/>
+          <text term="edition" form="short" plural="false"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition" suffix="."/>
+      </else>
+    </choose>
   </macro>
   <macro name="pages">
     <choose>
@@ -207,7 +207,7 @@
     </layout>
   </citation>
   <!-- End of in-text citation -->
-  <bibliography hanging-indent="true" et-al-min="9" et-al-use-first="9" entry-spacing="0" second-field-align="flush">
+  <bibliography hanging-indent="true" et-al-min="9" et-al-use-first="8" entry-spacing="0" second-field-align="flush">
     <layout>
       <!-- Citation Number -->
       <text variable="citation-number" prefix="[" suffix="]"/>
@@ -282,7 +282,7 @@
           <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
           <text prefix=". &#8212;&#160;" variable="note"/>
         </else-if>
-        <else-if type="webpage post post-weblog " match="any">
+        <else-if type="webpage post post-weblog" match="any">
           <text prefix=" " macro="title" suffix=". " font-style="italic"/>
           <text prefix="URL " variable="URL"/>
           <text prefix=". - " macro="access"/>
@@ -311,6 +311,31 @@
           <text prefix=", " macro="pages"/>
           <text prefix=". &#8212;&#160;" variable="note"/>
           <text prefix=" &#8212;&#160;ISBN&#160;" variable="ISBN"/>
+        </else-if>
+        <!-- Schutzrechte -->
+        <else-if type="patent" match="any">
+          <group delimiter=" " prefix=" Schutzrecht " suffix=",">
+            <text variable="authority"/>
+            <text variable="number"/>
+          </group>
+          <text prefix=" " macro="title" font-style="italic" suffix=","/>
+          <group delimiter=", " prefix=" " suffix=".">
+            <group delimiter=" ">
+              <!--Needs Localization-->
+              <text value="eingereicht"/>
+              <date variable="submitted" form="numeric"/>
+            </group>
+            <group delimiter=" ">
+              <choose>
+                <if variable="issued submitted" match="all">
+                  <text term="and"/>
+                </if>
+              </choose>
+              <!--Needs Localization-->
+              <text value="veröffentlicht"/>
+              <date variable="issued" form="numeric"/>
+            </group>
+          </group>
         </else-if>
         <!-- keiner der oben genannten fälle -->
         <else>
