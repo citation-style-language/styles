@@ -5,34 +5,15 @@
     <title-short>AGLC</title-short>
     <id>http://www.zotero.org/styles/australian-guide-to-legal-citation</id>
     <link href="http://www.zotero.org/styles/australian-guide-to-legal-citation" rel="self"/>
+    <link href="http://www.zotero.org/styles/australian-guide-to-legal-citation-3rd-edition" rel="template"/>
     <link href="https://law.unimelb.edu.au/mulr/aglc/about" rel="documentation"/>
     <link href="https://www.zotero.org/groups/684844/aglc_samples/items" rel="documentation"/>
     <author>
       <name>Sebastian Karcher</name>
     </author>
-    <author>
-      <name>Anton Hughes</name>
-      <email>antonh@lawtec.net</email>
-    </author>
-    <author>
-      <name>Bruce D'Arcus</name>
-      <email>bdarcus@gmail.com</email>
-    </author>
-    <author>
-      <name>Nancy Sims</name>
-      <email>nsims@umich.edu</email>
-    </author>
-    <author>
-      <name>Nic Suzor</name>
-      <email>nic@suzor.com</email>
-    </author>
-    <contributor>
-      <name>Tim Baxter</name>
-      <email>tbaxter1@unimelb.edu.au</email>
-    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
-    <summary>Published by the University of Melbourne Faculty of Law</summary>
+    <summary>Support for the development of the CSL style was provided by the Faculty of Law, University of Technology Sydney. The AGLC is published by the University of Melbourne Faculty of Law. </summary>
     <updated>2018-09-03T17:14:48+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
@@ -192,6 +173,15 @@
       <else-if type="legal_case">
         <text variable="title" font-style="italic" strip-periods="true"/>
       </else-if>
+      <else-if type="entry-dictionary">
+        <text variable="container-title" font-style="italic"/>
+      </else-if>
+      <else-if type="entry-encyclopedia">
+        <group delimiter=", ">
+          <text variable="publisher"/>
+          <text variable="container-title" font-style="italic"/>
+        </group>
+        </else-if>
       <else>
         <text variable="title" quotes="true" text-case="title"/>
       </else>
@@ -259,7 +249,61 @@
       <else-if type="article-magazine">
         <text macro="issued-full" prefix="(" suffix=")"/>
       </else-if>
+      <else-if type="entry-encyclopedia">
+        <group delimiter=" " prefix="(" suffix=")">
+          <choose>
+          <if variable="URL">
+          <text term="online"/>
+                    <text term="at"/>
+                    <date variable="accessed" form="text"/>
+          </if>
+          <else>
+            <text term="at"/>
+            <date variable="issued" form="text"/>
+          </else>
+          </choose>
+        </group>
+        </else-if>
+      <else-if type="entry-dictionary">
+        <group prefix="(" suffix=")">
+          <choose>
+            <if variable="URL" match="any">
+              <group delimiter=" ">
+                <text term="online"/>
+                <text term="at"/>
+                <date variable="accessed" form="text"/>
+              </group>
+            </if>
+            <else>
+              <group delimiter=", ">
+                <text macro="edition"/>
+                <date variable="issued" form="numeric" date-parts="year"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+        </else-if>
     </choose>
+  </macro>
+  <macro name="title-dictionary">
+    <choose>
+      <if type="entry-dictionary">
+  <text variable="title" quotes="true"/>
+</if>
+</choose>
+</macro>
+<macro name="titles-encyclopedia">
+  <choose>
+    <if type="entry-encyclopedia">
+      <group delimiter=", ">
+        <group delimiter=" ">
+          <text variable="collection-number"/>
+          <text variable="collection-title"/>
+        </group>
+        <text variable="title" quotes="true"/>
+      </group>
+    </if>
+  </choose>
   </macro>
   <!--publication info -->
   <macro name="status-article-patent">
@@ -421,7 +465,7 @@
   </macro>
   <macro name="volume-book">
     <choose>
-      <if type="book report" match="any">
+      <if type="book report entry-encyclopedia" match="any">
         <group delimiter=" ">
           <label variable="volume" form="short" strip-periods="true"/>
           <text variable="volume"/>
@@ -540,9 +584,20 @@
       </if>
     </choose>
   </macro>
+  <macro name="archive">
+    <choose>
+      <if type="personal_communication">
+        <group prefix="(" suffix=")" delimiter=", ">
+          <text variable="archive"/>
+          <text variable="archive-place"/>
+          <text variable="archive_location"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <macro name="URL">
     <choose>
-      <if type="legal_case legislation bill" match="none">
+      <if type="legal_case legislation bill entry-dictionary entry-encyclopedia" match="none">
         <text variable="URL" prefix="&lt;" suffix="&gt;"/>
       </if>
     </choose>
@@ -589,13 +644,13 @@
           <group delimiter=", ">
             <text macro="author-short"/>
             <choose>
-              <if disambiguate="true">
+              <if disambiguate="true" type="legal_case bill legislation" match="any">
                 <text macro="title-short"/>
               </if>
             </choose>
           </group>
-          <group prefix=" (" suffix=")" delimiter=" ">
-            <text variable="first-reference-note-number" prefix="n "/>
+          <group prefix=" "  delimiter=" ">
+            <text variable="first-reference-note-number" prefix="(n " suffix=")"/>
             <text variable="locator"/>
           </group>
         </else-if>
@@ -615,6 +670,8 @@
                 </group>
                 <group delimiter=" ">
                   <text macro="date-parenthesis"/>
+                  <text macro="title-dictionary"/>
+                  <text macro="titles-encyclopedia"/>
                   <text macro="article-case-info"/>
                   <text macro="book-container"/>
                   <text macro="publisher"/>
@@ -628,7 +685,10 @@
             <text macro="patent"/>
             <group delimiter=" " prefix=" ">
               <group delimiter=", ">
+                <group delimiter=" ">
                 <text macro="date-comma"/>
+                <text macro="archive"/>
+              </group>
                 <text macro="looseleaf"/>
                 <text macro="case-medium-neutral"/>
                 <text macro="page-first"/>
@@ -667,6 +727,8 @@
             </group>
             <group delimiter=" ">
               <text macro="date-parenthesis"/>
+              <text macro="title-dictionary"/>
+              <text macro="titles-encyclopedia"/>
               <text macro="article-case-info"/>
               <text macro="book-container"/>
               <text macro="publisher"/>
