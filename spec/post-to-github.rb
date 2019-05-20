@@ -14,7 +14,26 @@ require 'diffy'
 
 exit(true) if (ENV['TRAVIS_PULL_REQUEST'] || 'false') == 'false'
 
-gh = Octokit::Client.new(:access_token => ENV['GITHUB_TOKEN'])
+REPO = ENV['TRAVIS_REPO_SLUG']
+PR = Integer(ENV['TRAVIS_PULL_REQUEST'])
+GH = Octokit::Client.new(:access_token => ENV['GITHUB_TOKEN'])
+
+WELCOME = """
+Awesome! You just created a pull request to the Citation Styles Language styles repository. One of our human volunteers will try to get in touch soon (usually within a week). In the meantime, I will run some automated checks. You should be notified of the results in a few minutes.
+
+If you haven't done so yet, please make sure your style [validates](https://github.com/citation-style-language/styles/wiki/Validation) and follows all our other [Style Requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements).
+
+To update this pull request, visit the "Files changed" tab above, and click on the pencil icon (see below) in the top-right corner of your style to start editing.
+
+<img width="274" src="https://user-images.githubusercontent.com/77951/34369455-bd50432c-eab3-11e7-945e-6a6147dfc507.png">
+
+If you have any questions, please leave a comment and we'll get back to you. While we usually respond in English, feel free to write in whatever language you're most comfortable.
+""".trim()
+
+GH.issue_comments(REPO, PR).each{|comment|
+  print comment.body
+}
+exit(true)
 
 if File.file?('spec/travis.txt')
   travis = File.read('spec/travis.txt')
@@ -22,7 +41,7 @@ if File.file?('spec/travis.txt')
   if travis.include?("\nFailures:\n")
     travis.sub!(/.*\nFailures:\n/m, '')
     travis = "<details><summary>Tests failed</summary>\n\n<pre>#{travis}</pre>\n\n</details>"
-    gh.add_comment(ENV['TRAVIS_REPO_SLUG'], Integer(ENV['TRAVIS_PULL_REQUEST']), travis)
+    GH.add_comment(REPO, PR, travis)
     exit(true)
   end
 end
@@ -120,4 +139,4 @@ styles.each{|style|
   comments += '</details>'
 }
 
-gh.add_comment(ENV['TRAVIS_REPO_SLUG'], Integer(ENV['TRAVIS_PULL_REQUEST']), comments)
+GH.add_comment(REPO, PR, comments)
