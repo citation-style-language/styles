@@ -19,6 +19,10 @@ REPO = ENV['TRAVIS_REPO_SLUG']
 PR = Integer(ENV['TRAVIS_PULL_REQUEST'])
 GH = Octokit::Client.new(:access_token => ENV['GITHUB_TOKEN'])
 
+welcomed = GH.issue_comments(REPO, PR).detect{|comment| comment.user.login == GH.login && comment.body.length != 0 }
+GH.add_comment(REPO, PR, File.read('spec/pull_request_opened.md')) unless welcomed
+exit(true) if ARGV[0] == 'welcome'
+
 if File.file?('spec/travis.json')
   travis = JSON.load(File.open('spec/travis.json'))
 
@@ -36,7 +40,7 @@ if File.file?('spec/travis.json')
   }
 
   if failures.length != 0
-    failure = "<details><summary>#{failures.length} test#{failures.length == 1 ? '' : 's'} failed</summary>\n\n#{failures.join("\n")}\n\n</details>"
+    failure = ":worried: There are some issues with your submission.\n\n<details><summary>#{failures.length} test#{failures.length == 1 ? '' : 's'} failed</summary>\n\n#{failures.join("\n")}\n\n</details>"
     GH.add_comment(REPO, PR, failure)
     exit(true)
   end
@@ -102,7 +106,7 @@ end
 
 items = JSON.load(File.open(File.join(File.dirname(__FILE__), 'items.json')))
 
-comments = ''
+comments = ':smiley: Your submission passed all our automated tests.\n\n'
 max = 10
 if styles.length > max
   comments = "#{styles.length} styles changed, showing #{max}\n\n"
