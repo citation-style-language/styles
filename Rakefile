@@ -1,4 +1,3 @@
-
 require 'bundler'
 begin
   Bundler.setup
@@ -6,6 +5,12 @@ rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install' to install missing gems"
   exit e.status_code
+end
+
+if ENV['TRAVIS']
+  at_exit do
+    system('bundle exec sheldon')
+  end
 end
 
 require 'rspec/core'
