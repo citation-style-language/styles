@@ -14,14 +14,9 @@
     <category field="biology"/>
     <issn>1479-2621</issn>
     <eissn>1479-263X</eissn>
-    <updated>2019-08-19T13:22:17+00:00</updated>
+    <updated>2019-08-20T08:15:28+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale xml:lang="en">
-    <terms>
-      <term name="no date" form="short">n/d</term>
-    </terms>
-  </locale>
   <macro name="author">
     <choose>
       <if type="article-magazine article-newspaper" match="any">
@@ -76,17 +71,10 @@
         <text variable="publisher" font-style="italic"/>
       </if>
       <else>
-        <choose>
-          <if variable="call-number">
-            <text variable="publisher-place"/>
-          </if>
-          <else>
-            <group delimiter=": ">
-              <text variable="publisher"/>
-              <text variable="publisher-place"/>
-            </group>
-          </else>
-        </choose>
+        <group delimiter=": ">
+          <text variable="publisher"/>
+          <text variable="publisher-place"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -95,9 +83,6 @@
       <if type="bill book graphic legal_case legislation motion_picture song" match="any">
         <text variable="title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="report" match="any">
-        <text variable="title"/>
-      </else-if>
       <else>
         <text variable="title"/>
       </else>
@@ -105,10 +90,10 @@
   </macro>
   <macro name="access-date">
     <choose>
-      <if type="webpage post post-weblog">
-        <group prefix=" " delimiter=" ">
+      <if type="webpage post post-weblog" match="any">
+        <group delimiter=" ">
           <text value="See"/>
-          <text variable="URL" font-style="normal"/>
+          <text variable="URL"/>
           <group prefix="(" suffix=")">
             <text term="accessed" suffix=" "/>
             <date variable="accessed">
@@ -125,15 +110,8 @@
           <date-part name="month"/>
         </date>
       </else-if>
-      <else-if type="report"/>
-      <else-if type="article-journal bill book graphic legal_case legislation motion_picture song" match="any">
-        <date variable="issued">
-          <date-part name="day" prefix=" "/>
-          <date-part name="month" prefix=" "/>
-        </date>
-      </else-if>
       <else>
-        <group prefix=" " delimiter=" ">
+        <group delimiter=" " prefix=" ">
           <group prefix="(" suffix=")">
             <text term="accessed" suffix=" "/>
             <date variable="accessed">
@@ -174,20 +152,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="extra">
-    <choose>
-      <if variable="note">
-        <text variable="note" prefix=". "/>
-      </if>
-    </choose>
-  </macro>
-  <macro name="un-sales">
-    <choose>
-      <if variable="call-number">
-        <text variable="call-number" prefix="United Nations publication. Sales No. "/>
-      </if>
-    </choose>
-  </macro>
   <macro name="locators">
     <choose>
       <if type="article-journal">
@@ -197,35 +161,41 @@
         </group>
       </if>
       <else-if type="report">
-        <text variable="number" prefix=" No. "/>
+        <group delimiter=" " prefix=" ">
+          <label text-case="capitalize-first" variable="number" form="short"/>
+          <text variable="number"/>
+        </group>
       </else-if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference song" match="any">
         <choose>
           <if variable="collection-title">
-            <group delimiter=", ">
-              <text variable="volume" prefix=" Vol. "/>
-              <text variable="collection-number" prefix=" No. "/>
+            <group delimiter=", " prefix=" ">
+              <group delimiter=" ">
+                <label text-case="capitalize-first" variable="volume" form="short"/>
+                <text variable="volume"/>
+              </group>
+              <group>
+                <label text-case="capitalize-first" variable="collection-number" form="short"/>
+                <text variable="collection-number"/>
+              </group>
             </group>
           </if>
         </choose>
       </else-if>
     </choose>
   </macro>
-  <macro name="citation-locator">
-    <group>
-      <text variable="locator" prefix=": "/>
-    </group>
-  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year">
     <sort>
       <key macro="year-date"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <text macro="author-short"/>
-        <text macro="year-date"/>
+      <group delimiter=": ">
+        <group delimiter=", ">
+          <text macro="author-short"/>
+          <text macro="year-date"/>
+        </group>
+        <text macro="citation-locator"/>
       </group>
-      <text macro="citation-locator"/>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="6" et-al-use-first="1" entry-spacing="1">
@@ -251,7 +221,6 @@
             <text macro="locators"/>
           </group>
           <group prefix=". " delimiter=", ">
-            <text macro="un-sales"/>
             <text macro="publisher"/>
             <text variable="page" prefix=" "/>
           </group>
@@ -265,10 +234,7 @@
               <text macro="locators" prefix=", "/>
             </if>
           </choose>
-          <group prefix=". " delimiter=". ">
-            <text macro="un-sales"/>
-            <text macro="publisher"/>
-          </group>
+          <text macro="publisher" prefix=". "/>
         </else-if>
         <else-if type="chapter paper-conference" match="any">
           <group delimiter=". ">
@@ -304,7 +270,6 @@
         <else-if type="speech">
           <text macro="title"/>
           <text variable="event" prefix=". Presented at the "/>
-          <text macro="extra"/>
           <text variable="publisher-place" prefix=". "/>
           <date variable="issued">
             <date-part name="day" prefix=". "/>
@@ -313,19 +278,18 @@
           <text variable="URL" prefix=". Available at " font-style="normal"/>
           <text macro="access-date"/>
         </else-if>
-        <else-if type="webpage post post-weblog">
-          <names variable="author" prefix=" ">
-            <name name-as-sort-order="all" and="text" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
-            <label form="short" prefix=","/>
-          </names>
-          <text macro="access-date" prefix="."/>
+        <else-if type="webpage post post-weblog" match="any">
+          <group delimiter=". ">
+            <text variable="container-title"/>
+            <text macro="access-date"/>
+          </group>
         </else-if>
         <else-if type="thesis">
           <group delimiter=". ">
             <text macro="title"/>
             <group delimiter=", ">
               <text variable="genre"/>
-              <text variable="publisher" prefix=". "/>
+              <text variable="publisher"/>
             </group>
           </group>
           <text macro="access-date"/>
@@ -333,11 +297,6 @@
         <else>
           <text macro="title" prefix=" "/>
           <text macro="editor" prefix=". "/>
-          <text macro="extra"/>
-          <date variable="issued">
-            <date-part name="month" prefix=" "/>
-          </date>
-          <text variable="URL" prefix=". Available at " font-style="normal"/>
           <text macro="access-date"/>
         </else>
       </choose>
