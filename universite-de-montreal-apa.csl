@@ -6,17 +6,27 @@
     <id>http://www.zotero.org/styles/universite-de-montreal-apa</id>
     <link href="http://www.zotero.org/styles/universite-de-montreal-apa" rel="self"/>
     <link href="http://www.zotero.org/styles/apa" rel="template"/>
-    <link href="http://guides.bib.umontreal.ca/disciplines/20-Citer-selon-les-normes-de-l-APA" rel="documentation"/>
+    <link href="https://bib.umontreal.ca/citer/apa" rel="documentation"/>
     <author>
       <name>Florian Martin-Bariteau</name>
       <email>f.martin-bariteau@umontreal.ca</email>
       <uri>http://f-mb.org/</uri>
     </author>
+    <contributor>
+      <name>Mathieu Brisson</name>
+      <email>mathieu.brisson@cegeplimoilou.ca</email>
+      <uri/>
+    </contributor>
+    <contributor>
+      <name>Marc Julien</name>
+      <email>marc.julien@cegeplimoilou.ca</email>
+      <uri/>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="psychology"/>
     <category field="generic-base"/>
     <summary>Adaptation en français canadien des normes de citation de l'APA (6e édition) basée sur le guide des Bibliothèques de l'Université de Montréal.</summary>
-    <updated>2015-12-01T23:12:08+00:00</updated>
+    <updated>2019-08-14T05:14:01+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -24,7 +34,7 @@
       <term name="editor" form="short">dir.</term>
       <term name="editortranslator" form="short">dir. et trad.</term>
       <term name="translator" form="short">trad.</term>
-      <term name="no date" form="short">s.d.</term>
+      <term name="no date" form="short">s. d.</term>
       <term name="retrieved">repéré</term>
       <term name="from">à</term>
       <term name="presented at">communication présentée au</term>
@@ -121,25 +131,16 @@
             <text variable="DOI" prefix="doi:"/>
           </if>
           <else>
-            <choose>
-              <if type="webpage">
-                <group delimiter=" ">
-                  <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-                  <group>
-                    <date variable="accessed" form="text" suffix=", "/>
-                  </group>
-                  <text term="from"/>
-                  <text variable="URL"/>
-                </group>
-              </if>
-              <else>
-                <group>
-                  <text term="retrieved" text-case="capitalize-first" suffix=" "/>
-                  <text term="from" suffix=" "/>
-                  <text variable="URL"/>
-                </group>
-              </else>
-            </choose>
+            <group delimiter=" ">
+              <text term="retrieved" text-case="capitalize-first"/>
+              <choose>
+                <if type="post">
+                  <date variable="accessed" form="text" prefix="le "/>
+                </if>
+              </choose>
+              <text term="from"/>
+              <text variable="URL"/>
+            </group>
           </else>
         </choose>
       </else>
@@ -151,6 +152,7 @@
         <text variable="title" font-style="italic"/>
         <group prefix=" (" suffix=")" delimiter=", ">
           <text variable="genre"/>
+          <text variable="medium"/>
           <choose>
             <if variable="URL" match="any">
               <text variable="publisher"/>
@@ -162,7 +164,8 @@
       <else-if type="report" match="any">
         <text variable="title" font-style="italic"/>
         <group prefix=" (" suffix=")" delimiter=" ">
-          <text variable="genre"/>
+          <text variable="genre" prefix=" [" suffix="]" text-case="capitalize-first"/>
+          <text variable="medium" prefix=" [" suffix="]" text-case="capitalize-first"/>
           <choose>
             <if variable="number" match="any">
               <text term="issue" form="short"/>
@@ -177,6 +180,8 @@
           <if variable="version">
             <group delimiter=" ">
               <text variable="title"/>
+              <text variable="genre" prefix=" [" suffix="]" text-case="capitalize-first"/>
+              <text variable="medium" prefix=" [" suffix="]" text-case="capitalize-first"/>
               <group delimiter=" " prefix="(" suffix=")">
                 <text term="version"/>
                 <text variable="version"/>
@@ -185,11 +190,20 @@
           </if>
           <else>
             <text variable="title" font-style="italic"/>
+            <text variable="genre" prefix=" [" suffix="]" text-case="capitalize-first"/>
+            <text variable="medium" prefix=" [" suffix="]" text-case="capitalize-first"/>
           </else>
         </choose>
       </else-if>
+      <else-if type="paper-conference">
+        <text variable="title" font-style="italic"/>
+        <text variable="genre" prefix=" [" suffix="]" text-case="capitalize-first"/>
+        <text variable="medium" prefix=" [" suffix="]" text-case="capitalize-first"/>
+      </else-if>
       <else>
         <text variable="title"/>
+        <text variable="genre" prefix=" [" suffix="]" text-case="capitalize-first"/>
+        <text variable="medium" prefix=" [" suffix="]" text-case="capitalize-first"/>
       </else>
     </choose>
   </macro>
@@ -214,12 +228,7 @@
       <else>
         <group delimiter=", ">
           <choose>
-            <if variable="event" match="none">
-              <text variable="genre"/>
-            </if>
-          </choose>
-          <choose>
-            <if type="article-journal article-magazine" match="none">
+            <if type="article-journal article-magazine paper-conference" match="none">
               <group delimiter=" : ">
                 <text variable="publisher-place"/>
                 <text variable="publisher"/>
@@ -392,19 +401,49 @@
   <macro name="container">
     <group>
       <choose>
-        <if type="chapter paper-conference entry-encyclopedia" match="any">
+        <if type="chapter entry-encyclopedia" match="any">
           <text term="in" text-case="capitalize-first" suffix=" "/>
         </if>
       </choose>
       <text macro="container-contributors"/>
-      <text macro="container-title"/>
+      <choose>
+        <if type="paper-conference">
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <text value="Communication présentée au"/>
+              <text macro="container-title"/>
+            </group>
+            <text variable="publisher-place"/>
+          </group>
+        </if>
+        <else>
+          <text macro="container-title"/>
+        </else>
+      </choose>
+      <choose>
+        <if type="entry-encyclopedia">
+          <group prefix=" (" suffix=")" delimiter=", ">
+            <text variable="volume" prefix="Vol. "/>
+            <text variable="page" prefix="p. "/>
+          </group>
+        </if>
+      </choose>
     </group>
+    <choose>
+      <if type="manuscript">
+        <text value="Document inédit"/>
+      </if>
+    </choose>
   </macro>
   <macro name="container-title">
     <choose>
       <if type="article article-journal article-magazine article-newspaper" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
+      <else-if type="manuscript"/>
+      <else-if type="paper-conference">
+        <text variable="container-title" text-case="title"/>
+      </else-if>
       <else-if type="bill legal_case legislation" match="none">
         <text variable="container-title" font-style="italic"/>
       </else-if>
