@@ -15,7 +15,7 @@
     <category field="generic-base"/>
     <issn>0028-0836</issn>
     <eissn>1476-4687</eissn>
-    <updated>2019-10-02T13:55:54+00:00</updated>
+    <updated>2019-10-08T13:18:12+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="title">
@@ -41,23 +41,11 @@
       <else-if variable="DOI">
         <text variable="DOI" prefix="doi:"/>
       </else-if>
-      <else-if type="webpage" variable="URL" match="all">
-        <text term="available at" text-case="capitalize-first" suffix=": "/>
-        <text variable="URL" suffix=". "/>
-        <group prefix="(" suffix=")" delimiter=": ">
-          <text term="accessed" text-case="capitalize-first"/>
-          <date variable="accessed">
-            <date-part name="day" suffix=" " form="ordinal"/>
-            <date-part name="month" suffix=" "/>
-            <date-part name="year"/>
-          </date>
-        </group>
-      </else-if>
     </choose>
   </macro>
   <macro name="issuance">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song thesis chapter paper-conference" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture song thesis chapter paper-conference" match="any">
         <group delimiter="; " suffix=".">
           <group delimiter=", " prefix="(" suffix=")">
             <text variable="publisher" form="long"/>
@@ -65,15 +53,16 @@
               <date-part name="year"/>
             </date>
           </group>
-          <choose>
-            <if type="report" match="any">
-              <text variable="URL"/>
-            </if>
-          </choose>
         </group>
       </if>
+      <else-if type="report webpage post post-weblog" match="any">
+        <group delimiter=" ">
+          <text variable="URL"/>
+          <date date-parts="year" form="text" variable="issued" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
       <else>
-        <date prefix="(" suffix=")." variable="issued">
+        <date variable="issued" prefix="(" suffix=")">
           <date-part name="year"/>
         </date>
       </else>
@@ -99,6 +88,19 @@
       </if>
     </choose>
   </macro>
+  <macro name="volume">
+    <choose>
+      <if type="article-journal" match="any">
+        <text variable="volume" font-weight="bold" suffix=","/>
+      </if>
+      <else>
+        <group delimiter=" ">
+          <label variable="volume" form="short"/>
+          <text variable="volume"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -118,9 +120,9 @@
             <text term="in"/>
           </if>
         </choose>
-        <text macro="container-title"/>
+        <text macro="container-title" suffix="."/>
         <text macro="editor"/>
-        <text variable="volume" font-weight="bold" suffix=","/>
+        <text macro="volume" font-weight="normal"/>
         <text variable="page"/>
         <text macro="issuance"/>
         <text macro="access"/>
