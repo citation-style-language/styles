@@ -37,7 +37,6 @@
               <names variable="container-author reviewed-author">
                 <label form="verb-short" text-case="lowercase" suffix=" "/>
                 <name and="text" delimiter=", "/>
-                <et-al/>
               </names>
             </group>
           </if>
@@ -66,27 +65,25 @@
   </macro>
   <macro name="secondary-contributors">
     <choose>
-      <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="none">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="none">
         <names variable="editor translator" delimiter=". ">
           <label form="verb" text-case="capitalize-first" suffix=" "/>
           <name and="text" delimiter=", "/>
-          <et-al/>
         </names>
       </if>
     </choose>
   </macro>
   <macro name="container-contributors">
     <choose>
-      <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=", ">
           <choose>
             <if variable="author">
               <choose>
                 <if variable="container-author" match="any">
                   <names variable="container-author">
-                    <label form="verb-short" suffix=" " text-case="lowercase"/>
+                    <label form="verb-short" text-case="lowercase" suffix=" "/>
                     <name and="text" delimiter=", "/>
-                    <et-al/>
                   </names>
                 </if>
               </choose>
@@ -98,7 +95,6 @@
                     <names variable="editor translator" delimiter=", ">
                       <label form="verb" suffix=" "/>
                       <name and="text" delimiter=", "/>
-                      <et-al/>
                     </names>
                   </group>
                 </if>
@@ -106,7 +102,6 @@
                   <names variable="editor translator" delimiter=", ">
                     <label form="verb" text-case="lowercase" suffix=" "/>
                     <name and="text" delimiter=", "/>
-                    <et-al/>
                   </names>
                 </else>
               </choose>
@@ -127,7 +122,6 @@
       <names variable="author">
         <name and="text" delimiter=", " form="long"/>
         <label form="short" prefix=", "/>
-        <et-al/>
         <substitute>
           <text macro="editor"/>
           <text macro="translator"/>
@@ -140,14 +134,12 @@
     <names variable="editor">
       <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
       <label form="short" prefix=", "/>
-      <et-al/>
     </names>
   </macro>
   <macro name="translator">
     <names variable="translator">
       <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
       <label form="verb-short" prefix=", "/>
-      <et-al/>
     </names>
   </macro>
   <macro name="recipient">
@@ -171,10 +163,14 @@
     <group delimiter=". ">
       <names variable="author">
         <name name-as-sort-order="first" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-        <et-al/>
         <substitute>
           <text macro="editor"/>
           <text macro="translator"/>
+          <choose>
+            <if type="webpage post-weblog" match="any">
+              <text variable="container-title"/>
+            </if>
+          </choose>
         </substitute>
       </names>
       <text macro="recipient"/>
@@ -190,7 +186,6 @@
     <group delimiter=" ">
       <names variable="author">
         <name form="short" and="text" delimiter=", "/>
-        <et-al/>
         <substitute>
           <names variable="editor"/>
           <names variable="translator"/>
@@ -202,7 +197,6 @@
   <macro name="contributors-sort">
     <names variable="author">
       <name name-as-sort-order="all" and="text" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
-      <et-al/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -288,9 +282,6 @@
           <else-if type="manuscript speech" match="any">
             <text variable="genre" form="short"/>
           </else-if>
-          <else-if type="personal_communication">
-            <text macro="issued"/>
-          </else-if>
         </choose>
       </if>
       <else-if type="book graphic motion_picture song" match="any">
@@ -312,7 +303,7 @@
   </macro>
   <macro name="date-disambiguate">
     <choose>
-      <if disambiguate="true">
+      <if disambiguate="true" type="personal_communication" match="any">
         <text macro="issued"/>
       </if>
     </choose>
@@ -396,7 +387,7 @@
   <macro name="container-title">
     <group delimiter=" ">
       <choose>
-        <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+        <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
           <text term="in" text-case="capitalize-first"/>
         </if>
       </choose>
@@ -654,7 +645,7 @@
           </group>
         </group>
       </else-if>
-      <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+      <else-if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=". ">
           <text macro="edition"/>
           <choose>
@@ -710,7 +701,14 @@
         <text variable="original-publisher-place"/>
         <text variable="original-publisher"/>
       </group>
-      <date variable="original-date" form="text" date-parts="year"/>
+      <choose>
+        <if is-uncertain-date="original-date">
+          <date variable="original-date" form="numeric" date-parts="year" prefix="[" suffix="?]"/>
+        </if>
+        <else>
+          <date variable="original-date" form="numeric" date-parts="year"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="reprint-note">
@@ -948,7 +946,7 @@
   </macro>
   <macro name="locators-chapter">
     <choose>
-      <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <choose>
           <if variable="author container-author" match="all"/>
           <else>
@@ -1021,7 +1019,7 @@
   </macro>
   <macro name="issue-note-join-with-space">
     <choose>
-      <if type="article-journal bill legislation legal_case manuscript thesis" variable="publisher-place publisher" match="any">
+      <if type="article-journal bill legislation legal_case manuscript thesis" variable="publisher-place event-place publisher" match="any">
         <!--Chicago doesn't use publisher/place for Newspapers and we want the date delimited by a comma-->
         <choose>
           <if type="article-newspaper" match="none">
@@ -1040,9 +1038,10 @@
   </macro>
   <macro name="issue-note-join-with-comma">
     <choose>
-      <if type="article-journal bill legislation legal_case manuscript thesis" variable="publisher-place publisher" match="none">
+      <if type="graphic map" match="any"/>
+      <else-if type="article-journal bill legislation legal_case manuscript thesis" variable="event-place publisher-place publisher" match="none">
         <text macro="issue-note"/>
-      </if>
+      </else-if>
       <else-if type="article-newspaper">
         <text macro="issue-note"/>
       </else-if>
@@ -1237,7 +1236,7 @@
         <if type="graphic" match="any">
           <text macro="archive-note"/>
         </if>
-        <else-if type="article-journal bill book chapter legal_case legislation motion_picture paper-conference report" match="none">
+        <else-if type="article-journal bill book chapter legal_case legislation motion_picture paper-conference" match="none">
           <text macro="archive-note"/>
         </else-if>
       </choose>
