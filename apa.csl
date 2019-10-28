@@ -71,7 +71,7 @@
       <term name="et-al">et al.</term>
     </terms>
   </locale>
-  <macro name="author">
+  <macro name="author-bib">
     <choose>
       <if type="bill legislation legal_case treaty"/>
       <else>
@@ -118,7 +118,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="author-short">
+  <macro name="author-intext">
     <choose>
       <if type="patent" variable="number" match="all">
         <text macro="patent-number"/>
@@ -228,7 +228,7 @@
     </choose>
   </macro>
 
-  <macro name="issued">
+  <macro name="date-bib">
     <choose>
       <if type="bill legal_case legislation" match="any"/>
       <else-if variable="issued">
@@ -277,7 +277,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="issued-sort">
+  <macro name="date-sort">
     <choose>
       <if type="article article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech treaty webpage" match="any">
         <date variable="issued">
@@ -293,61 +293,51 @@
       </else>
     </choose>
   </macro>
-  <macro name="issued-year">
-    <group>
-      <choose>
-        <if type="personal_communication">
-          <choose>
-            <if variable="archive DOI publisher URL" match="none">
-              <!-- These variables indicate that the letter is retrievable by the reader. If not, then use the APA in-text-only personal communication format -->
-              <date variable="issued" form="text"/>
-            </if>
-            <else>
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-            </else>
-          </choose>
-        </if>
-        <else>
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-        </else>
-      </choose>
-      <text variable="year-suffix"/>
-    </group>
-  </macro>
-  <macro name="issued-citation">
+  <macro name="date-intext">
     <choose>
       <if variable="issued">
         <group delimiter="/">
-          <choose>
-            <if is-uncertain-date="original-date">
-              <group prefix="[" suffix="]" delimiter=" ">
+          <group delimiter=" ">
+            <choose>
+              <if is-uncertain-date="original-date">
                 <text term="circa" form="short"/>
-                <date variable="original-date">
-                  <date-part name="year"/>
-                </date>
-              </group>
-            </if>
-            <else>
-              <date variable="original-date">
-                <date-part name="year"/>
-              </date>
-            </else>
-          </choose>
-          <choose>
-            <if is-uncertain-date="issued">
-              <group prefix="[" suffix="]" delimiter=" ">
+              </if>
+            </choose>
+            <date variable="original-date">
+              <date-part name="year"/>
+            </date>
+          </group>
+          <group delimiter=" ">
+            <choose>
+              <if is-uncertain-date="issued">
                 <text term="circa" form="short"/>
-                <text macro="issued-year"/>
-              </group>
-            </if>
-            <else>
-              <text macro="issued-year"/>
-            </else>
-          </choose>
+              </if>
+            </choose>
+            <group>
+              <choose>
+                <if type="personal_communication">
+                  <choose>
+                    <if variable="archive DOI publisher URL" match="none">
+                      <!-- These variables indicate that the letter is retrievable by the reader. 
+                           If not, then use the APA in-text-only personal communication format -->
+                      <date variable="issued" form="text"/> <!-- TODO 7: Be sure this format hasn't changed -->
+                    </if>
+                    <else>
+                      <date variable="issued">
+                        <date-part name="year"/>
+                      </date>
+                    </else>
+                  </choose>
+                </if>
+                <else>
+                  <date variable="issued">
+                    <date-part name="year"/>
+                  </date>
+                </else>
+              </choose>
+              <text variable="year-suffix"/>
+            </group>
+          </group>
         </group>
       </if>
       <else-if variable="status">
@@ -1445,21 +1435,21 @@
 
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name">
     <sort>
-      <key macro="author" names-min="8" names-use-first="6"/>
-      <key macro="issued-sort"/>
+      <key macro="author-bib" names-min="8" names-use-first="6"/>
+      <key macro="date-sort"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
-        <text macro="author-short"/>
-        <text macro="issued-citation"/>
+        <text macro="author-intext"/>
+        <text macro="date-intext"/>
         <text macro="citation-locator"/>
       </group>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="21" et-al-use-first="19" et-al-use-last="true" entry-spacing="0" line-spacing="2">
     <sort>
-      <key macro="author"/>
-      <key macro="issued-sort" sort="ascending"/>
+      <key macro="author-bib"/>
+      <key macro="date-sort" sort="ascending"/>
       <key macro="title"/>
     </sort>
     <layout>
@@ -1481,16 +1471,16 @@
       -->
       <group suffix=".">
         <group delimiter=". ">
-          <text macro="author"/>
+          <text macro="author-bib"/>
           <choose>
             <if is-uncertain-date="issued">
               <group prefix=" [" suffix="]" delimiter=" ">
                 <text term="circa" form="short"/>
-                <text macro="issued"/>
+                <text macro="date-bib"/>
               </group>
             </if>
             <else>
-              <text macro="issued" prefix=" (" suffix=")"/>
+              <text macro="date-bib" prefix=" (" suffix=")"/>
             </else>
           </choose>
           <group delimiter=" ">
