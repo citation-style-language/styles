@@ -73,52 +73,30 @@
   </locale>
   <macro name="author">
     <choose>
-      <if type="song">
+      <if type="bill legislation legal_case treaty"/>
+      <else>
         <names variable="composer" delimiter=", ">
           <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
           <substitute>
             <names variable="author"/>
-            <names variable="original-author"/>
-            <names variable="translator">
-              <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-              <label form="short" prefix=" (" suffix=")" text-case="title"/>
-            </names>
-            <group delimiter=" ">
-              <text macro="title"/>
-              <text macro="description"/>
-              <text macro="format"/>
-            </group>
-          </substitute>
-        </names>
-      </if>
-      <else-if type="treaty"/>
-      <else>
-        <names variable="author" delimiter=", ">
-          <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-          <substitute>
             <names variable="illustrator"/>
-            <names variable="composer"/>
             <names variable="director">
               <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
               <label form="long" prefix=" (" suffix=")" text-case="title"/>
             </names>
+            <!-- TODO 7: Should I cut this? Should come up very rarely...
             <choose>
               <if variable="container-title">
                 <choose>
                   <if type="book entry entry-dictionary entry-encyclopedia" match="any">
                     <text macro="title"/>
                   </if>
-                  <else>
-                    <names variable="translator"/>
-                  </else>
                 </choose>
-                <names variable="translator">
-                  <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-                  <label form="short" prefix=" (" suffix=")" text-case="title"/>
-                </names>
               </if>
             </choose>
-            <names variable="editor translator" delimiter=", ">
+            -->
+            <!-- Test for editortranslator and put that first as that becomes available -->
+            <names variable="editor" delimiter=", ">
               <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
               <label form="short" prefix=" (" suffix=")" text-case="title"/>
             </names>
@@ -130,7 +108,7 @@
               <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
               <label form="short" prefix=" (" suffix=")" text-case="title"/>
             </names>
-            <group delimiter=" ">
+            <group delimiter=" "> <!-- TODO 7: Update this if the three macros change -->
               <text macro="title"/>
               <text macro="description"/>
               <text macro="format"/>
@@ -1202,25 +1180,27 @@
       <else-if variable="DOI" match="any">
         <text variable="DOI" prefix="https://doi.org/"/>
       </else-if>
-      <else-if variable="URL">
+      <else variable="URL">
         <group delimiter=" ">
           <choose>
-            <!-- TODO 7: Should we drop this and require users to enter access dates manually? -->
-            <if type="post post-weblog webpage" match="any">
-              <choose>
-                <if variable="accessed">
-                  <group delimiter=" ">
-                    <text term="retrieved" text-case="capitalize-first"/>
-                    <date variable="accessed" form="text" suffix=","/>
-                    <text term="from"/>
-                  </group>
-                </if>
-              </choose>
+            <if variable="issued" match="none">
+              <group delimiter=" ">
+                <text term="retrieved" text-case="capitalize-first"/>
+                <date variable="accessed" form="text" suffix=","/>
+                <text term="from"/>
+              </group>
             </if>
           </choose>
           <text variable="URL"/>
         </group>
-      </else-if>
+      </else>
+    </choose>
+  </macro>
+
+
+        
+  
+  <?ignore
       <else-if variable="archive">
         <choose>
           <if type="article article-journal article-magazine article-newspaper dataset paper-conference report speech thesis" match="any">
@@ -1246,14 +1226,13 @@
           </else>
         </choose>
       </else-if>
-      <else>
-        <text macro="publisher" suffix="."/>
-      </else>
-    </choose>
-  </macro>
+  ?>
   
+
+
   <macro name="archive">
-    <!-- TODO 7: How will archival materials be handled? Will archive-place be used anymore? -->
+    <!-- This is for physical archival material, digital archives are handled in macro="publisher"-->
+    <!-- TODO 7: How will archival materials be handled? Will archive-place be used anymore? ->> Yes, use as indicator of physical archive -->
     <group delimiter=". ">
       <group delimiter=", ">
         <choose>
@@ -1484,6 +1463,22 @@
       <key macro="title"/>
     </sort>
     <layout>
+      <!-- Components from manual
+      <author/>
+      <date/>
+      <title>
+        <title/>
+        <description/>
+        <format/>
+      </title>
+      <source>
+        <container/>
+        <publisher/>
+        <event/>
+        <archive/>
+        <access/>
+      </source>
+      -->
       <group suffix=".">
         <group delimiter=". ">
           <text macro="author"/>
