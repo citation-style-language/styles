@@ -1275,37 +1275,41 @@
     </choose>
   </macro>
   
-  <macro name="original-date">
+  <macro name="publication-history">
     <choose>
-      <if type="bill legal_case legislation" match="any"/>
-      <else-if type="speech">
-        <date variable="original-date" delimiter=" ">
-          <date-part name="month"/>
-          <date-part name="year"/>
-        </date>
-      </else-if>
-      <else-if type="article article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog treaty webpage" match="any">
-        <date variable="original-date" form="text"/>
-      </else-if>
+      <if type="bill legal_case legislation patent treaty" match="none">
+        <choose>
+          <if variable="references">
+            <!-- This provides the option for more elaborate description 
+                 of publication history, such as full "reprinted" references
+                 (examples 11, 43, 44) or retracted references -->
+            <text value="references"/>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text value="Original work published"/>
+              <choose>
+                <if is-uncertain-date="original-date">
+                  <text term="circa" form="short"/>
+                </if>
+              </choose>
+              <choose>
+                <!-- TODO 7: Keep this or print just the year? -->
+                <if type="article article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech webpage" match="any">
+                  <date variable="original-date" form="text"/>
+                </if>
+                <else>
+                  <date variable="original-date">
+                    <date-part name="year"/>
+                  </date>
+                </else>
+              </choose>
+            </group>
+          </else>
+        </choose>
+      </if>
       <else>
-        <date variable="original-date">
-          <date-part name="year"/>
-        </date>
-      </else>
-    </choose>
-  </macro>
-  <macro name="original-published">
-    <!--This should be localized -->
-    <choose>
-      <if type="bill legal_case legislation" match="any"/>
-      <else-if type="interview motion_picture song" match="any">
-        <text value="Original work recorded"/>
-      </else-if>
-      <else-if type="broadcast">
-        <text value="Original work broadcast"/>
-      </else-if>
-      <else>
-        <text value="Original work published"/>
+        <!-- TODO 7: Add legal types -->
       </else>
     </choose>
   </macro>
@@ -1469,6 +1473,7 @@
         <archive/>
         <access/>
       </source>
+      <publication-history/>
       -->
       <group suffix=".">
         <group delimiter=". ">
@@ -1506,21 +1511,7 @@
         <text macro="event" prefix=". "/>
       </group>
       <text macro="access" prefix=" "/>
-      <choose>
-        <if is-uncertain-date="original-date">
-          <group prefix=" [" suffix="]" delimiter=" ">
-            <text macro="original-published"/>
-            <text term="circa" form="short"/>
-            <text macro="original-date"/>
-          </group>
-        </if>
-        <else-if variable="original-date">
-          <group prefix=" (" suffix=")" delimiter=" ">
-            <text macro="original-published"/>
-            <text macro="original-date"/>
-          </group>
-        </else-if>
-      </choose>
+      <text macro="publication-history" prefix=" (" suffix=")"/>
     </layout>
   </bibliography>
 </style>
