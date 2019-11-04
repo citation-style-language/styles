@@ -119,7 +119,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="author-intext">
+  <macro name="author-intext"> <!-- TODO 7: Not updated -->
     <choose>
       <if type="patent" variable="number" match="all">
         <text macro="patent-number"/>
@@ -127,9 +127,9 @@
       <else-if type="treaty">
         <text variable="title" form="short"/>
       </else-if>
-      <else-if type="personal_communication">
+      <else-if type="interview personal_communication">
         <choose>
-          <if variable="archive DOI publisher URL" match="none">
+          <if variable="archive container-title DOI publisher URL" match="none">
             <group delimiter=", ">
               <names variable="author">
                 <name and="symbol" delimiter=", " initialize-with=". "/>
@@ -229,7 +229,7 @@
     </choose>
   </macro>
 
-  <macro name="date-bib">
+  <macro name="date-bib"> <!-- TODO 7: Not updated -->
     <choose>
       <if type="bill legal_case legislation" match="any"/>
       <else-if variable="issued">
@@ -355,6 +355,7 @@
   <macro name="title">
     <choose>
       <if type="treaty">
+        <!-- Treaties cite their title and signatories -->
         <group delimiter=", ">
           <text variable="title" text-case="title"/>
           <names variable="author">
@@ -362,46 +363,27 @@
           </names>
         </group>
       </if>
-      <else-if type="patent" variable="number" match="all">
-        <text macro="patent-number" font-style="italic"/>
+      <else-if type="bill legal_case legislation" match="any">
+        <!-- Legal items (other than patents) are never italicized. -->
+        <text variable="title"/>
+      </else-if> 
+      <else-if type="post webpage" match="any">
+        <!-- Webpages are always italicized -->
+        <text variable="title" font-style="italic"/>
       </else-if>
-      <else-if variable="title">
-        <choose>
-          <if variable="version" type="book" match="all">
-            <!---This is a hack until we have a software type -->
-            <text variable="title"/>
-          </if>
-          <else-if variable="reviewed-author reviewed-title" type="review review-book" match="any">
-            <choose>
-              <if variable="reviewed-title">
-                <choose>
-                  <if type="post post-weblog webpage" variable="container-title" match="any">
-                    <text variable="title"/>
-                  </if>
-                  <else>
-                    <text variable="title" font-style="italic"/>
-                  </else>
-                </choose>
-              </if>
-            </choose>
-          </else-if>
-          <else-if type="post post-weblog webpage" variable="container-title" match="any">
-            <text variable="title"/>
-          </else-if>
-          <else>
-            <text variable="title" font-style="italic"/>
-          </else>
-        </choose>
+      <!-- Other types are italicized based on presence of container-title.
+            Assume that review and review-book are published in periodicals/blogs,
+            not just on a web page (ex. 69) -->
+      <else-if variable="container-title" match="any">
+        <text variable="title"/>
       </else-if>
-      <else-if variable="interviewer" type="interview" match="any">
-        <names variable="interviewer">
-          <label form="verb-short" suffix=" " text-case="capitalize-first"/>
-          <name and="symbol" initialize-with=". " delimiter=", "/>
-        </names>
-      </else-if>
+      <else>
+        <text variable="title" font-style="italic"/>
+      </else>
     </choose>
   </macro>
 
+  
   
   <!-- APA has four descriptive sections following the title: -->
   <!-- (description), [format], container, event -->
@@ -518,6 +500,17 @@
       </choose>
     </group>
   </macro>
+
+  <!-- Interview format. Make this contingent on availability information like personal_communication.
+    <else-if variable="interviewer" type="interview" match="any">
+      <names variable="interviewer">
+        <label form="verb-short" suffix=" " text-case="capitalize-first"/>
+        <name and="symbol" initialize-with=". " delimiter=", "/>
+      </names>
+    </else-if>
+  -->
+
+
   <macro name="format-short">
     <choose>
       <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
