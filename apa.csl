@@ -119,22 +119,21 @@
       </else>
     </choose>
   </macro>
-  <macro name="author-intext"> <!-- TODO 7: Not updated -->
+  <macro name="author-intext">
     <choose>
-      <if type="patent" variable="number" match="all">
-        <text macro="patent-number"/>
+      <if type="treaty">
+        <text macro="title-intext" form="short"/>
       </if>
-      <else-if type="treaty">
-        <text variable="title" form="short"/>
-      </else-if>
       <else-if type="interview personal_communication">
         <choose>
+          <!-- These variables indicate that the letter is retrievable by the reader. 
+                If not, then use the APA in-text-only personal communication format -->
           <if variable="archive container-title DOI publisher URL" match="none">
             <group delimiter=", ">
               <names variable="author">
                 <name and="symbol" delimiter=", " initialize-with=". "/>
                 <substitute>
-                  <text variable="title" form="short" quotes="true"/>
+                  <text macro="title-intext"/>
                 </substitute>
               </names>
               <!-- Replace with term="personal-communication" if that becomes available -->
@@ -145,16 +144,7 @@
             <names variable="author" delimiter=", ">
               <name form="short" and="symbol" delimiter=", " initialize-with=". "/>
               <substitute>
-                <names variable="editor"/>
-                <choose>
-                  <if variable="container-title">
-                    <text variable="title" form="short" quotes="true"/>
-                  </if>
-                  <else>
-                    <text variable="title" form="short" font-style="italic"/>
-                  </else>
-                </choose>
-                <text macro="bracketed-short" prefix="[" suffix="]"/>
+                <text macro="title-intext"/>
               </substitute>
             </names>
           </else>
@@ -171,34 +161,14 @@
               <if variable="container-title">
                 <choose>
                   <if type="book entry entry-dictionary entry-encyclopedia" match="any">
-                    <text variable="title" form="short" quotes="true"/>
+                    <text macro="title-intext"/>
                   </if>
                 </choose>
               </if>
             </choose>
             <names variable="editor"/>
             <names variable="editorial-director"/>
-            <choose>
-              <if type="report" variable="publisher" match="all">
-                <text variable="publisher"/>
-              </if>
-              <else-if type="legal_case">
-                <text variable="title" font-style="italic"/>
-              </else-if>
-              <else-if type="bill legislation" match="any">
-                <text variable="title" form="short"/>
-              </else-if>
-              <else-if variable="reviewed-author" type="review review-book" match="any">
-                <text macro="bracketed-short" prefix="[" suffix="]"/>
-              </else-if>
-              <else-if type="post post-weblog webpage" variable="container-title" match="any">
-                <text variable="title" form="short" quotes="true"/>
-              </else-if>
-              <else>
-                <text variable="title" form="short" font-style="italic"/>
-              </else>
-            </choose>
-            <text macro="bracketed-short" prefix="[" suffix="]"/>
+            <text macro="title-intext"/>
           </substitute>
         </names>
       </else>
@@ -294,7 +264,7 @@
               <choose>
                 <if type="personal_communication">
                   <choose>
-                    <if variable="archive DOI publisher URL" match="none">
+                    <if variable="archive container-title DOI publisher URL" match="none">
                       <!-- These variables indicate that the letter is retrievable by the reader. 
                            If not, then use the APA in-text-only personal communication format -->
                       <date variable="issued" form="text"/> <!-- TODO 7: Be sure this format hasn't changed -->
@@ -377,11 +347,56 @@
       </else>
     </choose>
   </macro> 
+  <macro name="title-intext">
+    <choose>
+      <if variable="title" match="none">
+        <text macro="bracketed-intext" prefix="[" suffix="]"/>
+      </if>
+      <!-- Bills, legislation, treaties not italicized or quoted -->
+      <if type="bill legislation treaty" match="any">
+        <text variable="title" form="short"/>
+      </if>
+      <!-- Cases are italicized -->
+      <else-if type="legal_case" match="any">
+        <text variable="title" font-style="italic"/>
+      </else-if> 
+      <!-- Webpages are always italicized -->
+      <else-if type="post webpage" match="any">
+        <text variable="title" form="short" font-style="italic"/>
+      </else-if>
+      <!-- Other types are italicized or quoted based on presence of container-title. As in title macro. -->
+      <else-if variable="container-title" match="any">
+        <text variable="title" form="short" quotes="true"/>
+      </else-if>
+      <else>
+        <text variable="title" form="short" font-style="italic"/>
+      </else>
+    </choose>
+  </macro> 
   <macro name="parenthetical">
     <!-- (Secondary contributors; Database location; Genre no. 123; Report Series 123, Version, Edition, Volume, Page) -->
     <group prefix="(" suffix=")">
       <choose>
-        <if type="bill legislation legal_case patent treaty" match="any"/> <!-- TODO 7: personal_communication was here too? -->
+        <if type="bill legislation legal_case treaty" match="any"/> <!-- TODO 7: personal_communication was here too? -->
+        <else-if type="patent">
+          <!-- authority: U.S. ; genre: patent ; number: 123,445 -->
+          <group delimiter=" ">
+            <text variable="authority"/>
+            <choose>
+              <if variable="genre">
+                <text variable="genre" text-case="capitalize-first"/>
+              </if>
+              <else>
+                <!-- This should be localized -->
+                <text value="patent" text-case="capitalize-first"/>
+              </else>
+            </choose>
+            <group delimiter=" ">
+              <text term="issue" form="short" text-case="capitalize-first"/>
+              <text variable="number"/>
+            </group>
+          </group>
+        </else-if>
         <!-- For post webpage, container-title is treated as publisher -->
         <else-if type="post webpage">
           <group delimiter="; ">
@@ -460,7 +475,7 @@
           </group>
         </if>
         <else>
-          <text macro="bracketed-short"/>
+          <text macro="bracketed-intext"/>
         </else>
       </choose>
     </group>
@@ -476,7 +491,7 @@
   -->
 
 
-  <macro name="bracketed-short">
+  <macro name="bracketed-intext">
     <group delimiter="; ">
       <group delimiter=", ">
         <choose>
@@ -1403,26 +1418,6 @@
         </group>
       </else-if>
     </choose>
-  </macro>
-
-  <macro name="patent-number">
-    <!-- authority: U.S. ; genre: patent ; number: 123,445 -->
-    <group delimiter=" ">
-      <text variable="authority"/>
-      <choose>
-        <if variable="genre">
-          <text variable="genre" text-case="capitalize-first"/>
-        </if>
-        <else>
-          <!-- This should be localized -->
-          <text value="patent" text-case="capitalize-first"/>
-        </else>
-      </choose>
-      <group delimiter=" ">
-        <text term="issue" form="short" text-case="capitalize-first"/>
-        <text variable="number"/>
-      </group>
-    </group>
   </macro>
 
   <macro name="citation-locator">
