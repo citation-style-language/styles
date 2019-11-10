@@ -74,11 +74,17 @@
     </terms>
   </locale>
   <!-- General categories of item types: -->
-  <!-- Booklike: article book dataset? entry interview? manuscript motion_picture? musical_score? pamphlet personal_communication? thesis post webpage -->
-  <!-- Chapterlike: broadcast? chapter entry-dictionary entry-encyclopedia graphic? map? report song speech paper-conference! -->
-  <!-- Periodical: article-journal article-magazine article-newspaper figure? post-weblog review review-book -->
+  <!-- Booklike: article book dataset? entry figure? manuscript motion_picture? musical_score? pamphlet thesis post webpage -->
+  <!-- Chapterlike: broadcast? chapter entry-dictionary entry-encyclopedia graphic interview map personal_communication report song speech paper-conference! -->
+  <!-- Periodical: article-journal article-magazine article-newspaper post-weblog review review-book -->
   <!-- Legal: bill legal_case legislation patent treaty -->
-  <macro name="author-bib">
+  <!-- Explanations: Assume that 
+         - article is preprint
+         - dataset and figure are published separately from periodicals
+         - entry is a database entry
+         - review and review-book are published in periodicals 
+        -->
+  <macro name="author-bib"> <!-- ✔ -->
     <choose>
       <if type="bill legislation legal_case treaty"/>
       <else>
@@ -119,7 +125,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="author-intext">
+  <macro name="author-intext"> <!-- ✔ -->
     <choose>
       <if type="treaty">
         <text macro="title-intext" form="short"/>
@@ -240,7 +246,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="date-intext">
+  <macro name="date-intext"> <!-- ✔ -->
     <choose>
       <if variable="issued">
         <group delimiter="/">
@@ -262,12 +268,12 @@
             </choose>
             <group>
               <choose>
-                <if type="personal_communication">
+                <if type="interview personal_communication">
                   <choose>
                     <if variable="archive container-title DOI publisher URL" match="none">
-                      <!-- These variables indicate that the letter is retrievable by the reader. 
-                           If not, then use the APA in-text-only personal communication format -->
-                      <date variable="issued" form="text"/> <!-- TODO 7: Be sure this format hasn't changed -->
+                      <!-- These variables indicate that the communication is retrievable by the reader. 
+                           If not, then use the in-text-only personal communication format -->
+                      <date variable="issued" form="text"/>
                     </if>
                     <else>
                       <date variable="issued">
@@ -373,7 +379,7 @@
       </else>
     </choose>
   </macro> 
-  <macro name="parenthetical">
+  <macro name="parenthetical"> <!-- ✔ -->
     <!-- (Secondary contributors; Database location; Genre no. 123; Report Series 123, Version, Edition, Volume, Page) -->
     <group prefix="(" suffix=")">
       <choose>
@@ -397,8 +403,8 @@
             </group>
           </group>
         </else-if>
-        <!-- For post webpage, container-title is treated as publisher -->
         <else-if type="post webpage">
+          <!-- For post webpage, container-title is treated as publisher -->
           <group delimiter="; ">
             <text macro="secondary-contributors"/>
             <text macro="database-location"/>
@@ -410,9 +416,8 @@
           <group delimiter="; ">
             <text macro="secondary-contributors"/>
             <choose>
-              <!-- For audiovisual media, number information comes after title, not container-title -->
-              <if type="broadcast graphic map song">
-                <!-- TODO 7: Add motion_picture? -->
+              <if type="broadcast graphic map motion_picture song">
+                <!-- For audiovisual media, number information comes after title, not container-title -->
                 <text macro="number"/>
               </if>
             </choose>
@@ -542,7 +547,7 @@
       <else-if type="speech thesis" match="any">
         <text variable="medium" text-case="capitalize-first"/>
       </else-if>
-      <!-- book is here to catch software with container titles -->
+     <!-- book is here for software with container titles or books republished in anthologies -->
       <else-if type="book report" match="any">
         <choose>
           <if variable="container-title" match="none">
@@ -612,8 +617,8 @@
 
   <macro name="secondary-contributors">
     <choose>
-      <!-- book is here to catch software with container titles -->
       <if type="book broadcast chapter entry entry-dictionary entry-encyclopedia graphic map report" match="any">
+        <!-- book is here for software with container titles or books republished in anthologies -->
         <text macro="secondary-contributors-booklike"/>
       </if>
       <else-if type="personal_communication">
@@ -743,26 +748,28 @@
       </choose>
     </group>
   </macro>
-  
 
-  <macro name="container-contributors">
+  
+  <macro name="container-contributors"> <!-- ✔ -->
     <choose>
-      <!-- book is here to catch software with container titles -->
-      <if type="book broadcast chapter entry entry-dictionary entry-encyclopedia graphic map personal_communication report speech" match="any">
-        <text macro="container-contributors-booklike"/>
+      <if type="book broadcast chapter entry-dictionary entry-encyclopedia graphic interview map personal_communication report speech" match="any">
+        <!-- Chapterlike types show container contributors -->
+        <!-- book is here for software with container titles or books republished in anthologies -->
+        <text macro="container-contributors-chapterlike"/>
       </if>
       <else-if type="paper-conference">
         <choose>
           <if variable="collection-editor container-author editor" match="any">
-            <text macro="container-contributors-booklike"/>
+            <text macro="container-contributors-chapterlike"/>
           </if>
         </choose>
       </else-if>
     </choose>
   </macro>
-  <macro name="container-contributors-booklike">
+  <macro name="container-contributors-chapterlike"> <!-- ✔ -->
     <choose>
       <if variable="container-title">
+        <!-- Change to editortranslator and move editor to substitute if that becomes available -->
         <names variable="editor translator" delimiter=", &amp; ">
           <name and="symbol" initialize-with=". " delimiter=", "/>
           <label form="short" prefix=" (" text-case="title" suffix=")"/>
@@ -779,44 +786,36 @@
 
   <macro name="container">
     <choose>
-      <if type="article article-journal article-magazine article-newspaper review review-book" match="any">
-        <group delimiter=", ">
-          <text macro="container-title"/>
-          <text macro="locators-periodical"/>
+      <if type="article-journal article-magazine article-newspaper post-weblog review review-book" match="any">
+        <!-- Periodical items -->
+        <group delimiter=". ">
+          <group delimiter=", ">
+            <text macro="container-title"/>
+            <text macro="locators-periodical"/>
+          </group>
+          <choose>
+            <if variable="issued">
+              <choose>
+                <if variable="issue page volume" match="none">
+                  <text variable="status" text-case="capitalize-first"/>
+                </if>
+              </choose>
+            </if>
+          </choose>
         </group>
-        <choose>
-          <!--for advance online publication-->
-          <if variable="issued">
-            <choose>
-              <if variable="page issue" match="none">
-                <text variable="status" text-case="capitalize-first" prefix=". "/>
-              </if>
-            </choose>
-          </if>
-        </choose>
       </if>
-      <else-if type="article dataset figure" match="any">
+      <else-if type="article dataset figure" match="any"> <!-- TODO: Make these booklike -->
         <choose>
           <if variable="container-title">
             <group delimiter=", ">
               <text macro="container-title"/>
               <text macro="locators"/>
             </group>
-            <choose>
-              <!--for advance online publication-->
-              <if variable="issued">
-                <choose>
-                  <if variable="page issue" match="none">
-                    <text variable="status" text-case="capitalize-first" prefix=". "/>
-                  </if>
-                </choose>
-              </if>
-            </choose>
           </if>
         </choose>
       </else-if>
-      <!-- book is here to catch software with container titles -->
       <else-if type="book" variable="container-title" match="all">
+        <!-- book is here for software with container titles or books republished in anthologies -->
         <group delimiter=" ">
           <text term="in" text-case="capitalize-first" suffix=" "/>
           <group delimiter=", ">
@@ -954,9 +953,9 @@
       </if>
     </choose>
   </macro>
-  <macro name="container-title">
+  <macro name="container-title"> <!-- ✔ -->
     <choose>
-      <if type="article article-journal article-magazine article-newspaper dataset" match="any">
+      <if type="article-journal article-magazine article-newspaper post-weblog review review-book" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
       <else-if type="paper-conference speech">
@@ -969,13 +968,12 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="bill legal_case legislation post-weblog webpage" match="none">
+      <else-if type="bill legal_case legislation patent treaty webpage" match="none">
         <text variable="container-title" font-style="italic"/>
       </else-if>
     </choose>
   </macro>
-
-  <macro name="database-location">
+  <macro name="database-location"> <!-- ✔ -->
     <choose>
       <if variable="archive-place" match="none">
         <!-- Add archive_collection as that becomes available -->
@@ -983,7 +981,7 @@
       </if>
     </choose>
   </macro>
-  <macro name="number">
+  <macro name="number"> <!-- ✔ -->
     <choose>
       <if variable="number">
         <group delimiter=" ">
@@ -995,9 +993,9 @@
       </if>
     </choose>
   </macro>
-  <macro name="locators-periodical">
+  <macro name="locators-periodical"> <!-- ✔ -->
     <choose>
-      <if type="article-journal article-magazine article-newspaper figure review review-book" match="any">
+      <if type="article-journal article-magazine article-newspaper review review-book" match="any">
         <text macro="volume-periodical"/>
       </if>
       <else-if type="paper-conference">
@@ -1005,9 +1003,9 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="locators-booklike">
+  <macro name="locators-booklike"> <!-- ✔ -->
     <choose>
-      <if type="article-journal article-magazine article-newspaper figure review review-book" match="any"/>
+      <if type="article-journal article-magazine article-newspaper review review-book" match="any"/>
       <else-if type="bill broadcast interview legal_case legislation patent post post-weblog speech treaty webpage" match="any">
         <!-- Double check that all of these should be excluded -->
       </else-if>
@@ -1031,7 +1029,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="version">
+  <macro name="version"> <!-- ✔ -->
     <choose>
       <if is-numeric="version">
         <group delimiter=" ">
@@ -1044,7 +1042,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="edition">
+  <macro name="edition"> <!-- ✔ -->
     <choose>
       <if is-numeric="edition">
         <group delimiter=" ">
@@ -1057,7 +1055,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="volume-periodical">
+  <macro name="volume-periodical"> <!-- ✔ -->
     <group delimiter=", ">
       <choose>
         <if variable="volume">
@@ -1069,11 +1067,19 @@
         <else>
           <text variable="issue" font-style="italic"/>
         </else>
-      </choose>            
-      <text variable="page"/>
+      </choose> 
+      <choose>
+        <if variable="page">
+          <text variable="page"/>
+        </if>
+        <else>
+          <!-- Ex. 6: Journal article with article number or eLocator -->
+          <!-- This should be localized -->
+          <text variable="number" prefix="Article "/>
+        </else>
     </group>
   </macro>
-  <macro name="volume-booklike">
+  <macro name="volume-booklike"> <!-- ✔ -->
     <group delimiter=", ">
       <!-- Report series [ex. 52] -->
       <choose>
@@ -1199,7 +1205,7 @@
   </macro>
   
   
-  <macro name="access">
+  <macro name="access"> <!-- ✔ -->
     <choose>
       <if type="bill legal_case legislation" match="any"/>
       <else-if variable="DOI" match="any">
@@ -1255,7 +1261,7 @@
   
 
 
-  <macro name="archive">
+  <macro name="archive"> <!-- ✔ -->
     <!-- This is for physical archival material, digital archives are handled in macro="publisher"-->
     <group delimiter=". ">
       <group delimiter=", ">
@@ -1278,7 +1284,7 @@
   </macro>
 
   
-  <macro name="event">
+  <macro name="event"> <!-- ✔ -->
     <choose>
       <!-- Don't print event info if published in a proceedings -->
       <if variable="collection-editor editor issue page volume" match="none">
@@ -1290,7 +1296,7 @@
     </choose>
   </macro>
   
-  <macro name="publication-history">
+  <macro name="publication-history"> 
     <choose>
       <if type="bill legal_case legislation patent treaty" match="none">
         <choose>
@@ -1420,7 +1426,7 @@
     </choose>
   </macro>
 
-  <macro name="citation-locator">
+  <macro name="citation-locator"> <!-- ✔ -->
     <group>
       <choose>
         <if locator="chapter">
