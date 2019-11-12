@@ -1140,71 +1140,47 @@
 
 
 
-  <macro name="publisher">
-    <!-- TODO 7: Will non-book items keep publisher-place? -->
-    <choose>
-      <if type="manuscript pamphlet" match="any">
-        <choose>
-          <if variable="archive archive_location archive-place" match="any">
-            <!-- TODO 7: I'm guessing 7ed will retain location if publisher is ambiguous for archival materials -->
-            <group delimiter=". ">
-              <group delimiter=": ">
-                <text variable="publisher-place"/>
-                <text variable="publisher"/>
-              </group>
-              <text macro="archive"/>
-            </group>
-          </if>
-          <else>
-            <group delimiter=", ">
-              <text variable="genre"/>
-              <text variable="publisher"/>
-            </group>
-          </else>
-        </choose>
-      </if>
-      <else-if type="thesis" match="any">
-        <group delimiter=". ">
-          <group delimiter=", ">
-            <text variable="publisher"/>
-          </group>
-          <text macro="archive"/>
-        </group>
-      </else-if>
-      <else-if type="patent">
-        <group delimiter=". ">
-          <group delimiter=": ">
-            <text variable="publisher"/>
-          </group>
-          <text macro="archive"/>
-        </group>
-      </else-if>
-      <else-if type="article-journal article-magazine article-newspaper" match="any">
-        <text macro="archive"/>
-      </else-if>
-      <else-if type="post post-weblog webpage" match="none">
-        <!-- TODO: Should macro="archive" be used for archived web pages? -->
-        <group delimiter=". ">
+  <macro name="publisher"> <!-- ✔ -->
+    <group delimiter=", ">
+      <choose>
+        <if type="thesis">
           <choose>
-            <if variable="event">
-              <choose>
-                <!-- Only print publisher info if published in a proceedings -->
-                <if variable="collection-editor editor issue page volume" match="any">
-                  <text variable="publisher"/>
-                </if>
-              </choose>
+            <if variable="archive DOI number URL" match="none">
+              <text varaible="publisher"/>
             </if>
-            <else>
-              <text variable="publisher"/>
-            </else>
           </choose>
-          <text macro="archive"/>
-        </group>
-      </else-if>
-    </choose>
+        </if>
+        <else-if type="post webpage">
+          <group delimiter=", ">
+            <text variable="container-title"/>
+            <text variable="publisher"/>
+          </group>
+        </else-if>
+        <else-if type="paper-conference">
+          <!-- For paper-conference, don't print publisher if in a journal-like proceedings -->
+          <choose>
+            <if variable="collection-editor editor" match="none">
+              <text variable="publisher"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if type="article-journal article-magazine article-newspaper post-weblog" match="none">
+          <text variable="publisher"/>
+        </else-if>
+      </choose>
+      <choose>
+        <if variable="archive-place">
+          <!-- For physical archives, print the location before the archive name.
+               For electronic archives, these are printed in macro="description".
+          -->
+          <!-- Split "archive_location" into "archive_collection" and "archive_location" as that becomes available -->
+          <text variable="archive_location"/>
+        </if>
+      </choose>
+      <text variable="archive"/>
+      <text variable="archive-place"/>
+    </group>
   </macro>
-  
-  
   <macro name="access"> <!-- ✔ -->
     <choose>
       <if type="bill legal_case legislation" match="any"/>
@@ -1227,71 +1203,21 @@
       </else>
     </choose>
   </macro>
-
-
-        
-  
-  <?ignore
-      <else-if variable="archive">
-        <choose>
-          <if type="article article-journal article-magazine article-newspaper dataset paper-conference report speech thesis" match="any">
-            <!-- This section is for electronic database locations. Physical archives for these and other item types are called in 'publisher' macro -->
-            <!-- TODO 7: How will archival materials be handled? Will archive-place be a reliable indicator anymore
-                         (or will they make physical and electronic archive formatting consistent? -->
-            <choose>
-              <if variable="archive-place" match="none">
-                <group delimiter=" ">
-                  <text term="retrieved" text-case="capitalize-first"/>
-                  <text term="from"/>
-                  <text variable="archive" suffix="."/>
-                  <text variable="archive_location" prefix="(" suffix=")"/>
-                </group>
-              </if>
-              <else>
-                <text macro="publisher" suffix="."/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <text macro="publisher" suffix="."/>
-          </else>
-        </choose>
-      </else-if>
-  ?>
-  
-
-
-  <macro name="archive"> <!-- ✔ -->
-    <!-- This is for physical archival material, digital archives are handled in macro="publisher"-->
-    <group delimiter=". ">
-      <group delimiter=", ">
-        <choose>
-          <if type="manuscript">
-            <text variable="genre"/>
-          </if>
-        </choose>
-        <group delimiter=" ">
-          <!-- Replace "archive" with "archive_collection" as that becomes available -->
-          <text variable="archive"/>
-          <text variable="archive_location" prefix="(" suffix=")"/>
-        </group>
-      </group>
-      <group delimiter=", ">
-        <!-- Move "archive" here when "archive_collection" becomes available -->
-        <text variable="archive-place"/>
-      </group>
-    </group>
-  </macro>
-
-  
   <macro name="event"> <!-- ✔ -->
     <choose>
-      <!-- Don't print event info if published in a proceedings -->
-      <if variable="collection-editor editor issue page volume" match="none">
-        <group delimiter=", ">
-          <text variable="event"/>
-          <text variable="event-place"/>
-        </group>
+      <if variable="event">
+        <!-- To prevent Zotero from printing event-place due to its double-mapping of all 'place' to
+             both publisher-place and event-place. Remove this 'choose' when that is changed.
+        -->
+        <choose>
+          <if variable="collection-editor editor issue page volume" match="none">
+            <!-- Don't print event info if published in a proceedings -->
+            <group delimiter=", ">
+              <text variable="event"/>
+              <text variable="event-place"/>
+            </group>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -1439,10 +1365,9 @@
       <text variable="locator" prefix=" "/>
     </group>
   </macro>
-
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name">
     <sort>
-      <key macro="author-bib" names-min="8" names-use-first="6"/>
+      <key macro="author-bib" names-min="21" names-use-first="19"/>
       <key macro="date-sort"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
@@ -1470,9 +1395,8 @@
       </title>
       <source>
         <container/>
-        <publisher/>
         <event/>
-        <archive/>
+        <publisher/>
         <access/>
       </source>
       <publication-history/>
