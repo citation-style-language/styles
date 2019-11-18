@@ -46,6 +46,7 @@
       <term name="collection-editor" form="short">series ed.</term>
       <term name="bc">B.C.E.</term>
       <term name="letter">personal communication</term>
+      <term name="letter" form="short">letter</term>
       <term name="issue">
         <single>issue</single>
         <multiple>issues</multiple>
@@ -509,50 +510,170 @@
   
   
   <macro name="bracketed">
-    <!-- [review info; interview info; genre, thesis university; medium] -->
-    <group prefix="[" suffix="]" delimiter="; ">
-      <text macro="reviewed-item"/> <!-- TODO 7: Just ove these two macros into this one? -->
-      <text macro="format"/>     
+    <!-- [Descriptive information] -->
+    <group prefix="[" suffix="]">
+      <choose>
+        <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
+          <!-- Reviewed item -->
+          <group delimiter=", ">
+            <choose>
+              <if variable="genre">
+                <!-- Assume that genre is entered as 'Review of the book' or similar -->
+                <group delimiter=" ">
+                  <text variable="genre" text-case="capitalize-first"/>
+                  <text macro="reviewed-title"/>
+                </group>
+              </if>
+              <else>
+                <!-- This should be localized -->
+                <group delimiter=" ">
+                  <text value="Review of"/>
+                  <text macro="reviewed-title"/>
+                </group>
+              </else>
+            </choose>
+            <names variable="reviewed-author">
+              <label form="verb-short" suffix=" "/>
+              <name and="symbol" initialize-with=". " delimiter=", "/>
+            </names>
+          </group>
+        </if>
+        <else-if type="thesis">
+          <!-- Thesis type and institution -->
+          <choose>
+            <if variable="number">
+              <!-- If there is a number, genre is already printed in macro="number" -->
+              <text variable="medium" text-case="capitalize-first"/>
+            </if>
+            <else>
+              <group delimiter="; ">
+                <group delimiter=", ">
+                  <text variable="genre" text-case="capitalize-first"/>
+                  <choose>  
+                    <if variable="archive DOI number URL" match="any">
+                      <!-- Include the university in brackets if thesis is published -->
+                      <text variable="publisher"/>
+                    </if>
+                  </choose>
+                </group>
+                <text variable="medium" text-case="capitalize-first"/>
+              </group>
+            </else>
+          </choose>
+        </else-if>
+        <else-if variable="interviewer" type="interview" match="any">
+          <!-- Interview information -->
+          <names variable="interviewer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="symbol" initialize-with=". " delimiter=", "/>
+            <substitute>
+              <choose>
+                <if variable="number">
+                  <!-- If there is a number, genre is already printed in macro="number" -->
+                  <text variable="medium" text-case="capitalize-first"/>
+                </if>
+                <else>
+                  <group delimiter="; ">
+                    <text variable="genre" text-case="capitalize-first"/>
+                    <text variable="medium" text-case="capitalize-first"/>
+                  </group>
+                </else>
+              </choose>
+              <text term="interview" text-case="capitalize-first"/>
+            </substitute>
+          </names>
+        </else-if>
+        <else-if type="personal_communication">
+          <!-- Letter information -->
+          <group delimiter="; ">
+            <group delimiter=" ">
+              <choose>
+                <if variable="number">
+                  <!-- If there is a number, genre is already printed in macro="number" -->
+                  <choose>
+                    <if variable="medium">
+                      <text variable="medium" text-case="capitalize-first"/>
+                    </if>
+                    <else>
+                      <text term="letter" form="short" text-case="capitilze-first"/>
+                    </else>
+                  </choose>
+                </if>
+                <else>
+                  <choose>
+                    <if variable="genre">
+                      <text variable="genre" text-case="capitalize-first"/>
+                    </if>
+                    <else-if variable="medium">
+                      <text variable="medium" text-case="capitalize-first"/>
+                    </else-if>
+                    <else>
+                      <text term="letter" form="short" text-case="capitilze-first"/>
+                    </else>
+                  </choose>
+                </else>
+              </choose>
+              <names variable="recipient" delimiter=", ">
+                <label form="verb" suffix=" "/>
+                <name and="symbol" delimiter=", "/>
+              </names>
+            </group>
+            <choose>
+              <if variable="genre" match="none">
+                <text variable="medium" text-case="capitalize-first"/>
+              </if>
+            </choose>
+          </group>
+        </else-if>
+        <else-if variable="composer" type="song" match="all">
+          <!-- Performer of classical music works -->
+          <choose>
+            <if variable="number">
+              <!-- If there is a number, genre is already printed in macro="number" -->
+              <group delimiter=" ">
+                <text variable="medium" text-case="capitalize-first"/>
+                <!-- Replace prefix with performer label as that becomes available -->
+                <names variable="author" prefix="Recorded by ">
+                  <name and="symbol" initialize-with=". " delimiter=", "/>
+                </names>
+              </group>
+            </if>
+            <else>
+              <group delimiter="; ">
+                <group delimiter=" ">
+                  <text variable="genre" text-case="capitalize-first"/>
+                  <!-- Replace prefix with performer label as that becomes available -->
+                  <names variable="author" prefix="Recorded by ">
+                    <name and="symbol" initialize-with=". " delimiter=", "/>
+                  </names>
+                </group>
+                <text variable="medium" text-case="capitalize-first"/>
+              </group>
+            </else>
+          </choose>
+        </else-if>
+        <else>
+          <!-- Other description -->
+          <choose>
+            <if variable="number">
+              <!-- If there is a number, genre is already printed in macro="number" -->
+              <text variable="medium" text-case="capitalize-first"/>        
+            </if>
+            <else>
+              <group delimiter="; ">
+                <text variable="genre" text-case="capitalize-first"/>
+                <text variable="medium" text-case="capitalize-first"/>
+              </group>
+            </else>
+          </choose>        
+        </else>
+      </choose>
     </group>
   </macro>
 
   
 
-  <!-- Personal_communication bracketed. Note that if there is no title, then seceondary contributors should be in brakcets?
-
-
-    <else-if type="personal_communication">
-        <group delimiter="; ">
-          <group delimiter=" ">
-            <choose>
-              <if variable="genre" match="any">
-                <text variable="genre" text-case="capitalize-first"/>
-              </if>
-              <else>
-                <text term="letter" text-case="capitalize-first"/>
-              </else>
-            </choose>
-            <names variable="recipient" delimiter=", ">
-              <label form="verb" suffix=" "/>
-              <name and="symbol" delimiter=", "/>
-            </names>
-          </group>
-          <text variable="medium" text-case="capitalize-first"/>
-          <choose>
-            <if variable="container-title" match="none">
-              <names variable="editor translator" delimiter="; ">
-                <name and="symbol" initialize-with=". " delimiter=", "/>
-                <label form="short" prefix=", " text-case="title"/>
-              </names>
-            </if>
-          </choose>
-        </group>
-      </else-if>
-
-
   
-
-    -->
   
 
   <macro name="bracketed-intext">
@@ -903,34 +1024,6 @@
       </group>
     </group>
   </macro>
-  <macro name="reviewed-item">
-    <choose>
-      <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
-        <group delimiter=", ">
-          <choose>
-            <if variable="genre">
-              <!-- Assume that genre is entered as 'Review of the book' or similar -->
-              <group delimiter=" ">
-                <text variable="genre" text-case="capitalize-first"/>
-                <text macro="reviewed-title"/>
-              </group>
-            </if>
-            <else>
-              <!-- This should be localized -->
-              <group delimiter=" ">
-                <text value="Review of"/>
-                <text macro="reviewed-title"/>
-              </group>
-            </else>
-          </choose>
-          <names variable="reviewed-author">
-            <label form="verb-short" suffix=" "/>
-            <name and="symbol" initialize-with=". " delimiter=", "/>
-          </names>
-        </group>
-      </if>
-    </choose>
-  </macro>
   <macro name="reviewed-title">
     <choose>
       <if variable="reviewed-title">
@@ -941,93 +1034,6 @@
       <else>
         <!-- Assume title is title of reviewed work -->
         <text variable="title" font-style="italic"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="format"> <!-- ✔ -->
-    <choose>
-      <if type="thesis">
-        <choose>
-          <if variable="number">
-            <!-- If there is a number, genre is already printed in macro="number" -->
-            <text variable="medium" text-case="capitalize-first"/>
-          </if>
-          <else>
-            <group delimiter="; ">
-              <group delimiter=", ">
-                <text variable="genre" text-case="capitalize-first"/>
-                <choose>  
-                  <if variable="archive DOI number URL" match="any">
-                    <!-- Include the university in brackets if thesis is published -->
-                    <text variable="publisher"/>
-                  </if>
-                </choose>
-              </group>
-              <text variable="medium" text-case="capitalize-first"/>
-            </group>
-          </else>
-        </choose>
-      </if>
-      <else-if variable="interviewer" type="interview" match="any">
-        <names variable="interviewer">
-          <label form="verb" suffix=" " text-case="capitalize-first"/>
-          <name and="symbol" initialize-with=". " delimiter=", "/>
-          <substitute>
-            <choose>
-              <if variable="number">
-                <!-- If there is a number, genre is already printed in macro="number" -->
-                <text variable="medium" text-case="capitalize-first"/>
-              </if>
-              <else>
-                <group delimiter="; ">
-                  <text variable="genre" text-case="capitalize-first"/>
-                  <text variable="medium" text-case="capitalize-first"/>
-                </group>
-              </else>
-            </choose>
-            <text term="interview" text-case="capitalize-first"/>
-          </substitute>
-        </names>
-      </else-if>
-      <else-if variable="composer" type="song" match="all">
-        <choose>
-          <if variable="number">
-            <!-- If there is a number, genre is already printed in macro="number" -->
-            <group delimiter=" ">
-              <text variable="medium" text-case="capitalize-first"/>
-              <!-- Replace prefix with performer label as that becomes available -->
-              <names variable="author" prefix="Recorded by ">
-                <name and="symbol" initialize-with=". " delimiter=", "/>
-              </names>
-            </group>
-          </if>
-          <else>
-            <group delimiter="; ">
-              <group delimiter=" ">
-                <text variable="genre" text-case="capitalize-first"/>
-                <!-- Replace prefix with performer label as that becomes available -->
-                <names variable="author" prefix="Recorded by ">
-                  <name and="symbol" initialize-with=". " delimiter=", "/>
-                </names>
-              </group>
-              <text variable="medium" text-case="capitalize-first"/>
-            </group>
-          </else>
-        </choose>
-      </else-if>
-      <else>
-        <choose>
-          <if variable="number">
-            <!-- If there is a number, genre is already printed in macro="number" -->
-            <text variable="medium" text-case="capitalize-first"/>        
-          </if>
-          <else>
-            <group delimiter="; ">
-              <text variable="genre" text-case="capitalize-first"/>
-              <text variable="medium" text-case="capitalize-first"/>
-            </group>
-          </else>
-        </choose>        
       </else>
     </choose>
   </macro>
