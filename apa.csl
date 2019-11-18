@@ -506,43 +506,48 @@
         </group>
       </if>
     </choose>
-  </macro>
-  
-  
-  <macro name="bracketed">
+  </macro>  
+  <macro name="bracketed"> <!-- ✔ -->
     <!-- [Descriptive information] -->
+    <!-- If there is a number, genre is already printed in macro="number" -->
     <group prefix="[" suffix="]">
       <choose>
         <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
           <!-- Reviewed item -->
-          <group delimiter=", ">
+          <group delimiter="; ">
+            <group delimiter=", ">
+              <group delimiter=" ">
+                <!-- Assume that genre or medium is entered as 'Review of the book' or similar -->
+                <choose>
+                  <if variable="number" match="none">
+                    <text variable="genre" text-case="capitalize-first"/>
+                  </if>
+                  <else-if variable="medium">
+                    <text variable="medium" text-case="capitalize-first"/>
+                  </else-if>
+                  <else>
+                    <!-- Replace with term="review" as that becomes available -->
+                    <text value="Review of"/>
+                  </else>
+                </choose>
+                <text macro="reviewed-title"/>
+              </group>
+              <names variable="reviewed-author">
+                <label form="verb-short" suffix=" "/>
+                <name and="symbol" initialize-with=". " delimiter=", "/>
+              </names>
+            </group>
             <choose>
               <if variable="genre">
-                <!-- Assume that genre is entered as 'Review of the book' or similar -->
-                <group delimiter=" ">
-                  <text variable="genre" text-case="capitalize-first"/>
-                  <text macro="reviewed-title"/>
-                </group>
+                <text variable="medium" text-case="capitalize-first"/>
               </if>
-              <else>
-                <!-- This should be localized -->
-                <group delimiter=" ">
-                  <text value="Review of"/>
-                  <text macro="reviewed-title"/>
-                </group>
-              </else>
             </choose>
-            <names variable="reviewed-author">
-              <label form="verb-short" suffix=" "/>
-              <name and="symbol" initialize-with=". " delimiter=", "/>
-            </names>
           </group>
         </if>
         <else-if type="thesis">
           <!-- Thesis type and institution -->
           <choose>
             <if variable="number">
-              <!-- If there is a number, genre is already printed in macro="number" -->
               <text variable="medium" text-case="capitalize-first"/>
             </if>
             <else>
@@ -569,7 +574,6 @@
             <substitute>
               <choose>
                 <if variable="number">
-                  <!-- If there is a number, genre is already printed in macro="number" -->
                   <text variable="medium" text-case="capitalize-first"/>
                 </if>
                 <else>
@@ -589,7 +593,6 @@
             <group delimiter=" ">
               <choose>
                 <if variable="number">
-                  <!-- If there is a number, genre is already printed in macro="number" -->
                   <choose>
                     <if variable="medium">
                       <text variable="medium" text-case="capitalize-first"/>
@@ -629,7 +632,6 @@
           <!-- Performer of classical music works -->
           <choose>
             <if variable="number">
-              <!-- If there is a number, genre is already printed in macro="number" -->
               <group delimiter=" ">
                 <text variable="medium" text-case="capitalize-first"/>
                 <!-- Replace prefix with performer label as that becomes available -->
@@ -652,120 +654,108 @@
             </else>
           </choose>
         </else-if>
-        <else>
+        <else-if variable="container-title" match="none">
           <!-- Other description -->
+          <text macro="format"/>
+        </else-if>
+        <else>
+          <!-- For conference presentations, chapters in reports, software, place bracketed after the container title -->
           <choose>
-            <if variable="number">
-              <!-- If there is a number, genre is already printed in macro="number" -->
-              <text variable="medium" text-case="capitalize-first"/>        
+            <if type="paper-conference speech" match="none">
+              <choose>>
+                <if variable="collection-editor editor issue page volume" match="any">
+                  <text macro="format"/>
+                </if>
+              </choose>
             </if>
-            <else>
-              <group delimiter="; ">
-                <text variable="genre" text-case="capitalize-first"/>
-                <text variable="medium" text-case="capitalize-first"/>
-              </group>
-            </else>
-          </choose>        
+            <else-if type="book">
+              <choose>
+                <if variable="version" match="none">
+                  <text macro="format"/>
+                </if>
+              </choose>
+            </else-if>
+            <else-if type="report" match="none">
+              <text macro="format"/>
+            </else-if>
+          </choose>   
         </else>
       </choose>
     </group>
   </macro>
-
-  
-
-  
-  
-
-  <macro name="bracketed-intext">
-    
-
-    <choose>
-      <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
-        <choose>
-          <if variable="reviewed-title" match="none">
-            <choose>
-              <if variable="genre">
-                <!-- Delimiting by , rather than "of" to avoid incorrect grammar -->
-                <group delimiter=", ">
+  <macro name="bracketed-intext"> <!-- ✔ -->
+    <group prefix="[" suffix="]">
+      <choose>
+        <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
+          <text macro="reviewed-title-intext" prefix="Review of "/>
+        </if>
+        <else-if variable="interviewer" type="interview" match="any">
+          <names variable="interviewer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="symbol" initialize-with=". " delimiter=", "/>
+            <substitute>
+              <choose>
+                <if variable="number">
+                  <text variable="medium" text-case="capitalize-first"/>
+                </if>
+                <else>
                   <text variable="genre" text-case="capitalize-first"/>
-                  <text variable="title" form="short" font-style="italic"/>
-                </group>
+                  <text variable="medium" text-case="capitalize-first"/>
+                </else>
+              </choose>
+              <text term="interview" text-case="capitalize-first"/>
+            </substitute>
+          </names>
+        </else-if>
+        <else-if type="personal_communication">
+          <!-- Letter information -->
+          <group delimiter=" ">
+            <choose>
+              <if variable="number">
+                <choose>
+                  <if variable="medium">
+                    <text variable="medium" text-case="capitalize-first"/>
+                  </if>
+                  <else>
+                    <text term="letter" form="short" text-case="capitilze-first"/>
+                  </else>
+                </choose>
               </if>
               <else>
-                <!-- This should be localized -->
-                <group delimiter=" ">
-                  <text value="Review of"/>
-                  <text variable="title" form="short" font-style="italic"/>
-                </group>
+                <choose>
+                  <if variable="genre">
+                    <text variable="genre" text-case="capitalize-first"/>
+                  </if>
+                  <else-if variable="medium">
+                    <text variable="medium" text-case="capitalize-first"/>
+                  </else-if>
+                  <else>
+                    <text term="letter" form="short" text-case="capitilze-first"/>
+                  </else>
+                </choose>
               </else>
             </choose>
-          </if>
-          <else>
-            <text variable="title" form="short" quotes="true"/>
-          </else>
-        </choose>
-      </if>
-      <else-if type="speech thesis" match="any">
-        <text variable="medium" text-case="capitalize-first"/>
-      </else-if>
-     <!-- book is here for software with container titles or books republished in anthologies -->
-      <else-if type="book report" match="any">
-        <choose>
-          <if variable="container-title" match="none">
-            <text macro="bracketed-container"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if type="manuscript pamphlet" match="any">
-        <text variable="medium" text-case="capitalize-first"/>
-      </else-if>
-      <else-if type="personal_communication">
-        <text macro="secondary-contributors"/>
-      </else-if>
-      <else-if type="song">
-        <group delimiter="; ">
-          <text macro="secondary-contributors"/>
-          <choose>
-            <if variable="container-title" match="none">
-              <group delimiter=", ">
-                <text variable="genre" text-case="capitalize-first"/>
-                <text variable="medium" text-case="capitalize-first"/>
-              </group>
-            </if>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="paper-conference">
-        <group delimiter=", ">
-          <choose>
-            <if variable="collection-editor editor issue page volume" match="any">
-              <text variable="genre" text-case="capitalize-first"/>
-            </if>
-          </choose>
-          <text variable="medium" text-case="capitalize-first"/>
-        </group>
-      </else-if>
-      <else-if type="bill legislation legal_case patent treaty" match="none">
-        <choose>
-          <if variable="genre medium" match="any">
-            <group delimiter=", ">
-              <text variable="genre" text-case="capitalize-first"/>
-              <text variable="medium" text-case="capitalize-first"/>
-            </group>
-          </if>
-          <else-if type="dataset">
-            <!-- This should be localized -->
-            <text value="Data set"/>
-          </else-if>
-        </choose>
-      </else-if>
-    </choose>
+            <names variable="recipient" delimiter=", ">
+              <label form="verb" suffix=" "/>
+              <name and="symbol" delimiter=", "/>
+            </names>
+          </group>
+        </else-if>
+        <else>
+          <text macro="format"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="bracketed-container"> <!-- ✔ -->
     <choose>
       <if type="paper-conference speech" match="any">
         <!-- Conference presentations should describe the session [container] in bracketed unless published in a proceedings -->
-        <text macro="format"/>
+        <choose> 
+          <if variable="collection-editor editor issue page volume" match="none">
+            <text macro="format"/>
+          </if>
+        </choose>
       </if>
       <else-if type="book" variable="version" match="all">
         <!-- For entries in mobile app reference works, place bracketed after the container-title -->
@@ -1024,7 +1014,7 @@
       </group>
     </group>
   </macro>
-  <macro name="reviewed-title">
+  <macro name="reviewed-title"> <!-- ✔ -->
     <choose>
       <if variable="reviewed-title">
         <!-- Not possible to distinguish TV series episode from other reviewed 
@@ -1035,6 +1025,36 @@
         <!-- Assume title is title of reviewed work -->
         <text variable="title" font-style="italic"/>
       </else>
+    </choose>
+  </macro>
+  <macro name="reviewed-title-intext"> <!-- ✔ -->
+    <choose>
+      <if variable="reviewed-title">
+        <!-- Not possible to distinguish TV series episode from other reviewed 
+              works [Ex. 69] -->
+        <text variable="reviewed-title" form="short" font-style="italic"/>
+      </if>
+      <else>
+        <!-- Assume title is title of reviewed work -->
+        <text variable="title" form="short" font-style="italic"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="format">
+    <choose>
+      <if variable="number" match="none">
+        <group delimiter="; ">
+          <text variable="genre" text-case="capitalize-first"/>
+          <text variable="medium" text-case="capitalize-first"/>
+        </group>
+      </if>
+      <else-if variable="medium">
+        <text variable="medium" text-case="capitalize-first"/>
+      </else-if>
+      <else-if type="dataset">
+        <!-- Replace with term="dataset" as that becomes available -->
+        <text value="Data set"/>
+      </else-if>
     </choose>
   </macro>
   <!-- APA 'source' element contains four parts:
@@ -1473,22 +1493,6 @@
       <key macro="title"/>
     </sort>
     <layout>
-      <!-- Components from manual
-      <author/>
-      <date/>
-      <title>
-        <title/>
-        <parenthetical/>
-        <bracketed/>
-      </title>
-      <source>
-        <container/>
-        <event/>
-        <publisher/>
-        <access/>
-      </source>
-      <publication-history/>
-      -->
       <choose>
         <if type="bill legal_case legislation treaty" match="any">
           <!-- legal items have different orders and delimiters -->
