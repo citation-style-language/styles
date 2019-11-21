@@ -114,7 +114,17 @@
           <if variable="container-title">
             <choose>
               <if type="book entry entry-dictionary entry-encyclopedia" match="any">
-                <text macro="title-and-descriptions"/>
+                <choose>
+                  <if variable="title">
+                    <group delimiter=" ">
+                      <text macro="title"/>
+                      <text macro="parenthetical"/>
+                    </group>
+                  </if>
+                  <else>
+                    <text macro="title-and-description"/>
+                  </else>
+                </choose>
               </if>
             </choose>
           </if>
@@ -132,7 +142,17 @@
           <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
           <label form="short" prefix=" (" suffix=")" text-case="title"/>
         </names>
-        <text macro="title-and-descriptions"/>
+        <choose>
+          <if variable="title">
+            <group delimiter=" ">
+              <text macro="title"/>
+              <text macro="parenthetical"/>
+            </group>
+          </if>
+          <else>
+            <text macro="title-and-description"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -753,16 +773,7 @@
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name and="symbol" initialize-with=". " delimiter=", "/>
             <substitute>
-              <choose>
-                <if variable="number">
-                  <text variable="medium" text-case="capitalize-first"/>
-                </if>
-                <else>
-                  <text variable="genre" text-case="capitalize-first"/>
-                  <text variable="medium" text-case="capitalize-first"/>
-                </else>
-              </choose>
-              <text term="interview" text-case="capitalize-first"/>
+              <text macro="format"/>
             </substitute>
           </names>
         </else-if>
@@ -1235,6 +1246,10 @@
           <!-- For physical archives, print the location before the archive name.
                For electronic archives, these are printed in macro="description". -->
           <!-- Split "archive_location" into "archive_collection" and "archive_location" as that becomes available -->
+          <!-- Must test for archive_collection:
+               With collection: archive_collection (archive_location), archive, archive-place
+               No collection: archive (archive_location), archive-place
+          -->
           <text variable="archive_location"/>
         </if>
       </choose>
