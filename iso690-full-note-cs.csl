@@ -5,7 +5,10 @@
     <!--Informace o stylu:
       Styl vytvořil původně Pavel Vilhan pro slovenský ISO 690 (iso690-full-note-sk), ale upravil Oldrich Tristan Florian k použití v českém akademickém prostředí.
       Originally created by Pavel Vilhan for Slovak ISO 690 (iso690-full-note-sk). Edited by Oldrich Tristan Florian to match the Czech version. 
-      Problémem ISO 690 jako takového a stylů, které z něj vychází (například dosavadní citační směrnice Právnické fakulty MUNI) je v tom, že vyžadují místo vydání a vydavatelství i u odborných časopisů. Zotero však tuto možnost zatím (5.0) nepodporuje, jelikož se v ostatních relevantních stylech tento požadavek nenachází. -->
+      ČSN ISO 690 jako takový vyžaduje uvádět místo vydání a název nakladatelství i u článků v časopisech. V praxi toto není dodržováno, ani interpretace normy to nedoporučuje a Zotero (5.0) tyto kategorie u časopiseckých článků ani standardně nepodporuje.
+      Je však možnost tyto údaje v článcích uvést, a to pokud v kolonce extras uvedete: 
+      {:publisher: Jméno nakladatelství} 
+      {:publisher-place: Místo vydání} -->
     <!--UPOZORNENIA: 
       1. Pre zobrazovanie internetovej adresy pri citovaní elektronických periodík je nutné zapnúť túto funkciu v programe Zotero>Predvoľby>Citovanie>Štýly zaškrtnutím políčka dole.
       2. Zotero 5.0 zatiaľ nepodporuje zobrazenie rozsahu dátumov, napr. 1950 &#8211; 1975. Je však možné do Zotera zadať napr. 1950zzz1975 a pri finálnej úprave nahradiť "zzz" pomlčkou s medzerami: " &#8211; ".-->
@@ -180,7 +183,6 @@
         </choose>
       </if>
       <else-if type="article-journal article-magazine article-newspaper" match="any">
-        <text term="in" text-case="capitalize-first" suffix=" "/>
         <text variable="container-title" font-style="italic"/>
         <text prefix=" " macro="medium"/>
       </else-if>
@@ -203,7 +205,6 @@
         </choose>
       </if>
       <else-if type="article-journal article-magazine article-newspaper" match="any">
-        <text term="in" text-case="capitalize-first" suffix=" "/>
         <text variable="container-title" font-style="italic"/>
         <text prefix=" " macro="medium"/>
       </else-if>
@@ -405,7 +406,7 @@
                 </else>
               </choose>
             </else-if>
-            <else-if type="article-journal article-magazine article-newspaper webpage" match="any">
+            <else-if type="article-magazine article-newspaper webpage" match="any">
               <text macro="contributors-long" suffix=". "/>
               <text macro="title-long" suffix=". "/>
               <text macro="container"/>
@@ -418,6 +419,30 @@
                 </if>
                 <else>
                   <text prefix=". " macro="issued"/>
+                  <text prefix=", " macro="citation-locator" suffix="."/>
+                </else>
+              </choose>
+            </else-if>
+            <else-if type="article-journal" match="any">
+              <text macro="contributors-long" suffix=". "/>
+              <text macro="title-long" suffix=". "/>
+              <text macro="container"/>
+              <choose>
+                <if variable="publisher publisher-place" match="any">
+                  <text prefix=". " macro="publisher"/>
+                  <text prefix=", " macro="issued"/>
+                </if>
+                <else>
+                  <text prefix=". " macro="issued"/>
+                </else>
+              </choose>
+              <choose>
+                <if variable="accessed DOI URL" match="any">
+                  <text prefix=", " macro="citation-locator"/>
+                  <text prefix=" " macro="quoted"/>
+                  <text prefix=". " macro="identifier"/>
+                </if>
+                <else>
                   <text prefix=", " macro="citation-locator" suffix="."/>
                 </else>
               </choose>
@@ -510,11 +535,39 @@
             </else>
           </choose>
         </else-if>
-        <else-if type="article-journal article-magazine article-newspaper webpage" match="any">
+        <else-if type="article-magazine article-newspaper webpage" match="any">
           <text macro="contributors-full" suffix=". "/>
           <text macro="title-long" suffix=". "/>
           <text macro="container-full"/>
           <text prefix=". " macro="issued"/>
+          <choose>
+            <if variable="accessed DOI URL" match="any">
+              <text prefix=", s. " variable="page"/>
+              <text prefix=" " macro="quoted"/>
+              <text prefix=". " variable="note" suffix="."/>
+              <text prefix=". " macro="ISSN" suffix="."/>
+              <text prefix=". " macro="identifier"/>
+            </if>
+            <else>
+              <text prefix=", s. " variable="page" suffix="."/>
+              <text prefix=". " variable="note" suffix="."/>
+              <text prefix=". " macro="ISSN" suffix="."/>
+            </else>
+          </choose>
+        </else-if>
+        <else-if type="article-journal" match="any">
+          <text macro="contributors-full" suffix=". "/>
+          <text macro="title-long" suffix=". "/>
+          <text macro="container-full"/>
+          <choose>
+            <if variable="publisher publisher-place" match="any">
+              <text prefix=". " macro="publisher"/>
+              <text prefix=", " macro="issued"/>
+            </if>
+          <else>
+            <text prefix=". " macro="issued"/>
+          </else>
+          </choose>
           <choose>
             <if variable="accessed DOI URL" match="any">
               <text prefix=", s. " variable="page"/>
