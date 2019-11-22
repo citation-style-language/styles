@@ -92,12 +92,6 @@
                  graphic interview manuscript map motion_picture musical_score pamphlet patent 
                  personal_communication report song speech thesis post webpage
        Legal: bill legal_case legislation treaty
-       Comments: 
-         - article is preprint
-         - dataset and figure are published separately from periodicals
-         - entry is a database entry
-         - review and review-book are published in periodicals 
-         - Booklike objects may or may not have containers
   -->
   <!-- APA references contain four parts: author, date, title, source -->
   <macro name="author-bib">
@@ -227,6 +221,7 @@
             <text variable="year-suffix"/>
             <choose>
               <if type="article-magazine article-newspaper broadcast interview motion_picture pamphlet personal_communication post post-weblog song speech webpage" match="any">
+                <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
                 <date variable="issued">
                   <date-part prefix=", " name="month"/>
                   <date-part prefix=" " name="day"/>
@@ -263,7 +258,7 @@
       </group>
     </group>
   </macro>
-  <macro name="date-sort">
+  <macro name="date-sort"> <!-- TODO: This sort doesn't work. Sorts on issued, then lists items without issued in citation order. -->
     <choose>
       <if variable="issued" match="none">
         <choose>
@@ -273,27 +268,27 @@
           </if>
           <else>
             <!-- 'in press' sorts last -->
-            <text value="status"/>
+            <text variable="status"/>
           </else>
         </choose>
       </if>
-    </choose>
-    <choose>
-      <if type="article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech treaty webpage" match="any">
-        <date variable="issued" form="numeric"/>
-      </if>
-      <else-if type="paper-conference">
-        <!-- Capture 'speech' stored as 'paper-conference' -->
+      <else>
         <choose>
-          <if variable="collection-editor editor editorial-director issue page volume" match="none">
+          <if type="article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech treaty webpage" match="any">
             <date variable="issued" form="numeric"/>
           </if>
+          <else-if type="paper-conference">
+            <!-- Capture 'speech' stored as 'paper-conference' -->
+            <choose>
+              <if variable="collection-editor editor editorial-director issue page volume" match="none">
+                <date variable="issued" form="numeric"/>
+              </if>
+            </choose>
+          </else-if>
+          <else>
+            <date variable="issued" form="numeric"/>
+          </else>
         </choose>
-      </else-if>
-      <else>
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
       </else>
     </choose>
   </macro>
@@ -1565,7 +1560,6 @@
   </citation>
   <bibliography hanging-indent="true" et-al-min="21" et-al-use-first="19" et-al-use-last="true" entry-spacing="0" line-spacing="2">
     <sort>
-      <!-- key variable="citation-number"/ -->
       <key macro="author-bib"/>
       <key macro="date-sort" sort="ascending"/>
       <key macro="title"/>
