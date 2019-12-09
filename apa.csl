@@ -241,38 +241,34 @@
       </group>
     </group>
   </macro>
-  <macro name="date-sort">
-    <!-- TODO: This sort doesn't work. Sorts on issued, then lists items without issued in citation order. -->
+  <macro name="date-sort-group">
     <choose>
-      <if variable="issued" match="none">
-        <choose>
-          <if variable="status" match="none">
-            <!-- 'no date' items sort first -->
-            <text value="-99999999"/>
-          </if>
-          <else>
-            <!-- 'in press' sorts last -->
-            <text variable="status"/>
-          </else>
-        </choose>
+      <if variable="issued">
+        <text value="1"/>
       </if>
+      <else-if variable="status">
+        <text value="2"/>
+      </else-if>
       <else>
+        <text value="0"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-sort-date">
+    <choose>
+      <if type="article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech treaty webpage" match="any">
+        <date variable="issued" form="numeric"/>
+      </if>
+      <else-if type="paper-conference">
+        <!-- Capture 'speech' stored as 'paper-conference' -->
         <choose>
-          <if type="article-magazine article-newspaper broadcast interview pamphlet personal_communication post post-weblog speech treaty webpage" match="any">
+          <if variable="collection-editor editor editorial-director issue page volume" match="none">
             <date variable="issued" form="numeric"/>
           </if>
-          <else-if type="paper-conference">
-            <!-- Capture 'speech' stored as 'paper-conference' -->
-            <choose>
-              <if variable="collection-editor editor editorial-director issue page volume" match="none">
-                <date variable="issued" form="numeric"/>
-              </if>
-            </choose>
-          </else-if>
-          <else>
-            <date variable="issued" form="numeric"/>
-          </else>
         </choose>
+      </else-if>
+      <else>
+        <date variable="issued" form="numeric"/>
       </else>
     </choose>
   </macro>
@@ -1545,7 +1541,9 @@
   <bibliography hanging-indent="true" et-al-min="21" et-al-use-first="19" et-al-use-last="true" entry-spacing="0" line-spacing="2">
     <sort>
       <key macro="author-bib"/>
-      <key macro="date-sort" sort="ascending"/>
+      <key macro="date-sort-group"/>
+      <key macro="date-sort-date" sort="ascending"/>
+      <key variable="status"/>
       <key macro="title"/>
     </sort>
     <layout>
