@@ -626,7 +626,14 @@
                 <group delimiter=" ">
                   <choose>
                     <if variable="number" match="none">
-                      <text variable="genre" text-case="capitalize-first"/>
+                      <choose>
+                        <if variable="genre">
+                          <text variable="genre" text-case="capitalize-first"/>
+                        </if>
+                        <else>
+                          <text term="letter" form="short" text-case="capitalize-first"/>
+                        </else>
+                      </choose>
                     </if>
                     <else>
                       <text term="letter" form="short" text-case="capitalize-first"/>
@@ -847,6 +854,7 @@
   <macro name="database-location">
     <choose>
       <if variable="archive-place" match="none">
+        <!-- With `archive-place`: physical archives. Without: online archives. -->
         <!-- Add archive_collection as that becomes available -->
         <text variable="archive_location"/>
       </if>
@@ -1195,20 +1203,23 @@
           <text variable="publisher"/>
         </else-if>
       </choose>
-      <choose>
-        <if variable="archive-place">
-          <!-- For physical archives, print the location before the archive name.
-               For electronic archives, these are printed in macro="description". -->
-          <!-- Split "archive_location" into "archive_collection" and "archive_location" as that becomes available -->
-          <!-- Must test for archive_collection:
-               With collection: archive_collection (archive_location), archive, archive-place
-               No collection: archive (archive_location), archive-place
-          -->
-          <text variable="archive_location"/>
-        </if>
-      </choose>
-      <text variable="archive"/>
-      <text variable="archive-place"/>
+      <group delimiter=", ">
+        <choose>
+          <if variable="archive-place">
+            <!-- With `archive-place`: physical archives. Without: online archives. -->
+            <!-- For physical archives, print the location before the archive name.
+                For electronic archives, these are printed in macro="description". -->
+            <!-- Split "archive_location" into "archive_collection" and "archive_location" as that becomes available -->
+            <!-- Must test for archive_collection:
+                With collection: archive_collection (archive_location), archive, archive-place
+                No collection: archive (archive_location), archive-place
+            -->
+            <text variable="archive_location"/>
+          </if>
+        </choose>
+        <text variable="archive"/>
+        <text variable="archive-place"/>
+      </group>
     </group>
   </macro>
   <macro name="access">
