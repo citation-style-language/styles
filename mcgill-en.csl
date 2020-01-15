@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="note" default-locale="en-US">
   <info>
-    <title>Canadian Guide to Uniform Legal Citation 7th edition (McGill Guide)</title>
-    <id>http://www.zotero.org/styles/mcgill-en</id>
-    <link href="http://www.zotero.org/styles/mcgill-en" rel="self"/>
-    <link href="http://www.lawjournal.mcgill.ca/en/text/22" rel="documentation"/>
+    <title>Canadian Guide to Uniform Legal Citation 9th edition (McGill Guide)</title>
+    <id>mcgill_9</id>
     <author>
       <name>Liam McHugh-Russell</name>
       <email>liam.mchugh.russell@gmail.com</email>
@@ -17,9 +15,14 @@
       <email>f.martin-bariteau@umontreal.ca</email>
       <uri>http://f-mb.github.io/cslegal/</uri>
     </contributor>
+    <contributor>
+      <name>Andrew Leach</name>
+      <email>leach.andrew@gmail.com</email>
+      <uri>https://github.com/leachandrew/mcgill_csl</uri>
+    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
-    <updated>2014-06-28T19:23:00+00:00</updated>
+    <updated>2019-12-15T02:32:01+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -142,18 +145,18 @@
     right. Only actually need to check for 'first' because w/i cite,
 all the other tests should have been done... -->
   <macro name="render-chapter">
-    <group delimiter=" ">
+  <group delimiter=" ">
       <text variable="title" quotes="true"/>
       <text term="in" form="short"/>
       <text macro="editor" strip-periods="true" suffix=","/>
-      <text macro="container-title" font-style="italic"/>
+      <text variable="container-title" font-style="italic"/>
     </group>
     <text macro="series-info" prefix=", "/>
     <text macro="edition" prefix=", "/>
     <text macro="publisher-place-year"/>
     <text variable="page-first" prefix=" "/>
   </macro>
-  <macro name="render-article-journal">
+    <macro name="render-article-journal">
     <group delimiter=" ">
       <text variable="title" quotes="true"/>
       <date form="text" variable="issued" date-parts="year" prefix="(" suffix=")"/>
@@ -167,6 +170,16 @@ all the other tests should have been done... -->
     <text macro="internet-location"/>
   </macro>
   <macro name="render-book">
+    <group delimiter=", ">
+      <text variable="title" font-style="italic"/>
+      <text macro="edition"/>
+      <text macro="translator"/>
+      <text macro="editor"/>
+      <text macro="series-info"/>
+    </group>
+    <text macro="publisher-place-year"/>
+  </macro>
+  <macro name="render-book-section">
     <group delimiter=", ">
       <text variable="title" font-style="italic"/>
       <text macro="edition"/>
@@ -234,7 +247,6 @@ all the other tests should have been done... -->
         <text macro="container-title"/>
       </group>
       <text macro="references" prefix="(" suffix=")"/>
-      <text variable="title" prefix="[" suffix="]" font-style="italic" form="short"/>
     </group>
   </macro>
   <macro name="render-case">
@@ -291,8 +303,8 @@ all the other tests should have been done... -->
         <text variable="references" prefix=" (" suffix=")"/>
       </else>
     </choose>
-    <text variable="URL" prefix=" (available on " suffix=")"/>
-  </macro>
+    <!-- <text variable="URL" prefix=" (available on " suffix=")"/> -->
+   </macro>
   <macro name="pinpoint">
     <group delimiter=" ">
       <choose>
@@ -303,6 +315,14 @@ all the other tests should have been done... -->
             </if>
           </choose>
         </if>
+        <!--AJL: added a new paragraph locator to match mcgill style-->
+        <else-if locator="paragraph">
+          <choose>
+            <if variable="locator">
+               <label variable="locator" plural="contextual" form="short" strip-periods="true" prefix=" at "/>
+            </if>
+          </choose>
+        </else-if>
         <else>
           <label variable="locator" plural="contextual" form="short" strip-periods="true" prefix=", "/>
         </else>
@@ -312,11 +332,12 @@ all the other tests should have been done... -->
   </macro>
   <macro name="short-form">
     <!-- Hump to overcome: cannot check against existence of short title.
-Not implemented: "cited to" for cases, construct short casenames, adding ref to article -->
+Not implemented: "cited to" for cases, construct short casenames, adding ref to article
+AJL: working here to get disambiguation right -->
     <choose>
       <if type="bill legal_case legislation" match="none">
         <names variable="author">
-          <name and="symbol" form="short" delimiter-precedes-last="never"/>
+          <name and="symbol" form="short"/>
           <substitute>
             <names variable="editor">
               <name and="symbol" form="short"/>
@@ -343,7 +364,14 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
       </else>
     </choose>
   </macro>
-  <macro name="publisher-place-year">
+   <macro name="disambiguate-author">
+    <choose>
+          <if disambiguate="true">
+            <text variable="title-short" quotes="true"/>         
+          </if>
+        </choose>
+  </macro>
+ <macro name="publisher-place-year">
     <group delimiter=", " prefix=" (" suffix=")">
       <group delimiter=": ">
         <text variable="publisher-place"/>
@@ -352,8 +380,9 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
       <date form="text" variable="issued" date-parts="year"/>
     </group>
   </macro>
-  <citation et-al-min="4" et-al-use-first="1">
-    <!-- translator needs to be added for chapter, book, film etc. chapter? -->
+<citation et-al-min="4" et-al-use-first="1">
+    <!-- translator needs to be added for chapter, book, film etc. chapter?
+    Added disambiguation here. -->
     <layout delimiter="; " suffix=".">
       <choose>
         <!-- Not implemented: ibid only needs capitalize-first if it's the first word in a footnote -->
@@ -371,6 +400,7 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
           <group delimiter=" ">
             <group delimiter=", ">
               <text macro="short-form"/>
+              <text macro="disambiguate-author"/>
               <text value="supra" font-style="italic"/>
             </group>
             <text value="note"/>
@@ -426,11 +456,17 @@ Not implemented: "cited to" for cases, construct short casenames, adding ref to 
                       </group>
                     </else>
                   </choose>
-                </else>
+                </else>   
               </choose>
             </group>
+              <!-- add short forms automatically for cases, bills, legislation, etc? -->
+            <choose>
+                <if type="bill legislation legal_case" match="any">
+                  <text variable="title" form="short" font-style="italic" prefix=" [" suffix="]"/>
+                </if>
+            </choose> 
             <text macro="pinpoint"/>
-          </group>
+        </group>
         </else>
       </choose>
     </layout>
