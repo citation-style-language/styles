@@ -10,7 +10,7 @@ To submit a style, please follow the following steps (for locale files, follow t
 
 #### 1. Check that your style meets all our [style requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements)
 
-#### 2. [Validate](https://github.com/citation-style-language/styles/wiki/Validation) your style against the CSL schema, and correct any validation errors
+#### 2. [Validate](https://validator.citationstyles.org/) your style against the CSL schema, and correct any validation errors
 
 #### 3. Create a pull request
 
@@ -33,7 +33,7 @@ To start, create a GitHub account and sign in.
 ##### 3b. Submitting changes to an existing style
 
 1. Visit https://github.com/citation-style-language/styles and find the style you wish to change (dependent styles are stored in the [dependent](https://github.com/citation-style-language/styles/tree/master/dependent) subdirectory).
-   To search by file name press "t" (this activates GitHub’s [File Finder](https://github.com/blog/793-introducing-the-file-finder)) and start typing.
+   To search the repository by file name, click the "Find file" button or press <kbd>t</kbd> to activate GitHub’s [file finder](https://help.github.com/en/github/searching-for-information-on-github/finding-files-on-github) and start typing.
 2. Click on the style name, which will bring you to a page like https://github.com/citation-style-language/styles/blob/master/apa.csl.
 3. Click the edit icon (in the shape of a pencil).
    This opens a code editor in which you can make your changes (you can for example copy and paste your modified style into this window).
