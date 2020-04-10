@@ -52,30 +52,30 @@ We often request you to make some changes to your pull request.
 Don't create a new pull request right away if your original submission has issues.
 It's much easier for us if you update your original pull request instead.
 
-After you create a pull request, our @csl-bot will first automatically run a number of tests to check whether your style validates and follows our style requirements.
+After you create a pull request, our [@csl-bot](https://github.com/csl-bot) will first automatically run a number of tests to check whether your style validates and follows our style requirements.
 These tests usually finish within a few minutes.
-If there are problems, @csl-bot will give a link to the test report, which contains the identified errors.
+If there are problems, [@csl-bot](https://github.com/csl-bot) will leave a comment with the identified errors.
 If you have trouble understanding these errors, please post a comment in the pull request and ask for help.
 
-We also have a handful of volunteers who review pull requests, usually within a day or two.
+We also have a handful of volunteers who review pull requests, usually within a week or two.
 
 To update your pull request:
 
 1. Visit the "Files changed" tab of your pull request.
-2. Click the edit (pencil) icon at the top-right of your style.
+2. Click the ellipsis button at the top-right of your style, and select "Edit file" in the ellipsis menu.
 3. Make your changes, and click the "Commit changes" button.
 
 Any changes made this way will automatically appear in the pull request, and each commit will trigger a new test report.
 
 Once we are satisfied, we will **merge** your pull request.
-This can take hours or days, depending on how busy we are, and on how much back and forth is needed to get your style in acceptable shape.
+This can take days or weeks, depending on how busy we are, and on how much back and forth is needed to get your style in acceptable shape.
 
 #### 5. Make additional changes after merging
 
 Once a pull request has been merged, it can no longer be used to submit further changes.
 So, if you wish to make additional changes, just create a new pull request.
 
-Please always start from the latest version of the style from our repository, because we often perform maintenance on the repository styles.
+Please always start from the latest version of the style from our repository, because we may have performed maintenance on your style or accepted corrections from other contributors.
 
 ## Asking for help
 
