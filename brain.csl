@@ -4,21 +4,26 @@
     <title>Brain</title>
     <id>http://www.zotero.org/styles/brain</id>
     <link href="http://www.zotero.org/styles/brain" rel="self"/>
+    <link href="https://academic.oup.com/brain/pages/General_Instructions" rel="documentation"/>
     <author>
       <name>Rintze Zelle</name>
       <uri>http://twitter.com/rintzezelle</uri>
     </author>
-    <category field="medicine"/>
+    <contributor>
+      <name>Patrick O'Brien</name>
+      <email>https://twitter.com/patobrien333</email>
+    </contributor>
     <category citation-format="author-date"/>
+    <category field="medicine"/>
     <issn>0006-8950</issn>
-    <issn>1460-2156</issn>
-    <updated>2008-09-16T00:00:00+00:00</updated>
-    <link href="http://www.oxfordjournals.org/our_journals/brainj/for_authors/general.html" rel="documentation"/>
-    <rights>This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/</rights>
+    <eissn>1460-2156</eissn>
+    <updated>2019-02-25T13:10:28+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="text" delimiter=", " initialize-with=". " delimiter-precedes-last="never"/>
+      <et-al font-style="italic"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -36,9 +41,12 @@
   <macro name="issued-year">
     <choose>
       <if variable="issued">
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
+        <group>
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+          <text variable="year-suffix" font-style="italic"/>
+        </group>
       </if>
       <else>
         <text term="no date" form="short"/>
@@ -62,29 +70,37 @@
     </names>
   </macro>
   <macro name="publisher">
-    <text variable="publisher-place" suffix=": "/>
-    <text variable="publisher" suffix="; "/>
-    <date variable="issued">
-      <date-part name="year" suffix=". "/>
-    </date>
+    <group delimiter="; ">
+      <group delimiter=": ">
+        <text variable="publisher-place"/>
+        <text variable="publisher"/>
+      </group>
+      <date variable="issued">
+        <date-part name="year"/>
+      </date>
+    </group>
   </macro>
   <macro name="access">
     <choose>
       <if variable="URL">
-        <group delimiter=" ">
-          <group prefix="[" suffix="]" delimiter=" ">
-            <text term="cited" text-case="lowercase"/>
-            <date variable="accessed" suffix="">
-              <date-part name="year"/>
-              <date-part name="month" prefix=" " form="short" strip-periods="true"/>
-              <date-part name="day" prefix=" "/>
-            </date>
-          </group>
-          <group>
-            <text value="Available from: "/>
-            <text variable="URL"/>
-          </group>
-        </group>
+        <choose>
+          <if variable="page" match="none">
+            <group delimiter=" ">
+              <group prefix="[" suffix="]" delimiter=" ">
+                <text term="cited"/>
+                <date variable="accessed">
+                  <date-part name="year"/>
+                  <date-part name="month" prefix=" " form="short" strip-periods="true"/>
+                  <date-part name="day" prefix=" "/>
+                </date>
+              </group>
+              <group>
+                <text value="Available from: "/>
+                <text variable="URL"/>
+              </group>
+            </group>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -93,7 +109,11 @@
       <text variable="title"/>
       <choose>
         <if variable="URL">
-          <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+          <choose>
+            <if variable="page" match="none">
+              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+            </if>
+          </choose>
         </if>
       </choose>
     </group>
@@ -103,7 +123,7 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short" suffix="." strip-periods="true"/>
+          <text term="edition" form="short"/>
         </group>
       </if>
       <else>
@@ -111,10 +131,10 @@
       </else>
     </choose>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year">
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year-suffix" year-suffix-delimiter=", ">
     <sort>
+      <key macro="issued-year"/>
       <key macro="author-short"/>
-      <key variable="issued"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
@@ -134,20 +154,27 @@
       <text macro="title" suffix=". "/>
       <choose>
         <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <text macro="edition" prefix=" " suffix=" "/>
-          <text macro="publisher" prefix=" "/>
+          <group prefix=" " delimiter=" ">
+            <text macro="edition"/>
+            <text macro="publisher"/>
+          </group>
         </if>
         <else-if type="chapter paper-conference" match="any">
-          <group prefix=" " suffix=". ">
-            <text term="in" suffix=": " text-case="capitalize-first"/>
-            <text macro="editor"/>
-            <text variable="container-title"/>
+          <group delimiter=". ">
+            <group prefix=" ">
+              <text term="in" suffix=": " text-case="capitalize-first"/>
+              <text macro="editor"/>
+              <text variable="container-title"/>
+            </group>
+            <text macro="publisher"/>
+            <group delimiter=" ">
+              <label plural="never" variable="page" form="short"/>
+              <text variable="page"/>
+            </group>
           </group>
-          <text macro="publisher" prefix=" "/>
-          <text variable="page" prefix=" p. " suffix="."/>
         </else-if>
         <else>
-          <text variable="container-title" form="short"/>
+          <text variable="container-title" form="short" strip-periods="true"/>
           <date variable="issued" prefix=" ">
             <date-part name="year"/>
           </date>
