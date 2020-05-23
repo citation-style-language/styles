@@ -14,7 +14,7 @@
     <category citation-format="author-date"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2020-05-20T12:15:07+00:00</updated>
+    <updated>2020-05-23T10:25:56+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -26,6 +26,7 @@
       <term name="editortranslator" form="verb">edited and translated by</term>
       <term name="collection-editor" form="verb">edited by</term>
       <term name="collection-editor" form="verb-short">ed.</term>
+      <term name="presented at">Paper presented at the</term>
     </terms>
   </locale>
   <macro name="editor-translator-verb-period">
@@ -208,14 +209,9 @@
   <macro name="collection-title">
     <choose>
       <if variable="volume number-of-volumes" match="any">
-        <!-- Presence of Volume info indicates multivolume work rather than series -->
         <choose>
-          <!--This section required here rather than in title-note because the group delimiter inserts an unneeded comma otherwise-->
-          <if type="chapter" variable="container-title" match="all">
-            <!--Filter SBL 6.2.23-->
-          </if>
+          <if type="chapter" variable="container-title" match="all"/>
           <else-if type="chapter" variable="collection-title" match="all">
-            <!--Filter SBL 6.2.22-->
             <group>
               <text term="volume" form="short" suffix=" "/>
               <number variable="volume" form="numeric"/>
@@ -234,14 +230,12 @@
   </macro>
   <macro name="container-title">
     <choose>
-      <!-- Added dictionary and encyclopedia to get page and volume information-->
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" " suffix=" ">
           <label variable="page" form="long" text-case="capitalize-first"/>
           <text variable="page"/>
           <text term="in"/>
           <choose>
-            <!-- Added dictionary and encyclopedia to get volume information-->
             <if type="entry-dictionary entry-encyclopedia" match="any">
               <choose>
                 <if match="any" variable="volume">
@@ -259,6 +253,12 @@
       <if type="article-journal">
         <text variable="container-title" font-style="italic" text-case="title" form="short"/>
       </if>
+      <else-if type="paper-conference" match="any">
+        <group delimiter=" ">
+          <text term="presented at"/>
+          <text variable="container-title"/>
+        </group>
+      </else-if>
       <else>
         <text variable="container-title" font-style="italic" text-case="title"/>
       </else>
@@ -284,20 +284,18 @@
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <group prefix=" " delimiter=".">
+        <group delimiter=":" prefix=" ">
           <text variable="volume"/>
+          <text variable="page"/>
         </group>
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group prefix=". " delimiter=". ">
-          <!--Repositioned Edition to proceed volume-->
           <text macro="edition"/>
           <choose>
             <if variable="volume">
-              <!--If volume-->
               <choose>
                 <if type="book" variable="collection-title" match="all">
-                  <!--SBL 6.2.21-->
                   <group>
                     <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
                     <number variable="volume" form="numeric"/>
@@ -305,7 +303,6 @@
                   </group>
                 </if>
                 <else-if type="chapter" variable="container-title" match="all">
-                  <!--SBL 6.2.23-->
                   <group>
                     <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
                     <number variable="volume" form="numeric"/>
@@ -329,7 +326,6 @@
           </choose>
         </group>
       </else-if>
-      <!-- Added dictionary and encyclopedia to properly display volume information-->
       <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <group prefix=". ">
           <number variable="number-of-volumes" form="numeric"/>
@@ -437,7 +433,6 @@
         </choose>
         <text macro="event" prefix=" "/>
         <text variable="event-place" prefix=". "/>
-        <text macro="issued" prefix=", "/>
       </if>
       <else-if variable="publisher-place publisher" match="any">
         <group prefix=". " delimiter=", ">
@@ -447,12 +442,16 @@
             </if>
           </choose>
           <text macro="publisher"/>
-          <text macro="issued"/>
+          <choose>
+            <if type="paper-conference" match="any">
+              <date variable="issued">
+                <date-part name="month" suffix=" "/>
+                <date-part name="day"/>
+              </date>
+            </if>
+          </choose>
         </group>
       </else-if>
-      <else>
-        <text macro="issued" prefix=", "/>
-      </else>
     </choose>
   </macro>
   <macro name="access">
@@ -489,7 +488,7 @@
       </group>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="10" et-al-use-first="9" subsequent-author-substitute="&#8212;&#8212;&#8212;" entry-spacing="0">
+  <bibliography hanging-indent="true" et-al-min="10" et-al-use-first="9" subsequent-author-substitute="———" entry-spacing="0">
     <sort>
       <key macro="contributors-sort"/>
       <key macro="issued"/>
@@ -498,19 +497,14 @@
     </sort>
     <layout suffix=".">
       <choose>
-        <!-- Dictionary -->
         <if type="entry-dictionary entry-encyclopedia" match="any">
           <choose>
-            <if match="none" variable="author">
-              <!-- Unsigned Not Listed -->
-            </if>
+            <if match="none" variable="author"/>
             <else>
-              <!-- Signed -->
               <text macro="signed-dictionary-bib"/>
             </else>
           </choose>
         </if>
-        <!-- Not Dictionary -->
         <else>
           <group delimiter=". ">
             <text macro="contributors"/>
@@ -523,7 +517,6 @@
           </group>
           <choose>
             <if variable="volume collection-title" match="all">
-              <!--If Volume # and collection-title -->
               <text macro="locators"/>
               <text macro="collection-title" text-case="title" prefix=" "/>
             </if>
