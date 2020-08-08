@@ -12,9 +12,9 @@
       <email>karnesky+zotero@gmail.com</email>
       <uri>http://arc.nucapt.northwestern.edu/Richard_Karnesky</uri>
     </author>
-    <contributor>
+    <author>
       <name>Brenton M. Wiernik</name>
-    </contributor>
+    </author>
     <category citation-format="numeric"/>
     <category field="physics"/>
     <summary>Common style use by APS publications, without article titles.</summary>
@@ -70,18 +70,24 @@
       <text macro="year-date"/>
     </group>
   </macro>
-  <macro name="edition">
-    <choose>
-      <if is-numeric="edition">
-        <group delimiter=" ">
-          <number variable="edition" form="ordinal"/>
-          <text term="edition" form="short"/>
-        </group>
-      </if>
-      <else>
-        <text variable="edition"/>
-      </else>
-    </choose>
+  <macro name="edition-volume">
+    <group delimiter=", ">
+      <choose>
+        <if is-numeric="edition">
+          <group delimiter=" ">
+            <number variable="edition" form="ordinal"/>
+            <text term="edition" form="short"/>
+          </group>
+        </if>
+        <else>
+          <text variable="edition"/>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <label variable="volume" form="short" text-case="capitalize-first"/>
+        <text variable="volume"/>
+      </group>
+    </group>
   </macro>
   <citation collapse="citation-number">
     <sort>
@@ -92,33 +98,40 @@
     </layout>
   </citation>
   <bibliography entry-spacing="0" second-field-align="flush">
+    <!-- Reference for arxiv: https://doi.org/10.1103/PhysRevLett.116.135503 -->
     <layout suffix=".">
       <text variable="citation-number" prefix="[" suffix="]"/>
       <text macro="author" suffix=", "/>
       <choose>
-        <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <if type="bill book figure graphic legal_case legislation map motion_picture song treaty" match="any">
           <group delimiter=" ">
             <group delimiter=", ">
               <text variable="title" text-case="title" font-style="italic"/>
-              <text macro="edition"/>
+              <text macro="edition-volume"/>
             </group>
-            <group delimiter=", ">
-              <text macro="publisher"/>
-              <group delimiter=" ">
-                <label variable="page" form="short"/>
-                <text variable="page"/>
-              </group>
-            </group>
+            <text macro="publisher"/>
           </group>
         </if>
-        <else-if type="chapter paper-conference" match="any">
+        <else-if type="broadcast chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
           <group delimiter=" ">
-            <text term="in"/>
-            <group delimiter=", ">
-              <text variable="container-title" form="short" text-case="title" font-style="italic"/>
-              <text macro="editor"/>
-              <text macro="edition"/>
-            </group>
+            <choose>
+              <if variable="container-title">
+                <group delimiter=" ">
+                  <text term="in"/>
+                  <group delimiter=", ">
+                    <text variable="container-title" text-case="title" font-style="italic"/>
+                    <text macro="editor"/>
+                    <text macro="edition-volume"/>
+                  </group>
+                </group>
+              </if>
+              <else>
+                <group delimiter=", ">
+                  <text variable="title" text-case="title" font-style="italic"/>
+                  <text macro="edition-volume"/>
+                </group>
+              </else>
+            </choose>
             <group delimiter=", ">
               <text macro="publisher"/>
               <group delimiter=" ">
@@ -134,15 +147,49 @@
             <text macro="day-date" prefix="(" suffix=")"/>
           </group>
         </else-if>
-        <else-if type="thesis">
+        <else-if type="thesis report" match="any">
           <group delimiter=", ">
             <text variable="title" text-case="title"/>
-            <text variable="genre"/>
+            <group delimiter=" ">
+              <text variable="genre"/>
+              <group delimiter=" ">
+                <text term="issue" form="short" text-case="capitalize-first"/>
+                <text variable="number"/>
+              </group>
+            </group>
             <text variable="publisher"/>
             <text macro="year-date"/>
           </group>
         </else-if>
+        <else-if type="article" match="any">
+          <choose>
+            <if variable="container-title">
+              <text variable="container-title"/>
+            </if>
+            <else>
+              <text variable="number"/>
+            </else>
+          </choose>    
+        </else-if>
+        <else-if type="dataset interview manuscript pamphlet personal_communication post post-weblog speech webpage">
+          <!-- unpublished materials; guidelines call for 'enough information to be retrievable' -->
+          <!-- Based on arXiv format -->
+          <group delimiter=", ">
+            <choose>
+              <if variable="DOI">
+                <text variable="DOI" prefix="https://doi.org/"/>
+              </if>
+              <else-if variable="URL">
+                <text variable="URL"/>
+              </else-if>
+              <else>
+                <text value="(unpublished)"/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
         <else>
+          <!--article-journal article-magazine article-newspaper review review-book-->
           <group delimiter=" ">
             <text variable="container-title" form="short" text-case="title"/>
             <group delimiter=", ">
