@@ -6,6 +6,7 @@
     <title-short>UFRGS-ABNT</title-short>
     <id>http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ufrgs</id>
     <link href="http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ufrgs" rel="self"/>
+	<link href="http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ufrgs" rel="template"/> <!-- Estilo original utilizado como modelo -->
     <!-- Para autor ficar com nome completo, é necessário preencher com nome completo dos autores na biblioteca. Ver documentação sobre preenchimento dos campos básicos para ABNT -->
     <link href="https://www.ufrgs.br/bibliotecas/campos-basicos-abnt-mendeley" rel="documentation"/>
     <!-- Para alguns itens do Mendeley é necessário incluir novos campos -->
@@ -48,7 +49,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Brazilian Standard Style in accordance with ABNT-NBR 10520.2002 and ABNT-NBR 6023.2018</summary>
-    <updated>2020-10-04T01:42:52+00:00</updated>
+    <updated>2020-10-06T01:42:52+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt-BR">
@@ -74,10 +75,9 @@
   <macro name="container-contributors">
     <!-- Macro responsavel por mostrar os nomes dos organizadores ou editores -->
     <choose>
-      <if type="chapter">
-        <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
+      <if type="chapter entry-dictionary entry-encyclopedia">
         <names variable="container-author" delimiter=", ">
-          <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter="; " delimiter-precedes-last="always">
+          <name name-as-sort-order="all" sort-separator=", " delimiter="; " delimiter-precedes-last="always">
             <name-part name="family" text-case="uppercase"/>
             <name-part name="given"/>
           </name>
@@ -137,6 +137,21 @@
           </name>
         </names>
       </else-if>
+      <else-if type="entry-dictionary entry-encyclopedia" match="any">
+        <names variable="author">
+          <!-- para outros tipos de documentos mantém a posição original -->
+          <name delimiter="; " delimiter-precedes-et-al="never" delimiter-precedes-last="always" name-as-sort-order="all">
+            <name-part name="family" text-case="uppercase"/>
+            <name-part name="given"/>
+          </name>
+          <et-al font-style="italic"/>
+          <label form="short" text-case="lowercase" prefix=" (" suffix=".)"/>
+          <substitute>
+            <!-- na ausência de um autor, utiliza organizador, editor, tradutor ou título  -->
+            <text variable="title" text-case="uppercase"/>
+          </substitute>
+        </names>
+      </else-if>
       <else>
         <names variable="author">
           <!-- para outros tipos de documentos mantém a posição original -->
@@ -191,26 +206,33 @@
   </macro>
   <macro name="author-short">
     <!-- Macro responsável por mostrar o autor na citação -->
-    <names variable="author">
-      <name form="short" delimiter="; " delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all">
-        <name-part name="family" text-case="uppercase"/>
-        <name-part name="given" text-case="capitalize-first"/>
-      </name>
-      <et-al font-style="italic"/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <choose>
-          <if type="book">
-            <!-- uso do título quando não houver autor -->
-            <text variable="title" form="short" text-case="uppercase"/>
-          </if>
-          <else>
-            <text variable="title" form="short" text-case="uppercase" quotes="false"/>
-          </else>
-        </choose>
-      </substitute>
-    </names>
+    <choose>
+      <if type="broadcast motion_picture song" match="any">
+        <text variable="title" form="short" text-case="uppercase" quotes="false"/>
+      </if>
+      <else>
+        <names variable="author">
+          <name form="short" delimiter="; " delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all">
+            <name-part name="family" text-case="uppercase"/>
+            <name-part name="given" text-case="capitalize-first"/>
+          </name>
+          <et-al font-style="italic"/>
+          <substitute>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <choose>
+              <if type="book">
+                <!-- uso do título quando não houver autor -->
+                <text variable="title" form="short" text-case="uppercase"/>
+              </if>
+              <else>
+                <text variable="title" form="short" text-case="uppercase" quotes="false"/>
+              </else>
+            </choose>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="access">
     <!-- Macro utilizada para apresentar a URL do site utilizado e data de acesso -->
@@ -259,11 +281,8 @@
       <if type="article-journal article-magazine article-newspaper chapter paper-conference post-weblog" match="any">
         <text variable="title" font-weight="normal"/>
       </if>
-      <else-if type="book patent report thesis" match="any">
+      <else-if type="book entry-dictionary entry-encyclopedia patent report thesis" match="any">
         <text variable="title" font-weight="bold"/>
-      </else-if>
-      <else-if type="entry-dictionary entry-encyclopedia" match="any">
-        <text variable="title" text-case="uppercase"/>
       </else-if>
       <else-if type="dataset" match="any">
         <text variable="title" suffix=". "/>
@@ -328,6 +347,16 @@
       <else-if type="legal_case" match="any">
         <text variable="container-title"/>
       </else-if>
+      <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
+        <choose>
+          <if variable="container-author editor collection-editor" match="any">
+            <text variable="container-title" font-weight="bold"/>
+          </if>
+          <else>
+            <text variable="container-title" text-case="uppercase"/>
+          </else>
+        </choose>
+      </else-if>
       <else>
         <text variable="container-title" font-weight="bold"/>
       </else>
@@ -384,7 +413,14 @@
           <date variable="issued" date-parts="year" form="numeric" prefix=" "/>
         </else-if>
         <else>
-          <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+          <choose>
+            <if type="article-journal">
+              <text variable="status" font-style="italic"/>
+            </if>
+            <else>
+              <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+            </else>
+          </choose>
         </else>
       </choose>
     </group>
@@ -586,8 +622,8 @@
   <bibliography et-al-min="4" et-al-use-first="1" line-spacing="1" entry-spacing="1">
     <!--REFERÊNCIAS: a partir de 4 autores utiliza et al., alinhamento a esquerda, espaçamento simples e uma linha entre referências-->
     <sort>
-      <!-- mesma ordem da citação -->
-      <key macro="author"/>
+      <key macro="author-short"/>
+      <key macro="title"/>
       <!-- ordena primeiro pela macro autor -->
       <key variable="issued"/>
       <!-- em seguida pela data -->
@@ -700,6 +736,7 @@
           <group>
             <text macro="author" suffix=". "/>
             <text macro="title" suffix=". "/>
+            <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
             <text macro="container-contributors" suffix=". "/>
             <text macro="container-title" suffix=". "/>
             <text macro="translator" suffix=". "/>
@@ -713,9 +750,10 @@
         <else-if type="entry-dictionary entry-encyclopedia" match="any">
           <!-- verbetes -->
           <group>
+            <text macro="author" suffix=". "/>
             <text macro="title" suffix=". "/>
-            <text term="in" text-case="capitalize-first" font-style="italic" suffix=": "/>
-            <text macro="author" suffix="."/>
+            <text term="in" text-case="capitalize-first" font-style="italic" prefix=" " suffix=": "/>
+            <text macro="container-contributors" suffix="."/>
             <text macro="container-title" prefix=" " suffix=". "/>
             <text macro="publisher"/>
             <text variable="page" prefix=" p. " suffix=". "/>
@@ -861,8 +899,8 @@
         <else-if type="post-weblog">
           <!-- Post -->
           <group>
-            <text macro="author" suffix=". "/>
-            <text macro="title"/>
+            <text macro="author"/>
+            <text macro="title" prefix=". "/>
             <text term="in" font-style="italic" text-case="capitalize-first" prefix=". " suffix=": "/>
             <text variable="container-title" text-case="uppercase" suffix=". "/>
             <text variable="publisher-place" suffix=", "/>
