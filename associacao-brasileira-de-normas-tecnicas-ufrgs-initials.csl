@@ -6,6 +6,8 @@
     <title-short>UFRGS-ABNT</title-short>
     <id>http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ufrgs-initials</id>
     <link href="http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ufrgs-initials" rel="self"/>
+    <link href="http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas-ipea" rel="template"/>
+    <!-- Estilo original utilizado como modelo -->
     <!-- Para autor ficar com nome completo, é necessário preencher com nome completo dos autores na biblioteca. Ver documentação sobre preenchimento dos campos básicos para ABNT -->
     <link href="https://www.ufrgs.br/bibliotecas/campos-basicos-abnt-mendeley" rel="documentation"/>
     <!-- Para alguns itens do Mendeley é necessário incluir novos campos -->
@@ -76,7 +78,7 @@
     <choose>
       <if type="chapter entry-dictionary entry-encyclopedia">
         <names variable="container-author" delimiter=", ">
-          <name name-as-sort-order="all" sort-separator=", " delimiter="; " delimiter-precedes-last="always">
+          <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter="; " delimiter-precedes-last="always">
             <name-part name="family" text-case="uppercase"/>
             <name-part name="given"/>
           </name>
@@ -139,7 +141,7 @@
       <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <names variable="author">
           <!-- para outros tipos de documentos mantém a posição original -->
-          <name delimiter="; " delimiter-precedes-et-al="never" delimiter-precedes-last="always" name-as-sort-order="all">
+          <name delimiter="; " delimiter-precedes-et-al="never" delimiter-precedes-last="always" initialize-with=". " name-as-sort-order="all">
             <name-part name="family" text-case="uppercase"/>
             <name-part name="given"/>
           </name>
@@ -411,15 +413,18 @@
           </choose>
           <date variable="issued" date-parts="year" form="numeric" prefix=" "/>
         </else-if>
-        <else>
+        <else-if type="article-journal paper-conference" match="any">
           <choose>
-            <if type="article-journal">
+            <if variable="status" match="any">
               <text variable="status" font-style="italic"/>
             </if>
             <else>
               <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
             </else>
           </choose>
+        </else-if>
+        <else>
+          <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
         </else>
       </choose>
     </group>
@@ -437,6 +442,16 @@
       </else-if>
       <else-if variable="issued" match="any">
         <date date-parts="year" form="numeric" variable="issued" prefix=" "/>
+      </else-if>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="status" match="any">
+            <text variable="status" font-style="italic"/>
+          </if>
+          <else>
+            <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+          </else>
+        </choose>
       </else-if>
       <else>
         <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
@@ -652,7 +667,15 @@
             <text macro="place"/>
             <text macro="edition" suffix=", "/>
             <text macro="locators" suffix=", "/>
-            <text macro="issued"/>
+            <choose>
+              <if variable="issued" match="none">
+                <text macro="issued"/>
+              </if>
+              <else>
+                <text macro="issued"/>
+                <text variable="status" suffix=". " font-style="italic" text-case="capitalize-first"/>
+              </else>
+            </choose>
             <text macro="access"/>
           </group>
         </else-if>
@@ -855,8 +878,17 @@
           <text macro="secondary-contributors"/>
           <text macro="container-title"/>
           <text macro="locators"/>
-          <text macro="publisher"/>
-          <text variable="page" prefix=" p. " suffix="."/>
+          <choose>
+            <if variable="issued" match="none">
+              <text macro="publisher"/>
+              <text variable="page" prefix=" p. " suffix="."/>
+            </if>
+            <else>
+              <text macro="publisher"/>
+              <text variable="page" prefix=" p. " suffix=". "/>
+              <text variable="status" suffix=". " font-style="italic" text-case="capitalize-first"/>
+            </else>
+          </choose>
           <text macro="access"/>
         </else-if>
         <else-if type="patent">
