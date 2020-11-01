@@ -31,7 +31,7 @@ CITATION_FORMAT_FILTER = %w{
 UNUSED_MACROS_FILTER = %w{
   apa-annotated-bibliography
   apa-cv
-  apa-numeric
+  apa-numeric-superscript
   apa-numeric-superscript-brackets
   apa-with-abstract
   chicago-annotated-bibliography chicago-author-date chicago-author-date-16th-edition
