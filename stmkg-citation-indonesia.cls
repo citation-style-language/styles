@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" page-range-format="expanded" demote-non-dropping-particle="sort-only" default-locale="id-ID">
   <info>
-    <title>Sekolah Tinggi Meteorologi Klimatologi dan Geofisika-STMKG (Indonesia)</title>
+    <title>Sekolah Tinggi Meteorologi Klimatologi dan Geofisika-STMKG (Indonesian)</title>
     <title-short>STMKG</title-short>
     <id>http://www.zotero.org/styles/sekolah-tinggi-meteorologi-klimatologi-dan-geofisika-stmkg</id>
     <link href="http://www.zotero.org/styles/sekolah-tinggi-meteorologi-klimatologi-dan-geofisika-stmkg" rel="self"/>
@@ -16,11 +16,6 @@
     <updated>2020-11-06T08:40:45+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale xml:lang="en">
-    <terms>
-      <term name="accessed">date last accessed</term>
-    </terms>
-  </locale>
   <macro name="editor-translator">
     <names variable="editor translator" prefix="(" suffix=")" delimiter=", ">
       <name and="text" initialize-with=". " delimiter=", "/>
