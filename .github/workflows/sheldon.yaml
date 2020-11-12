@@ -1,0 +1,33 @@
+name: Pull request feedback
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    branches:
+      - '*'
+      - '!master'
+  push:
+    branches:
+      - '*'
+      - '!master'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.1
+        bundler-cache: true
+    - run: bundle update sheldon
+    - run: bundle exec sheldon --token ${{ github.token }} --welcome
+      if: github.event.action == 'opened'
+    - run: bundle exec rake
+    - run: bundle exec sheldon --token ${{ github.token }} --failed
+      if: ${{ failure() }}
+    - run: bundle exec sheldon --token ${{ github.token }} --success
+      if: ${{ success() }}
