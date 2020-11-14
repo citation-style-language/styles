@@ -11,11 +11,24 @@ jobs:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
     - uses: actions/checkout@v2
+
+    - name: Check for CSL changes
+      uses: dorny/paths-filter@v2
+      id: csl
+      with:
+        filters: |
+          csl:
+            - '*.csl'
+    - name: and cancel if none occurred
+      uses: andymckay/cancel-action@0.2
+      if: steps.csl.outputs.csl != 'true'
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.1
-    - uses: actions/cache@v2
+    - name: but use cache to speed that up
+      uses: actions/cache@v2
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -25,11 +38,17 @@ jobs:
       run: |
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
-    - run: bundle exec sheldon --token=$GITHUB_TOKEN --status=welcome
+
+    - name: Welcome to a new CSL PR
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=welcome
       if: github.event.action == 'opened'
-    # may want to use https://github.com/dorny/paths-filter at some point
-    - run: bundle exec rake
-    - run: bundle exec sheldon --token=$GITHUB_TOKEN --status=failed
+
+    - name: See if the styles work
+      run: bundle exec rake
+
+    - name: Oops
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=failed ${{ steps.csl.outputs.csl_files }}
       if: ${{ failure() }}
-    - run: bundle exec sheldon --token=$GITHUB_TOKEN --status=passed
+    - name: Yay!
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=passed ${{ steps.csl.outputs.csl_files }}
       if: ${{ success() }}
