@@ -10,6 +10,11 @@ jobs:
     env:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
+    - uses: actions/checkout@v2
+      if: steps.csl.outputs.csl == 'true'
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+
     - name: Check for CSL changes
       uses: dorny/paths-filter@v2
       id: csl
@@ -18,10 +23,6 @@ jobs:
         filters: |
           csl:
             - '*.csl'
-
-    - uses: actions/checkout@v2
-      if: steps.csl.outputs.csl == 'true'
-      ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Changed files
       run: cat ${{ steps.csl.outputs.csl_files }}
