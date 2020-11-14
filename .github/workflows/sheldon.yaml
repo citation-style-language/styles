@@ -19,15 +19,14 @@ jobs:
         filters: |
           csl:
             - '*.csl'
-    - name: and cancel if none occurred
-      uses: andymckay/cancel-action@0.2
-      if: steps.csl.outputs.csl != 'true'
 
     - name: Set up Ruby
+      if: steps.csl.outputs.csl == 'true'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.1
     - name: but use cache to speed that up
+      if: steps.csl.outputs.csl == 'true'
       uses: actions/cache@v2
       with:
         path: vendor/bundle
@@ -35,20 +34,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gems-
     - name: Bundle install
+      if: steps.csl.outputs.csl == 'true'
       run: |
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
     - name: Welcome to a new CSL PR
+      if: github.event.action == 'opened' && steps.csl.outputs.csl == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --status=welcome
-      if: github.event.action == 'opened'
 
     - name: See if the styles work
+      if: steps.csl.outputs.csl == 'true'
       run: bundle exec rake
 
     - name: Oops
+      if: steps.csl.outputs.csl == 'true' && ${{ failure() }}
       run: bundle exec sheldon --token=$GITHUB_TOKEN --status=failed
-      if: ${{ failure() }}
     - name: Yay!
+      if: steps.csl.outputs.csl == 'true' && ${{ success() }}
       run: bundle exec sheldon --token=$GITHUB_TOKEN --status=passed
-      if: ${{ success() }}
