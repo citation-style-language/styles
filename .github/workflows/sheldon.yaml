@@ -11,28 +11,26 @@ jobs:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Check for CSL changes
       uses: dorny/paths-filter@v2
-      id: csl
+      id: sheldon
       with:
         list-files: shell
         filters: |
-          csl:
+          changed:
             - '*.csl'
 
     - name: Changed files
-      run: cat ${{ steps.csl.outputs.csl_files }}
+      run: cat ${{ steps.sheldon.outputs.changed_files }}
 
     - name: Set up Ruby
-      if: steps.csl.outputs.csl == 'true'
+      if: steps.sheldon.outputs.changed == 'true'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.1
     - name: but use cache to speed that up
-      if: steps.csl.outputs.csl == 'true'
+      if: steps.sheldon.outputs.changed == 'true'
       uses: actions/cache@v2
       with:
         path: vendor/bundle
@@ -40,22 +38,26 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gems-
     - name: Bundle install
-      if: steps.csl.outputs.csl == 'true'
+      if: steps.sheldon.outputs.changed == 'true'
       run: |
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
     - name: Welcome to a new CSL PR
-      if: github.event.action == 'opened' && steps.csl.outputs.csl == 'true'
-      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=welcome
+      if: github.event.action == 'opened' && steps.sheldon.outputs.changed == 'true'
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --welcome
+
+    - name: Apply the PR
+      if: steps.sheldon.outputs.changed == 'true'
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --apply
 
     - name: See if the styles work
-      if: steps.csl.outputs.csl == 'true'
+      if: steps.sheldon.outputs.changed == 'true'
       run: bundle exec rake
 
     - name: Oops
-      if: failure() && steps.csl.outputs.csl == 'true'
-      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=failed
+      if: failure() && steps.sheldon.outputs.changed == 'true'
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --failed
     - name: Yay!
-      if: success() && steps.csl.outputs.csl == 'true'
-      run: bundle exec sheldon --token=$GITHUB_TOKEN --status=passed --verbose
+      if: success() && steps.sheldon.outputs.changed == 'true'
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --passed --verbose
