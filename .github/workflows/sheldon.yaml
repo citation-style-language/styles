@@ -21,9 +21,6 @@ jobs:
           changed:
             - '*.csl'
 
-    - name: Changed files
-      run: cat ${{ steps.sheldon.outputs.changed_files }}
-
     - name: Set up Ruby
       if: steps.sheldon.outputs.changed == 'true'
       uses: ruby/setup-ruby@v1
@@ -43,13 +40,16 @@ jobs:
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
-    - name: Welcome to a new CSL PR
-      if: github.event.action == 'opened' && steps.sheldon.outputs.changed == 'true'
-      run: bundle exec sheldon --token=$GITHUB_TOKEN --welcome
-
     - name: Apply the PR
       if: steps.sheldon.outputs.changed == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --apply
+
+    - name: Changed files
+      run: cat ${{ steps.sheldon.outputs.changed_files }}
+
+    - name: Welcome to a new CSL PR
+      if: github.event.action == 'opened' && steps.sheldon.outputs.changed == 'true'
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --welcome
 
     - name: See if the styles work
       if: steps.sheldon.outputs.changed == 'true'
