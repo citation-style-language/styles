@@ -30,7 +30,7 @@ jobs:
         echo deleted ${{ steps.release.outputs.deleted_files }}
 
     - uses: actions/checkout@v2
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       with:
         ref: 'v1.0.1'
         path: 'release'
@@ -39,12 +39,12 @@ jobs:
       if: steps.release.outputs.updated == true
 
     - name: Set up Ruby
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.1
     - name: but use cache to speed that up
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       uses: actions/cache@v2
       with:
         path: vendor/bundle
@@ -52,17 +52,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gems-
     - name: Bundle install
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       run: |
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
     - name: update the timestamps
       run: cd release && bundle exec sheldon --token=$GITHUB_TOKEN --release ${{ steps.release.outputs.updated_files }}
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
 
     - uses: EndBug/add-and-commit@v5
-      if: steps.release.outputs.updated == 'true' or steps.release.outputs.deleted == true
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       with:
         cwd: './release'
         add: ${{ steps.release.outputs.updated }}
