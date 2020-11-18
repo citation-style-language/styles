@@ -54,13 +54,15 @@ jobs:
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
-    - name: update the timestamps
+    - name: update the timestamps and add the changes
       run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
       if: steps.release.outputs.updated == 'true'
+
+    - name: delete deleted files
+      run: cd release && git rm ${{ steps.release.outputs.deleted_files }}
+      if: steps.release.outputs.deleted == 'true'
 
     - uses: EndBug/add-and-commit@v5
       if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       with:
         cwd: './release'
-        add: ${{ steps.release.outputs.updated_files }}
-        remove: ${{ steps.release.outputs.deleted_files }}
