@@ -1,0 +1,69 @@
+name: Merge to release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Check for relevant changes
+      uses: dorny/paths-filter@v2
+      id: release
+      with:
+        list-files: shell
+        filters: |
+          updated:
+            - added|modified: [ '*.csl', '*.xml' ]
+          deleted:
+            - deleted: [ '*.csl', '*.xml' ]
+
+    - name: Changed files
+      run: |
+        echo updated: ${{ steps.release.outputs.updated_files }}
+        echo deleted: ${{ steps.release.outputs.deleted_files }}
+
+    - name: Checkout release branch
+      uses: actions/checkout@v2
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      with:
+        ref: 'v1.0.1'
+        path: './release'
+
+    - name: Set up Ruby
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.1
+    - name: but use cache to speed that up
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
+    - name: Bundle install
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      run: |
+        bundle config path vendor/bundle
+        bundle update sheldon --jobs 4 --retry 3
+
+    - name: update the timestamps and add the changes
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
+      if: steps.release.outputs.updated == 'true'
+
+    - name: delete deleted files
+      run: cd release && git rm ${{ steps.release.outputs.deleted_files }}
+      if: steps.release.outputs.deleted == 'true'
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      with:
+        repository: 'release'
