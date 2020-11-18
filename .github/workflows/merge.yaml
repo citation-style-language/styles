@@ -31,7 +31,6 @@ jobs:
 
     - name: Checkout release branch
       uses: actions/checkout@v2
-      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == 'true'
       with:
         ref: 'v1.0.1'
         path: './release'
@@ -55,6 +54,11 @@ jobs:
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
+    - name: Copy missing file to release (if any)
+      run: |
+        cp *.xml release || true
+        cp *.csl release || true
+
     - name: update the timestamps and add the changes
       run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
       if: steps.release.outputs.updated == 'true'
@@ -64,6 +68,5 @@ jobs:
       if: steps.release.outputs.deleted == 'true'
 
     - uses: stefanzweifel/git-auto-commit-action@v4
-      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == 'true'
       with:
         repository: 'release'
