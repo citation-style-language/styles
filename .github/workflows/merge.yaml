@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      VERSION: 
     steps:
     - uses: actions/checkout@v2
 
@@ -29,11 +30,18 @@ jobs:
         echo updated: ${{ steps.release.outputs.updated_files }}
         echo deleted: ${{ steps.release.outputs.deleted_files }}
 
-    - uses: actions/checkout@v2
+    - name: Set version
+      id: version
+      run: echo '::set-output name=version::v1.0.1'
+
+    - name: Checkout release branch
+      uses: actions/checkout@v2
       if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       with:
-        ref: 'v1.0.1'
+        ref: steps.version.outputs.version
         path: 'release'
+    - name: And set the tracking branch
+      run: cd release && git branch --set-upstream-to=origin/${{ steps.version.outputs.version}} ${{ steps.version.outputs.version}}
 
     - name: Set up Ruby
       if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
