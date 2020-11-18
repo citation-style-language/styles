@@ -35,9 +35,6 @@ jobs:
         ref: 'v1.0.1'
         path: 'release'
 
-    - run: cp ${{ steps.release.outputs.updated_files }} release
-      if: steps.release.outputs.updated == true
-
     - name: Set up Ruby
       if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
       uses: ruby/setup-ruby@v1
@@ -58,8 +55,8 @@ jobs:
         bundle update sheldon --jobs 4 --retry 3
 
     - name: update the timestamps
-      run: bundle exec sheldon --token=$GITHUB_TOKEN --release release ${{ steps.release.outputs.updated_files }}
-      if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
+      if: steps.release.outputs.updated == 'true'
 
     - uses: EndBug/add-and-commit@v5
       if: steps.release.outputs.updated == 'true' || steps.release.outputs.deleted == true
