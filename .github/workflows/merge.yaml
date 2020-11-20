@@ -62,10 +62,8 @@ jobs:
         bundle update sheldon --jobs 4 --retry 3
 
     - name: Copy missing file to release (if any)
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        cp *.xml release || true
-        cp *.csl release || true
+#      if: github.event_name == 'workflow_dispatch'
+      run: rsync -av --ignore-existing `find . -maxdepth 1 -type f \( -iname \*.csl -o -iname \*.xml \)` release
 
     - name: update the timestamps and add the changes
       run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
