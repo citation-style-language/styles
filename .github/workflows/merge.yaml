@@ -17,6 +17,11 @@ jobs:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
     - uses: actions/checkout@v2
+      if: github.event_name == 'push'
+    - uses: actions/checkout@v2
+      if: github.event_name == 'workflow_dispatch'
+      with:
+        fetch-depth: 0
 
     - name: Checkout release branch
       uses: actions/checkout@v2
@@ -61,9 +66,9 @@ jobs:
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
-    - name: Copy missing file to release (if any)
-#      if: github.event_name == 'workflow_dispatch'
-      run: rsync -av --ignore-existing `find . -maxdepth 1 -type f \( -iname \*.csl -o -iname \*.xml \)` release
+    - name: Populate new branch
+      run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --populate release
+      if: github.event_name == 'workflow_dispatch'
 
     - name: update the timestamps and add the changes
       run: bundle exec sheldon --token=$GITHUB_TOKEN --verbose --release release ${{ steps.release.outputs.updated_files }}
