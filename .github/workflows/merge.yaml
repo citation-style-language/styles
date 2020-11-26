@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      DISTRIBUTION_UPDATER_TOKEN: "${{ secrets.DISTRIBUTION_UPDATER_TOKEN }}"
     steps:
     - uses: actions/checkout@v2
       if: github.event_name == 'push'
@@ -89,3 +90,8 @@ jobs:
         repository: 'release'
         commit_message: ${{ github.event.inputs.commit_message }}
       if: github.event_name == 'workflow_dispatch'
+
+    - name: ping distribution-updater
+      run: |
+        curl -H "Authorization: $DISTRIBUTION_UPDATER_TOKEN" -F 'payload={"type":"pull_request","branch":"master","status":0,"commit":"'$GITHUB_SHA'"}' https://styles-update.zotero.org:8826/
+        curl -H "Authorization: $DISTRIBUTION_UPDATER_TOKEN" -F 'payload={"type":"pull_request","branch":"master","status":0,"commit":"'$GITHUB_SHA'"}' https://styles-update.zotero.org:8827/
