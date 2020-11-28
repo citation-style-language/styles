@@ -22,18 +22,21 @@ jobs:
             - '*.csl'
           locale:
             - '*.xml'
+          journal:
+            - '*/*.tab'
+            - 'publishers.json'
 
     - name: Changed files
       run: |
-        echo changed: ${{ steps.changed.outputs.style_files }} ${{ steps.changed.outputs.locale_files }}
+        echo changed: ${{ steps.changed.outputs.style_files }} ${{ steps.changed.outputs.locale_files }} ${{ steps.changed.outputs.journal_files }}
 
     - name: Set up Ruby
-      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true'
+      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true' || steps.changed.outputs.journal == 'true'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.1
     - name: but use cache to speed that up
-      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true'
+      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true' || steps.changed.outputs.journal == 'true'
       uses: actions/cache@v2
       with:
         path: vendor/bundle
@@ -41,13 +44,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gems-
     - name: Bundle install
-      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true'
+      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true' || steps.changed.outputs.journal == 'true'
       run: |
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
     - name: Apply the PR
-      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true'
+      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true' || steps.changed.outputs.journal == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --apply
 
     - name: Welcome to a new PR
@@ -55,7 +58,7 @@ jobs:
       run: bundle exec sheldon --token=$GITHUB_TOKEN --welcome
 
     - name: See if the styles/locales work
-      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true'
+      if: steps.changed.outputs.style == 'true' || steps.changed.outputs.locale == 'true' || steps.changed.outputs.journal == 'true'
       run: bundle exec rake
 
     - name: report
