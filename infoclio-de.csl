@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" default-locale="de-CH" version="1.0" name-delimiter="; " delimiter-precedes-last="always" delimiter-precedes-et-al="never">
   <info>
-    <title>Infoclio (German - Switzerland)</title>
+    <title>infoclio.ch (German - Switzerland)</title>
     <id>http://www.zotero.org/styles/infoclio-de</id>
     <link href="http://www.zotero.org/styles/infoclio-de" rel="self"/>
     <link href="http://www.zotero.org/styles/infoclio-fr-smallcaps" rel="template"/>
@@ -25,7 +25,7 @@
     <category citation-format="note"/>
     <category field="history"/>
     <category field="social_science"/>
-    <updated>2015-08-28T15:05:38+02:00</updated>
+    <updated>2018-03-27T11:58:13+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -36,6 +36,7 @@
       <term name="letter">Schreiben</term>
       <term name="number-of-volumes" form="short">Bd.</term>
       <term name="no date" form="short">o. D.</term>
+      <term name="edition">Ausgabe</term>
     </terms>
   </locale>
   <citation>
@@ -96,6 +97,7 @@
           <date variable="original-date" form="text" prefix="[" suffix="]"/>
           <text macro="book-series"/>
         </group>
+        <text macro="newspaper-edition"/>
         <text macro="artwork-description"/>
         <text macro="archive-location"/>
         <text macro="pages"/>
@@ -159,7 +161,7 @@
           <name et-al-min="2" et-al-use-first="1"/>
         </names>
       </else-if>
-      <else-if type="report song broadcast motion_picture                      webpage post post-weblog" match="any">
+      <else-if type="report song broadcast motion_picture webpage post post-weblog" match="any">
         <!-- these types have either collection-title or container-title -->
         <text variable="collection-title"/>
         <text variable="container-title"/>
@@ -168,7 +170,7 @@
   </macro>
   <macro name="in">
     <choose>
-      <if type="chapter paper-conference                 entry-encyclopedia entry-dictionary                 article-magazine article-newspaper article-journal" match="any">
+      <if type="chapter paper-conference entry-encyclopedia entry-dictionary article-magazine article-newspaper article-journal" match="any">
         <text term="in"/>
       </if>
     </choose>
@@ -189,10 +191,10 @@
   </macro>
   <macro name="container-information">
     <choose>
-      <if type="chapter paper-conference                 entry-encyclopedia entry-dictionary                 article-newspaper article-magazine article-journal" match="any">
+      <if type="chapter paper-conference entry-encyclopedia entry-dictionary article-newspaper article-magazine article-journal" match="any">
         <text variable="container-title"/>
       </if>
-      <else-if type="report song broadcast motion_picture                      webpage post post-weblog" match="any">
+      <else-if type="report song broadcast motion_picture webpage post post-weblog" match="any">
         <group delimiter=", ">
           <text variable="genre"/>
           <!-- these types have either collection-title or container-title -->
@@ -217,7 +219,7 @@
   </macro>
   <macro name="volumes">
     <choose>
-      <if type="book chapter                 entry-encyclopedia entry-dictionary                 song motion_picture" match="any">
+      <if type="book chapter entry-encyclopedia entry-dictionary song motion_picture" match="any">
         <group delimiter=" / ">
           <group delimiter="&#160;">
             <label variable="volume" form="short"/>
@@ -279,11 +281,18 @@
           </if>
         </choose>
       </else-if>
+      <else-if type="dataset">
+        <choose>
+          <if variable="version">
+            <text variable="version"/>
+          </if>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="alt-publisher">
     <choose>
-      <if type="book chapter                 paper-conference                 entry-dictionary entry-encyclopedia" match="none">
+      <if type="book chapter paper-conference entry-dictionary entry-encyclopedia" match="none">
         <!-- university for theses,
              institution for reports,
              label for songs,
@@ -324,7 +333,7 @@
           </else>
         </choose>
       </if>
-      <else-if type="article-journal article-newspaper article-magazine                      graphic entry-encyclopedia entry-dictionary                      report speech interview                      manuscript personal_communication" match="any">
+      <else-if type="article-journal article-newspaper article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
         <choose>
           <if variable="issued">
             <date variable="issued" form="numeric" date-parts="year-month-day"/>
@@ -360,7 +369,7 @@
   </macro>
   <macro name="book-series">
     <choose>
-      <if type="book chapter paper-conference                 entry-dictionary entry-encyclopedia" match="any">
+      <if type="book chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <group prefix="(" suffix=")" delimiter=" ">
           <text variable="collection-title"/>
           <choose>
@@ -369,6 +378,23 @@
             </if>
           </choose>
         </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="newspaper-edition">
+    <choose>
+      <if type="article-newspaper">
+        <choose>
+          <if is-numeric="edition">
+            <group delimiter="&#160;">
+              <number variable="edition" form="ordinal"/>
+              <label variable="edition"/>
+            </group>
+          </if>
+          <else>
+            <text variable="edition"/>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -396,45 +422,49 @@
   </macro>
   <macro name="url-web-documents-only">
     <choose>
-      <if type="webpage post post-weblog">
-        <text macro="url"/>
+      <if type="webpage post post-weblog dataset" match="any">
+        <text macro="url-or-doi"/>
       </if>
     </choose>
   </macro>
   <macro name="url-non-web-documents">
     <choose>
-      <if variable="DOI">
-        <text term="online" text-case="capitalize-first" suffix=": "/>
-        <group delimiter=", ">
-          <text variable="source"/>
-          <group delimiter=": ">
-            <text value="DOI"/>
-            <text variable="DOI"/>
-          </group>
-        </group>
-      </if>
-      <else-if variable="URL">
+      <if type="webpage post post-weblog dataset" match="none">
         <choose>
-          <if type="webpage post post-weblog" match="none">
-            <group delimiter=" ">
-              <text term="online" text-case="capitalize-first" suffix=": "/>
-              <group delimiter=", ">
-                <text variable="source"/>
-                <text macro="url"/>
-              </group>
+          <if variable="DOI URL" match="any">
+            <group delimiter=": ">
+              <text term="online" text-case="capitalize-first"/>
+              <text macro="url-or-doi"/>
             </group>
           </if>
         </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="url-or-doi">
+    <choose>
+      <if variable="DOI">
+        <group delimiter=", ">
+          <group delimiter="">
+            <text value="&lt;"/>
+            <text variable="DOI" prefix="https://doi.org/"/>
+            <text value="&gt;"/>
+          </group>
+          <text macro="accessed"/>
+        </group>
+      </if>
+      <else-if variable="URL">
+        <group delimiter=", ">
+          <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+          <text macro="accessed"/>
+        </group>
       </else-if>
     </choose>
   </macro>
-  <macro name="url">
-    <group delimiter=", ">
-      <text variable="URL" prefix="&lt;" suffix="&gt;"/>
-      <group delimiter=": ">
-        <text term="accessed"/>
-        <date variable="accessed" form="numeric" date-parts="year-month-day"/>
-      </group>
+  <macro name="accessed">
+    <group delimiter=": ">
+      <text term="accessed"/>
+      <date variable="accessed" form="numeric" date-parts="year-month-day"/>
     </group>
   </macro>
 </style>

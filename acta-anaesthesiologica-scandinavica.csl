@@ -10,6 +10,10 @@
       <name>Juho Heinonen</name>
       <email>juho.aleksi.heinonen@gmail.com</email>
     </author>
+    <contributor>
+      <name>Brenton M. Wiernik</name>
+      <email>zotero@wiernik.org</email>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <issn>0001-5172</issn>
@@ -18,7 +22,7 @@
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
-    <names variable="author" suffix=". ">
+    <names variable="author">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", " text-case="lowercase"/>
       <substitute>
@@ -27,7 +31,7 @@
     </names>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix=". ">
+    <names variable="editor">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", " text-case="lowercase"/>
     </names>
@@ -43,33 +47,64 @@
     </group>
   </macro>
   <macro name="access">
-    <group>
-      <text value="Available from: "/>
-      <text variable="URL"/>
-    </group>
+    <choose>
+      <if type="bill book graphic legal_case legislation motion_picture song" match="any">
+        <text value="."/>
+      </if>
+      <else-if variable="page">
+        <group prefix="; " delimiter=": " suffix=".">
+          <text variable="volume"/>
+          <text variable="page"/>
+        </group>
+      </else-if>
+      <else-if variable="DOI">
+        <text variable="volume" prefix="; "/>
+        <text variable="DOI" prefix=". doi: "/>
+      </else-if>
+      <else-if variable="URL">
+        <group prefix=" " delimiter=" ">
+          <text macro="accessed-date"/>
+          <text value="Available from:"/>
+          <text variable="URL"/>
+        </group>
+      </else-if>
+    </choose>
   </macro>
   <macro name="accessed-date">
+    <group prefix="[" suffix="]." delimiter=" ">
+      <text term="cited" text-case="lowercase"/>
+      <date variable="accessed" delimiter=" ">
+        <date-part name="year"/>
+        <date-part name="month" form="short" strip-periods="true"/>
+        <date-part name="day"/>
+      </date>
+    </group>
+  </macro>
+  <macro name="journal-date">
+    <date variable="issued">
+      <date-part name="year"/>
+    </date>
     <choose>
-      <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
-          <text term="cited" text-case="lowercase"/>
-          <date variable="accessed">
-            <date-part name="year"/>
-            <date-part name="month" prefix=" " form="short" strip-periods="true"/>
-            <date-part name="day" prefix=" "/>
-          </date>
-        </group>
+      <if variable="page" match="none">
+        <date variable="issued" prefix=" " delimiter=" ">
+          <date-part name="month" form="short" strip-periods="true"/>
+          <date-part name="day"/>
+        </date>
       </if>
     </choose>
   </macro>
   <macro name="journal-title">
     <choose>
       <if type="article-journal article-magazine" match="any">
-        <group suffix=" ">
+        <group>
           <text variable="container-title" form="short" strip-periods="true"/>
           <choose>
             <if variable="URL">
-              <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+              <choose>
+                <if variable="page DOI" match="none">
+                  <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+                </if>
+              </choose>
             </if>
           </choose>
         </group>
@@ -86,7 +121,11 @@
         <if type="article-journal article-magazine" match="none">
           <choose>
             <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+              <choose>
+                <if variable="page DOI" type="bill book graphic legal_case legislation motion_picture song" match="none">
+                  <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+                </if>
+              </choose>
             </if>
           </choose>
         </if>
@@ -117,8 +156,8 @@
   <bibliography second-field-align="flush">
     <layout>
       <text variable="citation-number" suffix=". "/>
-      <text macro="author"/>
-      <text macro="title" suffix=". "/>
+      <text macro="author" suffix="."/>
+      <text macro="title" suffix="." prefix=" "/>
       <choose>
         <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
           <group prefix=" " delimiter=" ">
@@ -127,39 +166,16 @@
           </group>
         </if>
         <else-if type="chapter paper-conference" match="any">
-          <group prefix=" " suffix=". ">
+          <group prefix=" " suffix=".">
             <text term="in" suffix=": " text-case="capitalize-first"/>
             <text macro="editor"/>
-            <text variable="container-title"/>
+            <text variable="container-title" prefix=". "/>
           </group>
           <text macro="publisher" prefix=" "/>
-          <group prefix=" " delimiter=" " suffix=".">
-            <label variable="page" plural="never"/>
-            <text variable="page"/>
-          </group>
         </else-if>
         <else>
           <text macro="journal-title"/>
-          <group suffix=" ">
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
-            <text macro="accessed-date" prefix=" "/>
-          </group>
-          <group>
-            <text variable="volume" prefix="; "/>
-            <choose>
-              <if variable="volume"/>
-              <else-if variable="DOI">
-                <date variable="issued" delimiter=" ">
-                  <date-part name="month" form="short" strip-periods="true"/>
-                  <date-part name="day" suffix=". "/>
-                </date>
-                <text variable="DOI" prefix="doi: "/>
-              </else-if>
-            </choose>
-            <text variable="page" prefix=": " suffix=". "/>
-          </group>
+          <text macro="journal-date" prefix=" "/>
         </else>
       </choose>
       <text macro="access"/>

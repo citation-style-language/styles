@@ -21,64 +21,101 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
+    <contributor>
+      <name>Tyler Mykkanen</name>
+    </contributor>
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2016-11-30T13:46:46+00:00</updated>
+    <updated>2018-02-01T14:42:46+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
     <terms>
       <term name="editor" form="verb-short">ed.</term>
+      <term name="section" form="short">
+        <single>§</single>
+        <multiple>§§</multiple>
+      </term>
       <term name="translator" form="verb-short">trans.</term>
       <term name="translator" form="short">trans.</term>
+      <term name="editortranslator" form="verb-short">ed. and trans.</term>
       <term name="editortranslator" form="verb">edited and translated by</term>
-      <term name="collection-editor">
-        <single>ed.</single>
-        <multiple>eds.</multiple>
-      </term>
       <term name="collection-editor" form="verb">edited by</term>
+      <term name="collection-editor" form="verb-short">ed.</term>
     </terms>
   </locale>
-  <macro name="editor-translator">
+  <macro name="editor-translator-verb-short-comma">
     <names variable="editor translator" delimiter=", ">
       <label form="verb-short" suffix=" "/>
       <name and="text" delimiter=", "/>
     </names>
   </macro>
+  <macro name="editor-translator-verb-period">
+    <names variable="editor translator" delimiter=". ">
+      <label form="verb" text-case="capitalize-first" suffix=" "/>
+      <name and="text" delimiter=", "/>
+    </names>
+  </macro>
+  <macro name="editor-translator-verb-comma">
+    <names variable="editor translator" delimiter=", ">
+      <label form="verb" text-case="capitalize-first" suffix=" "/>
+      <name and="text" delimiter=", "/>
+    </names>
+  </macro>
+  <macro name="container-author-reviewed-author-and-editor-translator">
+    <group delimiter=", ">
+      <choose>
+        <if variable="container-author reviewed-author" match="any">
+          <names variable="container-author reviewed-author" delimiter=", ">
+            <label form="verb-short" suffix=" "/>
+            <name and="text" delimiter=", "/>
+          </names>
+        </if>
+      </choose>
+      <text macro="editor-translator-verb-short-comma"/>
+    </group>
+  </macro>
   <macro name="secondary-contributors-note">
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
-        <text macro="editor-translator"/>
+        <text macro="container-author-reviewed-author-and-editor-translator"/>
       </if>
     </choose>
   </macro>
   <macro name="container-contributors-note">
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
-        <names variable="editor translator container-author" delimiter=", ">
-          <label form="verb-short" suffix=" "/>
-          <name and="text" delimiter=", "/>
-        </names>
+        <group delimiter=", ">
+          <text macro="editor-translator-verb-short-comma"/>
+          <names variable="container-author">
+            <label form="verb-short" suffix=" "/>
+            <name and="text" delimiter=", "/>
+          </names>
+        </group>
       </if>
     </choose>
   </macro>
   <macro name="secondary-contributors">
     <choose>
       <if type="chapter paper-conference" match="none">
-        <names variable="editor translator container-author" delimiter=". ">
-          <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
-          <name and="text" delimiter=", "/>
-        </names>
+        <group delimiter=". " prefix=" ">
+          <text macro="editor-translator-verb-period"/>
+          <names variable="container-author">
+            <label form="verb" text-case="capitalize-first" suffix=" "/>
+            <name and="text" delimiter=", "/>
+          </names>
+        </group>
       </if>
     </choose>
   </macro>
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <group delimiter=", ">
-          <names variable="editor translator container-author" delimiter=", ">
-            <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
+        <group delimiter=", " prefix=" ">
+          <text macro="editor-translator-verb-comma"/>
+          <names variable="container-author">
+            <label form="verb" text-case="capitalize-first" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
         </group>
@@ -93,13 +130,12 @@
   </macro>
   <macro name="collection-editor-note">
     <names variable="collection-editor">
-      <label form="short" suffix=" "/>
+      <label form="verb-short" suffix=" "/>
       <name and="text" sort-separator=", " delimiter=", "/>
     </names>
   </macro>
   <macro name="collection-editor">
     <group delimiter=", " prefix=". ">
-      <!--TODO: Refactor? Bib uses prefix whereas CSL style prefers groups with delimeters.-->
       <names variable="collection-editor" delimiter=", ">
         <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
         <name and="text" delimiter=", "/>
@@ -384,14 +420,14 @@
   </macro>
   <macro name="container-title">
     <choose>
-      <!-- Added dictionary and encyclopedia to get page and volume information TODO: Refactor as no longer needed?-->
+      <!-- Added dictionary and encyclopedia to get page and volume information-->
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" " suffix=" ">
           <label variable="page" form="long" text-case="capitalize-first"/>
           <text variable="page"/>
           <text term="in"/>
           <choose>
-            <!-- Added dictionary and encyclopedia to get volume information TODO: Refactor?-->
+            <!-- Added dictionary and encyclopedia to get volume information-->
             <if type="entry-dictionary entry-encyclopedia" match="any">
               <choose>
                 <if match="any" variable="volume">
@@ -466,7 +502,7 @@
                     <text value=" of"/>
                   </group>
                 </if>
-                <else-if type="chapter" variable="container-title" match="all">
+                <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
                   <group>
                     <text term="volume" form="short" suffix=" "/>
@@ -517,7 +553,7 @@
                     <text value=" of"/>
                   </group>
                 </if>
-                <else-if type="chapter" variable="container-title" match="all">
+                <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
                   <group>
                     <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
@@ -542,8 +578,8 @@
           </choose>
         </group>
       </else-if>
-      <!-- Added dictionary and encyclopedia to properly display volume information TODO: Refactor?-->
-      <else-if type="entry-dictionary entry-encyclopedia">
+      <!-- Added dictionary and encyclopedia to properly display volume information-->
+      <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <group prefix=". ">
           <number variable="number-of-volumes" form="numeric"/>
           <text term="volume" form="short" prefix=" " plural="true"/>
@@ -628,21 +664,18 @@
         <if locator="page" match="none">
           <choose>
             <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-              <choose>
-                <if variable="volume">
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                    <label variable="locator" form="short" prefix=", " suffix=" "/>
-                  </group>
-                </if>
-                <else>
-                  <label variable="locator" form="short" suffix=" "/>
-                </else>
-              </choose>
+              <group delimiter=", ">
+                <group delimiter=" ">
+                  <text term="volume" form="short"/>
+                  <number variable="volume" form="numeric"/>
+                </group>
+                <group delimiter=" ">
+                  <label variable="locator" form="short"/>
+                  <text variable="locator"/>
+                </group>
+              </group>
             </if>
           </choose>
-          <text variable="locator"/>
         </if>
         <else-if variable="volume">
           <choose>
@@ -684,7 +717,7 @@
       <else-if type="article-journal">
         <text variable="locator" prefix=": "/>
       </else-if>
-      <else-if type="entry-dictionary entry-encyclopedia">
+      <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <choose>
           <if position="first" variable="volume" match="all">
             <text macro="point-locators-subsequent" prefix=" "/>
@@ -855,20 +888,13 @@
   </macro>
   <macro name="signed-dictionary-note">
     <choose>
-      <if position="ibid">
-        <!-- Excludes Title for ibid entries per CMS 14.34.-->
-        <group delimiter=", ">
-          <text macro="contributors-short"/>
-          <text macro="point-locators-subsequent"/>
-        </group>
-      </if>
-      <else-if position="subsequent">
+      <if position="subsequent">
         <group delimiter=", ">
           <text macro="contributors-short"/>
           <text macro="title-short"/>
           <text macro="point-locators-subsequent"/>
         </group>
-      </else-if>
+      </if>
       <else>
         <group delimiter="">
           <group delimiter=", ">
@@ -908,18 +934,6 @@
           </choose>
         </if>
         <!-- Not Lexicon/Dictionary/Encyclopedia -->
-        <else-if position="ibid">
-          <!-- Implements conditional check to exclude title in ibid entries, except for blog posts (see CMS 14.34) -->
-          <group delimiter=", ">
-            <text macro="contributors-short"/>
-            <choose>
-              <if type="post-weblog">
-                <text macro="title-short"/>
-              </if>
-            </choose>
-            <text macro="point-locators-subsequent"/>
-          </group>
-        </else-if>
         <else-if position="subsequent">
           <group delimiter=", ">
             <text macro="contributors-short"/>
