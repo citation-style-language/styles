@@ -105,24 +105,14 @@ jobs:
         curl -H 'Content-Length:' -H "Authorization: $ZOTERO_UPDATE_TOKEN" -F 'payload={"type":"push","branch":"${{ steps.release.outputs.branch }}","status":0,"commit":"'$GITHUB_SHA'"}' https://styles-update.zotero.org:8826/
         curl -H 'Content-Length:' -H "Authorization: $ZOTERO_UPDATE_TOKEN" -F 'payload={"type":"push","branch":"${{ steps.release.outputs.branch }}","status":0,"commit":"'$GITHUB_SHA'"}' https://styles-update.zotero.org:8827/
 
-    - name: copy workflows to locales -- authorization
-      uses: webfactory/ssh-agent@v0.4.1
+    - name: Copy workflows to locales repository
+      if: github.repository == 'retorquere/styles'
+      uses: drud/action-cross-commit@master
       with:
-        ssh-private-key: ${{ secrets.BLIP_BLOOP }}
-    - name: copy workflows to locales -- clone locales
-      if: github.repository == 'retorquere/styles' && steps.update.outputs.workflows == 'true'
-      uses: actions/checkout@v2
-      with:
-        repository: 'retorquere/locales'
-        path: 'locales'
-    - name: copy workflows to locales -- copy workflows
-      if: github.repository == 'retorquere/styles' && steps.update.outputs.workflows == 'true'
-      run: |
-        mkdir -p locales/.github/workflows/
-        cp .github/workflows/*.yaml locales/.github/workflows/
-    - name: copy workflows to locales -- commit workflows
-      uses: stefanzweifel/git-auto-commit-action@v4
-      if: github.repository == 'retorquere/styles' && steps.update.outputs.workflows == 'true'
-      with:
-        repository: 'locales'
-        commit_message: copied ${{ steps.update.outputs.workflows_files }} to locales
+        source-folder: .github/workflows
+        destination-repository: https://blip-bloop:${{ secrets.BLIP_BLOOP }}@github.com/retorquere/locales
+        destination-folder: .github/workflows
+        destination-branch: master
+        git-user: "Blip Bloop"
+        git-user-email: blip-bloop@example.com
+        git-commit-message: "Cross-copy workflows"
