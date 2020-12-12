@@ -15,7 +15,7 @@ Organization and distribution
 The CSL project typically only maintains CSL styles in the "master" branch for the latest released version of CSL.
 To provide a stable location for styles of a given CSL version, styles in "master" are released to the appropriate version branch (e.g. "v1.0.1" for as long as CSL 1.0.1 remains the latest version).
 When a new version of CSL is released (e.g. CSL 1.0.2), "master" will upgrade to that new version, and styles will now be released from "master" to a new version branch (e.g. "v1.0.2").
-Version branches for old versions of CSL will be kept but typically become completely dormant, as for these branches we generally stop maintenance, and we won't accept third-party contributions via pull requests, or backport changes made to styles in "master".
+Version branches for old versions of CSL will be kept but typically become completely dormant, as for these branches we generally stop maintenance, and we won't accept third-party contributions via pull requests, nor backport changes made to styles in "master".
 
 Starting with branch "v1.0.1", the version branches differ from "master" in the following ways:
 
