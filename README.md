@@ -21,7 +21,7 @@ Starting with branch "v1.0.1", the version branches differ from "master" in the 
 
 * the latest version branch only receives updates from "master" if all tests in "master" pass
 * `<updated/>` timestamps of styles are changed in the version branch to match the git modification date of each individual style in "master"
-* superfluous files present in "master" for e.g. style testing are removed
+* superfluous files present in "master", e.g. for style testing, are removed.
 
 As such, especially for downstream integrators, users are encouraged to obtain their CSL styles from the appropriate version branch (e.g. "v1.0.1" for CSL 1.0.1 styles).
 The same release regimen is implemented for our [CSL locales](https://github.com/citation-style-language/locales).
