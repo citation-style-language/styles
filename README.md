@@ -1,14 +1,29 @@
-CSL Style Repository
-====================
+<p align="center"><a href="https://citationstyles.org/" target="_blank"><img width="300" src="https://raw.githubusercontent.com/citation-style-language/logo/master/assets/rgb/%C2%ABCSL%C2%BB.svg" alt="CSL logo"></a></p>
 
-![Merge to release](https://github.com/citation-style-language/styles/workflows/Merge%20to%20release/badge.svg?event=push)
-[![license](https://img.shields.io/badge/license-CC%20BY%20SA%203.0-blue.svg)](https://github.com/citation-style-language/styles#licensing)
-[![GitHub contributors](https://img.shields.io/github/contributors/citation-style-language/styles.svg)](https://github.com/citation-style-language/styles/graphs/contributors)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/citation-style-language/styles.svg)](https://github.com/citation-style-language/styles/pulls?q=is%3Apr+is%3Aclosed)
+<h1 align="center">Citation Style Language - Style Repository</h1>
 
-https://github.com/citation-style-language/styles/ is the official repository for [Citation Style Language](https://citationstyles.org/) (CSL) styles and is maintained by CSL project members. CSL locale files, which provide default localization data for CSL styles (such as translations and date formats), are available at https://github.com/citation-style-language/locales.
+<p align="center">
+  <a href="https://github.com/citation-style-language/styles#licensing"><img src="https://img.shields.io/badge/license-CC%20BY%20SA%203.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/citation-style-language/styles/actions"><img src="https://github.com/citation-style-language/styles/workflows/Merge%20to%20release/badge.svg?event=push" alt="Build Status"></a>
+  <a href="https://github.com/citation-style-language/styles/graphs/contributors"><img src="https://img.shields.io/github/contributors/citation-style-language/styles.svg" alt="GitHub contributors"></a>
+  <a href="https://github.com/citation-style-language/styles/pulls?q=is%3Apr+is%3Aclosed"><img src="https://img.shields.io/github/issues-pr-closed/citation-style-language/styles.svg" alt="GitHub closed pull requests"></a>
+</p>
 
-For more information, check out https://citationstyles.org/ and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
+Introduction
+------------
+
+[Citation Style Language](https://citationstyles.org/) (CSL) is an independent open source project.
+Our goal is to facilitate scholarly communication by automating the formatting of citations and bibliographies.
+The primary components of the CSL ecosystem are:
+
+* The CSL schema and specification, which describe how the XML-based CSL styles and locale files should be written and interpreted
+* Curated repositories of CSL styles and locale files
+* Third party CSL processors, software libraries for rendering formatted citation and bibliographies from CSL styles, CSL locale files, and item metadata
+
+This README describes our official curated repository of CSL styles, hosted at https://github.com/citation-style-language/styles/.
+CSL locale files, which provide default localization data for CSL styles (such as translations and date formats), can be found at https://github.com/citation-style-language/locales.
+
+For more information about CSL and CSL styles, check out https://citationstyles.org/ and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
 
 Organization and distribution
 -----------------------------
