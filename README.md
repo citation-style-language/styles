@@ -22,6 +22,33 @@ CSL locale files, which provide default localization data for CSL styles (such a
 
 For more information about CSL and CSL styles, check out https://citationstyles.org/ and the [repository wiki](https://github.com/citation-style-language/styles/wiki).
 
+Criteria for inclusion
+----------------------
+
+The official CSL style repository is the only repository of its kind, is used by dozens of third-party software products, and is relied upon by hundreds of thousands of users.
+The popularity of this repository is in large part due to its crowd-sourced nature, and, we believe, also due to our careful curation.
+While we evaluate style submissions on a case-by-case basis, we generally use the following criteria for inclusion in the CSL style repository:
+
+* Styles must be of sufficient quality and meet our [Style Requirements](https://github.com/citation-style-language/styles/wiki/Style-Requirements).
+  While we may be able to assist with this, its ultimately the submitter's responsibility to provide a style that meets our standards.
+* Styles should be based on an official style guide (and link to the style guide in online or printed form).
+* Styles should be of interest to a wider audience.
+  We are happy to accept styles with a niche audience, but as a rule of thumb, style submitters should not know all individuals who would be interested in their style.
+  If you do, it's generally better to distribute your style to them yourself.
+
+Based on these criteria, we generally accept:
+
+* styles for journals with open (unsolicited) submissions (and styles for publishers of such journals).
+* styles for published style guides, such as those from professional organizations, universities, and university departments.
+
+However, we typically won't accept:
+
+* styles for personal use, or for internal use within small organizations.
+* styles solely for use with an (internal) API.
+
+If in doubt whether your style is a good fit for the repository, feel free to open an issue or pull request and ask for our opinion.
+If we don't accept your submission, we encourage you to distribute your CSL style yourself.
+
 Versioning and style distribution
 ---------------------------------
 
