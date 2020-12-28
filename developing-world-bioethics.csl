@@ -2,6 +2,7 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="never" default-locale="en-GB">
   <info>
     <title>Developing World Bioethics</title>
+    <title-short>DWB</title-short>
     <id>http://www.zotero.org/styles/developing-world-bioethics</id>
     <link href="http://www.zotero.org/styles/developing-world-bioethics" rel="self"/>
     <link href="http://www.zotero.org/styles/apa-cv" rel="template"/>
@@ -14,7 +15,7 @@
     <category field="humanities"/>
     <issn>1471-8731</issn>
     <eissn>1471-8847</eissn>
-    <updated>2019-02-06T19:29:38+00:00</updated>
+    <updated>2019-10-21T08:40:21+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -23,6 +24,7 @@
         <single>ed. &amp; trans.</single>
         <multiple>eds. &amp; trans.</multiple>
       </term>
+      <term name="cited">op. cit.</term>
       <term name="translator" form="short">trans.</term>
     </terms>
   </locale>
@@ -40,7 +42,7 @@
             <label form="short" prefix=" (" text-case="title" suffix=")"/>
           </names>
           <names variable="editor translator" delimiter=", ">
-            <name and="symbol" initialize-with=". " delimiter=", "/>
+            <name and="symbol" initialize-with="."/>
             <label form="short" prefix=" (" text-case="title" suffix=")"/>
           </names>
         </group>
@@ -65,7 +67,7 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+      <name and="symbol" delimiter-precedes-last="always" initialize-with="." name-as-sort-order="all"/>
       <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
       <substitute>
         <names variable="editor"/>
@@ -79,6 +81,28 @@
             <text macro="title"/>
           </else>
         </choose>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="editor-short">
+    <names variable="editor">
+      <name form="short" sort-separator=", " delimiter=", "/>
+    </names>
+  </macro>
+  <macro name="container-author-short">
+    <names variable="container-author" delimiter=", ">
+      <name form="short" sort-separator=", " delimiter=", "/>
+      <et-al font-style="italic"/>
+    </names>
+  </macro>
+  <macro name="author-short">
+    <names variable="author">
+      <name form="short" sort-separator=", " delimiter=", "/>
+      <et-al font-style="italic"/>
+      <substitute>
+        <text macro="editor-short"/>
+        <text macro="container-author-short"/>
+        <text variable="title-short" font-style="italic"/>
       </substitute>
     </names>
   </macro>
@@ -269,7 +293,7 @@
           </choose>
         </group>
       </else-if>
-      <else-if type="post-weblog webpage" match="none">
+      <else-if type="post-weblog webpage post" match="none">
         <group delimiter=", ">
           <choose>
             <if variable="event version" type="speech dataset motion_picture" match="none">
@@ -570,6 +594,31 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="locator">
+    <choose>
+      <if locator="page">
+        <text variable="locator" prefix=": "/>
+      </if>
+      <else-if locator="paragraph">
+        <text variable="locator" prefix="§"/>
+      </else-if>
+      <else-if type="webpage post-weblog post" match="any">
+        <group delimiter=" " prefix=". ">
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <text variable="URL"/>
+          </group>
+          <group delimiter=" " prefix="[" suffix="]">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date form="text" variable="accessed"/>
+          </group>
+        </group>
+      </else-if>
+      <else>
+        <text variable="page" prefix=": "/>
+      </else>
+    </choose>
+  </macro>
   <citation et-al-min="8" et-al-use-first="6" et-al-use-last="true">
     <sort>
       <key macro="issued-sort" sort="descending"/>
@@ -577,45 +626,71 @@
       <key macro="title"/>
     </sort>
     <layout>
-      <group suffix=".">
-        <group delimiter=". ">
-          <text macro="author"/>
-          <choose>
-            <if is-uncertain-date="issued">
-              <group prefix=" [" suffix="]" delimiter=" ">
-                <text term="circa" form="short"/>
-                <text macro="issued"/>
-              </group>
-            </if>
-            <else>
-              <text macro="issued" prefix=" (" suffix=")"/>
-            </else>
-          </choose>
-          <text macro="title-plus-extra"/>
-          <text macro="container"/>
-        </group>
-        <text macro="legal-cites"/>
-        <text macro="locators"/>
-        <group delimiter=", " prefix=". ">
-          <text macro="event"/>
-          <text macro="publisher"/>
-        </group>
-      </group>
-      <text macro="access" prefix=" "/>
       <choose>
-        <if is-uncertain-date="original-date">
-          <group prefix=" [" suffix="]" delimiter=" ">
-            <text macro="original-published"/>
-            <text term="circa" form="short"/>
-            <text macro="original-date"/>
+        <if position="ibid-with-locator">
+          <group delimiter=" ">
+            <text term="ibid" suffix="."/>
+            <text macro="locator"/>
           </group>
         </if>
-        <else-if variable="original-date">
-          <group prefix=" (" suffix=")" delimiter=" ">
-            <text macro="original-published"/>
-            <text macro="original-date"/>
+        <else-if position="ibid">
+          <text term="ibid" suffix="."/>
+        </else-if>
+        <else-if position="subsequent">
+          <group delimiter=" ">
+            <text macro="author-short"/>
+            <group prefix="(" suffix=")" delimiter=" ">
+              <text term="cited"/>
+              <group delimiter=" ">
+                <text term="note" form="short"/>
+                <text variable="first-reference-note-number"/>
+              </group>
+            </group>
+            <text macro="locator"/>
           </group>
         </else-if>
+        <else>
+          <group suffix=".">
+            <group delimiter=". ">
+              <text macro="author"/>
+              <choose>
+                <if is-uncertain-date="issued">
+                  <group prefix=" [" suffix="]" delimiter=" ">
+                    <text term="circa" form="short"/>
+                    <text macro="issued"/>
+                  </group>
+                </if>
+                <else>
+                  <text macro="issued" prefix=" (" suffix=")"/>
+                </else>
+              </choose>
+              <text macro="title-plus-extra"/>
+              <text macro="container"/>
+            </group>
+            <text macro="legal-cites"/>
+            <text macro="locators"/>
+            <group delimiter=", " prefix=". ">
+              <text macro="event"/>
+              <text macro="publisher"/>
+            </group>
+          </group>
+          <text macro="access" prefix=" "/>
+          <choose>
+            <if is-uncertain-date="original-date">
+              <group prefix=" [" suffix="]" delimiter=" ">
+                <text macro="original-published"/>
+                <text term="circa" form="short"/>
+                <text macro="original-date"/>
+              </group>
+            </if>
+            <else-if variable="original-date">
+              <group prefix=" (" suffix=")" delimiter=" ">
+                <text macro="original-published"/>
+                <text macro="original-date"/>
+              </group>
+            </else-if>
+          </choose>
+        </else>
       </choose>
     </layout>
   </citation>
