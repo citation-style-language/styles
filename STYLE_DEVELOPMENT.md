@@ -205,7 +205,7 @@ You can also use [Validator.nu](http://validator.nu/?schema=https%3A%2F%2Fgithub
 
 #### Local Validators
 
-You can also validate your style/locale on your own computer with any tool that offers XML validation and supports the RELAX NG Compact schema language. Examples are the [Atom](https://atom.io/) with the [atomic-csl plugin](https://github.com/bdarcus/atomic-csl), [Emacs](http://www.gnu.org/software/emacs/) with the [nXML addon](http://www.thaiopensource.com/nxml-mode/), the [oXygen XML Editor](http://www.oxygenxml.com/), and the command-line utilities [Jing](http://www.thaiopensource.com/relaxng/jing.html) and [RNV](http://www.davidashen.net/rnv.html).
+You can also validate your style/locale on your own computer with any tool that offers XML validation and supports the RELAX NG Compact schema language. Examples are the [Atom](https://atom.io/) with the [atomic-csl plugin](https://github.com/bdarcus/atomic-csl), [Emacs](http://www.gnu.org/software/emacs/) with the [nXML addon](http://www.thaiopensource.com/nxml-mode/), [jEdit](http://www.jedit.org/) with the XML addon and the [CSL schema](https://github.com/citation-style-language/schema/zipball/v1.0), and the command-line utilities [Jing](http://www.thaiopensource.com/relaxng/jing.html) and [RNV](http://www.davidashen.net/rnv.html).
 
 
 ## Quality Control
