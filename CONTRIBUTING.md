@@ -28,7 +28,7 @@ To start, create a GitHub account and sign in.
 5. In the next window, click the "Create pull request" button.
    Describe the changes you've made, and click the "Create pull request" button once more.
 
-(for more help, see GitHub's instructions on [Creating new files](https://help.github.com/articles/creating-new-files))
+(For more help, see GitHub's instructions on [Creating new files](https://help.github.com/articles/creating-new-files).)
 
 ##### 3b. Submitting changes to an existing style
 
@@ -41,7 +41,7 @@ To start, create a GitHub account and sign in.
 5. In the next window, click the "Create pull request" button.
    Describe the changes you've made, and click the "Create pull request" button once more.
 
-(for more help, see GitHub's instructions on [Editing files in another user's repository](https://help.github.com/articles/editing-files-in-another-user-s-repository))
+(For more help, see GitHub's instructions on [Editing files in another user's repository](https://help.github.com/articles/editing-files-in-another-user-s-repository).)
 
 Instead of relying solely on the GitHub website, you can also use a git client, such as [GitHub Desktop](https://desktop.github.com/) for Mac and Windows, or [SmartGit](http://www.syntevo.com/smartgit/).
 When using a client, [fork](https://help.github.com/articles/fork-a-repo/) the [style repository](https://github.com/citation-style-language/styles), create a branch off of "master", commit your changes, and then create a [pull request](https://help.github.com/articles/using-pull-requests/).
