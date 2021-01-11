@@ -10,10 +10,13 @@
     <author>
       <name>Sebastian Karcher</name>
     </author>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="science"/>
     <summary>Vancouver for PLoS Journals as of January 2015</summary>
-    <updated>2013-07-23T08:11:53+00:00</updated>
+    <updated>2019-09-29T19:19:07+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -59,15 +62,19 @@
         </group>
       </if>
       <else>
-        <group delimiter=": " suffix=";">
-          <choose>
-            <if type="speech" match="any"/>
-            <else>
-              <text variable="publisher-place"/>
-            </else>
-          </choose>
-          <text variable="publisher"/>
-        </group>
+        <choose>
+          <if type="article-newspaper article-journal article-magazine" match="none">
+            <group delimiter=": " suffix=";">
+              <choose>
+                <if type="speech" match="any"/>
+                <else>
+                  <text variable="publisher-place"/>
+                </else>
+              </choose>
+              <text variable="publisher"/>
+            </group>
+          </if>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -106,13 +113,13 @@
   </macro>
   <macro name="container-title">
     <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper post-weblog webpage" match="any">
+      <if type="article-journal article-magazine chapter paper-conference article-newspaper post-weblog webpage post report" match="any">
         <group suffix="." delimiter=" ">
           <choose>
-            <if type="article-journal">
+            <if type="article-journal report" match="any">
               <text variable="container-title" form="short" strip-periods="true"/>
             </if>
-            <else-if type="post-weblog webpage" match="any">
+            <else-if type="post-weblog webpage post" match="any">
               <group delimiter=" ">
                 <text term="in" text-case="capitalize-first" suffix=":"/>
                 <text variable="container-title"/>
@@ -130,7 +137,6 @@
         </group>
         <text macro="edition" prefix=" "/>
       </if>
-      <!--add event-name and event-place once they become available-->
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <group delimiter=". ">
@@ -160,21 +166,9 @@
   <macro name="title">
     <text variable="title"/>
     <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper post-weblog webpage" match="none">
-        <choose>
-          <if variable="URL">
-            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
-          </if>
-        </choose>
+      <if type="book chapter" match="any">
         <text macro="edition" prefix=". "/>
       </if>
-      <else-if type="post-weblog webpage" match="any">
-        <choose>
-          <if variable="container-title" match="none">
-            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
-          </if>
-        </choose>
-      </else-if>
     </choose>
     <choose>
       <if type="song motion_picture" match="any">
@@ -198,9 +192,17 @@
   <macro name="date">
     <choose>
       <if type="article-journal" match="any">
-        <group suffix=";" delimiter=" ">
-          <date variable="issued" form="text" date-parts="year"/>
-        </group>
+        <choose>
+          <if match="none" variable="volume page">
+            <group delimiter=" ">
+              <date date-parts="year" form="text" variable="issued"/>
+              <text macro="accessed-date"/>
+            </group>
+          </if>
+          <else>
+            <date date-parts="year" form="text" variable="issued" suffix=";"/>
+          </else>
+        </choose>
       </if>
       <else-if type="article-magazine article-newspaper" match="any">
         <date variable="issued" form="text"/>
