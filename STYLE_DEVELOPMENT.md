@@ -201,11 +201,8 @@ can be changed to:
 ```xml
 <title>American Psychological Association 6th edition - Modified</title>
 <title-short>APA - modified</title-short>
-<id>fa1f25a6-1d63-4936-909b-f275ba16ac15</id>
+<id>http://www.zotero.org/styles/apa-modified</id>
 ```
-
-You should use a [UUID](https://www.uuidgenerator.net/), rather than a URI, for your new style ID. 
-This ensures that the style ID is universally unique. 
 
 
 ## Validation

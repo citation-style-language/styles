@@ -30,13 +30,12 @@ For example, CSL styles for English-language journals should typically be set to
 For a list of languages and their locale codes, see https://github.com/citation-style-language/locales/wiki.
 
 When using `default-locale`, add the chosen locale to the style title, unless the language is English. 
-Use the localized name for the locale, rather than translating to English (e.g. "Deutsch" instead of "German"). 
 An example:
 
 ```xml
    <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
      <info>
-       <title>Zeitschrift für Soziologie (Deutsch)</title>
+       <title>Zeitschrift für Soziologie (German)</title>
        <id>http://www.zotero.org/styles/zeitschrift-fur-soziologie</id>
      </info>
    </style>
@@ -60,13 +59,12 @@ You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly
 
 ##### 5 - Style ID
 
-For existing styles, do not change the style ID. 
-For new styles, the style ID must be a [UUID](https://www.uuidgenerator.net/). 
-For example:
+The style ID must be "http://www.zotero.org/styles/file-name", with "file-name" representing the style's file name without the ".csl" extension. 
+For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
 
 ```xml
    <info>
-     <id>fa1f25a6-1d63-4936-909b-f275ba16ac15</id>
+     <id>http://www.zotero.org/styles/modern-humanities-research-association</id>
    </info>
 ```
 
