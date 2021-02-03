@@ -43,8 +43,10 @@ UNUSED_MACROS_FILTER = %w{
 
 # These files and directories are ignored when checking for extra files
 EXTRA_FILES_FILTER = [
-  'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'README.md',
-  'dependent', 'Rakefile', 'renamed-styles.json'
+  'Gemfile', 'Gemfile.lock',
+  'dependent', 'Rakefile', 'renamed-styles.json',
+  'README.md', 'CONTRIBUTING.md', 'REQUESTING.md', 
+  'STYLE_REQUIREMENTS.md', 'STYLE_DEVELOPMENT.md', 'QUALITY_CONTROL.md'
 ]
 
 # These directories and their contents are ignored when checking for extra files
