@@ -35,7 +35,7 @@ An example:
 ```xml
    <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
      <info>
-       <title>Zeitschrift für Soziologie (German)</title>
+       <title>Zeitschrift für Soziologie (Deutsch)</title>
        <id>http://www.zotero.org/styles/zeitschrift-fur-soziologie</id>
      </info>
    </style>
