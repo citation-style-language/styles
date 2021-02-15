@@ -1,5 +1,6 @@
 require 'csl'
 require 'json'
+require 'yaml'
 
 STYLE_ROOT = File.expand_path('../..', __FILE__)
 
