@@ -16,7 +16,7 @@
     <category field="humanities"/>
     <category field="literature"/>
     <summary>Style Zotero conforme aux normes bibliographiques établies par le département de français moderne de l'Université de Genève</summary>
-    <updated>2021-01-13T11:42:21+00:00</updated>
+    <updated>2021-01-26T21:57:02+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -25,17 +25,24 @@
       <term name="ordinal-02">e</term>
       <term name="ordinal-03">e</term>
       <term name="ordinal-04">e</term>
-      <term name="cited">op. cit.</term>
-      <term name="page" form="short">p.</term>
-      <term name="editor" form="short">éd.</term>
+      <term name="cited">op. cit.</term>
+      <term name="page" form="short">p. </term>
+      <term name="editor">éd. </term>
       <term name="opus" form="short">t. </term>
+      <term name="in">dans </term>
+      <term name="collection-editor" form="short"> (dir.)</term>
+      <term name="editor" form="short"> (éd.)</term>
+      <term name="folio" form="short">coll. </term>
+      <term name="issue" form="short">n° </term>
+      <term name="volume" form="short">vol. </term>
+      <term name="translator" form="short">trad. </term>
     </terms>
   </locale>
   <macro name="author">
     <choose>
       <if variable="author">
         <names variable="author">
-          <name delimiter=", " and="text" delimiter-precedes-last="never" name-as-sort-order="all" sort-separator=", ">
+          <name and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never" name-as-sort-order="all">
             <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
           </name>
         </names>
@@ -45,10 +52,10 @@
       </else-if>
       <else-if variable="editor">
         <names variable="editor">
-          <name and="text" delimiter-precedes-last="never" name-as-sort-order="all" sort-separator=", ">
+          <name and="text" delimiter-precedes-last="never" name-as-sort-order="all">
             <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
           </name>
-          <label form="short" prefix=" (" suffix=".)"/>
+          <label form="short" plural="never"/>
         </names>
       </else-if>
     </choose>
@@ -62,19 +69,15 @@
           </name>
         </names>
       </if>
+      <else-if match="any" variable="collection-editor">
+        <text macro="director"/>
+      </else-if>
       <else-if variable="editor">
         <names variable="editor">
           <name and="text" delimiter-precedes-last="never" name-as-sort-order="all">
             <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
           </name>
-          <label form="short" prefix=" (" suffix=".)"/>
-        </names>
-      </else-if>
-      <else-if match="any" variable="collection-editor">
-        <names variable="collection-editor">
-          <name name-as-sort-order="all">
-            <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
-          </name>
+          <label form="short" plural="never"/>
         </names>
       </else-if>
     </choose>
@@ -89,32 +92,33 @@
         </names>
       </if>
       <else-if match="any" variable="collection-editor">
-        <names variable="collection-editor" suffix=" (dir.)">
-          <name and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never" name-as-sort-order="all">
-            <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
-          </name>
-        </names>
+        <text macro="director"/>
       </else-if>
       <else-if variable="editor">
         <names variable="editor">
           <name and="text" delimiter-precedes-last="never" name-as-sort-order="all">
             <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
           </name>
-          <label form="short" prefix=" (" suffix=".)"/>
+          <label form="short" plural="never"/>
         </names>
       </else-if>
     </choose>
   </macro>
   <macro name="editor">
-    <names variable="editor">
-      <label form="short" suffix=". "/>
-      <name and="text" delimiter-precedes-last="never" sort-separator=" ">
-        <name-part name="family" text-case="capitalize-first"/>
-      </name>
-    </names>
+    <choose>
+      <if match="any" variable="author collection-editor">
+        <names variable="editor">
+          <label plural="never"/>
+          <name and="text" delimiter-precedes-last="never" sort-separator=" ">
+            <name-part name="family" text-case="capitalize-first"/>
+          </name>
+        </names>
+      </if>
+    </choose>
   </macro>
   <macro name="translator">
-    <names variable="translator" prefix="trad. ">
+    <names variable="translator">
+      <label form="short" plural="never"/>
       <name and="text" delimiter-precedes-last="never" sort-separator=" ">
         <name-part name="family" text-case="capitalize-first"/>
       </name>
@@ -123,9 +127,13 @@
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text macro="opus-title"/>
-        <text variable="title" text-case="capitalize-first" font-style="italic"/>
-        <text macro="original-date"/>
+        <group delimiter=", ">
+          <text macro="opus-title"/>
+          <group>
+            <text variable="title" text-case="capitalize-first" font-style="italic"/>
+            <text macro="original-date"/>
+          </group>
+        </group>
       </if>
       <else-if type="article-journal article-newspaper article-magazine" match="any">
         <group delimiter=", ">
@@ -138,26 +146,27 @@
       </else-if>
       <else-if type="thesis" match="any">
         <group delimiter=", ">
-          <text variable="title" text-case="capitalize-first" font-style="italic"/>
+          <group>
+            <text variable="title" text-case="capitalize-first" font-style="italic"/>
+            <text macro="original-date"/>
+          </group>
           <text variable="genre"/>
           <text variable="publisher"/>
         </group>
       </else-if>
       <else-if type="manuscript" match="any">
-        <group delimiter=",">
+        <group delimiter=", ">
           <text variable="title" text-case="capitalize-first" quotes="true"/>
-          <text variable="genre" prefix=" "/>
+          <text variable="genre"/>
         </group>
       </else-if>
       <else-if type="chapter" match="any">
         <choose>
           <if match="any" variable="collection-editor">
             <group delimiter=", ">
-              <group suffix=",">
-                <text variable="title" text-case="capitalize-first" quotes="true"/>
-              </group>
+              <text variable="title" text-case="capitalize-first" quotes="true"/>
               <group>
-                <text value="dans" prefix=" " suffix=" "/>
+                <text term="in"/>
                 <text macro="director-min"/>
               </group>
               <group>
@@ -168,7 +177,7 @@
           </if>
           <else>
             <group delimiter=", ">
-              <group suffix=",">
+              <group>
                 <choose>
                   <if match="any" variable="genre">
                     <text variable="title" text-case="capitalize-first" quotes="true"/>
@@ -181,7 +190,7 @@
                 </choose>
               </group>
               <group>
-                <text value="dans" suffix=" "/>
+                <text term="in"/>
                 <text variable="container-title" text-case="capitalize-first" font-style="italic"/>
               </group>
             </group>
@@ -197,7 +206,7 @@
             <date-part name="month" suffix=" "/>
             <date-part name="year"/>
           </date>
-          <text variable="URL" text-decoration="underline"/>
+          <text variable="URL" text-decoration="none"/>
         </group>
       </else-if>
       <else>
@@ -223,7 +232,7 @@
   <macro name="yearpage">
     <choose>
       <if type="bill book graphic legal_case legislation manuscript motion_picture paper-conference report song thesis" match="any">
-        <group delimiter=", " font-style="normal">
+        <group delimiter=", ">
           <date variable="issued">
             <date-part name="year"/>
           </date>
@@ -232,76 +241,48 @@
             <else>
               <group>
                 <text term="opus" form="short"/>
-                <text variable="volume" strip-periods="false" vertical-align="baseline"/>
+                <text variable="volume" strip-periods="false"/>
               </group>
             </else>
           </choose>
           <choose>
             <if variable="locator" match="any">
-              <text variable="locator" prefix="p. "/>
+              <group>
+                <label plural="never" variable="page" form="short"/>
+                <text variable="locator"/>
+              </group>
             </if>
           </choose>
         </group>
       </if>
       <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
-        <choose>
-          <if match="any" variable="collection-editor">
-            <group delimiter=", ">
+        <group delimiter=", ">
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+          <group>
+            <text term="opus" form="short"/>
+            <text variable="volume"/>
+          </group>
+          <choose>
+            <if match="any" variable="locator">
+              <group>
+                <label plural="never" variable="page" form="short"/>
+                <text variable="locator"/>
+              </group>
+            </if>
+            <else-if match="none" variable="locator">
               <choose>
-                <if match="any" variable="volume">
-                  <group vertical-align="sub" suffix=",">
-                    <text term="opus" form="short"/>
-                    <text variable="volume"/>
+                <if match="any" variable="page">
+                  <group>
+                    <label plural="never" variable="page" form="short"/>
+                    <text variable="page"/>
                   </group>
                 </if>
               </choose>
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-              <choose>
-                <if variable="locator" match="any">
-                  <text variable="locator" prefix="p. "/>
-                </if>
-                <else-if variable="locator" match="none">
-                  <choose>
-                    <if match="any" variable="page">
-                      <group>
-                        <label plural="never" suffix=" " variable="page" form="short"/>
-                        <text variable="page"/>
-                      </group>
-                    </if>
-                  </choose>
-                </else-if>
-              </choose>
-            </group>
-          </if>
-          <else>
-            <group delimiter=", ">
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-              <group>
-                <text term="opus" form="short"/>
-                <text variable="volume"/>
-              </group>
-              <choose>
-                <if match="any" variable="locator">
-                  <text variable="locator" prefix="p. "/>
-                </if>
-                <else-if match="none" variable="locator">
-                  <choose>
-                    <if match="any" variable="page">
-                      <group delimiter=" ">
-                        <label plural="never" suffix=" " variable="page" form="short"/>
-                        <text variable="page"/>
-                      </group>
-                    </if>
-                  </choose>
-                </else-if>
-              </choose>
-            </group>
-          </else>
-        </choose>
+            </else-if>
+          </choose>
+        </group>
       </else-if>
       <else-if type="article-newspaper article-magazine article article-journal" match="any">
         <group delimiter=", ">
@@ -310,12 +291,15 @@
           </date>
           <choose>
             <if variable="locator" match="any">
-              <text variable="locator" prefix="p. "/>
+              <group>
+                <label plural="never" variable="page" form="short"/>
+                <text variable="locator"/>
+              </group>
             </if>
             <else-if variable="locator" match="none">
               <choose>
                 <if match="any" variable="page">
-                  <group delimiter=" ">
+                  <group>
                     <label plural="never" variable="page" form="short"/>
                     <text variable="page"/>
                   </group>
@@ -339,18 +323,14 @@
             <else>
               <group>
                 <text term="opus" form="short"/>
-                <text variable="volume"/>
+                <text variable="volume" strip-periods="false"/>
               </group>
             </else>
           </choose>
-          <group>
-            <label variable="locator" form="short"/>
-            <text variable="locator"/>
-          </group>
         </group>
       </if>
       <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=", " font-style="normal">
+        <group delimiter=", ">
           <date variable="issued">
             <date-part name="year"/>
           </date>
@@ -359,15 +339,20 @@
             <text variable="volume"/>
           </group>
           <group>
-            <label variable="page" form="short"/>
-            <text variable="page" prefix=" "/>
+            <label plural="never" variable="page" form="short"/>
+            <text variable="page"/>
           </group>
         </group>
       </else-if>
-      <else-if type="article-newspaper article-magazine" match="any">
-        <group delimiter=" " font-style="normal">
-          <label variable="page" form="short"/>
-          <text variable="page"/>
+      <else-if type="article-newspaper article-magazine article article-journal" match="any">
+        <group delimiter=", ">
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+          <group>
+            <label plural="never" variable="page" form="short"/>
+            <text variable="page"/>
+          </group>
         </group>
       </else-if>
     </choose>
@@ -375,21 +360,23 @@
   <macro name="edition">
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
-        <choose>
-          <if is-numeric="edition">
-            <group delimiter=" ">
-              <number variable="edition" form="ordinal"/>
-              <text term="edition" form="short"/>
-            </group>
-          </if>
-          <else>
-            <text variable="edition"/>
-          </else>
-        </choose>
-        <text macro="issue" prefix=", "/>
+        <group delimiter=", ">
+          <choose>
+            <if is-numeric="edition">
+              <group delimiter=" ">
+                <number variable="edition" form="ordinal"/>
+                <text term="edition" form="short"/>
+              </group>
+            </if>
+            <else-if match="all" variable="edition">
+              <text variable="edition"/>
+            </else-if>
+          </choose>
+          <text macro="collection-number"/>
+        </group>
       </if>
       <else-if type="article-journal article-magazine article article-newspaper" match="any">
-        <group delimiter=", " font-style="normal">
+        <group delimiter=", ">
           <text macro="voljournal"/>
         </group>
       </else-if>
@@ -397,20 +384,45 @@
   </macro>
   <macro name="voljournal">
     <group delimiter=", ">
-      <text variable="volume" prefix="vol. "/>
-      <text variable="issue" prefix="n° "/>
+      <choose>
+        <if match="any" is-numeric="volume">
+          <group>
+            <text term="volume" form="short"/>
+            <text variable="volume"/>
+          </group>
+        </if>
+        <else>
+          <text variable="volume"/>
+        </else>
+      </choose>
+      <text macro="issue"/>
       <choose>
         <if match="any" variable="original-title">
-          <text variable="original-title" font-style="italic" prefix=" "/>
+          <text variable="original-title" font-style="italic"/>
         </if>
       </choose>
     </group>
   </macro>
+  <macro name="collection-number">
+    <choose>
+      <if is-numeric="collection-number">
+        <group>
+          <text term="issue" form="short"/>
+          <text variable="collection-number"/>
+        </group>
+      </if>
+      <else>
+        <text variable="collection-number"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="issue">
     <choose>
       <if is-numeric="issue">
-        <text term="issue" form="short" suffix=" "/>
-        <text variable="issue"/>
+        <group>
+          <text term="issue" form="short"/>
+          <text variable="issue"/>
+        </group>
       </if>
       <else>
         <text variable="issue"/>
@@ -418,19 +430,10 @@
     </choose>
   </macro>
   <macro name="collection">
-    <choose>
-      <if is-numeric="collection-number">
-        <group prefix=" coll.">
-          <text variable="collection-title" quotes="true"/>
-        </group>
-        <text variable="collection-number" prefix=", n˚ "/>
-      </if>
-      <else>
-        <group prefix=" coll. ">
-          <text variable="collection-title" quotes="false"/>
-        </group>
-      </else>
-    </choose>
+    <group>
+      <text term="folio" form="short"/>
+      <text variable="collection-title"/>
+    </group>
   </macro>
   <macro name="sort-type">
     <choose>
@@ -455,10 +458,11 @@
     </choose>
   </macro>
   <macro name="director">
-    <names variable="collection-editor" suffix=" (dir.)">
+    <names variable="collection-editor">
       <name and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never" name-as-sort-order="all">
         <name-part name="family" text-case="capitalize-first" font-variant="small-caps"/>
       </name>
+      <label form="short"/>
     </names>
   </macro>
   <macro name="opus-title">
@@ -468,27 +472,31 @@
           <text variable="container-title" text-case="capitalize-first" font-style="italic"/>
           <group>
             <text term="opus" form="short"/>
-            <text variable="volume" suffix=", "/>
+            <text variable="volume"/>
           </group>
         </group>
       </if>
     </choose>
   </macro>
   <macro name="director-min">
-    <names variable="collection-editor" suffix=" (dir.)">
+    <names variable="collection-editor">
       <name and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never">
         <name-part name="family" text-case="capitalize-first"/>
         <name-part name="given" text-case="capitalize-first"/>
       </name>
+      <label form="short" plural="never"/>
     </names>
   </macro>
   <citation>
-    <layout suffix="." delimiter=" ; ">
+    <layout suffix="." delimiter=" ; ">
       <choose>
         <if position="ibid-with-locator">
           <group delimiter=", ">
             <text term="ibid" text-case="capitalize-first" font-style="italic" suffix="."/>
-            <text variable="locator" prefix="p. "/>
+            <group>
+              <label plural="never" variable="page" form="short"/>
+              <text variable="locator"/>
+            </group>
           </group>
         </if>
         <else-if position="ibid">
@@ -507,14 +515,14 @@
               <else-if type="chapter" match="all" variable="genre">
                 <text variable="title" form="short" text-case="capitalize-first" quotes="true"/>
                 <group>
-                  <text value="dans" prefix=" " suffix=" "/>
+                  <text term="in"/>
                   <text variable="container-title" form="short" text-case="capitalize-first" font-style="italic"/>
                 </group>
               </else-if>
               <else-if type="chapter" match="all" variable="collection-editor">
                 <text variable="title" form="short" text-case="capitalize-first" quotes="true"/>
                 <group>
-                  <text value="dans" prefix=" " suffix=" "/>
+                  <text term="in"/>
                   <text macro="director-min"/>
                 </group>
                 <text variable="container-title" form="short" text-case="capitalize-first" font-style="italic"/>
@@ -522,12 +530,12 @@
               <else-if type="chapter" match="any">
                 <text variable="title" form="short" text-case="capitalize-first" font-style="italic"/>
                 <group>
-                  <text value="dans" prefix=" " suffix=" "/>
+                  <text term="in"/>
                   <text variable="container-title" form="short" text-case="capitalize-first" font-style="italic"/>
                 </group>
               </else-if>
               <else>
-                <text variable="title" form="short" text-case="capitalize-first" quotes="true" font-style="normal"/>
+                <text variable="title" form="short" text-case="capitalize-first" quotes="true"/>
               </else>
             </choose>
             <choose>
@@ -541,15 +549,18 @@
                 <text value="éd. cit."/>
               </else-if>
               <else>
-                <text term="cited" font-style="italic" suffix="."/>
+                <text term="cited" font-style="italic"/>
               </else>
             </choose>
-            <text variable="locator" prefix="p. "/>
+            <group>
+              <label plural="never" variable="page" form="short"/>
+              <text variable="locator"/>
+            </group>
           </group>
         </else-if>
         <else>
           <group delimiter=", ">
-            <text macro="author" text-case="capitalize-all"/>
+            <text macro="author" text-case="capitalize-first"/>
             <group>
               <text macro="title"/>
             </group>
