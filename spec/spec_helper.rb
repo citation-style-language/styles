@@ -2,9 +2,9 @@ require 'csl'
 require 'json'
 require 'yaml'
 
-STYLE_ROOT = File.expand_path('../..', __FILE__)
-PULL_REQUEST = File.join(STYLE_ROOT, 'pull-request')
-STYLE_ROOT = PULL_REQUEST if File.directory?(PULL_REQUEST)
+PROJECT_ROOT = File.expand_path('../..', __FILE__)
+PULL_REQUEST = File.join(PROJECT_ROOT, 'pull-request')
+STYLE_ROOT = File.directory?(PULL_REQUEST) ? PULL_REQUEST : PROJECT_ROOT
 
 ISSN = Hash.new { |h,k| h[k] = [] }
 TITLES = Hash.new { |h,k| h[k] = [] }
