@@ -100,7 +100,7 @@
       </else-if>
       <else-if type="motion_picture" match="any">
         <date variable="issued" prefix="(" suffix=")">
-          <date-part name="month" form="short" suffix=". "/>
+          <date-part name="month" form="short" suffix=" "/>
           <date-part name="day" form="numeric-leading-zeros" suffix=", "/>
           <date-part name="year"/>
         </date>
@@ -212,7 +212,7 @@
               <group delimiter=" " prefix="(" suffix=")">
                 <text term="accessed"/>
                 <date variable="accessed">
-                  <date-part name="month" form="short" strip-periods="false" suffix="."/>
+                  <date-part name="month" form="short"/>
                   <date-part name="day" form="numeric-leading-zeros" prefix=" " suffix=", "/>
                   <date-part name="year" form="long"/>
                 </date>
@@ -224,30 +224,31 @@
       <else-if match="any" variable="DOI">
         <text variable="DOI" prefix="doi: "/>
       </else-if>
-      <else>
+      <else-if variable="URL">
         <group delimiter=". " suffix=". ">
           <group delimiter=": ">
             <text term="accessed" text-case="capitalize-first"/>
             <date variable="accessed">
-              <date-part name="month" form="short" suffix=". "/>
+              <date-part name="month" form="short" suffix=" "/>
               <date-part name="day" form="numeric-leading-zeros" suffix=", "/>
               <date-part name="year"/>
             </date>
           </group>
-          <choose>
-            <if type="motion_picture">
-              <text value="Online Video" prefix="[" suffix="]"/>
-            </if>
-            <else>
-              <text term="online" prefix="[" suffix="]" text-case="capitalize-first"/>
-            </else>
-          </choose>
+          <!-- Medium -->
+          <group prefix="[" suffix="]" delimiter=" ">
+            <text term="online" text-case="capitalize-first"/>
+            <choose>
+              <if type="motion_picture">
+                <text value="video" text-case="capitalize-first"/>
+              </if>
+            </choose>
+          </group>
         </group>
         <group delimiter=": ">
           <text term="available at" text-case="capitalize-first"/>
           <text variable="URL"/>
         </group>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="page">
@@ -280,7 +281,7 @@
       <text variable="locator"/>
     </group>
   </macro>
-  <macro name="location">
+  <macro name="geographic-location">
     <group delimiter=", " suffix=".">
       <choose>
         <if variable="publisher-place">
@@ -373,9 +374,9 @@
             <text macro="issued"/>
           </group>
         </else-if>
-		<!-- Online Video -->
+		    <!-- Online Video -->
         <else-if type="motion_picture">
-          <text macro="location" suffix=". "/>
+          <text macro="geographic-location" suffix=". "/>
           <group delimiter=", " suffix=". ">
             <text macro="title"/>
             <text macro="issued"/>
@@ -392,11 +393,7 @@
             <text macro="publisher"/>
             <text macro="issued"/>
             <text macro="page"/>
-            <choose>
-              <if variable="URL">
-                <text macro="access"/>
-              </if>
-            </choose>	
+            <text macro="access"/>
           </group>
         </else-if>
         <else-if type="article-magazine article-newspaper broadcast interview manuscript map patent personal_communication song speech thesis webpage" match="any">
