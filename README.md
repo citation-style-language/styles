@@ -1,6 +1,6 @@
 <p align="center"><a href="https://citationstyles.org/" target="_blank"><img width="300" src="https://raw.githubusercontent.com/citation-style-language/logo/master/assets/rgb/%C2%ABCSL%C2%BB.svg" alt="CSL logo"></a></p>
 
-<h1 align="center">Citation Style Language - Style Repository</h1>
+<h1 align="center">Citation Style Language - Style Repository</h1> 
 
 <p align="center">
   <a href="https://github.com/citation-style-language/styles#licensing"><img src="https://img.shields.io/badge/license-CC%20BY%20SA%203.0-blue.svg" alt="License"></a>
