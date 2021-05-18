@@ -13,7 +13,7 @@
     <category citation-format="note"/>
     <category field="generic-base"/>
     <summary>Fachhochschule Südwestfalen Style</summary>
-    <updated>2021-05-18T06:13:11+00:00</updated>
+    <updated>2021-05-18T12:05:02+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de-DE">
@@ -22,23 +22,24 @@
       <term name="et-al">et al.</term>
       <term name="ibid">ebd.</term>
       <term name="no date" form="short">o. J.</term>
+      <term name="anonymous" form="short">o. V.</term>
     </terms>
   </locale>
   <macro name="editor">
     <group delimiter=" ">
       <choose>
         <if type="chapter paper-conference" match="any">
-          <text term="in"/>
+          <text term="in" text-case="capitalize-first" suffix=":"/>
         </if>
       </choose>
-      <names variable="editor" delimiter=", " suffix=",">
-        <name and="symbol" initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+      <names variable="editor" delimiter=", " suffix=":">
+        <name delimiter="/" delimiter-precedes-last="never" initialize="false" initialize-with="" name-as-sort-order="all"/>
         <label form="short" prefix=" (" suffix=")"/>
       </names>
     </group>
   </macro>
   <macro name="anon">
-    <text term="anonymous" form="short" strip-periods="true"/>
+    <text term="anonymous" form="short" strip-periods="false"/>
   </macro>
   <macro name="author">
     <names variable="author">
@@ -86,7 +87,7 @@
   <macro name="year-date">
     <choose>
       <if variable="issued">
-        <date variable="issued" prefix="(" suffix=")">
+        <date variable="issued">
           <date-part name="year"/>
         </date>
       </if>
@@ -129,14 +130,13 @@
       <if type="post post-weblog webpage" match="any">
         <choose>
           <if variable="URL">
-            <text value="viewed"/>
-            <group prefix=" " delimiter=", ">
-              <date variable="accessed" delimiter=" ">
-                <date-part name="day"/>
-                <date-part name="month" suffix=","/>
-                <date-part name="year"/>
-              </date>
-              <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+            <group prefix=" ">
+              <text value="URL:" suffix=" "/>
+              <text variable="URL" suffix=" "/>
+              <group prefix="[" suffix="]">
+                <text value="Stand" suffix=" "/>
+                <date form="numeric" variable="accessed"/>
+              </group>
             </group>
           </if>
         </choose>
@@ -155,16 +155,43 @@
       </else>
     </choose>
   </macro>
+  <macro name="author-webpage">
+    <group delimiter=" ">
+      <choose>
+        <if match="none" variable="author">
+          <choose>
+            <if match="all" variable="publisher">
+              <text macro="publisher"/>
+            </if>
+            <else>
+              <text macro="anon"/>
+            </else>
+          </choose>
+        </if>
+        <else>
+          <text macro="author-short"/>
+        </else>
+      </choose>
+      <text macro="year-date" prefix="(" suffix=")"/>
+    </group>
+  </macro>
   <citation name-form="short" et-al-min="4" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true" givenname-disambiguation-rule="all-names" collapse="year">
     <layout delimiter="/">
-      <group>
-        <group suffix=".">
-          <text macro="author-short" suffix=" "/>
-          <text macro="year-date-blank"/>
-          <group delimiter=" ">
-            <label prefix=", " variable="page" form="short"/>
-            <text variable="locator"/>
-          </group>
+      <group suffix=".">
+        <choose>
+          <if type="webpage post post-weblog" match="any">
+            <text macro="author-webpage"/>
+          </if>
+          <else>
+            <group>
+              <text macro="author-short" suffix=" "/>
+              <text macro="year-date-blank"/>
+            </group>
+          </else>
+        </choose>
+        <group delimiter=" ">
+          <label prefix=", " variable="page" form="short"/>
+          <text variable="locator"/>
         </group>
       </group>
     </layout>
@@ -178,7 +205,7 @@
       <group delimiter=" ">
         <group delimiter=" " suffix=": ">
           <text macro="author"/>
-          <text macro="year-date"/>
+          <text macro="year-date" prefix="(" suffix=")"/>
         </group>
         <text macro="title" suffix="."/>
         <group delimiter=" ">
@@ -187,7 +214,7 @@
         </group>
         <text macro="locators-journal"/>
         <text macro="edition"/>
-        <text variable="genre" suffix=","/>
+        <text variable="genre"/>
         <text macro="publisher"/>
         <text macro="access"/>
       </group>
