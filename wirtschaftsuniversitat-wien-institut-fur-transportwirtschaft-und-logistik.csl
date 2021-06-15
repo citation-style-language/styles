@@ -18,7 +18,7 @@
     </contributor>
     <category citation-format="note"/>
     <category field="social_science"/>
-    <updated>2021-05-26T10:48:57+02:00</updated>
+    <updated>2021-06-15T12:27:39+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -51,8 +51,8 @@
   </macro>
   <macro name="u__author-short">
     <choose>
-      <if type="legislation legal_case" match="any">
-        <text macro="u_legislation"/>
+      <if type="bill legislation legal_case interview" match="any">
+        <text variable="title" form="short"/>
       </if>
       <else>
         <names variable="author">
@@ -118,29 +118,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="c__author-short_year-date">
-    <group delimiter=" ">
-      <text macro="u__author-short"/>
-      <text macro="u_date"/>
-    </group>
-  </macro>
-  <macro name="c__interview">
-    <group delimiter=" ">
-      <text variable="title"/>
-      <text macro="u_date"/>
-    </group>
-  </macro>
-  <macro name="c__author-short_year-date_locator">
-    <group delimiter=", ">
-      <group delimiter=" ">
-        <text macro="c__author-short_year-date"/>
-      </group>
-      <group delimiter=" ">
-        <label text-case="capitalize-first" variable="locator" form="short"/>
-        <text variable="locator"/>
-      </group>
-    </group>
-  </macro>
   <macro name="b__author">
     <choose>
       <if type="legislation bill legal_case" match="any">
@@ -165,29 +142,10 @@
     </choose>
   </macro>
   <macro name="b__label">
-    <choose>
-      <if type="bill legal_case legislation" match="any">
-        <group delimiter=" ">
-          <text variable="title-short" font-weight="bold"/>
-          <text macro="u__date-bold" font-weight="bold"/>
-        </group>
-      </if>
-      <else>
-        <group delimiter=" ">
-          <names variable="author" font-weight="bold">
-            <name form="short" delimiter="/" delimiter-precedes-last="never" et-al-min="3" et-al-use-first="1" initialize-with="." name-as-sort-order="all"/>
-            <substitute>
-              <names variable="editor author"/>
-              <text macro="u__noauthor"/>
-            </substitute>
-          </names>
-          <text macro="u__date-bold" font-weight="bold"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
-  <macro name="u__date-bold">
-    <date date-parts="year" form="numeric" variable="issued" font-weight="bold" prefix="(" suffix="):"/>
+    <group delimiter=" " suffix=":">
+      <text macro="u__author-short"/>
+      <text macro="u__date"/>
+    </group>
   </macro>
   <macro name="b__collection_container">
     <choose>
@@ -267,18 +225,6 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="u__interview-date">
-    <group delimiter=" ">
-      <text value="am"/>
-      <date form="numeric" variable="issued"/>
-    </group>
-  </macro>
-  <macro name="b__interview">
-    <group delimiter=", ">
-      <text macro="u__author"/>
-      <text macro="u__interview-date"/>
-    </group>
-  </macro>
   <macro name="u__issued">
     <choose>
       <if match="any" variable="issued">
@@ -289,76 +235,74 @@
       </else>
     </choose>
   </macro>
-  <macro name="b_locator">
+  <macro name="b__locator">
     <group delimiter=" ">
       <text term="page" form="short"/>
       <text variable="page"/>
     </group>
   </macro>
-  <macro name="u_date">
-    <choose>
-      <if match="any" variable="issued">
-        <group prefix="(" suffix=")">
+  <macro name="u__date">
+    <group prefix="(" suffix=")">
+      <choose>
+        <if match="any" variable="issued">
           <date date-parts="year" form="text" variable="issued"/>
           <text variable="year-suffix"/>
-        </group>
-      </if>
-      <else>
-        <text term="no date" prefix="(" suffix=")"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="u_legislation">
-    <choose>
-      <if match="any" variable="author">
-        <names variable="author"/>
-      </if>
-      <else>
-        <text variable="title-short"/>
-      </else>
-    </choose>
+        </if>
+        <else>
+          <text term="no date"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true">
     <layout delimiter="; ">
-      <choose>
-        <if type="broadcast post post-weblog webpage" match="any">
-          <group delimiter=", ">
-            <text macro="c__author-short_year-date"/>
+      <group delimiter=", ">
+        <group delimiter=" ">
+          <text macro="u__author-short"/>
+          <text macro="u__date"/>
+        </group>
+        <choose>
+          <if type="broadcast post post-weblog webpage" match="any">
             <text variable="container-title"/>
-          </group>
-        </if>
-        <else-if type="interview" match="any">
-          <text macro="c__interview"/>
-        </else-if>
-        <else>
-          <text macro="c__author-short_year-date_locator"/>
-        </else>
-      </choose>
+          </if>
+        </choose>
+        <group delimiter=" ">
+          <label text-case="capitalize-first" variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </group>
     </layout>
   </citation>
   <bibliography et-al-min="3" et-al-use-first="1">
     <sort>
       <key macro="sort_key"/>
-      <key macro="b__label"/>
+      <key macro="u__author-short"/>
+      <key variable="issued"/>
     </sort>
     <layout>
       <choose>
         <if type="interview" match="any">
-          <group delimiter=": ">
-            <text macro="c__interview"/>
-            <text macro="b__interview"/>
+          <group delimiter=" ">
+            <text macro="b__label"/>
+            <group delimiter=", ">
+              <text macro="u__author"/>
+              <group delimiter=" ">
+                <text value="am"/>
+                <date form="numeric" variable="issued"/>
+              </group>
+            </group>
           </group>
         </if>
         <else>
           <group delimiter=" ">
-            <text macro="b__label"/>
+            <text macro="b__label" font-weight="bold"/>
             <group delimiter=": ">
               <text macro="b__author"/>
               <group delimiter=", ">
                 <text variable="title"/>
                 <text macro="b__collection_container"/>
                 <text macro="u__edition-publisher-place-date"/>
-                <text macro="b_locator"/>
+                <text macro="b__locator"/>
                 <text macro="b__access"/>
               </group>
             </group>
