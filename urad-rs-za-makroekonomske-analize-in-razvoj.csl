@@ -13,7 +13,7 @@
     </author>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <updated>2021-06-21T03:55:23+00:00</updated>
+    <updated>2021-06-22T11:22:34+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="container-contributors-booklike">
@@ -201,7 +201,7 @@
       </if>
       <else-if type="treaty"/>
       <else>
-        <names variable="author" delimiter=", ">
+        <names variable="author" font-weight="normal" delimiter=", ">
           <name name-as-sort-order="all" and="text" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
           <substitute>
             <names variable="illustrator"/>
@@ -470,7 +470,7 @@
   <!-- APA has four descriptive sections following the title: -->
   <!-- (description), [format], container, event -->
   <macro name="description">
-    <group prefix="(" suffix=")">
+    <group>
       <choose>
         <!-- book is here to catch software with container titles -->
         <if type="book report" match="any">
@@ -811,22 +811,28 @@
           <!-- Don't print event info if published in a proceedings -->
           <if variable="collection-editor editor issue page volume" match="none">
             <group delimiter=" ">
-              <text variable="genre" text-case="capitalize-first"/>
               <group delimiter=" ">
+                <text term="presented at" text-case="capitalize-first"/>
+                <text variable="event"/>
                 <choose>
-                  <if variable="genre">
-                    <text term="presented at"/>
+                                  <if match="any" variable="note">
+                    <group delimiter=" ">
+                      <text variable="genre" text-case="capitalize-first"/>
+                      <group>
+                        <text variable="note"/>
+                        <text variable="event-place" prefix=", "/>
+                      </group>
+                    </group>
                   </if>
                   <else>
-                    <text term="presented at" text-case="capitalize-first"/>
+                    <group>
+                      <text variable="genre"/>
+                      <text variable="event-place" prefix=", "/>
+                    </group>
                   </else>
                 </choose>
-                <group delimiter=", ">
-                  <text variable="event"/>
-                  <text variable="event-place"/>
                 </group>
               </group>
-            </group>
           </if>
         </choose>
       </if>
@@ -1085,7 +1091,7 @@
         <else>
           <group>
             <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=" "/>
-            <number variable="number-of-volumes" form="numeric" prefix="1&#8211;"/>
+            <number variable="number-of-volumes" form="numeric" prefix="1–"/>
           </group>
         </else>
       </choose>
@@ -1348,7 +1354,7 @@
   <macro name="legal-cites">
     <choose>
       <if type="legal_case">
-        <group prefix=", " delimiter=" ">
+        <group delimiter=" " prefix=", ">
           <group delimiter=" ">
             <choose>
               <if variable="container-title">
@@ -1389,8 +1395,11 @@
         </group>
       </if>
       <else-if type="bill legislation" match="any">
-        <group prefix=", " delimiter=" ">
-          <group delimiter=", ">
+         <group delimiter=" ">
+          <group delimiter=". ">
+            <date variable="issued" prefix="(" suffix=")">
+              <date-part name="year"/>
+            </date>            
             <choose>
               <if variable="number">
                 <!--There's a public law number-->
@@ -1417,9 +1426,6 @@
               </else>
             </choose>
           </group>
-          <date variable="issued" prefix="(" suffix=")">
-            <date-part name="year"/>
-          </date>
         </group>
       </else-if>
       <else-if type="treaty">
