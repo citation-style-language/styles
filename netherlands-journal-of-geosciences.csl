@@ -14,7 +14,9 @@
     <category citation-format="author-date"/>
     <category field="psychology"/>
     <category field="generic-base"/>
-    <updated>2021-09-07T10:46:17+00:00</updated>
+    <issn>0016-7746</issn>
+    <eissn>1573-9708</eissn>
+    <updated>2021-09-07T11:09:46+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -79,8 +81,8 @@
     <choose>
       <if variable="container-title">
         <names variable="editor translator" delimiter=", &amp; ">
-          <name and="symbol" initialize-with=". " delimiter=", "/>
-          <label form="short" prefix=" (" text-case="title" suffix=")"/>
+          <name and="symbol" initialize-with="."/>
+          <label form="short" prefix=" (" suffix=")"/>
           <substitute>
             <names variable="editorial-director"/>
             <names variable="collection-editor"/>
@@ -239,7 +241,7 @@
     <choose>
       <if type="song">
         <names variable="composer" delimiter=", ">
-          <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+          <name and="symbol" delimiter-precedes-last="always" initialize-with="." name-as-sort-order="all"/>
           <substitute>
             <names variable="original-author"/>
             <names variable="author"/>
@@ -258,7 +260,7 @@
       <else-if type="treaty"/>
       <else>
         <names variable="author" delimiter=", ">
-          <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+          <name and="symbol" delimiter-precedes-last="always" initialize-with="." name-as-sort-order="all"/>
           <substitute>
             <names variable="illustrator"/>
             <names variable="composer"/>
@@ -841,8 +843,11 @@
             </if>
             <else>
               <group delimiter=": ">
-                <text variable="publisher-place"/>
-                <text variable="publisher"/>
+                <group delimiter=" ">
+                  <text variable="publisher-place"/>
+                  <text variable="publisher" prefix="(" suffix=")"/>
+                </group>
+                <text macro="locators"/>
               </group>
             </else>
           </choose>
@@ -1057,9 +1062,9 @@
   <macro name="locators">
     <choose>
       <if type="article-journal article-magazine figure review review-book" match="any">
-        <group delimiter=", ">
+        <group delimiter=": ">
           <group>
-            <text variable="volume" font-style="italic"/>
+            <text variable="volume" font-weight="bold"/>
             <text variable="issue" prefix="(" suffix=")"/>
           </group>
           <text variable="page"/>
@@ -1128,7 +1133,7 @@
         <else>
           <group>
             <text term="volume" form="short" plural="true" text-case="capitalize-first" suffix=" "/>
-            <number variable="number-of-volumes" form="numeric" prefix="1–"/>
+            <number variable="number-of-volumes" form="numeric" prefix="1&#8211;"/>
           </group>
         </else>
       </choose>
@@ -1154,7 +1159,7 @@
   <macro name="container">
     <choose>
       <if type="article article-journal article-magazine article-newspaper review review-book" match="any">
-        <group delimiter=", ">
+        <group delimiter=" ">
           <text macro="container-title"/>
           <text macro="locators"/>
         </group>
@@ -1260,47 +1265,32 @@
   <macro name="container-booklike">
     <choose>
       <if variable="container-title collection-title" match="any">
-        <group delimiter=" ">
-          <text term="in" text-case="capitalize-first"/>
-          <group delimiter=", ">
-            <text macro="container-contributors"/>
-            <choose>
-              <if variable="container-author editor translator" match="none">
-                <group delimiter=". ">
-                  <group delimiter=": ">
-                    <text variable="collection-title" font-style="italic" text-case="title"/>
-                    <choose>
-                      <if variable="collection-title">
-                        <group delimiter=" ">
-                          <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
-                          <number variable="collection-number" font-style="italic" form="numeric"/>
-                          <choose>
-                            <if variable="collection-number" match="none">
-                              <number variable="volume" font-style="italic" form="numeric"/>
-                            </if>
-                          </choose>
-                        </group>
-                      </if>
-                    </choose>
-                  </group>
-                  <group delimiter=": ">
-                    <text macro="container-title"/>
-                    <choose>
-                      <if variable="collection-title" is-numeric="volume" match="none">
-                        <group delimiter=" ">
-                          <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
-                          <text variable="volume" font-style="italic"/>
-                        </group>
-                      </if>
-                    </choose>
-                  </group>
+        <group delimiter=": ">
+          <text term="in" text-case="capitalize-first" font-style="italic"/>
+          <text macro="container-contributors"/>
+          <choose>
+            <if variable="container-author editor translator" match="none">
+              <group delimiter=". ">
+                <group delimiter=": ">
+                  <text variable="collection-title" font-style="italic" text-case="title"/>
+                  <choose>
+                    <if variable="collection-title">
+                      <group delimiter=" ">
+                        <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
+                        <number variable="collection-number" font-style="italic" form="numeric"/>
+                        <choose>
+                          <if variable="collection-number" match="none">
+                            <number variable="volume" font-style="italic" form="numeric"/>
+                          </if>
+                        </choose>
+                      </group>
+                    </if>
+                  </choose>
                 </group>
-              </if>
-              <else>
                 <group delimiter=": ">
                   <text macro="container-title"/>
                   <choose>
-                    <if is-numeric="volume" match="none">
+                    <if variable="collection-title" is-numeric="volume" match="none">
                       <group delimiter=" ">
                         <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
                         <text variable="volume" font-style="italic"/>
@@ -1308,16 +1298,28 @@
                     </if>
                   </choose>
                 </group>
-              </else>
-            </choose>
-          </group>
-          <group delimiter="; " prefix="(" suffix=")">
-            <text macro="locators"/>
-            <names variable="container-author">
-              <label form="verb-short" suffix=" " text-case="title"/>
-              <name and="symbol" initialize-with=". " delimiter=", "/>
-            </names>
-          </group>
+              </group>
+            </if>
+            <else>
+              <group delimiter=": ">
+                <text macro="container-title"/>
+                <choose>
+                  <if is-numeric="volume" match="none">
+                    <group delimiter=" ">
+                      <text term="volume" form="short" font-style="italic" text-case="capitalize-first"/>
+                      <text variable="volume" font-style="italic"/>
+                    </group>
+                  </if>
+                </choose>
+              </group>
+            </else>
+          </choose>
+        </group>
+        <group delimiter="; " prefix="(" suffix=")">
+          <names variable="container-author">
+            <label form="verb-short" suffix=" " text-case="title"/>
+            <name and="symbol" initialize-with=". " delimiter=", "/>
+          </names>
         </group>
       </if>
     </choose>
@@ -1325,7 +1327,7 @@
   <macro name="container-title">
     <choose>
       <if type="article article-journal article-magazine article-newspaper dataset" match="any">
-        <text variable="container-title" font-style="italic" text-case="title"/>
+        <text variable="container-title" text-case="title"/>
       </if>
       <else-if type="paper-conference speech">
         <choose>
@@ -1338,7 +1340,7 @@
         </choose>
       </else-if>
       <else-if type="bill legal_case legislation post-weblog webpage" match="none">
-        <text variable="container-title" font-style="italic"/>
+        <text variable="container-title" font-style="normal"/>
       </else-if>
     </choose>
   </macro>
@@ -1479,21 +1481,21 @@
     </sort>
     <layout>
       <group delimiter=" ">
-        <group delimiter=", " suffix=".">
-          <group delimiter=". ">
+        <group delimiter=". " suffix=".">
+          <group delimiter=", ">
             <text macro="author" font-weight="bold"/>
-          </group>
-          <choose>
-            <if is-uncertain-date="issued">
-              <group delimiter=" " prefix="[" suffix="]">
-                <text term="circa" form="short"/>
+            <choose>
+              <if is-uncertcontaineain-date="issued">
+                <group delimiter=" " prefix="[" suffix="]">
+                  <text term="circa" form="short"/>
+                  <text macro="issued"/>
+                </group>
+              </if>
+              <else>
                 <text macro="issued"/>
-              </group>
-            </if>
-            <else>
-              <text macro="issued"/>
-            </else>
-          </choose>
+              </else>
+            </choose>
+          </group>
           <text macro="title-and-descriptions"/>
           <text macro="container"/>
           <text macro="event"/>
