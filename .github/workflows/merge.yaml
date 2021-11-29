@@ -85,11 +85,36 @@ jobs:
       run: cd release && git rm ${{ steps.update.outputs.deleted_files }}
       if: github.event_name == 'push' && steps.update.outputs.deleted == 'true'
 
+    - name: Check for composer changes
+      if: github.event_name == 'push'
+      uses: dorny/paths-filter@v2
+      id: update_composer
+      with:
+        list-files: shell
+        filters: |
+          updated:
+            - added|modified: composer.json
+          deleted:
+            - deleted: composer.json
+    
+    - name: Update composer.json
+      if: steps.update_composer.outputs.updated == 'true'
+      run: |
+        cp composer.json release/composer.json
+        cd release
+        git add composer.json
+  
+    - name: Delete composer.json
+      if: steps.update_composer.outputs.deleted == 'true'
+      run: |
+        cd release
+        git rm composer.json
+    
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         repository: 'release'
-        commit_message: Releasing ${{ steps.update.outputs.updated_files }} ${{ steps.update.outputs.deleted_files }}
-      if: github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true')
+        commit_message: Releasing ${{ steps.update.outputs.updated_files }} ${{ steps.update.outputs.deleted_files }} ${{ steps.update_composer.outputs.updated_files }} ${{ steps.update_composer.outputs.deleted_files }}
+      if: github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true' || steps.update_composer.outputs.updated == 'true' || steps.update_composer.outputs.deleted == 'true')
 
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
@@ -114,46 +139,15 @@ jobs:
         git-user: "csl-bot"
         git-user-email: github@citationstyles.org
         git-commit-message: copied ${{ steps.update.outputs.workflows_files }} from styles
-    
-    - name: Checkout v1.0.1
-      uses: actions/checkout@v2
-      with:
-        ref: v1.0.1
-    
-    - name: Update composer.json
-      run: |
-        git config --global user.email "{YOUR EMAIL}"
-        git config --global user.name "{YOUR USERNAME}"
-
-        git fetch origin
-        git checkout -b master origin/master
-
-        action1=`git diff --name-status v1.0.1 master composer.json | cut -c 1`
-        git checkout v1.0.1
-        action2=`git diff --name-status v1.0.1 master composer.json | cut -c 1`
-        if [ "$action1" = "M" ] || [ "$action1" = "A" ]; then # M - mod A - add  D - del ;
-          git checkout master -- composer.json
-          git add composer.json
-          git commit -m "Edit composer.json"
-          git push --set-upstream origin v1.0.1
-          git checkout master
-        else
-          if [ "$action2" = "D" ]; then
-            git rm composer.json
-            git commit -m "Delete composer.json"
-            git push --set-upstream origin v1.0.1
-            git checkout master
-          fi
-        fi
-    
+  
     - name: Bump version and push tag
       id: tag_version
       uses: mathieudutour/github-tag-action@v5.6
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         default_bump: patch
-      if:  github.event_name == 'push' && hashFiles('composer.json') != '' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true')
-
+      if: github.event_name == 'push' && hashFiles('composer.json') != '' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true')
+  
     - name: Create a GitHub release
       uses: actions/create-release@v1
       env:
@@ -162,4 +156,4 @@ jobs:
         tag_name: ${{ steps.tag_version.outputs.new_tag }}
         release_name: Release ${{ steps.tag_version.outputs.new_tag }}
         body: ${{ steps.tag_version.outputs.changelog }}
-      if:  github.event_name == 'push' && hashFiles('composer.json') != '' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true')
+      if: github.event_name == 'push' && hashFiles('composer.json') != '' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true')
