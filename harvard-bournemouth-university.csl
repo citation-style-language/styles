@@ -17,50 +17,42 @@
     <summary>Bournemouth University Harvard style based on based on the British Standards BS 5605:1990 Recommendations for citing and
     referencing published material and BS 1629:1989 Recommendations or references to
     published materials.</summary>
-    <updated>2021-10-19T08:51:41+00:00</updated>
+    <updated>2021-12-05T10:13:22+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
     <choose>
-      <if match="none" variable="editor">
-        <choose>
-          <if type="motion_picture broadcast" match="none">
-            <names variable="author" suffix=",">
-              <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=", " and="text" delimiter-precedes-last="never"/>
-              <label form="short" prefix=", "/>
-              <et-al font-style="italic"/>
-              <substitute>
-                <text macro="anon"/>
-              </substitute>
-            </names>
-            <choose>
-              <if type="article-newspaper entry-dictionary entry-encyclopedia" match="any">
-                <choose>
-                  <if variable="author editor" match="none">
-                    <text variable="container-title" suffix=","/>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-          </if>
-          <else>
-            <choose>
-              <if variable="container-title">
-                <text variable="container-title" font-style="italic"/>
-              </if>
-              <else>
-                <text variable="title" font-style="italic"/>
-              </else>
-            </choose>
-          </else>
-        </choose>
+      <if type="motion_picture broadcast" match="none">
+        <names variable="author">
+          <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=", " and="text" delimiter-precedes-last="never"/>
+          <label form="short" prefix=", "/>
+          <et-al font-style="italic"/>
+          <substitute>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <text macro="anon"/>
+          </substitute>
+        </names>
       </if>
       <else>
-        <names variable="editor translator" delimiter=", ">
-          <name and="text"/>
-          <label form="short" prefix=", "/>
-        </names>
+        <choose>
+          <if variable="container-title">
+            <text variable="container-title" font-style="italic"/>
+          </if>
+          <else>
+            <text variable="title" font-style="italic"/>
+          </else>
+        </choose>
       </else>
+    </choose>
+    <choose>
+      <if type="article-newspaper entry-dictionary entry-encyclopedia" match="any">
+        <choose>
+          <if variable="author editor" match="none">
+            <text variable="container-title"/>
+          </if>
+        </choose>
+      </if>
     </choose>
   </macro>
   <macro name="author-short">
@@ -340,7 +332,17 @@
       <key macro="issued" sort="ascending"/>
     </sort>
     <layout suffix=".">
-      <text macro="author"/>
+      <choose>
+        <if match="any" variable="author">
+          <text macro="author" suffix=","/>
+        </if>
+        <else-if match="any" variable="editor">
+          <text macro="author"/>
+        </else-if>
+        <else>
+          <text macro="author" suffix=","/>
+        </else>
+      </choose>
       <group delimiter=". " prefix=" ">
         <text macro="issued"/>
         <text macro="title"/>
