@@ -42,7 +42,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="year-date">
+  <macro name="issued">
     <choose>
       <if variable="issued">
         <date variable="issued">
@@ -50,9 +50,7 @@
         </date>
       </if>
       <else>
-        <date form="numeric" variable="accessed">
-          <date-part name="year"/>
-        </date>
+        <text term="Unbekanntes Datum" form="short"/>
       </else>
     </choose>
   </macro>
@@ -83,18 +81,14 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="legal_case" match="none">
-        <choose>
-          <if variable="URL">
-            <group delimiter=" ">
-              <text variable="URL"/>
-              <group prefix="(" suffix=")">
-                <date variable="accessed" form="text"/>
-              </group>
-            </group>
-          </if>
-        </choose>
+      <if variable="accessed">
+        <date variable="access">
+          <date-part name="year" form="short"/>
+        </date>
       </if>
+      <else>
+        <text term="Unbekanntes Datum" form="short"/>
+      </else>
     </choose>
   </macro>
   <macro name="legal_case">
@@ -133,13 +127,13 @@
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="primary-name" collapse="year">
     <sort>
       <key macro="author-short"/>
-      <key macro="year-date"/>
+      <key macro="issued"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <group delimiter=" ">
           <text macro="author-short"/>
-          <text macro="year-date"/>
+          <text macro="issued"/>
         </group>
         <text macro="locator"/>
       </group>
@@ -148,7 +142,7 @@
   <bibliography hanging-indent="true" et-al-min="5" et-al-use-first="1" subsequent-author-substitute="———">
     <sort>
       <key variable="title"/>
-      <key macro="year-date"/>
+      <key macro="issued"/>
       <key macro="author"/>
     </sort>
     <layout suffix=".">
@@ -156,11 +150,20 @@
       <group display="right-inline" prefix=" ">
         <text macro="editor" suffix=";"/>
         <text macro="author" suffix=";"/>
-        <date date-parts="year" form="numeric" variable="issued" prefix=" (" suffix=")">
-          <date-part name="year"/>
-        </date>
+        <group prefix="(" suffix=")">
+          <text macro="edition"/>
+          <choose>
+            <if match="any" variable="issued">
+              <text macro="issued"/>
+            </if>
+            <else>
+              <text macro="access"/>
+            </else>
+          </choose>
+        </group>
       </group>
       <text variable="abstract" strip-periods="false" font-style="italic" display="right-inline"/>
+      <text macro="legal_case"/>
     </layout>
   </bibliography>
 </style>
