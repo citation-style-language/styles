@@ -18,7 +18,7 @@
     <category citation-format="note"/>
     <category field="history"/>
     <summary>Turabian note style, a variant of Chicago for students</summary>
-    <updated>2021-12-20T09:47:34-05:00</updated>
+    <updated>2021-12-31T06:50:55-05:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -483,6 +483,43 @@
       </else>
     </choose>
   </macro>
+  <macro name="originally-published">
+    <group delimiter=", ">
+      <group delimiter=": ">
+        <text variable="original-publisher-place"/>
+        <text variable="original-publisher"/>
+      </group>
+      <choose>
+        <if is-uncertain-date="original-date">
+          <date variable="original-date" form="numeric" date-parts="year" prefix="[" suffix="?]"/>
+        </if>
+        <else>
+          <date variable="original-date" form="numeric" date-parts="year"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="reprint-note">
+    <!--needs localization-->
+    <choose>
+      <if variable="original-date issued" match="all">
+        <choose>
+          <!--for whatever reason in notes, when we have both original and new publishers, reprint doesn't appear-->
+          <if variable="original-publisher original-publisher-place" match="none">
+            <text value="repr."/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="reprint">
+    <!--needs localization-->
+    <choose>
+      <if variable="original-date issued" match="all">
+        <text value="reprint" text-case="capitalize-first"/>
+      </if>
+    </choose>
+  </macro>
   <macro name="issued">
     <choose>
       <if variable="issued">
@@ -627,7 +664,13 @@
             </choose>
             <text macro="event"/>
           </group>
-          <text macro="publisher"/>
+            <group delimiter="; ">
+              <text macro="originally-published"/>
+                <group delimiter=", ">
+                <text macro="reprint-note"/>
+                <text macro="publisher"/>
+            </group>
+          </group>
           <text macro="issued"/>
         </group>
       </else-if>
@@ -659,7 +702,13 @@
               <text variable="genre" text-case="capitalize-first"/>
             </if>
           </choose>
-          <text macro="publisher"/>
+          <group delimiter=". ">
+            <text macro="originally-published"/>
+            <group delimiter=", ">
+              <text macro="reprint"/>
+              <text macro="publisher"/>
+            </group>
+          </group>
           <text macro="issued"/>
         </group>
       </else-if>
