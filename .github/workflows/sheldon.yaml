@@ -26,18 +26,10 @@ jobs:
       if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
     - name: Checkout pull-request
       uses: actions/checkout@v2
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test') && github.actor != 'retorquere'"
+      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
       with:
         path: pull-request
         ref: ${{ github.event.pull_request.head.sha }}
-
-    - name: Checkout pull-request from submitter repo
-      uses: actions/checkout@v2
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test') && github.actor == 'retorquere'"
-      with:
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
-        path: pull-request
-        ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Check for relevant changes
       uses: dorny/paths-filter@v2
@@ -82,7 +74,8 @@ jobs:
       if: (failure() || success()) && steps.changed.outputs.style == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose
 
-    - run: echo ${{ github.repository }} -- ${{ steps.changed.outputs.style }} -- ${{ github.actor }}
+    - run: cd pull-request && git status
+      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && github.actor == 'retorquere'
     - name: commit reindented styles
       if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && github.actor == 'retorquere'
       uses: stefanzweifel/git-auto-commit-action@v4
