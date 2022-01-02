@@ -20,7 +20,7 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
 
-    # otherwise, checkout the current master, and the pr to the subdirectory 'pr'
+    # otherwise, checkout the current master, and the pr to the subdirectory 'pull-request'
     - name: Checkout base repo for pull-request test
       uses: actions/checkout@v2
       if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
@@ -73,3 +73,12 @@ jobs:
     - name: report
       if: (failure() || success()) && steps.changed.outputs.style == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose
+
+    - name: commit in reindented styles
+      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && github.event.user.login == 'retorquere'
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Re-indent CSL styles
+        file_pattern: ${{ steps.changed.outputs.style_files }}
+        repository: pull-request
+        skip_dirty_check: false
