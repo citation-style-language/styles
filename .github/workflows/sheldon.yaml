@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@v2
       if: contains(github.event.pull_request.labels.*.name, 'safe to test')
       with:
-        ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ github.event.pull_request.head.ref }}
 
     # otherwise, checkout the current master, and the pr to the subdirectory 'pull-request'
     - name: Checkout base repo for pull-request test
@@ -29,7 +29,7 @@ jobs:
       if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
       with:
         path: pull-request
-        ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Check for relevant changes
       uses: dorny/paths-filter@v2
@@ -46,9 +46,6 @@ jobs:
     - name: Changed files
       run: |
         echo changed: ${{ steps.changed.outputs.style_files }} ${{ steps.changed.outputs.locale_files }}
-
-    - run: cat $GITHUB_EVENT_PATH
-      if: github.actor == 'retorquere'
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -77,10 +74,8 @@ jobs:
       if: (failure() || success()) && steps.changed.outputs.style == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose
 
-    - run: cd pull-request && git status
-      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && github.actor == 'retorquere'
     - name: commit reindented styles
-      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && github.actor == 'retorquere'
+      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true'
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Re-indent CSL styles
