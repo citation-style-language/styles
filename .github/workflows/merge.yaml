@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    tags-ignore:
-      - '**'
   workflow_dispatch:
     inputs:
       commit_message:
@@ -28,7 +26,7 @@ jobs:
 
     - name: Release branch version
       id: release
-      run: echo ::set-output name=branch::v1.0.2
+      run: echo ::set-output name=branch::v1.0.1
     - name: Checkout release branch
       uses: actions/checkout@v2
       with:
@@ -48,6 +46,10 @@ jobs:
             - deleted: [ '*.csl', 'dependent/*.csl', '*.xml' ]
           workflows:
             - added|modified: .github/workflows/*.yaml
+          updated_composer:
+            - added|modified: composer.json
+          deleted_composer:
+            - deleted: composer.json
 
     - name: Changed files
       if: github.event_name == 'push'
@@ -87,27 +89,15 @@ jobs:
       run: cd release && git rm ${{ steps.update.outputs.deleted_files }}
       if: github.event_name == 'push' && steps.update.outputs.deleted == 'true'
 
-    - name: Check for composer changes
-      if: github.event_name == 'push'
-      uses: dorny/paths-filter@v2
-      id: update_composer
-      with:
-        list-files: shell
-        filters: |
-          updated:
-            - added|modified: composer.json
-          deleted:
-            - deleted: composer.json
-    
     - name: Update composer.json
-      if: steps.update_composer.outputs.updated == 'true'
+      if: steps.update.outputs.updated_composer == 'true'
       run: |
         cp composer.json release/composer.json
         cd release
         git add composer.json
   
     - name: Delete composer.json
-      if: steps.update_composer.outputs.deleted == 'true'
+      if: steps.update.outputs.deleted_composer == 'true'
       run: |
         cd release
         git rm composer.json
@@ -115,8 +105,8 @@ jobs:
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         repository: 'release'
-        commit_message: Releasing ${{ steps.update.outputs.updated_files }} ${{ steps.update.outputs.deleted_files }} ${{ steps.update_composer.outputs.updated_files }} ${{ steps.update_composer.outputs.deleted_files }}
-      if: github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true' || steps.update_composer.outputs.updated == 'true' || steps.update_composer.outputs.deleted == 'true')
+        commit_message: Releasing ${{ steps.update.outputs.updated_files }} ${{ steps.update.outputs.deleted_files }} ${{ steps.update.outputs.updated_composer_files }} ${{ steps.update.outputs.deleted_composer_files }}
+      if: github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true' || steps.update.outputs.updated_composer == 'true' || steps.update.outputs.deleted_composer == 'true')
 
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
