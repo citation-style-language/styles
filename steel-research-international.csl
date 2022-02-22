@@ -22,11 +22,12 @@
     
     There are some difficulties i.e. with patents, preprint  specifications and the variables that the CSL offers (nor preprint type or company variable availably), which probably cannot be fixed right now (perfectly) and need manual correction.
     Also there is no way to automatically use or define journal or conference abbrevitation in the csl file right now?</summary>
-    <updated>2021-11-10T16:22:30+01:00</updated>
+    <updated>2022-02-22T10:00:30+01:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
     <date form="text" delimiter=" ">
+      <date-part name="day" suffix=" " range-delimiter="-" form="numeric-leading-zeros"/>
       <date-part name="month" form="short" strip-periods="true" suffix=" "/>
       <date-part name="year" font-weight="bold"/>
     </date>
@@ -138,6 +139,11 @@
       <if type="speech" match="any">
         <date variable="issued" prefix=", " form="text"/>
       </if>
+      <else-if type="paper-conference" match="any">
+        <group>
+          <date variable="issued" form="text" date-parts="year-month" prefix=", "/>
+        </group>
+      </else-if>
       <else-if type="webpage" match="none">
         <group font-weight="bold">
           <date variable="issued" form="text" date-parts="year" prefix=" "/>
@@ -155,14 +161,30 @@
               <text variable="chapter-number"/>
             </group>
           </if>
-          <else>
+          <else-if variable="page">
             <group delimiter=" ">
-              <text term="page" form="short" prefix=", "/>
-              <text variable="page"/>
+              <label variable="page" form="short"/>
+              <text variable="page" prefix=", "/>
             </group>
-          </else>
+          </else-if>
         </choose>
       </if>
+      <else-if type="article-journal article-magazine article-newspaper" match="any">
+        <choose>
+          <if variable="page-first">
+            <group delimiter=" ">
+              <label variable="page-first" form="short"/>
+              <text variable="page-first" prefix=", "/>
+            </group>
+          </if>
+          <else-if variable="page">
+            <group delimiter=" ">
+              <label variable="page" form="short" prefix=", "/>
+              <text variable="page"/>
+            </group>
+          </else-if>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="journal-volume">
@@ -189,11 +211,11 @@
       </else-if>
     </choose>
   </macro>
-  <citation collapse="citation-number">
+    <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
     </sort>
-    <layout prefix="[" suffix="]" delimiter=",">
+    <layout vertical-align="sup" delimiter="," prefix="[" suffix="]">
       <group delimiter=",">
         <text variable="citation-number"/>
         <group>
