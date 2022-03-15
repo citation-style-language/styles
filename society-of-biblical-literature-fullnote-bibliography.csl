@@ -32,7 +32,7 @@
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2022-03-01T20:20:05+00:00</updated>
+    <updated>2022-03-15T15:25:37+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -112,11 +112,11 @@
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group delimiter=", ">
-          <text macro="editor-translator-verb-short-comma"/>
           <names variable="container-author">
             <label form="verb-short" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
+          <text macro="editor-translator-verb-short-comma"/>
         </group>
       </if>
     </choose>
@@ -137,13 +137,28 @@
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <group delimiter=", " prefix=" ">
-          <text macro="editor-translator-verb-comma"/>
-          <names variable="container-author">
-            <label form="verb" text-case="capitalize-first" suffix=" "/>
-            <name and="text" delimiter=", "/>
-          </names>
-        </group>
+        <!-- Supports citation of introducetions, prefaces, and forewords per SBLHS2 §6.2.14. -->
+        <choose>
+          <if variable="part-title">
+            <names variable="container-author" suffix=". ">
+              <label form="verb" suffix=" "/>
+              <name and="text" delimiter=", "/>
+            </names>
+            <names variable="editor translator" delimiter=". ">
+              <label form="verb" text-case="capitalize-first" suffix=" "/>
+              <name and="text" delimiter=", "/>
+            </names>
+          </if>
+          <else>
+            <group delimiter=", " prefix=" ">
+              <text macro="editor-translator-verb-comma"/>
+              <names variable="container-author">
+                <label form="verb" text-case="capitalize-first" suffix=" "/>
+                <name and="text" delimiter=", "/>
+              </names>
+            </group>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -309,7 +324,18 @@
         </choose>
       </else-if>
       <else>
-        <text variable="title" quotes="true" text-case="title"/>
+        <!-- Supports citations of introductions, prefaces, or forewords per SBLHS2 § 6.2.14. -->
+        <choose>
+          <if variable="part-title">
+            <group delimiter=" ">
+              <text variable="part-title" suffix=" to "/>
+              <text variable="title" font-style="italic" text-case="title"/>
+            </group>
+          </if>
+          <else>
+            <text variable="title" quotes="true" text-case="title"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -345,7 +371,18 @@
         </group>
       </else-if>
       <else>
-        <text variable="title" quotes="true" text-case="title"/>
+        <!-- Supports citations of introductions, prefaces, or forewords per SBLHS2 § 6.2.14. -->
+        <choose>
+          <if variable="part-title">
+            <group delimiter=" ">
+              <text variable="part-title" suffix=" to " text-case="title"/>
+              <text variable="title" font-style="italic" text-case="title"/>
+            </group>
+          </if>
+          <else>
+            <text variable="title" quotes="true" text-case="title"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -381,7 +418,15 @@
         </choose>
       </else-if>
       <else>
-        <text variable="title" form="short" quotes="true" text-case="title"/>
+        <!-- Supports citations of introductions, prefaces, or forewords per SBLHS2 § 6.2.14. -->
+        <choose>
+          <if variable="part-title">
+            <text variable="part-title"/>
+          </if>
+          <else>
+            <text variable="title" quotes="true" text-case="title"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -492,23 +537,30 @@
     <choose>
       <!-- Added dictionary and encyclopedia to get page and volume information-->
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=" " suffix=" ">
-          <label variable="page" form="long" text-case="capitalize-first"/>
-          <text variable="page"/>
-          <text term="in"/>
-          <choose>
-            <!-- Added dictionary and encyclopedia to get volume information-->
-            <if type="entry-dictionary entry-encyclopedia" match="any">
+        <choose>
+          <!-- Support citation of introductions, prefaces, and forwords per SBLHS2 §6.2.14. -->
+          <if variable="part-title">
+          </if>
+          <else>
+            <group delimiter=" " suffix=" ">
+              <label variable="page" form="long" text-case="capitalize-first"/>
+              <text variable="page"/>
+              <text term="in"/>
               <choose>
-                <if match="any" variable="volume">
-                  <label suffix=" " variable="volume" form="short"/>
-                  <number variable="volume"/>
-                  <text value="of" suffix=" "/>
+                <!-- Added dictionary and encyclopedia to get volume information-->
+                <if type="entry-dictionary entry-encyclopedia" match="any">
+                  <choose>
+                    <if match="any" variable="volume">
+                      <label suffix=" " variable="volume" form="short"/>
+                      <number variable="volume"/>
+                      <text value="of" suffix=" "/>
+                    </if>
+                  </choose>
                 </if>
               </choose>
-            </if>
-          </choose>
-        </group>
+            </group>
+          </else>
+        </choose>
       </if>
     </choose>
     <choose>
@@ -674,7 +726,16 @@
     </choose>
   </macro>
   <macro name="event-note">
-    <text variable="event"/>
+    <!-- Support citation of unpublished conference presentations per SBLHS2 §6.3.8. -->
+    <choose>
+      <if type="speech" match="any">
+        <group delimiter=" ">
+          <text variable="genre"/>
+          <text term="presented at" suffix=" "/>
+        </group>
+      </if>
+    </choose>
+    <text variable="event" suffix=","/>
   </macro>
   <macro name="event">
     <group>
@@ -925,11 +986,10 @@
                   <text macro="publisher"/>
                   <choose>
                     <if variable="title" match="none"/>
-                    <else-if type="thesis speech" match="any">
+                    <else-if type="thesis" match="any">
                       <text variable="genre"/>
                     </else-if>
                   </choose>
-                  <text macro="event"/>
                 </group>
                 <text macro="issued" prefix=", "/>
               </group>
@@ -990,18 +1050,19 @@
           <text macro="archive-note"/>
         </else-if>
       </choose>
-      <!-- SBL style uses DOIs and URLs when the resource is electronic. SBLHS2 §§ 6.1.6, 6.2.25, 6.3.10, 6.4.13&#8211;14. If a resource has physical dimensions, however, it is not electronic. So, DOI or URL output should be bypassed. -->
+      <!-- SBL style uses DOIs and URLs when the resource is electronic. SBLHS2 §§ 6.1.6, 6.2.25, 6.3.10, 6.4.13–14. If a resource has physical dimensions, however, it is not electronic. So, DOI or URL output should be bypassed. -->
       <choose>
-        <if variable="dimensions"></if>
+        <if variable="dimensions">
+        </if>
         <else>
           <choose>
-            <if variable="DOI">
-              <!-- The URL form of a DOI is now preferred in contrast to, e.g., SBLHS2 6.2.25. See https://sblhs2.com/2018/05/03/electronic-journals-with-individually-paginated-articles/ -->
-              <text variable="DOI" prefix="https://doi.org/"/>
+            <!-- Per SBLHS2 §6.3.10, allows either DOI or URL or both to be included. -->
+            <if variable="DOI URL" match="any">
+              <group delimiter=", ">
+                <text variable="DOI" prefix="https://doi.org/"/>
+                <text variable="URL"/>
+              </group>
             </if>
-            <else>
-              <text variable="URL"/>
-            </else>
           </choose>
         </else>
       </choose>
@@ -1017,17 +1078,19 @@
           <text macro="archive"/>
         </else-if>
       </choose>
-      <!-- SBL style uses DOIs and URLs when the resource is electronic. SBLHS2 §§ 6.1.6, 6.2.25, 6.3.10, 6.4.13&#8211;14. If a resource has physical dimensions, however, it is not electronic. So, DOI or URL output should be bypassed. -->
+      <!-- SBL style uses DOIs and URLs when the resource is electronic. SBLHS2 §§6.1.6, 6.2.25, 6.3.10, 6.4.13–14. If a resource has physical dimensions, however, it is not electronic. So, DOI or URL output should be bypassed. -->
       <choose>
-        <if variable="dimensions"></if>
+        <if variable="dimensions">
+        </if>
         <else>
           <choose>
-            <if variable="DOI">
-              <text variable="DOI" prefix="https://doi.org/"/>
+            <!-- Per SBLHS2 §6.3.10, allows either DOI or URL or both to be included. -->
+            <if variable="DOI URL" match="any">
+              <group delimiter=", ">
+                <text variable="DOI" prefix="https://doi.org/"/>
+                <text variable="URL"/>
+              </group>
             </if>
-            <else>
-              <text variable="URL"/>
-            </else>
           </choose>
         </else>
       </choose>
@@ -1181,11 +1244,22 @@
         <else>
           <group delimiter=". ">
             <text macro="contributors"/>
-            <text macro="title"/>
-            <text macro="description"/>
-            <text macro="secondary-contributors"/>
-            <text macro="container-title"/>
-            <text macro="container-contributors"/>
+            <!-- Supports citations of introductions, prefaces, and forewords per SBLHS2 §6.2.14. -->
+            <choose>
+              <if variable="part-title">
+                <group delimiter=", ">
+                  <text macro="title"/>
+                  <text macro="container-contributors"/>
+                </group>
+              </if>
+              <else>
+                <text macro="title"/>
+                <text macro="description"/>
+                <text macro="secondary-contributors"/>
+                <text macro="container-title"/>
+                <text macro="container-contributors"/>
+              </else>
+            </choose>
           </group>
           <choose>
             <if variable="volume collection-title" match="all">
