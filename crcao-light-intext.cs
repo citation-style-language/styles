@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" default-locale="fr-FR" version="1.0" page-range-format="expanded">
   <info>
-    <title>Centre de recherche sur les civilisations de l’Asie orientale (Français) - (Auteur, Date)</title>
-    <title-short>CRCAO - (Auteur, Date)</title-short>
+    <title>Centre de recherche sur les civilisations de l’Asie orientale (Français) - (Auteur, Date) (in-text)</title>
+    <title-short>CRCAO - (Auteur, Date) (in-text)</title-short>
     <id>http://www.zotero.org/styles/crcao-light-intext</id>
     <link href="http://www.zotero.org/styles/crcao-light-intext" rel="self"/>
     <author>
