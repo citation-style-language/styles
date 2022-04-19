@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" default-locale="fr-FR" version="1.0" page-range-format="expanded">
   <info>
-    <title>Centre de recherche sur les civilisations de l’Asie orientale (French) - (Auteur, Date)</title>
+    <title>Centre de recherche sur les civilisations de l’Asie orientale (Français) - (Auteur, Date)</title>
     <title-short>CRCAO - (Auteur, Date)</title-short>
-    <id>http://www.zotero.org/styles/centre-de-recherche-sur-les-civilisations-de-l-asie-orientale-light</id>
-      <link href="http://www.zotero.org/styles/centre-de-recherche-sur-les-civilisations-de-l-asie-orientale-light" rel="self"/>
+    <id>http://www.zotero.org/styles/crcao-light-intext</id>
+    <link href="http://www.zotero.org/styles/crcao-light-intext" rel="self"/>
     <author>
       <name>Philippe Pons</name>
       <email>philippe.pons@college-de-france.fr</email>
@@ -24,7 +24,7 @@
     </contributor>
     <category citation-format="author-date"/>
     <category field="social_science"/>
-    <updated>2022-02-14T12:05:52.472+01:00</updated>
+    <updated>2022-03-28T11:55:52.472+01:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -34,10 +34,7 @@
       <term name="ordinal-03">e</term>
       <term name="ordinal-04">e</term>
       <term name="cited">op. cit.</term>
-      <term name="page" form="short">
-        <single>p.</single>
-        <multiple>p.</multiple>
-      </term>
+      <term name="page" form="short">p.</term>
       <term name="editor" form="short">
         <single>éd.</single>
         <multiple>éds.</multiple>
@@ -50,10 +47,7 @@
         <single>éd. et trad. par</single>
         <multiple>éd. et trad par</multiple>
       </term>
-      <term name="editortranslator" form="verb">
-        <single>édité et traduit par</single>
-        <multiple>édité et traduit par</multiple>
-      </term>
+      <term name="editortranslator" form="verb">édité et traduit par</term>
     </terms>
   </locale>
     <macro name="author-intext">
@@ -256,14 +250,14 @@
             <if variable="author">
                 <names variable="author" delimiter=", ">
                     <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-                        <name-part name="family" font-variant="small-caps"/>
+                        <name-part name="family"/>
                     </name>
                 </names>
             </if>
             <else-if variable="editor">
                 <names variable="editor translator" delimiter=", ">
                     <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-                        <name-part name="family" font-variant="small-caps"/>
+                        <name-part name="family"/>
                     </name>
                     <label form="short" prefix=" (" suffix=".)"/>
                 </names>
@@ -275,14 +269,14 @@
             <if variable="author">
                 <names variable="author" delimiter=", ">
                     <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-                        <name-part name="family" font-variant="small-caps"/>
+                        <name-part name="family"/>
                     </name>
                 </names>
             </if>
             <else-if variable="editor">
                 <names variable="editor translator" delimiter=", ">
                     <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-                        <name-part name="family" font-variant="small-caps"/>
+                        <name-part name="family"/>
                     </name>
                     <label form="short" prefix=" (" suffix=".)"/>
                 </names>
@@ -296,7 +290,7 @@
       </if>
       <else-if type="article-journal article-newspaper article-magazine" match="any">
         <group delimiter=", ">
-          <text variable="title" text-case="capitalize-first" quotes="true" font-style="normal"/>
+          <text variable="title" text-case="capitalize-first" quotes="true"/>
           <text variable="container-title" font-style="italic"/>
         </group>
       </else-if>
@@ -309,7 +303,7 @@
       </else-if>
       <else-if type="manuscript" match="any">
         <group delimiter=",">
-          <text variable="title" text-case="capitalize-first" quotes="true" font-style="normal"/>
+          <text variable="title" text-case="capitalize-first" quotes="true"/>
           <text variable="genre" prefix=" "/>
         </group>
       </else-if>
@@ -320,8 +314,8 @@
           <group delimiter=", ">
             <text variable="container-title" text-case="capitalize-first" font-style="italic"/>
             <names variable="container-author">
-              <name name-as-sort-order="all" form="long" and="text" delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-                <name-part name="family" font-variant="small-caps"/>
+              <name name-as-sort-order="all" form="long" and="text" delimiter-precedes-last="never" sort-separator=" ">
+                <name-part name="family"/>
               </name>
             </names>
           </group>
@@ -352,104 +346,11 @@
       </if>
     </choose>
   </macro>
-  <macro name="yearpage">
-    <choose>
-      <if type="bill book graphic legal_case motion_picture paper-conference manuscript report song thesis map" match="any">
-        <group delimiter=", " font-style="normal">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none">
-              <text variable="number-of-pages" suffix=" p"/>
-            </else-if>
-          </choose>
-        </group>
-      </if>
-      <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=" " font-style="normal">
-          <date variable="issued">
-            <date-part name="year" suffix=", "/>
-          </date>
-          <group>
-            <text term="volume" form="short" suffix="."/>
-            <group prefix=". " delimiter="/">
-              <text variable="volume"/>
-              <text variable="number-of-volumes"/>
-            </group>
-          </group>
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-              <text variable="page"/>
-            </else-if>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="article-newspaper article-magazine" match="any">
-        <group delimiter=" " font-style="normal">
-          <label variable="page" form="short"/>
-          <text variable="page"/>
-        </group>
-        <group delimiter=" " font-style="normal">
-          <choose>
-            <if variable="locator" match="any">
-              <group delimiter=" ">
-                <label variable="locator" form="short"/>
-                <text variable="locator"/>
-              </group>
-            </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-            </else-if>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="article-journal" match="any">
-        <date variable="issued">
-          <date-part name="year" suffix=", "/>
-        </date>
-        <group delimiter=" " font-style="normal">
-          <choose>
-            <if variable="locator" match="any">
-              <text variable="locator" prefix="p. "/>
-            </if>
-            <else-if variable="locator" match="none">
-              <label variable="page" form="short"/>
-              <text variable="page"/>
-            </else-if>
-          </choose>
-        </group>
-      </else-if>
-      <else-if type="webpage" match="any">
-        <group delimiter=" " font-style="normal">
-          <text value="consulté le" prefix=" "/>
-          <date variable="accessed" form="text">
-            <date-part name="day"/>
-            <date-part name="month"/>
-            <date-part name="year"/>
-          </date>
-        </group>
-      </else-if>
-    </choose>
-  </macro>
   <macro name="yearpage-bib">
     <choose>
       <if type="bill book graphic legal_case motion_picture paper-conference manuscript report song thesis map" match="any">
         <group delimiter=", ">
-          <group delimiter=", " font-style="normal">
+          <group delimiter=", ">
             <date variable="issued">
               <date-part name="year"/>
             </date>
@@ -476,7 +377,7 @@
         </group>
       </if>
       <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
-        <group delimiter=", " font-style="normal">
+        <group delimiter=", ">
           <date variable="issued">
             <date-part name="year"/>
           </date>
@@ -497,19 +398,19 @@
         <date variable="issued">
           <date-part name="year" suffix=", "/>
         </date>
-        <group delimiter=" " font-style="normal">
+        <group delimiter=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
       </else-if>
       <else-if type="article-newspaper article-magazine" match="any">
-        <group delimiter=" " font-style="normal">
+        <group delimiter=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
       </else-if>
       <else-if type="webpage" match="any">
-        <group delimiter=" " font-style="normal">
+        <group delimiter=" ">
           <text value="consulté le" prefix=" "/>
           <date variable="accessed" form="text">
             <date-part name="day"/>
@@ -535,8 +436,8 @@
           </else>
         </choose>
       </if>
-      <else-if type="article-journal article-magazine">
-        <group delimiter="" font-style="normal">
+      <else-if type="article-journal article-magazine" match="any">
+        <group delimiter="">
           <group delimiter="/">
             <group delimiter=" ">
               <text term="volume" form="short" suffix="."/>
@@ -588,16 +489,16 @@
     <choose>
       <if type="chapter paper-conference book" match="none">
         <names variable="editor translator" delimiter=", ">
-          <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-            <name-part name="family" font-variant="small-caps"/>
+          <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" ">
+            <name-part name="family"/>
           </name>
           <label form="short" text-case="lowercase" prefix=" (" suffix=")"/>
         </names>
       </if>
       <else-if variable="author">
         <names variable="editor translator" delimiter=", ">
-          <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" " font-style="normal">
-            <name-part name="family" font-variant="small-caps"/>
+          <name name-as-sort-order="all" form="long" and="text" delimiter=", " delimiter-precedes-last="never" sort-separator=" ">
+            <name-part name="family"/>
           </name>
           <label form="short" text-case="lowercase" prefix=" (" suffix=")"/>
         </names>
