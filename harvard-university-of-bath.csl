@@ -628,12 +628,9 @@
   <macro name="title-label">
     <group delimiter=" ">
       <choose>
-        <if type="entry">
-          <text variable="title" font-style="italic"/>
-        </if>
-        <else-if type="book broadcast" match="any">
+        <if type="book broadcast" match="any">
           <text variable="title"/>
-        </else-if>
+        </if>
         <else>
           <choose>
             <if type="bill dataset graphic legal_case map motion_picture musical_score patent report software song speech standard webpage thesis" match="any">
@@ -706,9 +703,12 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <if type="bill dataset graphic legal_case map motion_picture musical_score patent report software song speech standard webpage thesis" match="any">
-        <text variable="title" form="short" font-style="italic"/>
+      <if type="entry" variable="title container-title">
+        <text variable="container-title" form="short"/>
       </if>
+      <else-if type="bill dataset entry graphic legal_case map motion_picture musical_score patent report software song speech standard webpage thesis" match="any">
+        <text variable="title" form="short" font-style="italic"/>
+      </else-if>
       <else-if type="legislation pamphlet post regulation" match="any">
         <choose>
           <if variable="container-title">
@@ -718,9 +718,6 @@
             <text variable="title" form="short" font-style="italic"/>
           </else>
         </choose>
-      </else-if>
-      <else-if type="entry">
-        <text variable="container-title" form="short"/>
       </else-if>
       <else>
         <text variable="title" form="short"/>
@@ -732,6 +729,18 @@
       <name and="text" delimiter-precedes-last="never" initialize-with="."/>
       <label form="short" prefix=", " text-case="capitalize-first"/>
     </names>
+  </macro>
+  <macro name="year">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
   </macro>
   <macro name="year-date">
     <choose>
@@ -769,7 +778,7 @@
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <text macro="author-short"/>
-        <text macro="year-date"/>
+        <text macro="year"/>
         <group>
           <label variable="locator" form="short"/>
           <text variable="locator"/>
@@ -784,26 +793,30 @@
       <key variable="title"/>
     </sort>
     <layout>
-      <group delimiter=". " suffix=".">
+      <group delimiter=" ">
         <choose>
           <if type="legislation regulation" match="any">
-            <text macro="statute-law"/>
+            <text macro="statute-law" suffix="."/>
           </if>
           <else-if type="legal_case">
-            <text macro="case-law"/>
+            <text macro="case-law" suffix="."/>
           </else-if>
           <else>
-            <group delimiter=", ">
-              <text macro="author"/>
-              <text macro="year-date"/>
+            <group delimiter=". " suffix=".">
+              <group delimiter=", ">
+                <text macro="author"/>
+                <text macro="year-date"/>
+              </group>
+              <text macro="title-block"/>
+              <text macro="publication"/>
+              <text macro="archive"/>
             </group>
-            <text macro="title-block"/>
-            <text macro="publication"/>
-            <text macro="archive"/>
           </else>
         </choose>
-        <text variable="annote"/>
-        <text macro="access"/>
+        <group delimiter=". " suffix=".">
+          <text variable="annote"/>
+          <text macro="access"/>
+        </group>
       </group>
     </layout>
   </bibliography>
