@@ -33,12 +33,21 @@
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2022-06-29T13:58:51+00:00</updated>
+    <updated>2022-07-02T02:53:27+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
     <terms>
+      <term name="article-journal" form="verb-short">art.</term>
       <term name="editor" form="verb-short">ed.</term>
+      <term name="page" form="short">
+        <single>p. </single>
+        <multiple>pp. </multiple>
+      </term>
+      <term name="paragraph" form="short">
+        <single>¶</single>
+        <multiple>¶¶</multiple>
+      </term>
       <term name="section" form="short">
         <single>§</single>
         <multiple>§§</multiple>
@@ -814,6 +823,10 @@
                 </choose>
               </group>
             </if>
+            <else>
+              <label variable="locator" form="short"/>
+              <text variable="locator"/>
+            </else>
           </choose>
         </if>
         <else-if variable="volume">
@@ -854,7 +867,18 @@
         <text macro="pages"/>
       </if>
       <else-if type="article-journal">
-        <text variable="locator" prefix=": "/>
+        <!-- Add support for individually paginated, electronic journal articles per https://sblhs2.com/2018/05/03/electronic-journals-with-individually-paginated-articles/ -->
+        <choose>
+          <if variable="number">
+            <text term="article-journal" form="verb-short" prefix=": "/>
+            <text variable="number" prefix=" " suffix=", "/>
+            <label variable="locator" form="short"/>
+            <text variable="locator"/>
+          </if>
+          <else>
+            <text variable="locator" prefix=": "/>
+          </else>
+        </choose>
       </else-if>
       <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <choose>
@@ -876,7 +900,33 @@
   <macro name="pages">
     <choose>
       <if type="article-journal">
-        <text variable="page" prefix=": "/>
+        <!-- Add support for individually paginated, electronic journal articles per https://sblhs2.com/2018/05/03/electronic-journals-with-individually-paginated-articles/ -->
+        <choose>
+          <if variable="number">
+            <text term="article-journal" form="verb-short" prefix=": "/>
+            <text variable="number" prefix=" " suffix=", "/>
+            <choose>
+              <if variable="locator">
+                <label variable="locator" form="short"/>
+                <text variable="locator"/>
+              </if>
+              <else>
+                <!-- Is there not a term for "no page"? See CMS17 §10.42 where the same abbreviation applies to "no place," "no publisher," and "no page." -->
+                <text value="n.p."/>
+              </else>
+            </choose>
+          </if>
+          <else>
+            <choose>
+              <if variable="locator">
+                <text variable="locator" prefix=": "/>
+              </if>
+              <else>
+                <text variable="page" prefix=": "/>
+              </else>
+            </choose>
+          </else>
+        </choose>
       </if>
       <else-if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <choose>
@@ -906,7 +956,26 @@
   <macro name="locators-journal">
     <choose>
       <if type="article-journal">
-        <text variable="page" prefix=": "/>
+        <!-- Add support for individually paginated, electronic journal articles per https://sblhs2.com/2018/05/03/electronic-journals-with-individually-paginated-articles/ -->
+        <choose>
+          <if variable="number">
+            <text term="article-journal" form="verb-short" prefix=": "/>
+            <text variable="number" prefix=" " suffix=", "/>
+            <choose>
+              <if variable="page">
+                <label variable="page" form="short"/>
+                <text variable="page"/>
+              </if>
+              <else>
+                <!-- Is there not a term for "no page"? See CMS17 §10.42 where the same abbreviation applies to "no place," "no publisher," and "no page." -->
+                <text value="n.p."/>
+              </else>
+            </choose>
+          </if>
+          <else>
+            <text variable="page" prefix=": "/>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
