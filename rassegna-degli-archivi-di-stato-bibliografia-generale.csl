@@ -20,7 +20,6 @@
     Questo stile non gestisce:
     l'uso della "e" al posto di "-" per separare due autori perché uno di essi ha un "-" nel cognome (capitolo I, § 1 c);
     la citazione delle prefazioni (I, 3);
-    i libri senza il nome di uno stampatore o di un editore (I, 5), si dovrà inserire manualmente "s.e.";
     citazioni multiple con Id. o Ead. al posto del nome (II, 2). In bibliografia sarà tutto impostato su Id. Vedi https://forums.zotero.org/discussion/4785/check-for-identical-author-editor ;
     più citazioni dalla stessa raccolta di saggi (II, 1 b);
     estratti, supplementi e numeri monografici di riviste (III, 5-7);
@@ -32,7 +31,6 @@
     This stile will not handle: 
     the use of "e" instead of "-" to separate two authors because one of them has a "-" in the surname (chapter I, § 1 c); 
     the citation of prefaces (I, 3); 
-    the books without a printer's or publisher's name (I, 5), you will have to manually enter "s.e." as needed; 
     multiple citations with Id. or Ead. in place of the name (II, 2). In the bibliography it will be all set to Id. See https://forums.zotero.org/discussion/4785/check-for-identical-author-editor ;
     multiple citations from the same collection of essays (II, 1 b);  
     extracts, supplements and journals' monographic issues (III, 5-7); 
@@ -59,6 +57,10 @@
       <term name="circa" form="short">ca.</term>
       <term name="no date" form="short">s.d.</term>
       <term name="no date" form="long">senza data</term>
+      <term name="no-publisher" form="short">s.e.</term>
+      <term name="no-publisher" form="long">senza editore</term>
+      <term name="no-place" form="short">s.l.</term>
+      <term name="no-place" form="long">senza luogo</term>
       <!-- gli et al messi come stringa vuota servono in bibliografia per poter citare i nomi delle opere fino a 3 autori senza ammattire troppo-->
       <term name="et-al" form="long"/>
       <term name="et-al" form="short"/>
@@ -118,6 +120,18 @@
       <term name="month-10" form="short">ott.</term>
       <term name="month-11" form="short">nov.</term>
       <term name="month-12" form="short">dic.</term>
+      <term name="month-01" form="long">gennaio</term>
+      <term name="month-02" form="long">febbraio</term>
+      <term name="month-03" form="long">marzo</term>
+      <term name="month-04" form="long">aprile</term>
+      <term name="month-05" form="long">maggio</term>
+      <term name="month-06" form="long">giugno</term>
+      <term name="month-07" form="long">luglio</term>
+      <term name="month-08" form="long">agosto</term>
+      <term name="month-09" form="long">settembre</term>
+      <term name="month-10" form="long">ottobre</term>
+      <term name="month-11" form="long">novembre</term>
+      <term name="month-12" form="long">dicembre</term>
     </terms>
   </locale>
   <!--"========================="-->
@@ -261,14 +275,41 @@
     </date>
   </macro>
   <macro name="publisher-place">
-    <text variable="publisher-place"/>
+    <choose>
+      <if variable="publisher-place">
+        <text variable="publisher-place"/>
+      </if>
+      <else>
+        <text term="no-place" form="short"/>
+      </else>
+    </choose>
   </macro>
   <macro name="publisher_and_year">
     <group delimiter=", ">
-      <text variable="publisher"/>
+      <choose>
+        <if variable="publisher">
+          <text variable="publisher"/>
+        </if>
+        <else>
+          <text term="no-publisher" form="short"/>
+        </else>
+      </choose>
       <text macro="date"/>
     </group>
     <number variable="edition" vertical-align="sup"/>
+  </macro>
+  <macro name="publisher-place_and_publisher_and_year">
+    <choose>
+      <if variable="publisher-place publisher issued" match="none">
+        <text value="s.n.t."/>
+      </if>
+      <else>
+        <group delimiter=", ">
+          <text macro="publisher-place"/>
+          <text macro="publisher_and_year"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="journal">
     <text term="in"/>
@@ -387,8 +428,7 @@
             <text macro="editor"/>
             <text macro="translator"/>
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
             <!-- questo consente di scrivere il numero dei volumi dell'opera se non est stato citato nessun volume di preciso e nessun locator e quindi la citazione include tutta l'opera. 2/3/21-->
             <choose>
               <if variable="volume locator" match="none">
@@ -449,8 +489,7 @@
           <group delimiter=", ">
             <text macro="event"/>
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
             <text macro="pageref"/>
           </group>
         </else-if>
@@ -465,8 +504,7 @@
           </group>
           <group delimiter=", ">
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
           <choose>
             <if variable="locator">
@@ -483,8 +521,7 @@
             <text macro="author"/>
             <text macro="title"/>
             <text variable="genre"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
           <choose>
             <if variable="locator">
@@ -512,18 +549,8 @@
             <text macro="title"/>
             <text macro="editor-container-title"/>
             <text macro="volume-book"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
-          <choose>
-            <if variable="publisher publisher-place issued" match="all">
-              <group delimiter=", ">
-                <text macro="publisher-place" prefix=", "/>
-                <text macro="publisher_and_year"/>
-              </group>
-            </if>
-            <else-if variable="issued">
-              <text macro="date" prefix=", "/>
-            </else-if>
-          </choose>
           <choose>
             <if variable="locator">
               <text macro="pageref" prefix=", "/>
@@ -586,8 +613,7 @@
             <text macro="editor"/>
             <text macro="translator"/>
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
             <!-- questo consente di scrivere il numero dei volumi dell'opera se non est stato citato nessun volume di preciso e nessun locator e quindi la citazione include tutta l'opera. 2/3/21-->
             <choose>
               <if variable="volume locator" match="none">
@@ -655,8 +681,7 @@
           <group delimiter=", ">
             <text macro="event"/>
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
             <text macro="pageref"/>
             <text macro="series-title"/>
             <text macro="urlref"/>
@@ -673,8 +698,7 @@
           </group>
           <group delimiter=", ">
             <text macro="volume-book"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
           <choose>
             <if variable="locator">
@@ -692,8 +716,7 @@
             <text macro="author"/>
             <text macro="title"/>
             <text variable="genre"/>
-            <text macro="publisher-place"/>
-            <text macro="publisher_and_year"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
           <choose>
             <if variable="locator">
@@ -721,18 +744,8 @@
             <text macro="title"/>
             <text macro="editor-container-title"/>
             <text macro="volume-book"/>
+            <text macro="publisher-place_and_publisher_and_year"/>
           </group>
-          <choose>
-            <if variable="publisher publisher-place issued" match="all">
-              <group delimiter=", ">
-                <text macro="publisher-place" prefix=", "/>
-                <text macro="publisher_and_year"/>
-              </group>
-            </if>
-            <else-if variable="issued">
-              <text macro="date" prefix=", "/>
-            </else-if>
-          </choose>
           <choose>
             <if variable="locator">
               <text macro="pageref" prefix=", "/>
