@@ -21,7 +21,7 @@ We can't do line-by-line reviews of all style submissions. Here is what I'd sugg
 These tend to have fewer issues, but still good to check.
 - Ideally, submitters include a link to documentation for the change/error. @POBrien333 e.g. will always include a link to the Zotero forums thread in question. Check if the proposed change fixes this. 
   - Try to be mindful of unintended consequences: e.g., if changing a block of code to fix one item type, make sure it doesn't also apply to other item types.
-- Be careful when changing major styles, in particular APA, Chicago Manual, Cite Them Right, MLA, and Vancouver -- these tend to be carefully written, so any changes should be double-checked carefully (for APA ask bwiernik, for Chicago me, the others anyone can look at).
+- Be careful when changing major styles, in particular APA, Chicago Manual, Cite Them Right, MLA, and Vancouver -- these tend to be carefully written, so any changes should be double-checked carefully (for APA ask bwiernik, for Chicago adam3smith, the others anyone can look at).
 - Make sure the documentation link in the style is up to date
 
 # General policies
