@@ -4,10 +4,13 @@
 - Style has documentation link (click on the link to make sure it's actually the new documentation rather than the link left in from the template)
   - Where no public documentation is available, we offer people to upload it to github (though be mindful of copyright) and then link to the github post. We rarely make exceptions to this requirement
 - Style has template link _or_ submitter credibly states that they started from scratch (you can tell by macro names & structure, typically)
-- Journal styles 
+
+### Journal styles 
   - Have all ISSNs used for the journal (check https://portal.issn.org/ )
   - Have the correct version of the journal title; there's sometimes room for interpretation, but we generally default to the full, not abbreviated title
-- The absence or presence of default-locale makes sense (the vast majority of styles should have a default locale since they're only used in one language). Non-English styles should also reflect that in parentheses in the style title -- we now have a test for that.
+ 
+### Default locale
+The absence or presence of default-locale should make sense (the vast majority of styles should have a default locale since they're only used in one language). Non-English styles should also reflect that in parentheses in the style title -- we now have a test for that.
 
 ## Style quality
 We can't do line-by-line reviews of all style submissions. Here is what I'd suggest
