@@ -4,24 +4,27 @@
     <title>Acta Universitatis Agriculturae Sueciae (Swedish University of Agricultural Sciences)</title>
     <id>http://www.zotero.org/styles/acta-universitatis-agriculturae-sueciae</id>
     <link href="http://www.zotero.org/styles/acta-universitatis-agriculturae-sueciae" rel="self"/>
-    <link href="https://www.slu.se/en/subweb/library/write-and-cite2/writing-references/referencelist-according-to-the-harvard-system/" rel="documentation"/>
-    <link href="https://www.slu.se/site/bibliotek/skriva-och-referera/skriva-referenser/referenslista-enligt-harvard/" rel="documentation"/>
+    <link href="https://www.slu.se/en/subweb/library/write-and-cite/writing-references/referenslista-enligt-harvard/" rel="documentation"/>
+    <link href="https://www.slu.se/en/subweb/library/write-and-cite/writing-references/in-text-citations-using-the-harvard-system/" rel="documentation"/>
     <author>
       <name>Rintze Zelle</name>
       <uri>http://twitter.com/rintzezelle</uri>
     </author>
     <contributor>
       <name>Patrick O'Brien</name>
-      <uri>https://twitter.com/patobrien333/</uri>
     </contributor>
     <category citation-format="author-date"/>
     <summary>Style as per the May 2019 guidelines.</summary>
-    <updated>2019-05-23T13:14:19+00:00</updated>
+    <updated>2022-07-13T09:26:37+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
       <term name="edition" form="short">ed</term>
+      <term name="editor" form="short">
+        <single>ed.</single>
+        <multiple>eds</multiple>
+      </term>
     </terms>
   </locale>
   <locale xml:lang="sv">
@@ -35,15 +38,10 @@
     </terms>
   </locale>
   <macro name="container-contributors">
-    <choose>
-      <if type="chapter paper-conference" match="any">
-        <text term="in" text-case="capitalize-first" suffix=":"/>
-        <names variable="editor translator" delimiter=", " prefix=" ">
-          <name and="symbol" initialize-with="." name-as-sort-order="all"/>
-          <label form="short" prefix=" (" suffix=")"/>
-        </names>
-      </if>
-    </choose>
+    <names variable="editor translator" delimiter=", ">
+      <name and="symbol" initialize-with="." name-as-sort-order="all"/>
+      <label form="short" prefix=" (" suffix=")"/>
+    </names>
   </macro>
   <macro name="secondary-contributors">
     <choose>
@@ -94,8 +92,14 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture patent report song thesis webpage" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture patent report song thesis webpage software" match="any">
         <text variable="title" font-style="italic"/>
+        <choose>
+          <if type="software" variable="version" match="any">
+            <text variable="version" prefix=" (" suffix=")"/>
+            <text variable="medium" prefix=" [" suffix="]"/>
+          </if>
+        </choose>
       </if>
       <else>
         <text variable="title"/>
@@ -124,15 +128,31 @@
   </macro>
   <macro name="issued">
     <group prefix=" (" suffix=").">
-      <date variable="issued">
-        <date-part name="year"/>
-      </date>
+      <choose>
+        <if match="any" variable="issued">
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+        </if>
+        <else>
+          <text term="no date" form="short"/>
+        </else>
+      </choose>
+      <text variable="year-suffix"/>
     </group>
   </macro>
   <macro name="issued-year">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
+    <choose>
+      <if variable="issued" match="any">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+    <text variable="year-suffix"/>
   </macro>
   <macro name="edition">
     <choose>
@@ -229,20 +249,26 @@
           <text macro="publisher" prefix=". "/>
         </if>
         <else-if type="chapter entry-encyclopedia" match="any">
-          <text macro="issued" suffix=" "/>
-          <group suffix=".">
+          <group delimiter=". " suffix=".">
+            <text macro="issued"/>
             <text macro="title"/>
-            <text macro="type"/>
-          </group>
-          <text macro="container-contributors" prefix=" "/>
-          <text macro="secondary-contributors"/>
-          <text variable="container-title" font-style="italic" prefix=" " suffix="."/>
-          <group prefix=" (" suffix=")." delimiter="; ">
-            <text macro="collection-title"/>
-            <text variable="collection-number"/>
-          </group>
-          <text macro="edition" prefix=" "/>
-          <group delimiter=", " prefix=" ">
+            <group delimiter=": ">
+              <choose>
+                <if type="chapter paper-conference" match="any">
+                  <text term="in" text-case="capitalize-first"/>
+                </if>
+              </choose>
+              <group delimiter=" " suffix=".">
+                <text macro="container-contributors"/>
+                <text macro="secondary-contributors"/>
+                <text variable="container-title" font-style="italic" prefix=" " suffix="."/>
+              </group>
+            </group>
+            <group prefix=" (" suffix=")." delimiter="; ">
+              <text macro="collection-title"/>
+              <text variable="collection-number"/>
+            </group>
+            <text macro="edition" prefix=" "/>
             <text macro="publisher"/>
             <text variable="page"/>
           </group>
@@ -264,20 +290,12 @@
           <group delimiter=". " suffix=".">
             <text macro="title" prefix=", "/>
             <text variable="number"/>
-            <date variable="issued">
-              <date-part name="year"/>
-              <date-part name="month" form="numeric-leading-zeros" prefix="-"/>
-              <date-part name="day" form="numeric-leading-zeros" prefix="-"/>
-            </date>
+            <text macro="issued"/>
           </group>
         </else-if>
         <else-if type="webpage post-weblog post" match="any">
           <group delimiter=". " prefix=" ">
-            <date variable="issued" prefix="(" suffix=")">
-              <date-part name="year"/>
-              <date-part name="month" form="numeric-leading-zeros" prefix="-"/>
-              <date-part name="day" form="numeric-leading-zeros" prefix="-"/>
-            </date>
+            <text macro="issued"/>
             <text macro="title"/>
             <text variable="container-title" font-style="italic"/>
             <text variable="genre" prefix="[" suffix="]"/>
@@ -306,7 +324,7 @@
           <text macro="edition" prefix=" "/>
           <text macro="publisher" prefix=" " suffix="."/>
         </else-if>
-        <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <else-if type="bill book graphic legal_case legislation motion_picture report song software" match="any">
           <choose>
             <if variable="URL">
               <text macro="issued" suffix=" "/>
@@ -318,7 +336,6 @@
               <text macro="secondary-contributors"/>
               <text variable="container-title" font-style="italic" prefix=" "/>
               <text macro="locators"/>
-              <text variable="version" prefix=" Version: " suffix="."/>
               <text macro="publisher" prefix=" " suffix="."/>
             </if>
             <else>
@@ -331,7 +348,6 @@
               <text macro="secondary-contributors"/>
               <text variable="container-title" font-style="italic" prefix=" "/>
               <text macro="locators"/>
-              <text variable="version" prefix=" Version: " suffix="."/>
               <text macro="publisher" prefix=". " suffix="."/>
               <group prefix=" (" suffix=")" delimiter="; ">
                 <text macro="collection-title"/>
