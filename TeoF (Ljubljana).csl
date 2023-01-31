@@ -38,7 +38,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>prilagojena varianta Chicago author-date sloga citiranja</summary>
-    <updated>2023-01-29T23:22:15+00:00</updated>
+    <updated>2023-01-31T21:24:02+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -75,11 +75,11 @@
     <choose>
       <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="none">
         <group delimiter=". ">
-          <names variable="editor translator" delimiter=". ">
-            <label form="verb" text-case="capitalize-first" suffix=" "/>
+          <names delimiter=". ">
+            <label form="short" plural="never" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
-          <names variable="director" delimiter=". ">
+          <names delimiter=". ">
             <label form="verb" text-case="capitalize-first" suffix=" "/>
             <name and="text" delimiter=", "/>
           </names>
@@ -92,12 +92,12 @@
       <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group prefix=", " delimiter=", ">
           <names variable="container-author" delimiter=", ">
-            <label form="verb" suffix=" "/>
-            <name and="text" delimiter=", "/>
+            <label form="short"/>
+            <name and="text" delimiter-precedes-last="never" initialize="false"/>
           </names>
-          <names variable="editor translator" delimiter=", ">
-            <label form="verb" suffix=" "/>
-            <name and="text" delimiter=", "/>
+          <names variable="editor" delimiter=", ">
+            <name and="text" delimiter-precedes-last="never" initialize="false"/>
+            <label form="short" prefix=", "/>
           </names>
         </group>
       </if>
@@ -136,18 +136,18 @@
   <macro name="substitute-title">
     <choose>
       <if type="article-magazine article-newspaper review review-book" match="any">
-        <text macro="container-title"/>
+        <text macro="container-title" quotes="false"/>
       </if>
     </choose>
   </macro>
   <macro name="contributors">
     <group delimiter=". ">
       <names variable="author">
-        <name and="text" name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
+        <name and="text" initialize="false" name-as-sort-order="first"/>
         <label form="short" prefix=", "/>
         <substitute>
-          <names variable="editor"/>
-          <names variable="translator"/>
+          <names variable="editor" suffix="ur"/>
+          <names variable="translator" suffix="prev"/>
           <names variable="director"/>
           <text macro="substitute-title"/>
           <text macro="title"/>
@@ -163,7 +163,7 @@
         <names variable="editor"/>
         <names variable="translator"/>
         <names variable="director"/>
-        <text macro="substitute-title"/>
+        <text macro="substitute-title" text-case="title"/>
         <text macro="title"/>
       </substitute>
     </names>
@@ -193,16 +193,7 @@
       </choose>
       <choose>
         <if type="webpage post-weblog" match="any">
-          <date variable="issued" form="text"/>
-          <text variable="URL"/>
-        </if>
-      </choose>
-      <choose>
-        <if variable="issued" match="none">
-          <group delimiter=" ">
-            <text term="accessed" text-case="capitalize-first"/>
-            <date variable="accessed" form="text"/>
-          </group>
+          <date form="numeric" variable="issued"/>
         </if>
       </choose>
       <choose>
@@ -211,9 +202,10 @@
             <if variable="DOI">
               <text variable="DOI" prefix="https://doi.org/"/>
             </if>
-            <else>
-              <text variable="URL"/>
-            </else>
+            <else-if type="webpage" match="any">
+              <text variable="URL" strip-periods="true" vertical-align="baseline"/>
+              <date form="text" variable="accessed" prefix="(pridobljeno " suffix=")"/>
+            </else-if>
           </choose>
         </if>
       </choose>
@@ -229,7 +221,7 @@
         </choose>
       </if>
       <else-if type="bill book graphic legislation motion_picture song" match="any">
-        <text variable="title" text-case="title" font-style="italic"/>
+        <text variable="title" font-style="italic"/>
         <group prefix=" (" suffix=")" delimiter=" ">
           <text term="version"/>
           <text variable="version"/>
@@ -239,22 +231,22 @@
         <choose>
           <if variable="reviewed-title">
             <group delimiter=". ">
-              <text variable="title" text-case="title" quotes="true"/>
+              <text variable="title" quotes="true"/>
               <group delimiter=", ">
                 <text variable="reviewed-title" text-case="title" font-style="italic" prefix="Review of "/>
                 <names variable="reviewed-author">
                   <label form="verb-short" text-case="lowercase" suffix=" "/>
-                  <name and="text" delimiter=", "/>
+                  <name and="text" delimiter-precedes-last="never"/>
                 </names>
               </group>
             </group>
           </if>
           <else>
             <group delimiter=", ">
-              <text variable="title" text-case="title" font-style="italic" prefix="Review of "/>
+              <text variable="title" font-style="italic" prefix="Review of "/>
               <names variable="reviewed-author">
                 <label form="verb-short" text-case="lowercase" suffix=" "/>
-                <name and="text" delimiter=", "/>
+                <name and="text" delimiter-precedes-last="never"/>
               </names>
             </group>
           </else>
@@ -264,7 +256,7 @@
         <text variable="title"/>
       </else-if>
       <else>
-        <text variable="title" text-case="title" quotes="true"/>
+        <text variable="title" quotes="false" font-style="italic" font-variant="normal"/>
       </else>
     </choose>
   </macro>
@@ -436,7 +428,7 @@
     </choose>
   </macro>
   <macro name="container-prefix">
-    <text term="in" text-case="capitalize-first"/>
+    <text term="in" text-case="capitalize-first" suffix=":"/>
   </macro>
   <macro name="container-title">
     <choose>
@@ -446,11 +438,11 @@
     </choose>
     <choose>
       <if type="webpage">
-        <text variable="container-title" text-case="title"/>
+        <text variable="container-title" strip-periods="false" font-variant="normal"/>
       </if>
       <else-if type="legal_case" match="none">
         <group delimiter=" ">
-          <text variable="container-title" text-case="title" font-style="italic"/>
+          <text variable="container-title" font-style="italic"/>
           <choose>
             <if type="post-weblog">
               <text value="(blog)"/>
@@ -470,7 +462,7 @@
     <choose>
       <if variable="issued">
         <group delimiter=" ">
-          <date variable="original-date" form="text" date-parts="year" prefix="(" suffix=")"/>
+          <date date-parts="year" form="text" variable="original-date" prefix="(" suffix=")"/>
           <date variable="issued">
             <date-part name="year"/>
           </date>
@@ -666,7 +658,7 @@
         <text macro="title"/>
       </group>
       <text macro="description"/>
-      <text macro="secondary-contributors" prefix=". "/>
+      <text macro="secondary-contributors" strip-periods="false" font-style="normal" prefix=". "/>
       <text macro="container-title" prefix=". "/>
       <text macro="container-contributors"/>
       <text macro="edition"/>
