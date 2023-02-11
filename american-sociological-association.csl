@@ -6,7 +6,6 @@
     <id>http://www.zotero.org/styles/american-sociological-association</id>
     <link href="http://www.zotero.org/styles/american-sociological-association" rel="self"/>
     <link href="http://owl.english.purdue.edu/owl/resource/583/03/" rel="documentation"/>
-    <link href="https://library.ship.edu/c.php?g=694308&amp;p=4923432" rel="documentation"/>
     <author>
       <name>Julian Onions</name>
       <email>julian.onions@gmail.com</email>
@@ -17,7 +16,7 @@
     <category citation-format="author-date"/>
     <category field="sociology"/>
     <summary>The ASA style following the 6th edition of the Style Guide</summary>
-    <updated>2023-01-27T10:06:58+00:00</updated>
+    <updated>2022-05-08T21:48:56+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -86,7 +85,9 @@
       <if type="thesis">
         <text variable="title" text-case="title"/>
       </if>
+      <!-- Software Hack -->
       <else-if type="book" variable="version" match="all">
+        <!-- Allow lower-case initial letters, e.g., iPhone, ggplot2 -->
         <text variable="title" font-style="italic"/>
       </else-if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
@@ -124,13 +125,25 @@
   <macro name="year-date">
     <choose>
       <if variable="issued">
-        <group delimiter=" ">
-          <date variable="original-date" form="numeric" date-parts="year" prefix="[" suffix="]"/>
-          <date variable="issued" form="numeric" date-parts="year"/>
+        <group>
+          <group delimiter=" ">
+            <date variable="original-date" form="numeric" date-parts="year" prefix="[" suffix="]"/>
+            <date variable="issued" form="numeric" date-parts="year"/>
+          </group>
+          <text variable="year-suffix"/>
         </group>
       </if>
+      <else-if variable="status">
+        <group>
+          <text variable="status" text-case="lowercase"/>
+          <text variable="year-suffix" prefix="-"/>
+        </group>
+      </else-if>
       <else>
-        <text term="no date" form="short"/>
+        <group>
+          <text term="no date" form="short"/>
+          <text variable="year-suffix" prefix="-"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -139,6 +152,12 @@
       <if variable="issued">
         <date variable="issued" form="numeric" date-parts="year"/>
       </if>
+      <else-if variable="status">
+        <group>
+          <text variable="status" text-case="lowercase"/>
+          <text variable="year-suffix" prefix="-"/>
+        </group>
+      </else-if>
       <else>
         <text term="no date" form="short"/>
       </else>
@@ -221,15 +240,6 @@
             <text variable="page"/>
           </group>
         </if>
-        <else-if type="thesis">
-          <text macro="title" prefix=" " suffix="." quotes="true"/>
-          <group prefix=" " delimiter=", ">
-            <text macro="edition"/>
-            <text macro="editor" suffix="."/>
-            <text variable="genre"/>
-            <text macro="publisher"/>
-          </group>
-        </else-if>
         <else-if type="manuscript">
           <group delimiter=". ">
             <text macro="title" quotes="true" prefix=" "/>
@@ -241,9 +251,20 @@
             <text variable="genre"/>
           </group>
         </else-if>
+        <else-if type="thesis">
+          <text macro="title" prefix=" " suffix="." quotes="true"/>
+          <group prefix=" " delimiter=", ">
+            <text macro="edition"/>
+            <text macro="editor" suffix="."/>
+            <text variable="genre"/>
+            <text macro="publisher"/>
+          </group>
+        </else-if>
+        <!--Software hack-->
         <else-if type="book" variable="version" match="all">
           <group prefix=" " delimiter=". ">
             <group>
+              <!-- To Do: localize once we have a proper term -->
               <text macro="title" suffix=" [computer program]"/>
             </group>
             <group delimiter=" ">
