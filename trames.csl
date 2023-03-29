@@ -13,7 +13,7 @@
     <category field="humanities"/>
     <issn>1406-0922</issn>
     <eissn>1736-7514</eissn>
-    <updated>2023-03-27T12:02:40+00:00</updated>
+    <updated>2023-03-29T09:18:43+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -46,7 +46,14 @@
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
-        <text variable="title"/>
+        <choose>
+          <if match="any" variable="title-short">
+            <text variable="title-short"/>
+          </if>
+          <else>
+            <text variable="title"/>
+          </else>
+        </choose>
       </substitute>
     </names>
   </macro>
@@ -55,6 +62,9 @@
       <if variable="DOI">
         <text variable="DOI" prefix="DOI: https://doi.org/"/>
       </if>
+      <else-if type="article-journal" match="any">
+        <text variable="URL"/>
+      </else-if>
       <else-if variable="URL">
         <group delimiter=". " suffix=".">
           <group delimiter=" ">
@@ -120,10 +130,16 @@
     </choose>
     <text variable="locator"/>
   </macro>
-  <macro name="volume-booklike">
+  <macro name="collection-booklike">
     <group delimiter=", " prefix="(" suffix=")">
       <text variable="collection-title" text-case="title"/>
       <text variable="collection-number"/>
+    </group>
+  </macro>
+  <macro name="volume-booklike">
+    <group delimiter=" ">
+      <label variable="volume" text-case="capitalize-first" form="short"/>
+      <text variable="volume"/>
     </group>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year" year-suffix-delimiter=",">
@@ -132,7 +148,7 @@
       <key macro="author-short"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=":">
+      <group delimiter=": ">
         <group delimiter=" ">
           <text macro="author-short"/>
           <text macro="year-date"/>
@@ -141,7 +157,7 @@
       </group>
     </layout>
   </citation>
-  <bibliography et-al-min="7" et-al-use-first="6" entry-spacing="0" hanging-indent="true">
+  <bibliography entry-spacing="0" hanging-indent="true">
     <sort>
       <key macro="author"/>
       <key variable="title"/>
@@ -152,7 +168,7 @@
         <text macro="year-date" prefix="(" suffix=")"/>
         <choose>
           <if type="bill book graphic legal_case legislation motion_picture song thesis" match="any">
-            <group delimiter=". " prefix=" ">
+            <group delimiter=". ">
               <text macro="title"/>
               <text macro="edition"/>
               <choose>
@@ -161,32 +177,34 @@
                 </if>
               </choose>
               <text macro="volume-booklike"/>
+              <text macro="collection-booklike"/>
               <text macro="publisher"/>
             </group>
           </if>
           <else-if type="chapter paper-conference" match="any">
-            <group delimiter=". " prefix=" ">
+            <group delimiter=". ">
               <text macro="title"/>
               <group delimiter=" ">
                 <text term="in" suffix=" " text-case="capitalize-first"/>
                 <text macro="editor"/>
-                <group delimiter=", ">
+                <group>
                   <text variable="container-title" font-style="italic"/>
-                  <text variable="page"/>
+                  <text macro="volume-booklike" prefix=". "/>
+                  <text variable="page" prefix=", "/>
                 </group>
               </group>
               <text macro="edition"/>
-              <text macro="volume-booklike"/>
+              <text macro="collection-booklike"/>
               <text macro="publisher"/>
             </group>
           </else-if>
           <else-if type="webpage post post-weblog" match="any">
-            <text macro="title" prefix=" " suffix="."/>
+            <text macro="title" suffix="."/>
           </else-if>
           <else-if type="report" match="any">
-            <group delimiter=". " prefix=" ">
+            <group delimiter=". ">
               <text macro="title"/>
-              <group delimiter=" " prefix=" ">
+              <group delimiter=" ">
                 <text variable="genre"/>
                 <text variable="number"/>
               </group>
@@ -211,6 +229,7 @@
                 <group delimiter=", ">
                   <text variable="volume"/>
                   <text variable="issue"/>
+                  <text variable="collection-title"/>
                   <text variable="page"/>
                 </group>
               </group>
