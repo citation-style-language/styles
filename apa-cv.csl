@@ -858,18 +858,16 @@
         </group>
       </if>
       <!-- Generic labels for specific types -->
-      <!-- These should be localized when possible -->
       <else-if type="dataset">
-        <text value="Data set"/>
+        <text term="dataset"/>
       </else-if>
-      <else-if type="software" match="all">
-        <!-- Replace with type="software" and term="software" as that becomes available -->
-        <text value="Computer software"/>
+      <else-if type="software">
+        <text term="software" text-case="capitalize-first"/>
       </else-if>
       <else-if type="interview personal_communication" match="any">
         <choose>
           <if variable="archive container-title DOI publisher URL" match="none">
-            <text term="letter" text-case="capitalize-first"/>
+            <text term="personal-communication" text-case="capitalize-first"/>
           </if>
           <else-if type="interview">
             <text term="interview" text-case="capitalize-first"/>
@@ -877,7 +875,7 @@
         </choose>
       </else-if>
       <else-if type="map">
-        <text value="Map"/>
+        <text term="map" text-case="capitalize-first"/>
       </else-if>
     </choose>
   </macro>
@@ -1116,73 +1114,12 @@
   </macro>
   <!-- Legal citations have their own rules -->
   <macro name="legal-cites">
+    <!-- TODO: Add new item types -->
     <choose>
-      <if type="legal_case">
-        <group delimiter=". ">
-          <group delimiter=", ">
-            <text variable="title"/>
-            <group delimiter=" ">
-              <text macro="container-legal"/>
-              <text macro="date-legal"/>
-            </group>
-            <text variable="references"/>
-          </group>
-          <text macro="access"/>
-        </group>
-      </if>
-      <else-if type="bill">
-        <!-- Currently designed to handle bills, resolutions, hearings, rederal reports. -->
-        <group delimiter=". ">
-          <group delimiter=", ">
-            <choose>
-              <if variable="number container-title" match="none">
-                <!-- If no number or container-title, then assume it is a hearing -->
-                <text variable="title" font-style="italic"/>
-              </if>
-              <else>
-                <text variable="title"/>
-              </else>
-            </choose>
-            <group delimiter=" ">
-              <text macro="container-legal"/>
-              <text macro="date-legal"/>
-              <choose>
-                <if variable="number container-title" match="none">
-                  <!-- If no number or container-title, then assume it is a hearing -->
-                  <names variable="author" prefix="(testimony of " suffix=")">
-                    <name and="symbol" delimiter=", "/>
-                  </names>
-                </if>
-                <else>
-                  <text variable="status" prefix="(" suffix=")"/>
-                </else>
-              </choose>
-            </group>
-            <text variable="references"/>
-          </group>
-          <text macro="access"/>
-        </group>
-      </else-if>
-      <else-if type="legislation">
-        <!-- Currently designed to handle statutes, codified regulations, executive orders.
-              For uncodified regulations, assume future code section is in status. -->
-        <group delimiter=". ">
-          <group delimiter=", ">
-            <text variable="title"/>
-            <group delimiter=" ">
-              <text macro="container-legal"/>
-              <text macro="date-legal"/>
-              <text variable="status" prefix="(" suffix=")"/>
-            </group>
-            <text variable="references"/>
-          </group>
-          <text macro="access"/>
-        </group>
-      </else-if>
-      <else-if type="treaty">
+      <if type="treaty">
         <!-- APA generally defers to Bluebook for legal citations, but diverges without
-              explanation for treaty items. The Bluebook format that was used in APA 6th
-              ed. is used here. -->
+             explanation for treaty items. The Bluebook format that was used in APA 6th
+             ed. is used here. -->
         <group delimiter=", ">
           <text variable="title" text-case="title"/>
           <names variable="author">
@@ -1192,7 +1129,41 @@
           <text macro="container-legal"/>
           <text macro="access"/>
         </group>
-      </else-if>
+      </if>
+      <else>
+        <!-- For `bill`: currently designed to handle bills, resolutions, federal reports. -->
+        <!-- For `legislation`: currently designed to handle statutes, codified regulations, executive orders. -->
+        <group delimiter=". ">
+          <group delimiter=", ">
+            <choose>
+              <if type="bill legal_case legislation" match="any">
+                <text variable="title"/>
+              </if>
+              <else-if type="hearing">
+                <text variable="title" font-style="italic"/>
+              </else-if>
+            </choose>
+            <group delimiter=" ">
+              <text macro="container-legal"/>
+              <text macro="date-legal"/>
+              <choose>
+                <if type="hearing">
+                  <names variable="author" prefix="(testimony of " suffix=")">
+                    <!-- TODO: Localize this with the hearing term. -->
+                    <name and="symbol" delimiter=", "/>
+                  </names>
+                </if>
+                <else-if type="bill legislation" match="any">
+                  <!-- `legislation`: For uncodified regulations, assume future code section is in status. -->
+                  <text variable="status" prefix="(" suffix=")"/>
+                </else-if>
+              </choose>
+            </group>
+            <text variable="references"/>
+          </group>
+          <text macro="access"/>
+        </group>
+      </else>
     </choose>
   </macro>
   <macro name="date-legal">
