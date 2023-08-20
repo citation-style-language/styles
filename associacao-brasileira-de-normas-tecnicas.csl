@@ -41,10 +41,14 @@
       <email>palazzo@unb.br</email>
       <uri>https://palazzo.pt</uri>
     </contributor>
+    <contributor>
+      <name>Daniel Corrêa Lobato</name>
+      <email>daniel@lobato.org</email>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <summary>The Brazilian Standard Style in accordance with ABNT-NBR 10520.2002 and ABNT-NBR 6023.2002</summary>
-    <updated>2013-05-01T03:53:13+00:00</updated>
+    <summary>The Brazilian Standard Style in accordance with ABNT-NBR 10520.2023 and ABNT-NBR 6023.2002</summary>
+    <updated>2023-08-20T17:15:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt-BR">
@@ -64,8 +68,8 @@
       <term name="month-12" form="short">dez.</term>
       <!--Os termos abaixo serao utilizados quando houverem nomes de editores. Apos a citacao dos nomes, eles irao aparecer entre parenteses.-->
       <term name="editor" form="short">
-        <single>ed</single>
-        <multiple>eds</multiple>
+        <single>org</single>
+        <multiple>orgs</multiple>
       </term>
       <term name="container-author" form="short">
         <single>ed</single>
@@ -75,6 +79,7 @@
         <single>ed</single>
         <multiple>eds</multiple>
       </term>
+      <term name="in">in</term>
     </terms>
   </locale>
   <!--A macro 'container-contribuitor' e responsavel por mostrar os nomes dos editores, serao apresentados SOBRENOME, INICIAIS PRENOMES 
@@ -85,7 +90,7 @@ tendo as inicias separadas por ponto.-->
         <names variable="container-author" delimiter=", ">
           <name name-as-sort-order="all" sort-separator=", " initialize="false" initialize-with=". " delimiter="; " delimiter-precedes-last="always">
             <name-part name="family" text-case="uppercase"/>
-            <name-part name="given" text-case="capitalize-first"/>
+            <name-part name="given"/>
           </name>
           <et-al font-style="italic"/>
           <label form="short" prefix=" (" suffix=".)" text-case="capitalize-first"/>
@@ -101,13 +106,23 @@ tendo as inicias separadas por ponto.-->
 tendo as inicias separadas por ponto.-->
   <macro name="secondary-contributors">
     <choose>
-      <if type="chapter" match="none">
+      <if type="paper-conference" match="any">
+        <names variable="editor" delimiter=", ">
+          <name name-as-sort-order="all" sort-separator=", " initialize="false" initialize-with=". " delimiter="; " delimiter-precedes-last="always">
+            <name-part name="family" text-case="uppercase"/>
+            <name-part name="given"/>
+          </name>
+          <et-al font-style="italic"/>
+          <label form="short" prefix=" (" suffix=".)" text-case="lowercase"/>
+        </names>
+      </if>
+      <else type="chapter" match="none">
         <names variable="editor" delimiter="; " prefix=" (" suffix=")">
           <name initialize="false" initialize-with=". " delimiter=", "/>
           <et-al font-style="italic"/>
           <label form="short" prefix=", " text-case="capitalize-first" suffix="."/>
         </names>
-      </if>
+      </else>
     </choose>
   </macro>
   <!--A macro 'translator' e responsavel por mostrar os nomes dos tradutores, serao apresentados SOBRENOME, INICIAIS PRENOMES
@@ -115,7 +130,7 @@ tendo as inicias separadas por ponto. -->
   <macro name="translator">
     <names variable="translator" delimiter="; ">
       <name delimiter="; " sort-separator=" " delimiter-precedes-last="always" prefix="Tradução: ">
-        <name-part name="given" text-case="capitalize-first"/>
+        <name-part name="given"/>
         <name-part name="family" text-case="capitalize-first"/>
       </name>
       <et-al font-style="italic"/>
@@ -128,7 +143,7 @@ aparecera a expess o 'et. al.'. Na regra da ABNT 2023 essa expressao deve aparec
     <names variable="author">
       <name name-as-sort-order="all" sort-separator=", " initialize="false" initialize-with=". " delimiter="; " delimiter-precedes-last="always">
         <name-part name="family" text-case="uppercase"/>
-        <name-part name="given" text-case="capitalize-first"/>
+        <name-part name="given"/>
       </name>
       <et-al font-style="italic"/>
       <label form="short" prefix=" (" suffix=".)" text-case="uppercase"/>
@@ -145,7 +160,7 @@ aparecera a expess o 'et. al.'. Na regra da ABNT 2023 essa expressao deve aparec
     <names variable="author">
       <name form="short" name-as-sort-order="all" sort-separator=", " initialize="false" initialize-with=". " delimiter="; " delimiter-precedes-last="never">
         <name-part name="family" text-case="capitalize-first"/>
-        <name-part name="given" text-case="capitalize-first"/>
+        <name-part name="given"/>
       </name>
       <substitute>
         <names variable="editor"/>
@@ -171,7 +186,7 @@ aparecera a expess o 'et. al.'. Na regra da ABNT 2023 essa expressao deve aparec
     </date>
   </macro>
   <!--A macro 'title' e responsavel por mostrar o titulo principal do arquivo. Em todos os tipos ele aparecera em negrito logo apos os nomes dos
-autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo de periodico', nesses arquivos eles irao aparecer em fonte normal.-->
+autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo de periodico, trabalho em evento', nesses arquivos eles irao aparecer em fonte normal.-->
   <macro name="title">
     <choose>
       <if type="chapter bill" match="any">
@@ -180,7 +195,7 @@ autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo
       <else-if type="book thesis" match="any">
         <text variable="title" font-weight="bold"/>
       </else-if>
-      <else-if type="article-newspaper article-magazine article-journal" match="any">
+      <else-if type="article-newspaper article-magazine article-journal paper-conference" match="any">
         <text variable="title"/>
       </else-if>
       <else>
@@ -188,14 +203,10 @@ autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo
       </else>
     </choose>
   </macro>
-  <!-- Titulo dos Anais-->
+  <!-- Titulo do livro-->
   <macro name="container-title">
     <choose>
-      <if type="paper-conference" match="any">
-        <text variable="container-title" suffix=". "/>
-        <text value="Anais" font-weight="bold"/>
-        <text value="..."/>
-      </if>
+      <if type="paper-conference" match="any" />
       <else>
         <text variable="container-title" font-weight="bold"/>
       </else>
@@ -211,7 +222,7 @@ autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo
           </if>
           <else-if type="entry-encyclopedia"/>
           <else>
-            <text value="[s.l.] "/>
+            <text value="[S.l.]" suffix=": " font-style="italic"/>
           </else>
         </choose>
         <choose>
@@ -220,12 +231,12 @@ autores, exceto em arquivos do tipo 'artigo de jornal, artigo de revista, artigo
             <text macro="issued"/>
           </if>
           <else>
-            <text value="[s.n.]"/>
+            <text value="[S.n.]" font-style="italic"/>
           </else>
         </choose>
       </if>
       <else>
-        <text value="[s.l: s.n.]"/>
+        <text value="[S.l.: S.n.]" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -236,8 +247,7 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
       <if variable="event">
         <choose>
           <if variable="genre" match="none">
-            <text term="in" font-style="italic" text-case="capitalize-first" suffix=": "/>
-            <text variable="event" text-case="capitalize-first"/>
+            <text variable="event" text-case="uppercase" suffix=". " />
           </if>
           <else>
             <group delimiter=" ">
@@ -245,6 +255,15 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
               <text term="presented at"/>
               <text variable="event"/>
             </group>
+          </else>
+        </choose>
+        <choose>
+          <if variable="container-title">
+            <text variable="container-title" font-weight="bold" suffix=". "/>
+          </if>
+          <else>
+            <text value="Anais" font-weight="bold"/>
+            <text value="... "/>
           </else>
         </choose>
       </if>
@@ -269,7 +288,7 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
         </group>
       </if>
       <else>
-        <text value="[s.d.]"/>
+        <text value="[S.d.]" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -282,7 +301,7 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
         </date>
       </if>
       <else>
-        <text value="[s.d.]"/>
+        <text value="[S.d.]" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -444,7 +463,7 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
             <!--Dados complementares "pagina, volume"-->
           </group>
         </else-if>
-        <!--Conferencia-->
+        <!--Capitulo-->
         <else-if type="chapter">
           <group>
             <text macro="author" suffix=". "/>
@@ -593,20 +612,23 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
             <!--Data-->
           </group>
         </else-if>
+        <!--Trabalho em anais de evento-->
         <else-if type="paper-conference">
           <text macro="author" suffix=". "/>
           <!--Autor-->
           <text macro="title" suffix=". "/>
           <!--Titulo-->
+          <!--In:-->
+          <text term="in" font-style="italic" text-case="capitalize-first" suffix=": "/>
           <text macro="container-contributors"/>
           <!--Nomes de editore-->
-          <text macro="secondary-contributors"/>
+          <text macro="secondary-contributors" suffix=". " />
           <text macro="container-title"/>
           <!--Titulo da publicacao-->
           <text variable="collection-title" prefix=": " suffix="."/>
           <text macro="locators"/>
           <!--Dados complementares "pagina, volume"-->
-          <group delimiter=". " prefix=". " suffix=". ">
+          <group delimiter=". ">
             <text macro="event"/>
             <!--Nome do evento, conferencia-->
           </group>
