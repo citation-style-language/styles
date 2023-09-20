@@ -1455,10 +1455,14 @@
              ed. is used here. -->
         <group delimiter=", ">
           <text variable="title" text-case="title"/>
+          <!-- APA manual omits treaty parties/authors, but they should be included 
+               for bilateral treaties. We assume only bilateral treaties have authors in data. -->
           <names variable="author">
             <name initialize-with="." form="short" delimiter="-"/>
           </names>
           <text macro="date-legal"/>
+          <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. 
+               Both are included here. -->
           <text macro="container-legal"/>
           <text macro="access"/>
         </group>
@@ -1508,7 +1512,10 @@
   <macro name="date-legal">
     <!-- TODO: Add new item types -->
     <choose>
-      <if type="legal_case">
+      <if type="treaty">
+        <date variable="issued" form="text"/>
+      </if>
+      <else-if type="legal_case">
         <group prefix="(" suffix=")" delimiter=" ">
           <text variable="authority"/>
           <choose>
@@ -1521,7 +1528,7 @@
             </else>
           </choose>
         </group>
-      </if>
+      </else-if>
       <else-if type="bill legislation hearing" match="any">
         <group prefix="(" suffix=")" delimiter=" ">
           <group delimiter=" ">
@@ -1535,16 +1542,30 @@
           </date>
         </group>
       </else-if>
-      <else-if type="treaty">
-        <date variable="issued" form="text"/>
-      </else-if>
     </choose>
   </macro>
   <macro name="container-legal">
     <!-- TODO: Add new item types -->
     <!-- Expect legal item container-titles to be stored in short form -->
     <choose>
-      <if type="legal_case">
+      <if type="treaty">
+        <group delimiter=" ">
+          <number variable="volume"/>
+          <text variable="container-title"/>
+          <choose>
+            <if variable="page page-first" match="any">
+              <text variable="page-first"/>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <label variable="number" form="short" text-case="capitalize-first"/>
+                <text variable="number"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </if>
+      <else-if type="legal_case">
         <group delimiter=" ">
           <choose>
             <if variable="container-title">
@@ -1577,7 +1598,7 @@
             </else>
           </choose>
         </group>
-      </if>
+      </else-if>
       <else-if type="bill">
         <group delimiter=", ">
           <group delimiter=" ">
@@ -1631,23 +1652,6 @@
             </group>
           </else>
         </choose>
-      </else-if>
-      <else-if type="treaty">
-        <group delimiter=" ">
-          <number variable="volume"/>
-          <text variable="container-title"/>
-          <choose>
-            <if variable="page page-first" match="any">
-              <text variable="page-first"/>
-            </if>
-            <else>
-              <group delimiter=" ">
-                <label variable="number" form="short" text-case="capitalize-first"/>
-                <text variable="number"/>
-              </group>
-            </else>
-          </choose>
-        </group>
       </else-if>
     </choose>
   </macro>
