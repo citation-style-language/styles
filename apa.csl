@@ -40,6 +40,7 @@
         <multiple>issues</multiple>
       </term>
       <term name="software">computer software</term>
+      <term name="at" form="long">before the</term>
     </terms>
   </locale>
   <locale xml:lang="da">
@@ -80,10 +81,10 @@
       <term name="et-al">et al.</term>
     </terms>
   </locale>
-  <!-- TODO: New types: -classic- collection -document- -event- hearing -performance- -periodical- regulation -software- -standard- -->
+  <!-- TODO: New types: -classic- collection -document- -event- -hearing- -performance- -periodical- -regulation- -software- -standard- -->
   <!-- TODO: New creator roles: chair compiler contributor curator executive-producer guest host narrator organizer performer producer script-writer series-creator -->
   <!-- TODO: New variables:
-         available-date submitted
+         -available-date- (not used) -submitted- (used for proposal date of regulations, but not otherwise)
          part-number printing-number supplement-number
          part-title -volume-title-
          archive_collection
@@ -1447,66 +1448,73 @@
   </macro>
   <!-- Legal citations have their own rules -->
   <macro name="legal-cites">
-    <!-- TODO: Add new item types -->
-    <choose>
-      <if type="treaty">
-        <!-- APA generally defers to Bluebook for legal citations, but diverges without
-             explanation for treaty items. The Bluebook format that was used in APA 6th
-             ed. is used here. -->
-        <group delimiter=", ">
-          <text variable="title" text-case="title"/>
-          <!-- APA manual omits treaty parties/authors, but they should be included 
-               for bilateral treaties. We assume only bilateral treaties have authors in data. -->
-          <names variable="author">
-            <name initialize-with="." form="short" delimiter="-"/>
-          </names>
-          <text macro="date-legal"/>
-          <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. 
-               Both are included here. -->
-          <text macro="container-legal"/>
-          <text macro="access"/>
-        </group>
-      </if>
-      <else>
-        <!-- For `bill`: for bills, resolutions, federal reports -->
-        <!-- For `hearing`: TODO for hearings and testimony -->
-        <!-- For `legislation`: for statutes, constitutional items, and charters -->
-        <!-- For `legal_case`: for all legal and court cases -->
-        <!-- For `regulation`: TODO codified regulations, uncodified regulations, executive orders -->
-        <group delimiter=" ">
-          <group delimiter=", " suffix=".">
-            <choose>
-              <if type="bill legal_case legislation regulation" match="any">
-                <text variable="title"/>
-              </if>
-              <else-if type="hearing">
-                <text variable="title" font-style="italic"/>
-              </else-if>
-            </choose>
+    <!-- `treaty`: for treaties -->
+    <!-- `legal_case`: for all legal and court cases -->
+    <!-- `bill`: for bills, resolutions, federal reports -->
+    <!-- `hearing`: TODO for hearings and testimony -->
+    <!-- `legislation`: for statutes, constitutional items, and charters -->
+    <!-- `regulation`: TODO codified regulations, uncodified regulations, executive orders -->
+    <group delimiter=" ">
+      <group delimiter=", " suffix=".">
+        <text macro="title-legal"/>
+        <choose>
+          <if variable="treaty">
+            <!-- APA generally defers to Bluebook for legal citations, but diverges without
+                 explanation for treaty items. We follow the Bluebook format that was used 
+                 in APA 6th ed. -->
+            <!-- APA manual omits treaty parties/authors, but per Bluebook 
+                 they should be included at least for bilateral treaties. -->
+            <names variable="author">
+              <name initialize-with="." form="short" delimiter="-"/>
+            </names>
+            <text macro="date-legal"/>
+            <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. 
+                 Both are included here, following the APA style used for all other item types 
+                 to end the reference with a period, then give the URL afterward. -->
+            <text macro="container-legal"/>
+          </if>
+          <else>
             <group delimiter=" ">
               <text macro="container-legal"/>
               <text macro="date-legal"/>
-              <choose>
-                <if type="hearing">
-                  <group prefix="(" suffix=")" delimiter=" ">
-                    <text term="hearing" form="verb"/>
-                    <names variable="author">
-                      <!-- TODO: Localize this with the hearing term. -->
-                      <name and="symbol" delimiter=", "/>
-                    </names>
-                  </group>
-                </if>
-                <else-if type="bill legislation" match="any">
-                  <!-- `legislation`: For uncodified regulations, assume future code section is in status. -->
-                  <text variable="status" prefix="(" suffix=")"/>
-                </else-if>
-              </choose>
+              <text macro="parenthetical-legal"/>
             </group>
             <text variable="references"/>
+          </else>
+        </choose>
+      </group>
+      <text macro="access"/>
+    </group>
+  </macro>
+  <macro name="title-legal">
+    <choose>
+      <if type="bill legal_case legislation regulation treaty" match="any">
+        <text variable="title" text-case="title"/>
+      </if>
+      <else-if type="hearing">
+        <!-- APA uses a comma delimiter and omits "hearing before the" for hearings with testimony, 
+             but follows Bluebook rules (colon delimiter, prefix before the committee name) for
+             references to the whole hearing. We simply follow the Bluebook rules for both, but
+             use APA style capitalization (not capitalizing "Before"). -->
+        <group delimiter=": " font-style="italic">
+          <text variable="title" text-case="title"/>
+          <group delimiter=" ">
+            <text term="hearing" text-case="capitalize-first"/>
+            <group delimiter=" ">
+              <group delimiter=" ">
+                <!-- APA manual omits the bill number, but it should be included per Bluebook if relevant -->
+                <text term="on"/>
+                <text variable="number"/>
+              </group>
+              <group delimiter=" ">
+                <!-- Use the `at` term to hold "before the" -->
+                <text term="at" form="long"/>
+                <text variable="section"/>
+              </group>
+            </group>
           </group>
-          <text macro="access"/>
         </group>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="date-legal">
@@ -1524,12 +1532,14 @@
               <date variable="issued" form="numeric" date-parts="year"/>
             </if>
             <else>
+              <!-- APA manual doesn't include examples of cases not yet
+                   published in a reporter, but this is Bluebook style. -->
               <date variable="issued" form="text"/>
             </else>
           </choose>
         </group>
       </else-if>
-      <else-if type="bill legislation hearing" match="any">
+      <else-if type="bill hearing legislation regulation" match="any">
         <group prefix="(" suffix=")" delimiter=" ">
           <group delimiter=" ">
             <date variable="original-date">
@@ -1537,15 +1547,26 @@
             </date>
             <text term="and" form="symbol"/>
           </group>
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
+          <choose>
+            <if variable="issued">
+              <!-- APA manual includes "rev." before the revision year, 
+                   but this isn't part of the Bluebook rules. -->
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </if>
+            <else>
+              <!-- Show proposal date for uncodified regualtions. 
+                   Assume date is entered literally ala "proposed May 23, 2016".
+                   TODO: Add 'proposed' term here if that becomes available -->
+              <date variable="submitted" form="text"/>
+            </else>
+          </choose>
         </group>
       </else-if>
     </choose>
   </macro>
   <macro name="container-legal">
-    <!-- TODO: Add new item types -->
     <!-- Expect legal item container-titles to be stored in short form -->
     <choose>
       <if type="treaty">
@@ -1612,8 +1633,11 @@
               <text variable="number"/>
             </group>
           </group>
-          <text variable="authority"/>
-          <text variable="chapter-number"/>
+          <group delimiter=" ">
+            <text variable="authority"/>
+            <!-- 'session' is `chapter-number` -->
+            <text variable="chapter-number"/>
+          </group>
           <group delimiter=" ">
             <text variable="volume"/>
             <text variable="container-title"/>
@@ -1621,10 +1645,17 @@
           </group>
         </group>
       </else-if>
+      <else-if type="hearing">
+        <group delimiter=" ">
+          <text variable="authority"/>
+          <!-- 'session' is `chapter-number` -->
+          <text variable="chapter-number"/>
+        </group>
+      </else-if>
       <else-if type="legislation">
         <choose>
           <if variable="number">
-            <!--There's a public law number-->
+            <!-- There's a public law number. -->
             <group delimiter=", ">
               <text variable="number" prefix="Pub. L. No. "/>
               <group delimiter=" ">
@@ -1652,6 +1683,48 @@
             </group>
           </else>
         </choose>
+      </else-if>
+      <else-if type="regulation">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <group delimiter=" ">
+              <label variable="number" form="short"/>
+              <text variable="number"/>
+            </group>
+          </group>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text variable="container-title"/>
+            <choose>
+              <if variable="section">
+                <group delimiter=" ">
+                  <label variable="section" form="symbol"/>
+                  <text variable="section"/>
+                </group>
+              </if>
+              <else>
+                <text variable="page-first"/>
+              </else>
+            </choose>
+          </group>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="parenthetical-legal">
+    <choose>
+      <if type="hearing">
+        <group prefix="(" suffix=")" delimiter=" ">
+          <text term="hearing" form="verb"/>
+          <names variable="author">
+            <name and="symbol" delimiter=", "/>
+          </names>
+        </group>
+      </if>
+      <else-if type="bill legislation regulation" match="any">
+        <!-- For uncodified regulations, assume future code section is in `status`. -->
+        <text variable="status" prefix="(" suffix=")"/>
       </else-if>
     </choose>
   </macro>
