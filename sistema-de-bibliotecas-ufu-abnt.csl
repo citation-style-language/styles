@@ -64,7 +64,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Brazilian Standard Style in accordance with ABNT NBR 6023:2018 and ABNT NBR 10520:2023</summary>
-    <updated>2024-01-08T13:00:14+00:00</updated>
+    <updated>2024-01-11T16:30:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt-BR">
@@ -105,6 +105,17 @@
             <names variable="collection-editor"/>
             <!-- ABNT 6023:2018 - quando for editor, mesmo que apenas do livro no todo -->
           </substitute>
+        </names>
+      </if>
+    </choose>
+  </macro>
+  <macro name="secondary-contributors">
+    <!-- Macro responsavel por mostrar os nomes dos organizadores do livro no todo quando um capítulo de livro -->
+    <choose>
+      <if type="chapter" match="none">
+        <names variable="editor" delimiter="; " prefix=" (" suffix=")">
+          <name and="text" initialize-with=". " delimiter=", "/>
+          <label form="short" prefix=", " text-case="capitalize-first" suffix="."/>
         </names>
       </if>
     </choose>
@@ -367,16 +378,7 @@
     <choose>
       <if type="paper-conference" match="any">
         <group suffix=". ">
-          <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
-          <choose>
-            <if variable="event" match="any">
-              <text variable="event" text-case="uppercase"/>
-            </if>
-            <else>
-              <text variable="title-short" text-case="uppercase"/>
-              <!--title-short utilizado para nome do evento no Mendeley-->
-            </else>
-          </choose>
+          <text variable="event" text-case="uppercase"/>
           <text variable="number" prefix=", " suffix="."/>
           <text macro="issued-year" prefix=", "/>
           <text macro="event-place" prefix=", "/>
@@ -687,7 +689,7 @@
       </else>
     </choose>
   </macro>
-  <citation et-al-min="0" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year" delimiter-precedes-et-al="never">
+  <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year" delimiter-precedes-et-al="never">
     <!-- CITAÇÃO: uso de sufixo para desempate de anos e de prenome ativos -->
     <sort>
       <key macro="author"/>
@@ -736,8 +738,8 @@
       </choose>
     </layout>
   </citation>
-  <bibliography et-al-min="0" et-al-use-first="1" line-spacing="1" entry-spacing="1">
-    <!--REFERÊNCIAS: alinhamento a esquerda, espaçamento simples e uma linha entre referências-->
+  <bibliography et-al-min="4" et-al-use-first="1" line-spacing="1" entry-spacing="1">
+    <!--REFERÊNCIAS: a partir de 4 autores utiliza et al., alinhamento a esquerda, espaçamento simples e uma linha entre referências-->
     <sort>
       <key macro="author-short"/>
       <key variable="year-suffix"/>
@@ -985,12 +987,20 @@
             <text macro="author" suffix=". "/>
             <text variable="authority" suffix=". "/>
             <text macro="title"/>
-            <text macro="place"/>
+            <text variable="publisher-place" suffix=": "/>
+            <text variable="publisher" suffix=", "/>
             <text macro="issued-year" suffix=". "/>
-            <text variable="medium" suffix=", "/>
-            <text variable="dimensions" suffix=". "/>
+            <choose>
+              <if variable="dimensions">
+                <text variable="medium" suffix=", "/>
+                <text variable="dimensions" suffix=". "/>
+              </if>
+              <else>
+                <text variable="medium" suffix=". "/>
+              </else>
+            </choose>
             <text variable="genre" suffix="."/>
-            <text variable="archive" suffix="."/>
+            <text variable="archive" suffix=". "/>
             <text variable="note" suffix=". "/>
             <text macro="access"/>
           </group>
@@ -1046,7 +1056,7 @@
                 </choose>
                 <text variable="number" prefix="n. " suffix=", "/>
                 <text variable="page" prefix="p. " suffix=", "/>
-                <text macro="issued-legislation" suffix="."/>
+                <text macro="issued-legislation" suffix=". "/>
                 <text variable="note" suffix=". "/>
                 <text macro="access"/>
               </group>
@@ -1059,7 +1069,7 @@
                 <text variable="abstract" suffix=". "/>
                 <text variable="publisher-place" suffix=": "/>
                 <text variable="publisher" suffix=", "/>
-                <text macro="issued-legislation" suffix="."/>
+                <text macro="issued-legislation" suffix=". "/>
                 <text variable="note" suffix=". "/>
                 <text macro="access"/>
               </group>
@@ -1127,18 +1137,36 @@
           </group>
         </else-if>
         <else-if type="paper-conference">
-          <!-- trabalho em evento -->
-          <text macro="author" suffix=". "/>
-          <text macro="title"/>
-          <text macro="event"/>
-          <text macro="container-contributors" text-case="uppercase"/>
-          <text macro="secondary-contributors"/>
-          <text macro="container-title"/>
-          <text macro="locators"/>
-          <text macro="publisher"/>
-          <text variable="page" prefix=" p. " suffix="."/>
-          <text variable="note" suffix=". "/>
-          <text macro="access"/>
+          <!-- Evento no todo e trabalho em evento -->
+          <choose>
+            <if variable="title">
+            <!-- Trabalho apresentado em evento -->
+              <text macro="author" suffix=". "/>
+              <text macro="title"/>
+              <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
+              <text macro="event"/>
+              <text macro="container-contributors" text-case="uppercase"/>
+              <text macro="secondary-contributors"/>
+              <text macro="container-title"/>
+              <text macro="locators"/>
+              <text macro="publisher"/>
+              <text variable="page" prefix=" p. " suffix="."/>
+              <text variable="note" suffix=". "/>
+              <text macro="access"/>
+            </if>
+            <else>
+            <!-- Evento no todo em publicação monográfica-->
+              <text macro="event"/>
+              <text macro="container-contributors" text-case="uppercase"/>
+              <text macro="secondary-contributors"/>
+              <text macro="container-title"/>
+              <text macro="locators"/>
+              <text macro="publisher"/>
+              <text variable="page" prefix=" p. " suffix="."/>
+              <text variable="note" suffix=". "/>
+              <text macro="access"/>
+            </else>
+          </choose>
         </else-if>
         <else-if type="patent">
           <!-- Patente -->
@@ -1178,7 +1206,7 @@
             <text macro="issued"/>
             <text variable="genre" suffix=". "/>
             <text variable="note" suffix=". "/>
-            <text macro="access" suffix=". "/>
+            <text macro="access"/>
           </group>
         </else-if>
         <else-if type="post-weblog">
@@ -1212,7 +1240,7 @@
             <!--incluido genre para funcionar manuscript no Mendeley-->
             <text variable="genre" prefix=" " suffix="."/>
             <text variable="note" suffix=". "/>
-            <text macro="access" suffix="."/>
+            <text macro="access"/>
           </group>
         </else-if>
         <else-if type="song">
