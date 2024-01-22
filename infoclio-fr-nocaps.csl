@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" default-locale="fr-FR" version="1.0" delimiter-precedes-last="never" delimiter-precedes-et-al="never" and="text">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" delimiter-precedes-last="never" delimiter-precedes-et-al="never" and="text" default-locale="fr-FR">
   <info>
     <title>infoclio.ch (sans majuscules, Français)</title>
     <id>http://www.zotero.org/styles/infoclio-fr-nocaps</id>
     <link href="http://www.zotero.org/styles/infoclio-fr-nocaps" rel="self"/>
     <link href="http://www.zotero.org/styles/infoclio-fr-smallcaps" rel="template"/>
-    <link href="https://www.infoclio.ch/fr/node/138218" rel="documentation"/>
+    <link href="https://www.infoclio.ch/fr/stylecitation#zotero" rel="documentation"/>
     <author>
       <name>Nicolas Chachereau</name>
       <email>nicolas.chachereau@unil.ch</email>
@@ -25,7 +25,7 @@
     <category citation-format="note"/>
     <category field="history"/>
     <category field="social_science"/>
-    <updated>2018-03-27T11:58:06+02:00</updated>
+    <updated>2024-01-21T22:57:47-05:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
@@ -119,20 +119,28 @@
       <text macro="creator-for-subsequent"/>
       <text macro="identifier-for-subsequent"/>
       <text macro="op-cit"/>
-      <date variable="issued" form="numeric" date-parts="year"/>
       <text macro="locator"/>
     </group>
   </macro>
   <macro name="creator">
-    <names variable="author">
-      <name sort-separator=" " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
-      <label form="short" prefix="&#160;(" suffix=")"/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="composer"/>
-        <names variable="director"/>
-      </substitute>
-    </names>
+    <choose>
+      <if variable="director">
+        <!-- special rule to avoid printing the label for directors -->
+        <names variable="director">
+          <name sort-separator=" " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+        </names>
+      </if>
+      <else>
+        <names variable="author">
+          <name sort-separator=" " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+          <label form="short" prefix="&#160;(" suffix=")"/>
+          <substitute>
+            <names variable="editor"/>
+            <names variable="composer"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="creator-for-subsequent">
     <names variable="author">
@@ -148,7 +156,14 @@
   <macro name="title">
     <choose>
       <if type="book thesis graphic" match="any">
-        <text variable="title" font-style="italic"/>
+        <group delimiter=" ">
+          <text variable="title" font-style="italic"/>
+          <choose>
+            <if type="book">
+              <text variable="event-title" prefix="[" suffix="]"/>
+            </if>
+          </choose>
+        </group>
       </if>
       <else-if type="article article-magazine article-newspaper article-journal entry entry-dictionary entry-encyclopedia report chapter paper-conference post post-weblog webpage song broadcast dataset" match="any">
         <text variable="title" quotes="true"/>
@@ -404,26 +419,14 @@
   </macro>
   <macro name="date">
     <choose>
-      <if type="book chapter paper-conference thesis" match="any">
-        <choose>
-          <if variable="issued">
-            <date variable="issued" form="numeric" date-parts="year"/>
-          </if>
-          <else>
-            <text term="no date" form="short"/>
-          </else>
-        </choose>
+      <if is-uncertain-date="issued">
+        <text term="circa" suffix=" "/>
       </if>
-      <else-if type="article-journal article-newspaper article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
-        <choose>
-          <if variable="issued">
-            <date variable="issued" form="numeric" date-parts="year-month-day"/>
-          </if>
-          <else>
-            <text term="no date" form="short"/>
-          </else>
-        </choose>
-      </else-if>
+    </choose>
+    <choose>
+      <if type="book chapter paper-conference thesis" match="any">
+        <date variable="issued" form="numeric" date-parts="year"/>
+      </if>
       <else>
         <date variable="issued" form="numeric" date-parts="year-month-day"/>
       </else>
