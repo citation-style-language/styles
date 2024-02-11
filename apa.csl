@@ -228,6 +228,16 @@
       </else>
     </choose>
   </macro>
+  <macro name="author-sort">
+    <choose>
+      <if type="bill legal_case legislation treaty" match="any">
+        <text macro="title-legal"/>
+      </if>
+      <else>
+        <text macro="author-bib"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="date-bib">
     <!-- TODO: Add new item types -->
     <group delimiter=" " prefix="(" suffix=")">
@@ -287,14 +297,12 @@
     <choose>
       <if type="article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic manuscript map musical_score patent report review review-book thesis" match="any">
         <date variable="issued" date-parts="year" form="numeric"/>
-        <!-- <text value="0000"/> -->
       </if>
       <else-if type="paper-conference">
         <!-- Capture 'speech' stored as 'paper-conference' -->
         <choose>
           <if variable="collection-editor editor editorial-director issue page volume" match="any">
             <date variable="issued" date-parts="year" form="numeric"/>
-            <!-- <text value="0000"/> -->
           </if>
           <else>
             <date variable="issued">
@@ -1467,7 +1475,7 @@
              explanation for treaty items. The Bluebook format that was used in APA 6th
              ed. is used here. -->
         <group delimiter=", ">
-          <text variable="title" text-case="title"/>
+          <text macro="title-legal"/>
           <names variable="author">
             <name initialize-with="." form="short" delimiter="-"/>
           </names>
@@ -1481,14 +1489,7 @@
         <!-- For `legislation`: currently designed to handle statutes, codified regulations, executive orders. -->
         <group delimiter=". ">
           <group delimiter=", ">
-            <choose>
-              <if type="bill legal_case legislation" match="any">
-                <text variable="title"/>
-              </if>
-              <else-if type="hearing">
-                <text variable="title" font-style="italic"/>
-              </else-if>
-            </choose>
+            <text macro="title-legal"/>
             <group delimiter=" ">
               <text macro="container-legal"/>
               <text macro="date-legal"/>
@@ -1510,6 +1511,19 @@
           <text macro="access"/>
         </group>
       </else>
+    </choose>
+  </macro>
+  <macro name="title-legal">
+    <choose>
+      <if type="treaty">
+        <text variable="title" text-case="title"/>
+      </if>
+      <else-if type="bill legal_case legislation" match="any">
+        <text variable="title"/>
+      </else-if>
+      <else-if type="hearing">
+        <text variable="title" font-style="italic"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="date-legal">
@@ -1675,7 +1689,7 @@
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name-with-initials">
     <sort>
-      <key macro="author-bib" names-min="3" names-use-first="1"/>
+      <key macro="author-sort" names-min="3" names-use-first="1"/>
       <key macro="date-sort-group" sort="ascending"/>
       <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
@@ -1690,7 +1704,7 @@
   </citation>
   <bibliography hanging-indent="true" et-al-min="21" et-al-use-first="19" et-al-use-last="true" entry-spacing="0" line-spacing="2">
     <sort>
-      <key macro="author-bib"/>
+      <key macro="author-sort"/>
       <key macro="date-sort-group" sort="ascending"/>
       <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
