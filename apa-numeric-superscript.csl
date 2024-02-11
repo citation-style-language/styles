@@ -203,6 +203,7 @@
     </choose>
   </macro>
   <macro name="date-bib">
+    <!-- TODO: Add new item types -->
     <group delimiter=" " prefix="(" suffix=")">
       <choose>
         <if is-uncertain-date="issued">
@@ -212,35 +213,38 @@
       <group>
         <choose>
           <if variable="issued">
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
-            <text variable="year-suffix"/>
-            <choose>
-              <if type="article-magazine article-newspaper broadcast interview motion_picture pamphlet personal_communication post post-weblog song speech webpage" match="any">
-                <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
-                <date variable="issued">
-                  <date-part prefix=", " name="month"/>
-                  <date-part prefix=" " name="day"/>
-                </date>
-              </if>
-              <else-if type="paper-conference">
-                <!-- Capture 'speech' stored as 'paper-conference' -->
-                <choose>
-                  <if variable="collection-editor editor editorial-director issue page volume" match="none">
-                    <date variable="issued">
-                      <date-part prefix=", " name="month"/>
-                      <date-part prefix=" " name="day"/>
-                    </date>
-                  </if>
-                </choose>
-              </else-if>
-              <!-- Only year: article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic
-                   manuscript map musical_score paper-conference[published] patent report review review-book thesis -->
-            </choose>
+            <group delimiter=", ">
+              <group>
+                <date variable="issued" date-parts="year" form="numeric"/>
+                <text variable="year-suffix"/>
+              </group>
+              <choose>
+                <if type="article-magazine article-newspaper broadcast interview motion_picture pamphlet personal_communication post post-weblog song speech webpage" match="any">
+                  <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
+                  <date variable="issued">
+                    <date-part name="month"/>
+                    <date-part name="day" prefix=" "/>
+                  </date>
+                </if>
+                <else-if type="paper-conference">
+                  <!-- Capture 'speech' stored as 'paper-conference' -->
+                  <choose>
+                    <if variable="collection-editor editor editorial-director issue page volume" match="none">
+                      <date variable="issued">
+                        <date-part name="month"/>
+                        <date-part name="day" prefix=" "/>
+                      </date>
+                    </if>
+                  </choose>
+                </else-if>
+                <!-- Only year: article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic
+                     manuscript map musical_score paper-conference[published] patent report review review-book thesis -->
+              </choose>
+            </group>
           </if>
           <else-if variable="status">
             <group>
+              <!-- TODO: Should I print status as-is, or should I print the in-press term? -->
               <text variable="status" text-case="lowercase"/>
               <text variable="year-suffix" prefix="-"/>
             </group>
@@ -252,6 +256,37 @@
         </choose>
       </group>
     </group>
+  </macro>
+  <macro name="date-sort">
+    <choose>
+      <if type="article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic manuscript map musical_score patent report review review-book thesis" match="any">
+        <date variable="issued" date-parts="year" form="numeric"/>
+        <!-- <text value="0000"/> -->
+      </if>
+      <else-if type="paper-conference">
+        <!-- Capture 'speech' stored as 'paper-conference' -->
+        <choose>
+          <if variable="collection-editor editor editorial-director issue page volume" match="any">
+            <date variable="issued" date-parts="year" form="numeric"/>
+            <!-- <text value="0000"/> -->
+          </if>
+          <else>
+            <date variable="issued">
+              <date-part name="year" form="long"/>
+              <date-part name="month" form="numeric-leading-zeros"/>
+              <date-part name="day" form="numeric-leading-zeros"/>
+            </date>
+          </else>
+        </choose>
+      </else-if>
+      <else>
+        <date variable="issued">
+          <date-part name="year" form="long"/>
+          <date-part name="month" form="numeric-leading-zeros"/>
+          <date-part name="day" form="numeric-leading-zeros"/>
+        </date>
+      </else>
+    </choose>
   </macro>
   <macro name="date-sort-group">
     <choose>
