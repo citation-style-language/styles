@@ -241,10 +241,31 @@
           <if variable="issued">
             <group delimiter=", ">
               <group>
-                <text macro="date-bib-year"/>
+                <date variable="issued" date-parts="year" form="numeric"/>
                 <text variable="year-suffix"/>
               </group>
-              <text macro="date-bib-monthday"/>
+              <choose>
+                <if type="article-magazine article-newspaper broadcast interview motion_picture pamphlet personal_communication post post-weblog song speech webpage" match="any">
+                  <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
+                  <date variable="issued">
+                    <date-part name="month"/>
+                    <date-part name="day" prefix=" "/>
+                  </date>
+                </if>
+                <else-if type="paper-conference">
+                  <!-- Capture 'speech' stored as 'paper-conference' -->
+                  <choose>
+                    <if variable="collection-editor editor editorial-director issue page volume" match="none">
+                      <date variable="issued">
+                        <date-part name="month"/>
+                        <date-part name="day" prefix=" "/>
+                      </date>
+                    </if>
+                  </choose>
+                </else-if>
+                <!-- Only year: article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic
+                     manuscript map musical_score paper-conference[published] patent report review review-book thesis -->
+              </choose>
             </group>
           </if>
           <else-if variable="status">
@@ -262,36 +283,7 @@
       </group>
     </group>
   </macro>
-  <macro name="date-bib-year">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
-  </macro>
-  <macro name="date-bib-monthday">
-    <choose>
-      <if type="article-magazine article-newspaper broadcast interview motion_picture pamphlet personal_communication post post-weblog song speech webpage" match="any">
-        <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
-        <date variable="issued">
-          <date-part name="month"/>
-          <date-part name="day" prefix=" "/>
-        </date>
-      </if>
-      <else-if type="paper-conference">
-        <!-- Capture 'speech' stored as 'paper-conference' -->
-        <choose>
-          <if variable="collection-editor editor editorial-director issue page volume" match="none">
-            <date variable="issued">
-              <date-part name="month"/>
-              <date-part name="day" prefix=" "/>
-            </date>
-          </if>
-        </choose>
-      </else-if>
-      <!-- Only year: article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic
-           manuscript map musical_score paper-conference[published] patent report review review-book thesis -->
-    </choose>
-  </macro>
-  <macro name="date-bib-sort">
+  <macro name="date-sort">
     <choose>
       <if type="article article-journal book chapter entry entry-dictionary entry-encyclopedia dataset figure graphic manuscript map musical_score patent report review review-book thesis" match="any">
         <date variable="issued" date-parts="year" form="numeric"/>
@@ -1685,7 +1677,7 @@
     <sort>
       <key macro="author-bib" names-min="3" names-use-first="1"/>
       <key macro="date-sort-group" sort="ascending"/>
-      <key macro="date-bib-sort" sort="ascending"/>
+      <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
@@ -1700,7 +1692,7 @@
     <sort>
       <key macro="author-bib"/>
       <key macro="date-sort-group" sort="ascending"/>
-      <key macro="date-bib-sort" sort="ascending"/>
+      <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
       <key macro="title"/>
     </sort>
