@@ -40,6 +40,8 @@
         <multiple>issues</multiple>
       </term>
       <term name="software">computer software</term>
+      <term name="at" form="long">before the</term>
+      <term name="hearing" form="verb">testimony of</term>
     </terms>
   </locale>
   <locale xml:lang="da">
@@ -149,7 +151,7 @@
   </macro>
   <macro name="author-intext">
     <choose>
-      <if type="bill legal_case legislation treaty" match="any">
+      <if type="bill hearing legal_case legislation regulation treaty" match="any">
         <text macro="title-intext"/>
       </if>
       <else-if type="interview personal_communication" match="any">
@@ -198,6 +200,16 @@
             <text macro="title-intext"/>
           </substitute>
         </names>
+      </else>
+    </choose>
+  </macro>
+  <macro name="author-sort">
+    <choose>
+      <if type="bill hearing legal_case legislation regulation treaty" match="any">
+        <text macro="title-legal"/>
+      </if>
+      <else>
+        <text macro="author-bib"/>
       </else>
     </choose>
   </macro>
@@ -369,10 +381,22 @@
         </group>
       </if>
       <else>
-        <group delimiter=" ">
-          <text macro="bracketed"/>
-          <text macro="parenthetical"/>
-        </group>
+        <choose>
+          <if type="bill report" match="any">
+            <!-- Bills, resolutions, and congressional reports are not italicized and substitute bill number if no title. -->
+            <!-- Can't distinguish congressional reports from other reports, 
+                 but giving the genre and number seems fine for other reports too. -->
+            <text macro="number"/>
+            <text macro="bracketed"/>
+            <text macro="parenthetical"/>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text macro="bracketed"/>
+              <text macro="parenthetical"/>
+            </group>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -434,15 +458,10 @@
   </macro>
   <macro name="title-intext">
     <choose>
-      <if variable="title" match="none">
-        <text macro="bracketed-intext" prefix="[" suffix="]"/>
-      </if>
-      <else-if type="hearing">
-        <!-- Hearings are italicized -->
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
-      </else-if>
-      <else-if type="bill">
-        <!-- Bills are not italicized and substitute bill number if no title. -->
+      <if type="bill report">
+        <!-- Bills, resolutions, and congressional reports are not italicized and substitute bill number if no title. -->
+        <!-- Can't distinguish congressional reports from other reports, 
+             but giving the genre and number seems fine for other reports too. -->
         <choose>
           <if variable="title">
             <text variable="title" form="short" text-case="title"/>
@@ -453,7 +472,7 @@
               <group delimiter=" ">
                 <choose>
                   <if variable="chapter-number container-title" match="none">
-                    <label variable="number" form="short"/>
+                    <label variable="number" form="short" text-case="capitalize-first"/>
                   </if>
                 </choose>
                 <text variable="number"/>
@@ -461,25 +480,36 @@
             </group>
           </else>
         </choose>
-      </else-if>
-      <else-if type="legal_case" match="any">
-        <!-- Cases are italicized -->
-        <text variable="title" font-style="italic"/>
-      </else-if>
-      <else-if type="legislation treaty" match="any">
-        <!-- Legislation and treaties not italicized or quoted -->
-        <text variable="title" form="short" text-case="title"/>
-      </else-if>
-      <else-if type="post webpage" match="any">
-        <!-- Webpages are always italicized -->
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
-      </else-if>
-      <else-if variable="container-title" match="any">
-        <!-- Other types are italicized or quoted based on presence of container-title. As in title macro. -->
-        <text variable="title" form="short" quotes="true" text-case="title"/>
-      </else-if>
+      </if>
       <else>
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
+        <choose>
+          <if variable="title" match="none">
+            <text macro="bracketed-intext"/>
+          </if>
+          <else-if type="hearing">
+            <!-- Hearings are italicized -->
+            <text variable="title" form="short" font-style="italic" text-case="title"/>
+          </else-if>
+          <else-if type="legal_case" match="any">
+            <!-- Cases are italicized -->
+            <text variable="title" font-style="italic"/>
+          </else-if>
+          <else-if type="legislation regulation treaty" match="any">
+            <!-- Legislation, regulations, and treaties not italicized or quoted -->
+            <text variable="title" form="short" text-case="title"/>
+          </else-if>
+          <else-if type="post webpage" match="any">
+            <!-- Webpages are always italicized -->
+            <text variable="title" form="short" font-style="italic" text-case="title"/>
+          </else-if>
+          <else-if variable="container-title" match="any">
+            <!-- Other types are italicized or quoted based on presence of container-title. As in title macro. -->
+            <text variable="title" form="short" quotes="true" text-case="title"/>
+          </else-if>
+          <else>
+            <text variable="title" form="short" font-style="italic" text-case="title"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -513,6 +543,30 @@
             <text macro="number"/>
             <text macro="locators-booklike"/>
           </group>
+        </else-if>
+        <else-if type="report" match="any">
+          <choose>
+            <if variable="title" match="none">
+              <!-- If there is no title, then genre and number are already printed as the title. -->
+              <group delimiter="; ">
+                <text macro="secondary-contributors"/>
+                <text macro="database-location"/>
+                <text macro="locators-booklike"/>
+              </group>
+            </if>
+            <!-- If the report is a chapter in a larger report, then most parenthetical information is printed after the container. -->
+            <else-if variable="container-title">
+              <text macro="secondary-contributors"/>
+            </else-if>
+            <else>
+              <group delimiter="; ">
+                <text macro="secondary-contributors"/>
+                <text macro="database-location"/>
+                <text macro="number"/>
+                <text macro="locators-booklike"/>
+              </group>
+            </else>
+          </choose>
         </else-if>
         <else-if variable="container-title">
           <group delimiter="; ">
@@ -962,15 +1016,10 @@
         <group delimiter=", ">
           <group delimiter=" ">
             <text variable="genre" text-case="title"/>
-            <choose>
-              <if is-numeric="number">
-                <label variable="number" form="short" text-case="capitalize-first"/>
-                <text variable="number"/>
-              </if>
-              <else>
-                <text variable="number"/>
-              </else>
-            </choose>
+            <group delimiter=" ">
+              <label variable="number" form="short" text-case="capitalize-first"/>
+              <text variable="number"/>
+            </group>
           </group>
           <choose>
             <if type="thesis">
@@ -1401,61 +1450,83 @@
   </macro>
   <!-- Legal citations have their own rules -->
   <macro name="legal-cites">
-    <!-- TODO: Add new item types -->
-    <choose>
-      <if type="treaty">
-        <!-- APA generally defers to Bluebook for legal citations, but diverges without
-             explanation for treaty items. The Bluebook format that was used in APA 6th
-             ed. is used here. -->
-        <group delimiter=", ">
-          <text variable="title" text-case="title"/>
-          <names variable="author">
-            <name initialize-with="." form="short" delimiter="-"/>
-          </names>
-          <text macro="date-legal"/>
-          <text macro="container-legal"/>
-          <text macro="access"/>
-        </group>
-      </if>
-      <else>
-        <!-- For `bill`: currently designed to handle bills, resolutions, federal reports. -->
-        <!-- For `legislation`: currently designed to handle statutes, codified regulations, executive orders. -->
-        <group delimiter=". ">
-          <group delimiter=", ">
-            <choose>
-              <if type="bill legal_case legislation" match="any">
-                <text variable="title"/>
-              </if>
-              <else-if type="hearing">
-                <text variable="title" font-style="italic"/>
-              </else-if>
-            </choose>
-            <group delimiter=" ">
-              <text macro="container-legal"/>
-              <text macro="date-legal"/>
-              <choose>
-                <if type="hearing">
-                  <names variable="author" prefix="(testimony of " suffix=")">
-                    <!-- TODO: Localize this with the hearing term. -->
-                    <name and="symbol" delimiter=", "/>
-                  </names>
-                </if>
-                <else-if type="bill legislation" match="any">
-                  <!-- `legislation`: For uncodified regulations, assume future code section is in status. -->
-                  <text variable="status" prefix="(" suffix=")"/>
-                </else-if>
-              </choose>
-            </group>
-            <text variable="references"/>
+    <!-- `treaty`: for treaties -->
+    <!-- `legal_case`: for all legal and court cases -->
+    <!-- `bill`: for bills, resolutions, federal reports -->
+    <!-- `hearing`: TODO for hearings and testimony -->
+    <!-- `legislation`: for statutes, constitutional items, and charters -->
+    <!-- `regulation`: TODO codified regulations, uncodified regulations, executive orders -->
+    <group delimiter=" ">
+      <choose>
+        <if type="treaty">
+          <group delimiter=", " suffix=".">
+            <!-- APA generally defers to Bluebook for legal citations, but diverges without
+                explanation for treaty items. We follow the Bluebook format that was used 
+                in APA 6th ed. -->
+            <!-- APA manual omits treaty parties/authors, but per Bluebook 
+                they should be included at least for bilateral treaties. -->
+            <names variable="author">
+              <name initialize-with="." form="short" delimiter="-"/>
+            </names>
+            <text macro="date-legal"/>
+            <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. 
+                Both are included here, following the APA style used for all other item types 
+                to end the reference with a period, then give the URL afterward. -->
+            <text macro="container-legal"/>
           </group>
-          <text macro="access"/>
+        </if>
+        <else>
+          <group delimiter=" " suffix=".">
+            <group delimiter=", ">
+              <text macro="title-legal"/>
+              <text macro="container-legal"/>
+            </group>
+            <text macro="date-legal"/>
+            <text macro="parenthetical-legal"/>
+          </group>
+        </else>
+      </choose>
+      <text variable="references"/>
+      <text macro="access"/>
+    </group>
+  </macro>
+  <macro name="title-legal">
+    <choose>
+      <if type="bill legal_case legislation regulation treaty" match="any">
+        <text variable="title" text-case="title"/>
+      </if>
+      <else-if type="hearing">
+        <!-- APA uses a comma delimiter and omits "hearing before the" for hearings with testimony, 
+             but follows Bluebook rules (colon delimiter, prefix before the committee name) for
+             references to the whole hearing. We simply follow the Bluebook rules for both, but
+             use APA style capitalization (not capitalizing "Before" or the title of the hearing). -->
+        <group delimiter=": " font-style="italic">
+          <text variable="title" text-case="capitalize-first"/>
+          <group delimiter=" ">
+            <text term="hearing" form="long" text-case="capitalize-first"/>
+            <group delimiter=" ">
+              <group delimiter=" ">
+                <!-- APA manual omits the bill number, but it should be included per Bluebook if relevant -->
+                <text term="on"/>
+                <text variable="number"/>
+              </group>
+              <group delimiter=" ">
+                <!-- Use the `at` term to hold "before the" -->
+                <text term="at" form="long"/>
+                <text variable="section"/>
+              </group>
+            </group>
+          </group>
         </group>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="date-legal">
     <choose>
-      <if type="legal_case">
+      <if type="treaty">
+        <date variable="issued" form="text"/>
+      </if>
+      <else-if type="legal_case">
         <group prefix="(" suffix=")" delimiter=" ">
           <text variable="authority"/>
           <choose>
@@ -1464,12 +1535,14 @@
               <date variable="issued" form="numeric" date-parts="year"/>
             </if>
             <else>
+              <!-- APA manual doesn't include examples of cases not yet
+                   published in a reporter, but this is Bluebook style. -->
               <date variable="issued" form="text"/>
             </else>
           </choose>
         </group>
-      </if>
-      <else-if type="bill legislation hearing" match="any">
+      </else-if>
+      <else-if type="bill hearing legislation regulation" match="any">
         <group prefix="(" suffix=")" delimiter=" ">
           <group delimiter=" ">
             <date variable="original-date">
@@ -1477,20 +1550,46 @@
             </date>
             <text term="and" form="symbol"/>
           </group>
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
+          <choose>
+            <if variable="issued">
+              <!-- APA manual includes "rev." before the revision year, 
+                   but this isn't part of the Bluebook rules. -->
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </if>
+            <else>
+              <!-- Show proposal date for uncodified regualtions. 
+                   Assume date is entered literally ala "proposed May 23, 2016".
+                   TODO: Add 'proposed' term here if that becomes available -->
+              <date variable="submitted" form="text"/>
+            </else>
+          </choose>
         </group>
-      </else-if>
-      <else-if type="treaty">
-        <date variable="issued" form="text"/>
       </else-if>
     </choose>
   </macro>
   <macro name="container-legal">
     <!-- Expect legal item container-titles to be stored in short form -->
     <choose>
-      <if type="legal_case">
+      <if type="treaty">
+        <group delimiter=" ">
+          <number variable="volume"/>
+          <text variable="container-title"/>
+          <choose>
+            <if variable="page page-first" match="any">
+              <text variable="page-first"/>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <label variable="number" form="short" text-case="capitalize-first"/>
+                <text variable="number"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </if>
+      <else-if type="legal_case">
         <group delimiter=" ">
           <choose>
             <if variable="container-title">
@@ -1513,32 +1612,34 @@
             </if>
             <else>
               <group delimiter=" ">
-                <choose>
-                  <if is-numeric="number">
-                    <label variable="number" form="short" text-case="capitalize-first"/>
-                  </if>
-                </choose>
+                <label variable="number" form="short" text-case="capitalize-first"/>
                 <text variable="number"/>
               </group>
             </else>
           </choose>
         </group>
-      </if>
+      </else-if>
       <else-if type="bill">
         <group delimiter=", ">
           <group delimiter=" ">
             <text variable="genre"/>
             <group delimiter=" ">
               <choose>
+                <!-- TODO: What was the logic for this? Do we still need this? -->
+                <!-- If there is no session number or code/record title, print number.
+                     Is that trying to capture congressional reports/documents? -->
                 <if variable="chapter-number container-title" match="none">
-                  <label variable="number" form="short"/>
+                  <label variable="number" form="short" text-case="capitalize-first"/>
                 </if>
               </choose>
               <text variable="number"/>
             </group>
           </group>
-          <text variable="authority"/>
-          <text variable="chapter-number"/>
+          <group delimiter=" ">
+            <text variable="authority"/>
+            <!-- 'session' is `chapter-number` -->
+            <text variable="chapter-number"/>
+          </group>
           <group delimiter=" ">
             <text variable="volume"/>
             <text variable="container-title"/>
@@ -1546,10 +1647,17 @@
           </group>
         </group>
       </else-if>
+      <else-if type="hearing">
+        <group delimiter=" ">
+          <text variable="authority"/>
+          <!-- 'session' is `chapter-number` -->
+          <text variable="chapter-number"/>
+        </group>
+      </else-if>
       <else-if type="legislation">
         <choose>
           <if variable="number">
-            <!--There's a public law number-->
+            <!-- There's a public law number. -->
             <group delimiter=", ">
               <text variable="number" prefix="Pub. L. No. "/>
               <group delimiter=" ">
@@ -1578,22 +1686,48 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="treaty">
-        <group delimiter=" ">
-          <number variable="volume"/>
-          <text variable="container-title"/>
-          <choose>
-            <if variable="page page-first" match="any">
-              <text variable="page-first"/>
-            </if>
-            <else>
-              <group delimiter=" ">
-                <label variable="number" form="short" text-case="capitalize-first"/>
-                <text variable="number"/>
-              </group>
-            </else>
-          </choose>
+      <else-if type="regulation">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <group delimiter=" ">
+              <label variable="number" form="short" text-case="capitalize-first"/>
+              <text variable="number"/>
+            </group>
+          </group>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text variable="container-title"/>
+            <choose>
+              <if variable="section">
+                <group delimiter=" ">
+                  <label variable="section" form="symbol"/>
+                  <text variable="section"/>
+                </group>
+              </if>
+              <else>
+                <text variable="page-first"/>
+              </else>
+            </choose>
+          </group>
         </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="parenthetical-legal">
+    <choose>
+      <if type="hearing">
+        <group prefix="(" suffix=")" delimiter=" ">
+          <!-- Use the 'verb' form of the hearing term to hold 'testimony of' -->
+          <text term="hearing" form="verb"/>
+          <names variable="author">
+            <name and="symbol" delimiter=", "/>
+          </names>
+        </group>
+      </if>
+      <else-if type="bill legislation regulation" match="any">
+        <!-- For uncodified regulations, assume future code section is in `status`. -->
+        <text variable="status" prefix="(" suffix=")"/>
       </else-if>
     </choose>
   </macro>
@@ -1612,7 +1746,7 @@
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name">
     <sort>
-      <key macro="author-bib" names-min="3" names-use-first="1"/>
+      <key macro="author-sort" names-min="3" names-use-first="1"/>
       <key macro="date-sort-group"/>
       <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
@@ -1627,7 +1761,7 @@
   </citation>
   <bibliography hanging-indent="true" et-al-min="21" et-al-use-first="19" et-al-use-last="true" entry-spacing="0" line-spacing="2">
     <sort>
-      <key macro="author-bib"/>
+      <key macro="author-sort"/>
       <key macro="date-sort-group"/>
       <key macro="date-sort" sort="ascending"/>
       <key variable="status"/>
@@ -1635,7 +1769,7 @@
     </sort>
     <layout>
       <choose>
-        <if type="bill legal_case legislation treaty" match="any">
+        <if type="bill hearing legal_case legislation regulation treaty" match="any">
           <!-- Legal items have different orders and delimiters -->
           <choose>
             <if variable="DOI URL" match="any">
