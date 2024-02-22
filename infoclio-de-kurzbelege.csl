@@ -5,7 +5,7 @@
     <id>http://www.zotero.org/styles/infoclio-de-kurzbelege</id>
     <link href="http://www.zotero.org/styles/infoclio-de-kurzbelege" rel="self"/>
     <link href="http://www.zotero.org/styles/infoclio-de" rel="template"/>
-    <link href="https://www.infoclio.ch/de/node/133932" rel="documentation"/>
+    <link href="https://www.infoclio.ch/de/zitierstil#zotero" rel="documentation"/>
     <author>
       <name>Nicolas Chachereau</name>
       <email>nicolas.chachereau@unil.ch</email>
@@ -25,7 +25,7 @@
     <category citation-format="note"/>
     <category field="history"/>
     <category field="social_science"/>
-    <updated>2021-04-15T17:51:45+02:00</updated>
+    <updated>2024-01-04T12:30:00+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -35,7 +35,6 @@
       <term name="accessed">Stand</term>
       <term name="letter">Schreiben</term>
       <term name="number-of-volumes" form="short">Bd.</term>
-      <term name="no date" form="short">o. D.</term>
       <term name="edition">Ausgabe</term>
     </terms>
   </locale>
@@ -109,20 +108,28 @@
         <text macro="creator-for-short-references"/>
         <text macro="identifier-for-short-references"/>
       </group>
-      <date variable="issued" form="numeric" date-parts="year"/>
       <text macro="locator"/>
     </group>
   </macro>
   <macro name="creator">
-    <names variable="author">
-      <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
-      <label form="short" prefix="&#160;(" suffix=")"/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="composer"/>
-        <names variable="director"/>
-      </substitute>
-    </names>
+    <choose>
+      <if variable="director">
+        <!-- special rule to avoid printing the label for directors -->
+        <names variable="director">
+          <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+        </names>
+      </if>
+      <else>
+        <names variable="author">
+          <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+          <label form="short" prefix="&#160;(" suffix=")"/>
+          <substitute>
+            <names variable="editor"/>
+            <names variable="composer"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="creator-for-short-references">
     <names variable="author">
@@ -136,7 +143,14 @@
     </names>
   </macro>
   <macro name="title">
-    <text variable="title"/>
+    <group delimiter=" ">
+      <text variable="title"/>
+      <choose>
+        <if type="book">
+          <text variable="event-title" prefix="[" suffix="]"/>
+        </if>
+      </choose>
+    </group>
   </macro>
   <macro name="identifier-for-short-references">
     <choose>
@@ -315,6 +329,11 @@
   </macro>
   <macro name="date">
     <choose>
+      <if is-uncertain-date="issued">
+        <text term="circa" form="short" suffix=" "/>
+      </if>
+    </choose>
+    <choose>
       <if type="book chapter paper-conference thesis" match="any">
         <choose>
           <if variable="issued">
@@ -325,21 +344,8 @@
               </if>
             </choose>
           </if>
-          <else>
-            <text term="no date" form="short"/>
-          </else>
         </choose>
       </if>
-      <else-if type="article-journal article-newspaper article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
-        <choose>
-          <if variable="issued">
-            <date variable="issued" form="numeric" date-parts="year-month-day"/>
-          </if>
-          <else>
-            <text term="no date" form="short"/>
-          </else>
-        </choose>
-      </else-if>
       <else>
         <date variable="issued" form="numeric" date-parts="year-month-day"/>
       </else>
