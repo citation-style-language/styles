@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" delimiter-precedes-et-al="never" delimiter-precedes-last="never" initialize-with="." demote-non-dropping-particle="sort-only">
   <!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
   <info>
     <title>Food and Agriculture Organization of the United Nations (numeric)</title>
@@ -30,8 +30,8 @@
     <category citation-format="author-date"/>
     <category field="science"/>
     <category field="social_science"/>
-    <summary>This style is created to meet the citation and bibliographical requirements of FAOSTYLE, and has been tested with Zotero and Mendeley. Last update: February 2022.</summary>
-    <updated>2023-05-12T10:12:14+00:00</updated>
+    <summary>This style is created to meet the citation and bibliographical requirements of FAOSTYLE, and has been tested with Zotero and Mendeley. Last update: February 2024.</summary>
+    <updated>2024-02-25T20:50:55+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <!-- Locale settings for English. Settings for other languages could be added later to this section. -->
@@ -41,6 +41,7 @@
       <term name="no date">undated</term>
       <term name="presented at">Presentation at</term>
       <term name="by">Adopted</term>
+      <term name="available at">Also available at</term>
     </terms>
     <date delimiter=" " form="text">
       <date-part name="day"/>
@@ -55,13 +56,13 @@
   <macro name="editor">
     <!-- Outputs "XX ed. / XX & XX eds." -->
     <names variable="editor">
-      <name and="symbol" delimiter-precedes-last="never" initialize-with="."/>
+      <name and="symbol"/>
       <label form="short" strip-periods="true" prefix=", "/>
     </names>
   </macro>
   <macro name="author">
     <names variable="author">
-      <name and="symbol" delimiter-precedes-et-al="never" delimiter-precedes-last="never" initialize-with="." name-as-sort-order="all"/>
+      <name and="symbol" name-as-sort-order="all"/>
       <et-al font-style="italic"/>
       <label form="short" prefix=", "/>
       <substitute>
@@ -144,7 +145,7 @@
   </macro>
   <macro name="Cite-and-URL">
     <!-- Output "Cited day month year. URL" -->
-    <group delimiter=" " suffix=". ">
+    <group delimiter=" " prefix="[" suffix="]. ">
       <text term="cited" text-case="capitalize-first"/>
       <date form="text" variable="accessed"/>
     </group>
@@ -165,7 +166,7 @@
     <choose>
       <!-- TODO: We expect "event-title" to be used,
            but processors and applications may not be updated yet.
-           This macro ensures that either "event" or "event-title" can be accpeted.
+           This macro ensures that either "event" or "event-title" can be accepted.
            Remove if procesor logic and application adoption can handle this. -->
       <if variable="event-title">
         <text variable="event-title"/>
@@ -174,6 +175,18 @@
         <text variable="event"/>
       </else>
     </choose>
+  </macro>
+  <macro name="date-codes-legal">
+    <!-- Output "dd Month yyyy. Number and source." for legal materials -->
+    <date form="text" variable="issued" suffix=". "/>
+    <group delimiter=", " suffix=".">
+      <text variable="number"/>
+      <group delimiter=" ">
+        <text variable="volume"/>
+        <text variable="container-title"/>
+        <text variable="page"/>
+      </group>
+    </group>
   </macro>
   <!-- in-line citation: superscript number, separated by a comma followed by a space. -->
   <citation collapse="citation-number">
@@ -189,7 +202,7 @@
     <layout>
       <text variable="citation-number" suffix="."/>
       <choose>
-        <if type="legal_case bill legislation" match="none">
+        <if type="legal_case bill legislation treaty" match="none">
           <!-- Every item type except legal ones (case, bill and statute) uses "Anonymous" as author if there's no author. -->
           <group delimiter=". ">
             <text macro="author" font-weight="bold"/>
@@ -308,6 +321,22 @@
                 </group>
                 <text macro="DOI-or-URL"/>
               </else-if>
+              <else-if type="dataset">
+                <!-- Dataset -->
+                <group>
+                  <text variable="publisher" font-style="italic" suffix=": "/>
+                  <!-- Publisher is mapped to Repository. Put the name of the database that contains the dataset being cited here. -->
+                  <text variable="title" font-style="italic"/>
+                  <!-- Put the name of the dataset in Title. -->
+                </group>
+                <group delimiter=" " prefix="[" suffix="]">
+                  <text term="accessed" text-case="capitalize-first"/>
+                  <text term="on"/>
+                  <date form="text" variable="accessed"/>
+                </group>
+                <text variable="URL"/>
+                <text variable="license" suffix="."/>
+              </else-if>
               <else>
                 <!-- other item types -->
                 <text variable="title"/>
@@ -324,40 +353,32 @@
             <text variable="title" font-style="italic" suffix="."/>
             <text variable="authority" suffix=","/>
             <!-- "Court" field in Zotero -->
-            <text variable="number" suffix="."/>
-            <!-- "Docket Number" field in Zotero -->
-            <date form="text" variable="issued" suffix="."/>
+            <text macro="date-codes-legal"/>
             <text variable="note" suffix="."/>
             <!-- "Extra" field in Zotero. Can be used to put any additional information. -->
+            <!-- text macro="DOI-or-URL"/> -->
           </group>
         </else-if>
-        <else-if type="bill">
+        <else-if type="bill treaty">
           <!-- legal instruments -->
           <choose>
             <if variable="title-short">
-              <text variable="title" form="short" font-style="italic" suffix=" "/>
-              <text variable="title" font-style="italic" prefix="(" suffix="). "/>
+              <text variable="title" font-style="italic" suffix=" "/>
+              <text variable="title" form="short" font-style="italic" prefix="(" suffix="). "/>
             </if>
             <else>
               <text variable="title" font-style="italic" suffix=". "/>
             </else>
           </choose>
           <group delimiter=" ">
-            <text term="by" suffix=":"/>
+            <!-- <text term="by" suffix=":"/> -->
+            <text variable="authority" suffix=","/>
             <text variable="publisher-place" suffix=","/>
             <!-- Put "Place: xxxxx" in "Extra" field in Zotero -->
-            <date form="text" variable="issued" suffix="."/>
-            <group delimiter=", " suffix=".">
-              <text variable="number"/>
-              <!-- "Bill Number" field in Zotero -->
-              <group delimiter=" ">
-                <text variable="volume"/>
-                <!-- "Code Volume" field in Zotero -->
-                <text variable="container-title"/>
-                <!-- "Code" field in Zotero -->
-                <text variable="page"/>
-                <!-- "Code Pages" field in Zotero -->
-              </group>
+            <text macro="date-codes-legal"/>
+            <group delimiter=": ">
+              <text term="available at"/>
+              <text macro="DOI-or-URL"/>
             </group>
           </group>
         </else-if>
@@ -366,9 +387,13 @@
           <group delimiter=" ">
             <text macro="author" font-weight="bold" suffix="."/>
             <text variable="title" font-style="italic" suffix=","/>
-            <text variable="number" suffix=","/>
-            <!-- "Public Law Number" field in Zotero -->
-            <text macro="date" suffix="."/>
+            <text macro="date-codes-legal"/>
+            <text variable="note" suffix="."/>
+            <!-- "Extra" field in Zotero. Can be used to put any additional information. -->
+            <group delimiter=": ">
+              <text term="available at"/>
+              <text macro="DOI-or-URL"/>
+            </group>
           </group>
         </else-if>
       </choose>
