@@ -41,7 +41,7 @@
     <summary>Style CSL "Ausonius éditions" revu et mis à jour en collaboration avec Ausonius Éditions (d'après le guide de l'auteur du 15 juin 2022), à partir du travail réalisé au départ par N. Monteix, S. Thomas, et les contributions postérieures. - CSL style  "Ausonius éditions" updated, with the collaboration of the Ausonius Editions team (according to the "Guide de l'auteur - 15 juin 2022"), and based on the first work realised by N. Monteix, S. Thomas, and the next contributions.</summary>
     <!-- Informations -->
     <published>2023-01-06T05:43:05+00:00</published>
-    <updated>2023-12-04T18:08:32+00:00</updated>
+    <updated>2024-03-02T02:24:11+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <!-- PARAMETRAGE LOCALE\TERMS -->
@@ -127,31 +127,25 @@
   </locale>
   <!-- PARAMETRAGE MACROS -->
   <!-- Bloc auteur/éditeur/directeur -->
-  <macro name="bloc_auteur-ed-dir">
+  <macro name="bloc_auteur">
     <choose>
       <if variable="author">
         <names variable="author">
           <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
         </names>
       </if>
-      <else-if variable="editorial-director">
-        <names variable="editorial-director">
-          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
-        </names>
-        <text term="editorial-director" prefix=", "/>
+      <else-if variable="editorial-director editor" match="any">
+        <text macro="bloc_ed-dir"/>
       </else-if>
-      <else-if variable="editor">
-        <names variable="editor">
-          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
-        </names>
-        <text term="editor" prefix=", "/>
+      <else-if variable="title-short">
+        <text variable="title" form="short" font-style="italic"/>
       </else-if>
       <else>
         <text term="anonymous"/>
       </else>
     </choose>
   </macro>
-  <macro name="bloc_auteur-ed-dir_short">
+  <macro name="bloc_auteur_short">
     <choose>
       <if variable="author">
         <names variable="author">
@@ -159,23 +153,31 @@
           <et-al font-style="italic"/>
         </names>
       </if>
-      <else-if variable="editorial-director">
-        <names variable="editorial-director">
-          <name form="short" and="symbol" delimiter-precedes-et-al="never" et-al-min="3" et-al-use-first="1"/>
-          <et-al font-style="italic"/>
-        </names>
-        <text term="editorial-director" prefix=", "/>
+      <else-if variable="editorial-director editor" match="any">
+        <text macro="bloc_ed-dir_short"/>
       </else-if>
-      <else-if variable="editor">
-        <names variable="editor">
-          <name form="short" and="symbol" delimiter-precedes-et-al="never" et-al-min="3" et-al-use-first="1"/>
-          <et-al font-style="italic"/>
-        </names>
-        <text term="editor" prefix=", "/>
+      <else-if variable="title-short">
+        <text variable="title" form="short" font-style="italic"/>
       </else-if>
       <else>
         <text term="anonymous"/>
       </else>
+    </choose>
+  </macro>
+  <macro name="bloc_ed-dir">
+    <choose>
+      <if variable="editorial-director">
+        <names variable="editorial-director">
+          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
+        </names>
+        <text term="editorial-director" prefix=", "/>
+      </if>
+      <else-if variable="editor">
+        <names variable="editor">
+          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
+        </names>
+        <text term="editor" prefix=", "/>
+      </else-if>
     </choose>
   </macro>
   <macro name="bloc_ed-dir_short">
@@ -194,84 +196,41 @@
         </names>
         <text term="editor" prefix=", "/>
       </else-if>
-      <else>
-        <text term="anonymous"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="bloc_auteur-ed-dir_tri">
-    <choose>
-      <if variable="author">
-        <names variable="author">
-          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
-        </names>
-      </if>
-      <else-if variable="editorial-director">
-        <names variable="editorial-director">
-          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
-        </names>
-      </else-if>
-      <else-if variable="editor">
-        <names variable="editor">
-          <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter-precedes-last="never"/>
-        </names>
-      </else-if>
-      <else>
-        <text term="anonymous"/>
-      </else>
     </choose>
   </macro>
   <!-- Bloc date publication -->
-  <macro name="date-pub-originale">
+  <macro name="date-pub">
+    <choose>
+      <if variable="issued accessed" match="any">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else-if variable="status">
+        <text variable="status"/>
+      </else-if>
+      <else>
+        <text term="forthcoming"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="bloc_date-publication">
     <date variable="original-date">
       <date-part name="year" prefix=" [" suffix="]"/>
     </date>
-  </macro>
-  <macro name="bloc_date-publication">
-    <text macro="date-pub-originale"/>
-    <group prefix=" (" suffix=")">
-      <choose>
-        <if variable="issued accessed" match="any">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-        </if>
-        <else-if variable="status">
-          <text variable="status"/>
-        </else-if>
-        <else>
-          <text term="forthcoming"/>
-        </else>
-      </choose>
-    </group>
+    <text macro="date-pub" prefix=" (" suffix=")"/>
   </macro>
   <macro name="bloc_date-publication_short">
-    <text macro="date-pub-originale"/>
-    <group>
-      <choose>
-        <if variable="issued">
-          <date variable="issued" prefix=" ">
-            <date-part name="year"/>
-          </date>
-        </if>
-        <else-if variable="accessed">
-          <text variable="title" quotes="true" prefix=" "/>
-        </else-if>
-        <else-if variable="status">
-          <text variable="status" prefix=" "/>
-        </else-if>
-        <else>
-          <text term="forthcoming" prefix=" "/>
-        </else>
-      </choose>
-    </group>
+    <date variable="original-date">
+      <date-part name="year" prefix=" [" suffix="]"/>
+    </date>
+    <text macro="date-pub" prefix=" "/>
   </macro>
   <!-- Bloc titre -->
   <macro name="bloc_titre-ouvrage-contribution-article">
     <choose>
       <if type="book report thesis manuscript article" match="any">
         <text variable="title" font-style="italic"/>
-        <text variable="volume-title" font-style="italic" prefix="&#160;: "/>
         <number variable="volume" form="roman" text-case="uppercase" font-style="italic" prefix=". "/>
         <choose>
           <if type="report thesis" variable="genre">
@@ -294,11 +253,29 @@
         <text variable="publisher-place" prefix=", "/>
       </if>
       <else-if type="chapter paper-conference" match="any">
-        <group suffix=", in&#160;: ">
-          <text variable="title" quotes="true"/>
-        </group>
-        <text macro="bloc_ed-dir_short"/>
-        <text macro="bloc_date-publication_short" prefix=" "/>
+        <text variable="title" quotes="true" suffix=", in&#160;: "/>
+        <text macro="bloc_ed-dir" suffix="&#160;: "/>
+        <text variable="container-title" form="short" font-style="italic"/>
+        <number variable="volume" form="roman" text-case="uppercase" font-style="italic" prefix=". "/>
+        <choose>
+          <if type="report thesis" variable="genre">
+            <text variable="genre" prefix=", "/>
+            <number variable="number" prefix=" n°"/>
+            <text variable="publisher" prefix=", "/>
+          </if>
+        </choose>
+        <choose>
+          <if variable="collection-number">
+            <text variable="collection-title" prefix=", "/>
+            <number variable="collection-number" prefix=" "/>
+          </if>
+        </choose>
+        <choose>
+          <if variable="edition original-date" match="all">
+            <text variable="edition" prefix=" [" suffix="]"/>
+          </if>
+        </choose>
+        <text variable="publisher-place" prefix=", "/>
       </else-if>
       <else-if type="article-journal article-newspaper article-magazine" match="any">
         <group suffix=", ">
@@ -319,20 +296,12 @@
     <choose>
       <if variable="accessed" match="any">
         <choose>
-          <if variable="available-date">
-            <text term="online"/>
-            <date variable="available-date" form="text" prefix=" "/>
-          </if>
-          <else-if variable="issued">
-            <text term="online"/>
-            <date variable="issued" form="text" prefix=" "/>
-          </else-if>
-          <else>
+          <if variable="DOI URL" match="any">
             <text term="online" form="short"/>
-          </else>
+            <text term="accessed" prefix=", "/>
+            <date variable="accessed" form="text" prefix=" "/>
+          </if>
         </choose>
-        <text term="accessed" prefix=", "/>
-        <date variable="accessed" form="text" prefix=" "/>
       </if>
     </choose>
   </macro>
@@ -356,22 +325,22 @@
     <text variable="locator" prefix=" "/>
   </macro>
   <!-- DESCRIPTION DES NOTES ET REFERENCES BIBLIOGRAPHIQUES -->
-  <citation disambiguate-add-year-suffix="true" collapse="year" cite-group-delimiter=", ">
+  <citation disambiguate-add-year-suffix="true" cite-group-delimiter="&#160;; ">
     <sort>
-      <key macro="bloc_auteur-ed-dir_tri"/>
+      <key macro="bloc_auteur"/>
       <key variable="issued"/>
       <key variable="volume"/>
       <key variable="page-first"/>
     </sort>
     <layout delimiter="&#160;; " suffix=".">
-      <text macro="bloc_auteur-ed-dir_short"/>
+      <text macro="bloc_auteur_short"/>
       <text macro="bloc_date-publication_short"/>
       <text macro="bloc_locator" prefix=", "/>
     </layout>
   </citation>
   <bibliography>
     <sort>
-      <key macro="bloc_auteur-ed-dir_tri"/>
+      <key macro="bloc_auteur"/>
       <key variable="issued"/>
       <key variable="title"/>
       <key variable="volume"/>
@@ -379,10 +348,10 @@
     </sort>
     <layout>
       <group suffix=".">
-        <text macro="bloc_auteur-ed-dir"/>
+        <text macro="bloc_auteur"/>
         <text macro="bloc_date-publication"/>
         <text macro="bloc_titre-ouvrage-contribution-article" prefix="&#160;: "/>
-        <text macro="bloc_en-ligne" prefix=" "/>
+        <text macro="bloc_en-ligne" prefix=". "/>
       </group>
       <text macro="bloc_en-ligne_lien" prefix=" "/>
     </layout>
