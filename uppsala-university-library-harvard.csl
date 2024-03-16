@@ -15,7 +15,7 @@
     </author>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <updated>2023-06-14T11:38:21+00:00</updated>
+    <updated>2024-01-10T15:54:22+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="sv">
@@ -24,14 +24,15 @@
       <term name="page" form="short">s.</term>
       <term name="number-of-pages" form="short">s.</term>
       <term name="accessed">Hämtad</term>
+      <term name="director">regissör</term>
     </terms>
   </locale>
   <macro name="author">
     <choose>
-      <if type="motion_picture broadcast" match="none">
+      <if type="motion_picture broadcast legislation bill" match="none">
         <names variable="author">
           <name and="text" delimiter-precedes-last="never" initialize="false" initialize-with=". " name-as-sort-order="all"/>
-          <label form="short" prefix=" "/>
+          <label form="short" prefix=" (" suffix=")"/>
           <et-al font-style="italic"/>
           <substitute>
             <names variable="editor"/>
@@ -40,6 +41,10 @@
           </substitute>
         </names>
       </if>
+      <else-if type="bill legislation" match="any">
+        <text variable="number"/>
+        <text variable="volume"/>
+      </else-if>
       <else>
         <choose>
           <if variable="container-title">
@@ -63,7 +68,7 @@
   </macro>
   <macro name="author-short">
     <choose>
-      <if type="motion_picture broadcast" match="none">
+      <if type="motion_picture broadcast bill legislation" match="none">
         <names variable="author" suffix=",">
           <name form="short" and="text" delimiter-precedes-last="never" et-al-min="4" et-al-use-first="1" initialize-with=". " name-as-sort-order="all"/>
           <substitute>
@@ -73,6 +78,16 @@
           </substitute>
         </names>
       </if>
+      <else-if type="bill legislation" match="any">
+        <choose>
+          <if match="any" variable="number">
+            <text variable="number"/>
+          </if>
+          <else-if match="any" variable="volume">
+            <text variable="volume"/>
+          </else-if>
+        </choose>
+      </else-if>
       <else>
         <choose>
           <if variable="container-title">
@@ -96,7 +111,7 @@
   </macro>
   <macro name="anon">
     <choose>
-      <if type="motion_picture broadcast article-newspaper entry-dictionary entry-encyclopedia" match="none">
+      <if type="motion_picture broadcast article-newspaper entry-dictionary entry-encyclopedia dataset bill legislation legal_case" match="none">
         <text term="anonymous" form="short" text-case="capitalize-first"/>
       </if>
     </choose>
@@ -105,7 +120,7 @@
     <choose>
       <if variable="URL">
         <choose>
-          <if type="webpage post-weblog" match="any">
+          <if type="webpage post-weblog dataset broadcast entry-dictionary entry-encyclopedia motion_picture map figure article-newspaper article-magazine document pamphlet article post graphic report" match="any">
             <group>
               <text variable="URL"/>
             </group>
@@ -118,7 +133,17 @@
               </date>
             </group>
           </if>
+          <else-if type="thesis software chapter book" match="any">
+            <group>
+              <text variable="URL"/>
+            </group>
+          </else-if>
         </choose>
+      </if>
+    </choose>
+    <choose>
+      <if type="graphic figure" match="any">
+        <text variable="license" prefix=". "/>
       </if>
     </choose>
   </macro>
@@ -128,12 +153,12 @@
         <group delimiter=". ">
           <text variable="title" font-style="italic"/>
           <group>
-            <text variable="genre"/>
+            <text variable="genre" text-case="capitalize-first"/>
             <text variable="number" prefix=" No. "/>
           </group>
         </group>
       </if>
-      <else-if type="bill book graphic legal_case legislation map report song speech webpage" match="any">
+      <else-if type="bill book graphic legal_case legislation map report song speech webpage dataset personal_communication" match="any">
         <group delimiter=". ">
           <group delimiter=", ">
             <group delimiter=" ">
@@ -144,18 +169,40 @@
           <text macro="edition"/>
         </group>
       </else-if>
-      <else-if type="motion_picture broadcast" match="any"/>
+      <else-if type="motion_picture broadcast" match="any">
+        <names variable="director">
+          <label prefix=" (" suffix=")"/>
+        </names>
+      </else-if>
       <else-if type="patent" match="any">
         <text variable="title" font-style="italic" suffix=". "/>
+      </else-if>
+      <else-if type="standard" match="any">
+        <group>
+          <text variable="number" font-style="italic" suffix=" "/>
+          <text variable="title" font-style="italic"/>
+        </group>
+      </else-if>
+      <else-if type="software" match="any">
+        <text variable="title"/>
+        <text term="version" text-case="capitalize-first" prefix=", "/>
+        <text variable="version" prefix=" "/>
       </else-if>
       <else>
         <text variable="title"/>
       </else>
     </choose>
+    <text variable="medium" prefix=" [" suffix="]"/>
+    <choose>
+      <if type="personal_communication speech" match="any">
+        <text variable="genre" prefix=" [" suffix="]"/>
+        <text variable="abstract" prefix=". (" suffix=")"/>
+      </if>
+    </choose>
   </macro>
   <macro name="container">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
         <text term="in" text-case="capitalize-first" font-style="normal" suffix=": "/>
         <group delimiter=" ">
           <names variable="editor translator" delimiter=", ">
@@ -208,6 +255,26 @@
           <text variable="publisher-place"/>
         </group>
       </if>
+      <else-if type="entry-encyclopedia entry-dictionary" match="any">
+        <group delimiter=": ">
+          <text variable="publisher-place"/>
+          <text variable="publisher"/>
+        </group>
+        <choose>
+          <if match="any" variable="volume page">
+            <group delimiter=", " prefix=", ">
+              <group>
+                <label variable="volume" form="short"/>
+                <text variable="volume" prefix=" "/>
+              </group>
+              <group>
+                <label plural="never" variable="page" form="short"/>
+                <text variable="page" prefix=" "/>
+              </group>
+            </group>
+          </if>
+        </choose>
+      </else-if>
       <else>
         <group delimiter=". ">
           <group delimiter=": ">
@@ -230,13 +297,17 @@
   <macro name="issued">
     <choose>
       <if variable="issued">
-        <date variable="issued">
-          <date-part name="year"/>
-        </date>
+        <choose>
+          <if type="bill legislation" match="none">
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </if>
+        </choose>
       </if>
-      <else>
+      <else-if type="bill legislation" match="none">
         <text term="no date" form="short"/>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="edition">
@@ -271,7 +342,7 @@
           </group>
         </group>
       </if>
-      <else-if type="article-newspaper" match="any">
+      <else-if type="article-newspaper post post-weblog" match="any">
         <date delimiter="-" variable="issued" prefix=", ">
           <date-part name="year"/>
           <date-part name="month" form="numeric-leading-zeros"/>
@@ -282,7 +353,7 @@
           <text variable="page"/>
         </group>
       </else-if>
-      <else-if type="bill  book graphic legal_case legislation map motion_picture report song thesis" match="any">
+      <else-if type="bill  book graphic legal_case legislation map motion_picture report song thesis dataset standard software entry-encyclopedia entry-dictionary" match="any">
         <group delimiter=", " prefix=". ">
           <text macro="event"/>
           <text macro="publisher"/>
@@ -310,12 +381,7 @@
       <else-if type="patent" match="any">
         <group>
           <text variable="authority" suffix=": "/>
-          <text variable="number" suffix=", "/>
-          <date delimiter="-" variable="issued">
-            <date-part name="year"/>
-            <date-part name="month" form="numeric-leading-zeros"/>
-            <date-part name="day" form="numeric-leading-zeros"/>
-          </date>
+          <text variable="number" suffix="."/>
         </group>
       </else-if>
     </choose>
@@ -338,7 +404,7 @@
       </group>
     </layout>
   </citation>
-  <bibliography>
+  <bibliography hanging-indent="true">
     <sort>
       <key macro="author"/>
       <key macro="issued" sort="ascending"/>
@@ -349,7 +415,6 @@
         <text macro="issued" prefix="(" suffix=")"/>
         <text macro="title"/>
         <text macro="container"/>
-        <text variable="medium"/>
       </group>
       <text macro="locators"/>
       <text macro="access" prefix=". "/>
