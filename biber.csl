@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
   <info>
-    <title>BibTeX generic citation style</title>
-    <id>http://www.zotero.org/styles/bibtex</id>
-    <link href="http://www.zotero.org/styles/bibtex" rel="self"/>
+    <title>Barebones Biber citation style</title>
+    <id>http://www.zotero.org/styles/biber</id>
+    <link href="http://www.zotero.org/styles/biber" rel="self"/>
     <link href="http://www.bibtex.org/" rel="documentation"/>
     <author>
-      <name>Markus Schaffner</name>
+      <name>Nathan Dwek</name>
+      <email>nathdwek@outlook.com</email>
     </author>
     <contributor>
       <name>Richard Karnesky</name>
@@ -17,9 +18,12 @@
       <name>Brenton M. Wiernik</name>
       <email>zotero@wiernik.org</email>
     </contributor>
+    <contributor>
+      <name>Markus Schaffner</name>
+    </contributor>
     <category citation-format="label"/>
     <category field="generic-base"/>
-    <updated>2012-09-14T21:22:32+00:00</updated>
+    <updated>2024-04-03T21:22:32+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="zotero2bibtexType">
@@ -44,6 +48,9 @@
       </else-if>
       <else-if type="report" match="any">
         <text value="techreport"/>
+      </else-if>
+      <else-if type="dataset" match="any">
+        <text value="dataset"/>
       </else-if>
       <else>
         <text value="misc"/>
@@ -78,9 +85,11 @@
       <date-part name="year"/>
     </date>
   </macro>
-  <macro name="issued-month">
-    <date variable="issued">
-      <date-part name="month" form="short" strip-periods="true" text-case="lowercase"/>
+  <macro name="issued-date">
+    <date variable="issued" delimiter="-">
+      <date-part name="year"/>
+      <date-part name="month" form="numeric-leading-zeros"/>
+      <date-part name="day" form="numeric-leading-zeros"/>
     </date>
   </macro>
   <macro name="author">
@@ -103,28 +112,38 @@
   <macro name="container-title">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <text variable="container-title" prefix=" booktitle={" suffix="}"/>
+        <text variable="container-title" prefix="booktitle={" suffix="}"/>
       </if>
       <else>
-        <text variable="container-title" prefix=" journal={" suffix="}"/>
+        <text variable="container-title" prefix="journal={" suffix="}"/>
       </else>
     </choose>
   </macro>
   <macro name="publisher">
     <choose>
       <if type="thesis">
-        <text variable="publisher" prefix=" school={" suffix="}"/>
+        <text variable="publisher" prefix="school={" suffix="}"/>
       </if>
       <else-if type="report">
-        <text variable="publisher" prefix=" institution={" suffix="}"/>
+        <text variable="publisher" prefix="institution={" suffix="}"/>
       </else-if>
       <else>
-        <text variable="publisher" prefix=" publisher={" suffix="}"/>
+        <text variable="publisher" prefix="publisher={" suffix="}"/>
       </else>
     </choose>
   </macro>
   <macro name="pages">
     <text variable="page"/>
+  </macro>
+  <macro name="link">
+    <choose>
+      <if variable="DOI">
+      <text variable="DOI" prefix="DOI={" suffix="}"/>
+      </if>
+      <else-if variable="URL">
+      <text variable="URL" prefix="url={" suffix="}"/>
+      </else-if>
+    </choose>
   </macro>
   <macro name="edition">
     <!-- This should probably be ordinal? -->
@@ -145,39 +164,32 @@
       <key variable="issued"/>
     </sort>
     <layout>
-      <text macro="zotero2bibtexType" prefix=" @"/>
-      <group prefix="{" suffix=" }" delimiter=", ">
+      <text macro="zotero2bibtexType" prefix="@"/>
+      <group prefix="{" suffix="&#xA;}" delimiter=",&#xA;">
         <text macro="citeKey"/>
-        <text variable="publisher-place" prefix=" address={" suffix="}"/>
+        <text variable="publisher-place" prefix="address={" suffix="}"/>
         <!--Fix This-->
-        <text variable="chapter-number" prefix=" chapter={" suffix="}"/>
+        <text variable="chapter-number" prefix="chapter={" suffix="}"/>
         <!--Fix This-->
-        <text macro="edition" prefix=" edition={" suffix="}"/>
-        <text variable="genre" prefix=" type={" suffix="}"/>
-        <text variable="collection-title" prefix=" series={" suffix="}"/>
-        <text macro="title" prefix=" title={" suffix="}"/>
-        <text variable="volume" prefix=" volume={" suffix="}"/>
-        <text variable="license" prefix=" rights={" suffix="}"/>
-        <text variable="ISBN" prefix=" ISBN={" suffix="}"/>
-        <text variable="ISSN" prefix=" ISSN={" suffix="}"/>
-        <text variable="call-number" prefix=" callNumber={" suffix="}"/>
-        <text variable="archive_location" prefix=" archiveLocation={" suffix="}"/>
-        <text variable="URL" prefix=" url={" suffix="}"/>
-        <text variable="DOI" prefix=" DOI={" suffix="}"/>
-        <text variable="abstract" prefix=" abstractNote={" suffix="}"/>
-        <text variable="note" prefix=" note={" suffix="}"/>
-        <text macro="number" prefix=" number={" suffix="}"/>
+        <text macro="edition" prefix="edition={" suffix="}"/>
+        <text variable="genre" prefix="type={" suffix="}"/>
+        <text variable="collection-title" prefix="series={" suffix="}"/>
+        <text macro="title" prefix="title={" suffix="}"/>
+        <text variable="volume" prefix="volume={" suffix="}"/>
+        <text variable="license" prefix="rights={" suffix="}"/>
+        <text variable="ISBN" prefix="ISBN={" suffix="}"/>
+        <text variable="ISSN" prefix="ISSN={" suffix="}"/>
+        <text variable="call-number" prefix="callNumber={" suffix="}"/>
+        <text variable="archive_location" prefix="archiveLocation={" suffix="}"/>
+        <text macro="link"/>
+        <text macro="number" prefix="number={" suffix="}"/>
         <text macro="container-title"/>
         <text macro="publisher"/>
-        <text macro="author" prefix=" author={" suffix="}"/>
-        <text macro="editor-translator" prefix=" editor={" suffix="}"/>
-        <text macro="issued-year" prefix=" year={" suffix="}"/>
-        <text macro="issued-month" prefix=" month=" suffix=""/>
-        <text macro="pages" prefix=" pages={" suffix="}"/>
-        <text variable="collection-title" prefix=" collection={" suffix="}"/>
-        <text variable="keyword" prefix=" keywords={" suffix="}"/>
-        <text variable="language" prefix="language={" suffix="}"/>
-        <text variable="annote" prefix="annote={" suffix="}"/>
+        <text macro="author" prefix="author={" suffix="}"/>
+        <text macro="editor-translator" prefix="editor={" suffix="}"/>
+        <text macro="issued-date" prefix="date=" suffix=""/>
+        <text macro="pages" prefix="pages={" suffix="}"/>
+        <text variable="collection-title" prefix="collection={" suffix="}"/>
       </group>
     </layout>
   </bibliography>
