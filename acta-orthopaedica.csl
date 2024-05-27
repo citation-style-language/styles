@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" page-range-format="minimal" default-locale="en-US">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" initialize-with-hyphen="false" default-locale="en-US">
   <info>
     <title>Acta Orthopaedica</title>
+    <title-short>AO</title-short>
     <id>http://www.zotero.org/styles/acta-orthopaedica</id>
     <link href="http://www.zotero.org/styles/acta-orthopaedica" rel="self"/>
     <link href="http://www.zotero.org/styles/vancouver-author-date" rel="template"/>
-    <link href="http://www.actaorthop.org/index.php?p=include/aut/man_" rel="documentation"/>
+    <link href="https://actaorthop.org/actao/instructionsforauthors" rel="documentation"/>
+    <link href="https://www.nlm.nih.gov/bsd/uniform_requirements.html#journals" rel="documentation"/>
     <author>
       <name>Max Gordon</name>
       <email>max@gforge.se</email>
       <uri>http://gforge.se</uri>
     </author>
-    <category citation-format="author-date"/>
+    <contributor>
+      <name>Michael Berkowitz</name>
+    </contributor>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
+    <contributor>
+      <name>Matt Tracy</name>
+    </contributor>
+    <category citation-format="numeric"/>
     <category field="medicine"/>
     <issn>1745-3674</issn>
     <eissn>1745-3682</eissn>
-    <summary>Vancouver style adapted to Acta Orthopaedica</summary>
-    <updated>2017-07-29T05:53:53+00:00</updated>
+    <summary>Vancouver style adapted to Acta Orthopaedica. Adds required DOI from extra field in bibliography</summary>
+    <updated>2024-05-27T19:27:20+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
-    <date form="text" delimiter=" ">
-      <date-part name="year"/>
-      <date-part name="month" form="short" strip-periods="true"/>
-      <date-part name="day"/>
-    </date>
     <terms>
+      <term name="presented at">presented at</term>
       <term name="retrieved">available</term>
       <term name="section" form="short">sect.</term>
     </terms>
   </locale>
   <macro name="author">
     <names variable="author">
-      <name delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
       <substitute>
         <names variable="editor"/>
@@ -58,6 +65,7 @@
         <if type="thesis">
           <text variable="publisher-place" prefix="[" suffix="]"/>
         </if>
+        <else-if type="speech"/>
         <else>
           <text variable="publisher-place"/>
         </else>
@@ -65,18 +73,50 @@
       <text variable="publisher"/>
     </group>
   </macro>
+  <macro name="access">
+    <choose>
+      <if variable="URL">
+        <group delimiter=": ">
+          <group delimiter=" ">
+            <text term="retrieved" text-case="capitalize-first"/>
+            <text term="from"/>
+          </group>
+          <text variable="URL"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="accessed-date">
+    <choose>
+      <if variable="URL">
+        <group prefix=" [" suffix="]" delimiter=" ">
+          <text term="accessed"/>
+          <date delimiter="-" variable="accessed">
+            <date-part name="year"/>
+            <date-part name="month" form="numeric-leading-zeros"/>
+            <date-part name="day"/>
+          </date>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <macro name="container-title">
     <choose>
       <if type="article-journal article-magazine chapter paper-conference article-newspaper" match="any">
         <group suffix="." delimiter=" ">
           <text variable="container-title" form="short" strip-periods="true"/>
+          <choose>
+            <if variable="URL">
+              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+            </if>
+          </choose>
         </group>
         <text macro="edition" prefix=" "/>
       </if>
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <group delimiter=". ">
-            <text variable="container-title" form="short"/>
+            <text variable="container-title"/>
             <group delimiter=" ">
               <text term="section" form="short" text-case="capitalize-first"/>
               <text variable="section"/>
@@ -85,8 +125,17 @@
           <text variable="number"/>
         </group>
       </else-if>
+      <else-if type="speech">
+        <group delimiter=": " suffix=";">
+          <group delimiter=" ">
+            <text variable="genre" text-case="capitalize-first"/>
+            <text term="presented at"/>
+          </group>
+          <text variable="event"/>
+        </group>
+      </else-if>
       <else>
-        <text variable="container-title" suffix="." form="short"/>
+        <text variable="container-title" suffix="."/>
       </else>
     </choose>
   </macro>
@@ -94,6 +143,11 @@
     <text variable="title"/>
     <choose>
       <if type="article-journal article-magazine chapter paper-conference article-newspaper" match="none">
+        <choose>
+          <if variable="URL">
+            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+          </if>
+        </choose>
         <text macro="edition" prefix=". "/>
       </if>
     </choose>
@@ -120,7 +174,12 @@
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="any">
         <group suffix=";" delimiter=" ">
-          <date date-parts="year" form="text" variable="issued"/>
+          <date variable="issued" delimiter=" ">
+            <date-part name="year"/>
+            <date-part name="month" form="short" strip-periods="true"/>
+            <date-part name="day"/>
+          </date>
+          <text macro="accessed-date"/>
         </group>
       </if>
       <else-if type="bill legislation" match="any">
@@ -140,11 +199,33 @@
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
       </else-if>
+      <else-if type="patent">
+        <group suffix=".">
+          <group delimiter=", ">
+            <text variable="number"/>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
+          <text macro="accessed-date" prefix=" "/>
+        </group>
+      </else-if>
+      <else-if type="speech">
+        <group delimiter="; ">
+          <date variable="issued" delimiter=" ">
+            <date-part name="year"/>
+            <date-part name="month" form="short" strip-periods="true"/>
+            <date-part name="day"/>
+          </date>
+          <text variable="event-place"/>
+        </group>
+      </else-if>
       <else>
         <group suffix=".">
           <date variable="issued">
             <date-part name="year"/>
           </date>
+          <text macro="accessed-date" prefix=" "/>
         </group>
       </else>
     </choose>
@@ -155,12 +236,12 @@
         <text variable="page" prefix=":"/>
       </if>
       <else>
-        <group prefix=" " delimiter=" ">
-          <label variable="page" form="short" plural="never"/>
-          <text variable="page"/>
-        </group>
+        <text variable="page" prefix=" p. "/>
       </else>
     </choose>
+  </macro>
+  <macro name="DOI">
+    <text variable="DOI" form="long" prefix=" doi: "/>
   </macro>
   <macro name="journal-location">
     <choose>
@@ -177,35 +258,17 @@
       </if>
     </choose>
   </macro>
-  <macro name="author-short">
-    <names variable="author">
-      <name form="short" and="text"/>
-    </names>
-  </macro>
-  <macro name="issued">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
-  </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year">
+  <citation collapse="citation-number">
     <sort>
-      <key macro="issued"/>
-      <key macro="author-short"/>
+      <key variable="citation-number"/>
     </sort>
-    <layout prefix="(" suffix=")" delimiter=", ">
-      <group delimiter=" ">
-        <text macro="author-short"/>
-        <text macro="issued"/>
-      </group>
+    <layout vertical-align="baseline" delimiter="," prefix="[" suffix="]">
+      <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography et-al-min="99" et-al-use-first="98" hanging-indent="true">
-    <sort>
-      <key macro="author"/>
-      <key macro="issued"/>
-      <key variable="title"/>
-    </sort>
+  <bibliography second-field-align="flush">
     <layout>
+      <text variable="citation-number" suffix=". "/>
       <group delimiter=". " suffix=". ">
         <text macro="author"/>
         <text macro="title"/>
@@ -221,6 +284,8 @@
         </group>
       </group>
       <text macro="report-details" suffix=". "/>
+      <text macro="access"/>
+      <text macro="DOI"/>
     </layout>
   </bibliography>
 </style>
