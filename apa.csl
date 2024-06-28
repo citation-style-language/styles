@@ -89,8 +89,8 @@
   <!-- DONE: New creator roles: -chair- -compiler- -contributor- -curator- -executive-producer- -guest- -host- -narrator- -organizer- -performer- -producer- -script-writer- -series-creator- -->
   <!-- TODO: New variables:
          -available-date- (not used) -submitted- (used for proposal date of regulations, but not otherwise)
-         part-number -printing-number- (not used) supplement-number
-         part-title -volume-title-
+         -part-number- -printing-number- (not used) -supplement-number-
+         -part-title- -volume-title-
          -archive_collection-
          -division- (not used) -jurisdiction- (not used)
          -event-title-
@@ -508,39 +508,55 @@
     <choose>
       <if type="post webpage" match="any">
         <!-- Webpages are always italicized -->
-        <text variable="title" font-style="italic"/>
+        <text macro="title-plus-part-title" font-style="italic"/>
       </if>
-      <else-if variable="container-title" match="any">
-        <!-- Other types are italicized based on presence of container-title.
+      <!-- Other types are italicized based on presence of container-title.
              Assume that review and review-book are published in periodicals/blogs,
              not just on a web page (ex. 69) -->
-        <text variable="title"/>
-      </else-if>
-      <else>
+      <else-if type="article-journal article-magazine article-newspaper periodical post-weblog review review-book" match="any">
+        <!-- For periodicals, assume that part-number and part-title refer to the article and append to title -->
         <choose>
-          <!-- for periodical items without container titles, don't append volume-title to title -->
-          <if type="article-journal article-magazine article-newspaper periodical post-weblog review review-book" match="any">
-            <text variable="title" font-style="italic"/>
+          <if variable="container-title" match="any">
+            <text macro="title-plus-part-title"/>
           </if>
-          <!-- treat paper-conference as book-like if it has an editor -->
-          <else-if type="paper-conference">
-            <choose>
-              <!-- TODO: add new creator types -->
-              <if variable="collection-editor editor editorial-director" match="any">
-                <text macro="title-plus-volume-title"/>
-              </if>
-              <else>
-                <text variable="title" font-style="italic"/>
-              </else>
-            </choose>
-          </else-if>
-          <!-- for book-like items without container titles and with volume-title, append volume-title to title (ex. 30) -->
           <else>
-            <text macro="title-plus-volume-title"/>
+            <!-- for periodical items without container titles, don't append volume-title to title -->
+            <text macro="title-plus-part-title" font-style="italic"/>
           </else>
         </choose>
+      </else-if>
+      <else-if type="paper-conference">
+        <!-- Treat paper-conference as book-like if it has an editor, otherwise as periodical-like -->
+        <choose>
+          <!-- TODO: add new creator types -->
+          <if variable="collection-editor editor editorial-director" match="any">
+            <text macro="title-plus-volume-title"/>
+          </if>
+          <else>
+            <text macro="title-plus-part-title" font-style="italic"/>
+          </else>
+        </choose>
+      </else-if>
+      <else>
+        <!-- For book-like items without container titles and with volume-title, append volume-title to title (ex. 30) -->
+        <text macro="title-plus-volume-title"/>
       </else>
     </choose>
+  </macro>
+  <macro name="title-plus-part-title">
+    <group delimiter=": ">
+      <text variable="title"/>
+      <text macro="part-title"/>
+    </group>
+  </macro>
+  <macro name="part-title">
+    <group delimiter=". ">
+      <group delimiter=" ">
+        <label variable="part-number" form="short" text-case="capitalize-first"/>
+        <text variable="part-number"/>
+      </group>
+      <text variable="part-title" text-case="capitalize-first"/>
+    </group>
   </macro>
   <macro name="title-plus-volume-title">
     <group delimiter=": " font-style="italic">
@@ -549,23 +565,29 @@
     </group>
   </macro>
   <macro name="volume-title">
-    <choose>
-      <if variable="volume-title">
-        <group delimiter=" ">
-          <label variable="volume" form="short" text-case="capitalize-first"/>
-          <group delimiter=". ">
-            <text variable="volume"/>
-            <text variable="volume-title"/>
+    <group delimiter=": ">
+      <choose>
+        <if variable="volume-title">
+          <group delimiter=" ">
+            <group delimiter=". ">
+              <group delimiter=" ">
+                <label variable="volume" form="short" text-case="capitalize-first"/>
+                <text variable="volume"/>
+              </group>
+              <text variable="volume-title"/>
+            </group>
           </group>
-        </group>
-      </if>
-      <else-if is-numeric="volume" match="none">
-        <group delimiter=" ">
-          <label variable="volume" form="short" text-case="capitalize-first"/>
-          <text variable="volume"/>
-        </group>
-      </else-if>
-    </choose>
+        </if>
+        <else-if is-numeric="volume" match="none">
+          <group delimiter=" ">
+            <label variable="volume" form="short" text-case="capitalize-first"/>
+            <text variable="volume"/>
+          </group>
+        </else-if>
+      </choose>
+      <!-- For book-like items, assume part-number and part-title refer to the book/volume. -->
+      <text macro="part-title"/>
+    </group>
   </macro>
   <macro name="title-intext">
     <choose>
@@ -1227,6 +1249,10 @@
           </group>
         </if>
       </choose>
+      <group delimiter=" ">
+        <label variable="supplement-number" text-case="capitalize-first"/>
+        <text variable="supplement-number"/>
+      </group>
       <choose>
         <if variable="volume" match="any">
           <choose>
