@@ -45,6 +45,8 @@
       <term name="post">online post</term>
       <term name="at" form="long">before the</term>
       <term name="hearing" form="verb">testimony of</term>
+      <term name="review-of" form="long">review of the</term>
+      <term name="review-of" form="short">review of</term>
     </terms>
   </locale>
   <locale xml:lang="da">
@@ -96,16 +98,16 @@
          -event-title-
          -language- (not used)
          -license- (not used)
-         reviewed-genre
+         -reviewed-genre-
   -->
   <!-- TODO: New terms:
-         advance-online-publication
+         -advance-online-publication-
          -track on album-
          -original-work-published-
          -personal-communication-
-         preprint
-         review-of
-         item types
+         -preprint-
+         -review-of-
+         -item types-
   -->
   <!-- For Indigeneous Knowledge, assume the item is stored as `speech`
        and that Nation/Community, treaty, where the Elder lives, 
@@ -754,59 +756,7 @@
     <group prefix="[" suffix="]">
       <choose>
         <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
-          <!-- Reviewed item -->
-          <group delimiter="; ">
-            <group delimiter=", ">
-              <group delimiter=" ">
-                <!-- Assume that genre is entered as 'Review of the book' or similar -->
-                <choose>
-                  <if variable="number" match="none">
-                    <choose>
-                      <if variable="genre">
-                        <text variable="genre" text-case="capitalize-first"/>
-                      </if>
-                      <else-if variable="medium">
-                        <text variable="medium" text-case="capitalize-first"/>
-                      </else-if>
-                      <else>
-                        <!-- TODO: Replace with term="review" -->
-                        <!-- TODO: Handle review vs review-of depending on presence of reviewed-title -->
-                        <!-- TODO: Add reviewed-genre -->
-                        <text value="Review of"/>
-                      </else>
-                    </choose>
-                  </if>
-                  <else>
-                    <choose>
-                      <if variable="medium">
-                        <text variable="medium" text-case="capitalize-first"/>
-                      </if>
-                      <else>
-                        <!-- TODO: Replace with term="review" -->
-                        <!-- TODO: Handle review vs review-of depending on presence of reviewed-title -->
-                        <!-- TODO: Add reviewed-genre -->
-                        <text value="Review of"/>
-                      </else>
-                    </choose>
-                  </else>
-                </choose>
-                <text macro="reviewed-title"/>
-              </group>
-              <names variable="reviewed-author">
-                <label form="verb-short" suffix=" "/>
-                <name and="symbol" initialize-with=". " delimiter=", "/>
-              </names>
-            </group>
-            <choose>
-              <if variable="genre" match="any">
-                <choose>
-                  <if variable="number" match="none">
-                    <text variable="medium" text-case="capitalize-first"/>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-          </group>
+          <text macro="reviewed-item"/>
         </if>
         <else-if type="thesis">
           <!-- Thesis type and institution -->
@@ -1040,6 +990,73 @@
         <else>
           <text macro="format-intext"/>
         </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="reviewed-item">
+    <!-- Reviewed item -->
+    <group delimiter="; ">
+      <group delimiter=", ">
+        <group delimiter=" ">
+          <choose>
+            <if variable="reviewed-genre">
+              <group delimiter=" ">
+                <text term="review-of" form="long" text-case="capitalize-first"/>
+                <text variable="reviewed-genre" text-case="lowercase"/>
+              </group>
+            </if>
+            <!-- If no `reviewed-genre`, assume that `genre` or `medium` is entered as 'Review of the book' or similar -->
+            <else-if variable="number" match="none">
+              <choose>
+                <if variable="genre">
+                  <text variable="genre" text-case="capitalize-first"/>
+                </if>
+                <else-if variable="medium">
+                  <text variable="medium" text-case="capitalize-first"/>
+                </else-if>
+                <else-if type="review-book">
+                  <group delimiter=" ">
+                    <text term="review-of" form="long" text-case="capitalize-first"/>
+                    <text term="book" form="long" text-case="lowercase"/>
+                  </group>
+                </else-if>
+                <else>
+                  <text term="review-of" form="short" text-case="capitalize-first"/>
+                </else>
+              </choose>
+            </else-if>
+            <else>
+              <choose>
+                <if variable="medium">
+                  <text variable="medium" text-case="capitalize-first"/>
+                </if>
+                <else-if type="review-book">
+                  <group delimiter=" ">
+                    <text term="review-of" form="long" text-case="capitalize-first"/>
+                    <text term="book" form="long" text-case="lowercase"/>
+                  </group>
+                </else-if>
+                <else>
+                  <text term="review-of" form="short" text-case="capitalize-first"/>
+                </else>
+              </choose>
+            </else>
+          </choose>
+          <text macro="reviewed-title"/>
+        </group>
+        <names variable="reviewed-author">
+          <label form="verb-short" suffix=" "/>
+          <name and="symbol" initialize-with=". " delimiter=", "/>
+        </names>
+      </group>
+      <choose>
+        <if variable="genre" match="any">
+          <choose>
+            <if variable="number" match="none">
+              <text variable="medium" text-case="capitalize-first"/>
+            </if>
+          </choose>
+        </if>
       </choose>
     </group>
   </macro>
