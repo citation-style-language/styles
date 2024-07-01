@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB" page-range-format="chicago">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB" page-range-format="minimal-two">
   <info>
     <title>New Hart's Rules: The Oxford Style Guide</title>
     <id>http://www.zotero.org/styles/new-harts-rules-the-oxford-style-guide</id>
     <link href="http://www.zotero.org/styles/new-harts-rules-the-oxford-style-guide" rel="self"/>
     <link href="http://www.zotero.org/styles/modern-humanities-research-association" rel="template"/>
-    <link href="http://www.oxforddictionaries.com/secondary/harts_rules/" rel="documentation"/>
+    <link href="https://global.oup.com/academic/product/new-harts-rules-9780199570027" rel="documentation"/>
     <author>
       <name>Sebastian Karcher</name>
     </author>
@@ -17,9 +17,8 @@
   <locale xml:lang="en">
     <terms>
       <term name="et-al">and others</term>
-      <term name="editor" form="verb-short">ed. by</term>
       <term name="edition" form="short">edn</term>
-      <term name="translator" form="verb-short">trans. by</term>
+      <term name="translator" form="short">tr.</term>
     </terms>
   </locale>
   <macro name="author">
@@ -81,7 +80,10 @@
         <text variable="title"/>
       </else-if>
       <else-if variable="reviewed-author">
-        <text variable="title" font-style="italic" prefix="review of "/>
+        <names variable="reviewed-author">
+          <name prefix="review of " and="text" delimiter=", "/>
+        </names>
+        <text variable="title" font-style="italic" prefix=", "/>
       </else-if>
       <else>
         <text variable="title" text-case="title" quotes="true"/>
@@ -115,18 +117,16 @@
     <group delimiter=", ">
       <group delimiter=" ">
         <choose>
-          <if variable="container-author reviewed-author" match="any">
-            <group>
-              <names variable="container-author reviewed-author">
-                <label form="verb-short" text-case="lowercase" suffix=" "/>
-                <name and="text" delimiter=", "/>
-              </names>
-            </group>
+          <if variable="container-author">
+            <names variable="container-author">
+              <label form="verb-short" text-case="lowercase" suffix=" "/>
+              <name and="text" delimiter=", "/>
+            </names>
           </if>
         </choose>
       </group>
       <names variable="editor translator" delimiter=", ">
-        <label form="verb-short" text-case="lowercase" suffix=" "/>
+        <label form="short" text-case="lowercase" plural="never" suffix=" "/>
         <name and="text" delimiter=", "/>
       </names>
     </group>
@@ -141,7 +141,11 @@
   <macro name="container-contributors-note">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <text macro="editor-translator"/>
+        <text term="in" suffix=" "/>
+        <names variable="editor">
+          <name and="text" delimiter=", "/>
+          <label form="short" text-case="lowercase" prefix=", "/>
+        </names>
       </if>
     </choose>
   </macro>
@@ -242,9 +246,16 @@
   </macro>
   <macro name="container-title-note">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if variable="reviewed-author">
         <text term="in" suffix=" "/>
       </if>
+      <else-if type="chapter">
+        <choose>
+          <if variable="editor" match="none">
+            <text term="in" suffix=" "/>
+	  </if>
+        </choose>
+      </else-if>
     </choose>
     <text variable="container-title" font-style="italic" text-case="title"/>
   </macro>
@@ -372,17 +383,24 @@
       </choose>
     </group>
     <choose>
-      <if variable="URL">
-        <text variable="URL" prefix=" &lt;" suffix="&gt;"/>
-        <group prefix=" [" suffix="]">
-          <text term="accessed"/>
-          <date variable="accessed">
-            <date-part name="day" prefix=" "/>
-            <date-part name="month" prefix=" "/>
-            <date-part name="year" prefix=" "/>
-          </date>
-        </group>
+      <if variable="DOI">
+        <text variable="DOI" prefix=". doi:"/>
       </if>
+      <else>
+	<choose>
+          <if variable="URL">
+            <text variable="URL" prefix=", "/>
+            <group prefix=", ">
+              <text term="accessed"/>
+              <date variable="accessed">
+                <date-part name="day" prefix=" "/>
+                <date-part name="month" form="short" prefix=" "/>
+                <date-part name="year" prefix=" "/>
+              </date>
+            </group>
+          </if>
+        </choose>
+      </else>
     </choose>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true">
@@ -400,9 +418,9 @@
           <group delimiter=", ">
             <text macro="contributors-note"/>
             <text macro="title-note"/>
-            <text macro="secondary-contributors-note"/>
-            <text macro="container-title-note"/>
             <text macro="container-contributors-note"/>
+            <text macro="container-title-note"/>
+            <text macro="secondary-contributors-note"/>
             <text macro="collection-title"/>
             <text macro="locators-note"/>
           </group>
@@ -415,18 +433,18 @@
       </choose>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="7" et-al-use-first="6" subsequent-author-substitute="&#8212;&#8212;&#8212;">
+  <bibliography hanging-indent="true" et-al-min="7" et-al-use-first="1">
     <sort>
       <key macro="author"/>
       <key variable="title"/>
     </sort>
-    <layout>
+    <layout suffix=".">
       <group delimiter=", ">
         <text macro="author"/>
         <text macro="title-note"/>
-        <text macro="secondary-contributors-note"/>
-        <text macro="container-title-note"/>
         <text macro="container-contributors-note"/>
+        <text macro="container-title-note"/>
+        <text macro="secondary-contributors-note"/>
         <text macro="collection-title"/>
         <text macro="volume"/>
       </group>
