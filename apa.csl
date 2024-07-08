@@ -32,6 +32,7 @@
         <single>ed.</single>
         <multiple>eds.</multiple>
       </term>
+      <term name="performer" form="verb">recorded by</term>
       <term name="circa" form="short">ca.</term>
       <term name="bc"> B.C.E.</term>
       <term name="ad"> C.E.</term>
@@ -153,9 +154,8 @@
             <if variable="container-title">
               <choose>
                 <if type="book classic collection entry entry-dictionary entry-encyclopedia" match="any">
-                  <!-- TODO: Check logic documentation. -->
                   <!-- Items with book-like container-title substitute with their title and parenthetical, 
-                       but leave bracketed after container-title. -->
+                       but leave bracketed after container-title. This mimics the `container-booklike` formatting. -->
                   <choose>
                     <if variable="title">
                       <group delimiter=" ">
@@ -175,8 +175,8 @@
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
           </names>
-          <!-- TODO: Test for editortranslator and put that first as that becomes available -->
-          <names variable="editor" delimiter=", ">
+          <!-- TODO: Add test for editor-translator once that becomes available in processors. -->
+          <names variable="editor translator" delimiter=", ">
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="short" prefix=" (" suffix=")" text-case="title"/>
           </names>
@@ -190,15 +190,18 @@
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
           </names>
           <!-- TODO: Check chair formatting for standalone and container -->
-          <!-- TODO: Should chair/organizer be specifically printed for event types, to avoid them being printed for eg, theses? -->
-          <names variable="chair organizer">
-            <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-            <label form="long" prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="organizer">
-            <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
-            <label form="long" prefix=" (" suffix=")" text-case="title"/>
-          </names>
+          <choose>
+            <if type="event performance speech" match="any">
+              <names variable="chair">
+                <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+                <label form="long" prefix=" (" suffix=")" text-case="title"/>
+              </names>
+              <names variable="organizer">
+                <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+                <label form="long" prefix=" (" suffix=")" text-case="title"/>
+              </names>
+            </if>
+          </choose>
           <names variable="curator">
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
@@ -209,13 +212,15 @@
           </names>
           <choose>
             <if variable="title">
-              <!-- TODO: Document the logic here. -->
+              <!-- If an item has a title, substitute missing author with title and parenthetical, but leave bracketed 
+                   after the date (in the 'title' position). -->
               <group delimiter=" ">
                 <text macro="title"/>
                 <text macro="parenthetical"/>
               </group>
             </if>
             <else>
+              <!-- If an item has no title, substitute with bracketed followed by parenthetical. -->
               <text macro="title-and-descriptions"/>
             </else>
           </choose>
@@ -288,8 +293,12 @@
             <!-- TODO: Check compiler formatting for standalone and container -->
             <names variable="compiler"/>
             <!-- TODO: Check chair formatting for standalone and container -->
-            <names variable="chair"/>
-            <names variable="organizer"/>
+            <choose>
+              <if type="event performance speech" match="any">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
             <names variable="curator"/>
             <text macro="title-intext"/>
           </substitute>
@@ -884,21 +893,36 @@
                     <if variable="genre">
                       <text variable="genre" text-case="capitalize-first"/>
                       <!-- TODO: Replace prefix with performer label -->
-                      <names variable="author" prefix="recorded by ">
-                        <name and="symbol" initialize-with=". " delimiter=", "/>
-                      </names>
+                      <group delimiter=" ">
+                        <text term="performer" form="verb"/>
+                        <names variable="author">
+                          <name and="symbol" initialize-with=". " delimiter=", "/>
+                          <substitute>
+                            <names variable="performer"/>
+                          </substitute>
+                        </names>
+                      </group>
                     </if>
                     <else-if variable="medium">
                       <text variable="medium" text-case="capitalize-first"/>
                       <!-- TODO: Replace prefix with performer label -->
-                      <names variable="author" prefix="recorded by ">
-                        <name and="symbol" initialize-with=". " delimiter=", "/>
-                      </names>
+                      <group delimiter=" ">
+                        <text term="performer" form="verb"/>
+                        <names variable="author">
+                          <name and="symbol" initialize-with=". " delimiter=", "/>
+                          <substitute>
+                            <names variable="performer"/>
+                          </substitute>
+                        </names>
+                      </group>
                     </else-if>
                     <else>
-                      <!-- TODO: Replace prefix with performer label -->
-                      <names variable="author" prefix="Recorded by ">
+                      <text term="performer" form="verb" text-case="capitalize-first"/>
+                      <names variable="author">
                         <name and="symbol" initialize-with=". " delimiter=", "/>
+                        <substitute>
+                          <names variable="performer"/>
+                        </substitute>
                       </names>
                     </else>
                   </choose>
@@ -910,14 +934,23 @@
                     <if variable="medium">
                       <text variable="medium" text-case="capitalize-first"/>
                       <!-- TODO: Replace prefix with performer label -->
-                      <names variable="author" prefix="recorded by ">
-                        <name and="symbol" initialize-with=". " delimiter=", "/>
-                      </names>
+                      <group delimiter=" ">
+                        <text term="performer" form="verb"/>
+                        <names variable="author">
+                          <name and="symbol" initialize-with=". " delimiter=", "/>
+                          <substitute>
+                            <names variable="performer"/>
+                          </substitute>
+                        </names>
+                      </group>
                     </if>
                     <else>
-                      <!-- TODO: Replace prefix with performer label -->
-                      <names variable="author" prefix="Recorded by ">
+                      <text term="performer" form="verb" text-case="capitalize-first"/>
+                      <names variable="author">
                         <name and="symbol" initialize-with=". " delimiter=", "/>
+                        <substitute>
+                          <names variable="performer"/>
+                        </substitute>
                       </names>
                     </else>
                   </choose>
@@ -940,7 +973,8 @@
           <text macro="format"/>
         </else-if>
         <else>
-          <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place bracketed after the container title -->
+          <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, 
+               place bracketed after the container title -->
           <choose>
             <if type="event paper-conference performance speech" match="any">
               <choose>
@@ -1141,7 +1175,8 @@
           </names>
         </if>
       </choose>
-      <!-- TODO: When editortranslator becomes available, add a test: variable="editortranslator" match="none"; then print translator -->
+      <!-- TODO: When editor-translator becomes available in processors, add a test: 
+                 variable="editor-translator" match="none"; then print translator -->
       <choose>
         <if type="post webpage" match="none">
           <!-- Webpages treat container-title like publisher -->
@@ -1381,7 +1416,6 @@
   </macro>
   <macro name="generic-type-label">
     <!-- Generic labels for specific types -->
-    <!-- TODO: Add terms for other types? -->
     <choose>
       <if type="dataset">
         <text term="dataset" text-case="capitalize-first"/>
@@ -1511,7 +1545,8 @@
           </choose>
           <group delimiter=", ">
             <names variable="series-creator executive-producer" delimiter=", &amp; ">
-              <!-- TODO: Change to editortranslator and move editor to substitute -->
+              <!-- TODO: Change to editor-translator and move editor to substitute
+                         once that's available in processors -->
               <name and="symbol" initialize-with=". " delimiter=", "/>
               <label form="long" text-case="title" prefix=" (" suffix=")"/>
               <substitute>
@@ -1526,8 +1561,12 @@
                 </names>
                 <!-- TODO: Check that label formatting is long. -->
                 <names variable="compiler"/>
-                <names variable="chair"/>
-                <names variable="organizer"/>
+                <choose>
+                  <if type="event performance speech" match="any">
+                    <names variable="chair"/>
+                    <names variable="organizer"/>
+                  </if>
+                </choose>
                 <names variable="curator"/>
                 <names variable="collection-editor">
                   <name and="symbol" initialize-with=". " delimiter=", "/>
@@ -1572,7 +1611,6 @@
             </if>
           </choose>
         </else-if>
-        <!-- TODO: Previously review and review-book were omitted from this list. Was there a reason for that? -->
         <else-if type="article-journal article-magazine article-newspaper periodical post-weblog review review-book" match="none">
           <text variable="publisher"/>
         </else-if>
@@ -1706,9 +1744,9 @@
     <!-- `treaty`: for treaties -->
     <!-- `legal_case`: for all legal and court cases -->
     <!-- `bill`: for bills, resolutions, federal reports -->
-    <!-- `hearing`: TODO for hearings and testimony -->
+    <!-- `hearing`: TODO: for hearings and testimony -->
     <!-- `legislation`: for statutes, constitutional items, and charters -->
-    <!-- `regulation`: TODO codified regulations, uncodified regulations, executive orders -->
+    <!-- `regulation`: TODO: codified regulations, uncodified regulations, executive orders -->
     <group delimiter=" ">
       <choose>
         <if type="treaty">
