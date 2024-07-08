@@ -87,39 +87,17 @@
       <term name="et-al">et al.</term>
     </terms>
   </locale>
-  <!-- DONE: New types: -classic- -collection- -document- -event- -hearing- -performance- -periodical- -regulation- -software- -standard- -->
-  <!-- DONE: New creator roles: -chair- -compiler- -contributor- -curator- -executive-producer- -guest- -host- -narrator- -organizer- -performer- -producer- -script-writer- -series-creator- -->
-  <!-- TODO: New variables:
-         -available-date- (not used) -submitted- (used for proposal date of regulations, but not otherwise)
-         -part-number- -printing-number- (not used) -supplement-number-
-         -part-title- -volume-title-
-         -archive_collection-
-         -division- (not used) -jurisdiction- (not used)
-         -event-title-
-         -language- (not used)
-         -license- (not used)
-         -reviewed-genre-
-  -->
-  <!-- TODO: New terms:
-         -advance-online-publication-
-         -track on album-
-         -original-work-published-
-         -personal-communication-
-         -preprint-
-         -review-of-
-         -item types-
-  -->
   <!-- For Indigeneous Knowledge, assume the item is stored as `document` or `speech`
        and that Nation/Community, treaty, where the Elder lives, 
        and topic are all stored in `title`
        cf. https://libguides.norquest.ca/c.php?g=314831&p=5188823.
        If the item is stored as `interview`, assume that Nation/Community, treat, and topic
        are stored in `title`, 'Oral teaching' or similar is stored in `archive`, and where
-       the Elder lives is stored in `archive-place`. -->
-  <!-- TODO: Check formatting of reviews:
-         - with each type (review, review-book, classed as article-journal, article-magazine, post-weblog, or webpage)
-         - with and without reviewed-author
-         - with and without reviewed-title
+       the Elder lives is stored in `archive-place`. 
+  -->
+  <!-- Reviews are detected if an item has type `review` or `review-book` or if it has any of the variables
+       `reviewed-title`, `reviewed-author`, or `reviewed-genre`. For the latter case, reviews are commonly 
+       stored as types `article-journal`, `article-magazine`, `article-newspaper`, `post-weblog`, or `webpage` 
   -->
   <!-- General categories of item types:
        Periodical: article-journal article-magazine article-newspaper periodical post-weblog review review-book
@@ -570,10 +548,27 @@
     </choose>
   </macro>
   <macro name="title-plus-part-title">
-    <group delimiter=": ">
-      <text variable="title"/>
-      <text macro="part-title"/>
-    </group>
+    <choose>
+      <if variable="reviewed-author reviewed-genre reviewed-title" type="review review-book" match="any">
+        <!-- If a review has no `reviewed-title`, assume that `title` contains the title of the reviewed work
+             and omit it here; it is printed in the `reviewed-item` macro. -->
+        <choose>
+          <if variable="reviewed-title" match="none"/>
+          <else>
+            <group delimiter=": ">
+              <text variable="title"/>
+              <text macro="part-title"/>
+            </group>
+          </else>
+        </choose>
+      </if>
+      <else>
+        <group delimiter=": ">
+          <text variable="title"/>
+          <text macro="part-title"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="part-title">
     <group delimiter=". ">
@@ -772,7 +767,7 @@
     <!-- If there is a number, genre is already printed in macro="number" -->
     <group prefix="[" suffix="]">
       <choose>
-        <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
+        <if variable="reviewed-author reviewed-genre reviewed-title" type="review review-book" match="any">
           <text macro="reviewed-item"/>
         </if>
         <else-if type="thesis">
@@ -965,7 +960,7 @@
   <macro name="bracketed-intext">
     <group prefix="[" suffix="]">
       <choose>
-        <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
+        <if variable="reviewed-title" match="any">
           <group delimiter=" ">
             <text term="review-of" text-case="capitalize-first"/>
             <text macro="reviewed-title-intext"/>
