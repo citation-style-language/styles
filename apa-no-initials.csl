@@ -139,12 +139,23 @@
           <names variable="author"/>
           <!-- Note: `narrator` only cited in secondary-contributors -->
           <names variable="illustrator"/>
-          <names variable="script-writer director">
-            <!-- Note: Actors/performers and producers [not executive] not cited in APA style. -->
+          <!-- TODO: Replace `delimiter` with `collapse` to combine names variables when that becomes available. -->
+          <choose>
+            <if type="broadcast">
+              <names variable="script-writer director" delimiter=", &amp; ">
+                <!-- Note: Actors/performers and producers [not executive] not cited in APA style. -->
+                <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+                <label form="long" prefix=" (" suffix=")" text-case="title"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="director">
+            <!-- For non-broadcast items, APA only cites directors and not writers. -->
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
           </names>
-          <names variable="guest host">
+          <!-- TODO: Replace `delimiter` with `collapse` to combine names variables when that becomes available. -->
+          <names variable="guest host" delimiter=", &amp; ">
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
           </names>
@@ -174,17 +185,20 @@
               </choose>
             </if>
           </choose>
-          <names variable="series-creator executive-producer">
-            <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+          <names variable="executive-producer">
+            <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="long" prefix=" (" suffix=")" text-case="title"/>
           </names>
-          <names variable="editor-translator" delimiter=", ">
+          <names variable="series-creator">
+            <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
+            <label form="long" prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="editor-translator">
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="short" prefix=" (" suffix=")" text-case="title"/>
           </names>
-          <!-- TODO: Split editor and translator into separate lines once processors begin to automatically create
-               the editor-translator variable. -->
-          <names variable="editor translator" delimiter=", ">
+          <!-- Note: Translator is not cited as a primary creator (only as Ed. & Trans.). -->
+          <names variable="editor">
             <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize="false" initialize-with=". " delimiter=", " delimiter-precedes-last="always"/>
             <label form="short" prefix=" (" suffix=")" text-case="title"/>
           </names>
@@ -279,8 +293,15 @@
           <substitute>
             <names variable="author"/>
             <names variable="illustrator"/>
-            <names variable="script-writer director"/>
-            <names variable="guest host"/>
+            <!-- TODO: Replace `delimiter` with `collapse` to combine names variables when that becomes available. -->
+            <choose>
+              <if type="broadcast">
+                <names variable="script-writer director" delimiter=", &amp; "/>
+              </if>
+            </choose>
+            <names variable="director"/>
+            <!-- TODO: Replace `delimiter` with `collapse` to combine names variables when that becomes available. -->
+            <names variable="guest host" delimiter=", &amp; "/>
             <names variable="producer"/>
             <choose>
               <if variable="container-title">
@@ -291,7 +312,8 @@
                 </choose>
               </if>
             </choose>
-            <names variable="series-creator executive-producer"/>
+            <names variable="executive-producer"/>
+            <names variable="series-creator"/>
             <names variable="editor"/>
             <names variable="editorial-director"/>
             <names variable="compiler"/>
@@ -1172,33 +1194,44 @@
           </names>
         </if>
       </choose>
-      <!-- TODO: When editor-translator becomes available in processors, add a test: 
-                 variable="editor-translator" match="none"; then print translator -->
       <choose>
         <if type="post webpage" match="none">
           <!-- Webpages treat container-title like publisher -->
-          <choose>
-            <if variable="container-title" match="none">
-              <group delimiter="; ">
-                <names variable="container-author">
-                  <label form="verb-short" suffix=" " text-case="title"/>
-                  <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
-                </names>
-                <names variable="editor translator" delimiter="; ">
-                  <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
-                  <label form="short" prefix=", " text-case="title"/>
-                </names>
-                <names variable="illustrator narrator" delimiter="; ">
-                  <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
-                  <label form="short" prefix=", " text-case="title"/>
-                </names>
-                <names variable="compiler chair organizer curator series-creator executive-producer" delimiter="; ">
-                  <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
-                  <label form="long" prefix=", " text-case="title"/>
-                </names>
-              </group>
-            </if>
-          </choose>
+          <group delimiter="; ">
+            <names variable="illustrator narrator" delimiter="; ">
+              <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
+              <label form="short" prefix=", " text-case="title"/>
+            </names>
+            <choose>
+              <if variable="container-title" match="none">
+                <group delimiter="; ">
+                  <names variable="container-author">
+                    <label form="verb-short" suffix=" " text-case="title"/>
+                    <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
+                  </names>
+                  <names variable="editor translator" delimiter="; ">
+                    <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
+                    <label form="short" prefix=", " text-case="title"/>
+                  </names>
+                  <names variable="compiler chair organizer curator series-creator executive-producer" delimiter="; ">
+                    <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
+                    <label form="long" prefix=", " text-case="title"/>
+                  </names>
+                </group>
+              </if>
+              <else>
+                <choose>
+                  <!-- TODO: Check logic once processors start to automatically populate editor-translator. -->
+                  <if variable="editor-translator" match="none">
+                    <names variable="translator" delimiter="; ">
+                      <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
+                      <label form="short" prefix=", " text-case="title"/>
+                    </names>
+                  </if>
+                </choose>
+              </else>
+            </choose>
+          </group>
         </if>
         <else>
           <group delimiter="; ">
@@ -1539,17 +1572,19 @@
             </else>
           </choose>
           <group delimiter=", ">
-            <names variable="series-creator executive-producer" delimiter=", &amp; ">
+            <names variable="executive-producer">
               <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
               <label form="long" text-case="title" prefix=" (" suffix=")"/>
               <substitute>
+                <names variable="series-creator"/>
                 <names variable="editor-translator">
                   <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
                   <label form="short" text-case="title" prefix=" (" suffix=")"/>
                 </names>
-                <!-- TODO: Split editor and translator lines once processors start to automatically
-                           create editor-translator variable. -->
-                <names variable="editor translator">
+                <!-- TODO: Translator omitted here on the assumption that editor-translators are uncommon 
+                           for chapter citations. If needed, direct entry or automatic population of
+                           `editor-translator` can produce combined labels. -->
+                <names variable="editor">
                   <name and="symbol" initialize="false" initialize-with=". " delimiter=", "/>
                   <label form="short" text-case="title" prefix=" (" suffix=")"/>
                 </names>
