@@ -511,9 +511,7 @@
     </choose>
   </macro>
   <!-- Removed `locators-newspaper` macro as it’s not used-->
-  <macro name="event-note">
-    <text variable="event"/>
-  </macro>
+  <!-- Removed `event-note` macro as it’s not used-->
   <macro name="event">
     <choose>
       <if variable="title">
@@ -553,19 +551,7 @@
       </choose>
     </group>
   </macro>
-  <macro name="reprint-note">
-    <!--needs localization-->
-    <choose>
-      <if variable="original-date issued" match="all">
-        <choose>
-          <!--for whatever reason in notes, when we have both original and new publishers, reprint doesn't appear-->
-          <if variable="original-publisher original-publisher-place" match="none">
-            <text value="repr."/>
-          </if>
-        </choose>
-      </if>
-    </choose>
-  </macro>
+  <!-- Removed `reprint-note` macro as it’s not used-->
   <macro name="reprint">
     <!--needs localization-->
     <choose>
@@ -792,7 +778,87 @@
       </if>
     </choose>
   </macro>
-  <!-- Removed `issue-note` macro as it’s not used-->
+  <macro name="issue-note">
+    <choose>
+      <if type="bill legislation legal_case" match="any">
+        <text macro="issued" prefix="(" suffix=")"/>
+      </if>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="volume issue" match="any">
+            <text macro="issued" prefix="(" suffix=")"/>
+          </if>
+          <else>
+            <text macro="issued"/>
+          </else>
+        </choose>
+      </else-if>
+      <else-if type="article-newspaper">
+        <text macro="issued"/>
+      </else-if>
+      <else-if type="thesis speech" match="any">
+        <!--I removed manuscript as a type from here and added a new section below.-->
+        <group delimiter=", " prefix="(" suffix=")">
+          <choose>
+            <if variable="title" match="any">
+              <text variable="genre"/>
+            </if>
+          </choose>
+          <text variable="event"/>
+          <text variable="event-place"/>
+          <text variable="publisher"/>
+          <text macro="issued"/>
+        </group>
+      </else-if>
+      <else-if type="manuscript">
+        <choose>
+          <if variable="issued" match="any">
+            <date variable="issued">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" form="long" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </if>
+          <else-if variable="issued" match="none">
+            <text term="no date" form="short"/>
+          </else-if>
+          <!--The part above make the dates appear in British style (day month year) in footnotes for manuscript items. It also makes the n.d. appear without parentheses around it, if no date is present, in manuscript footnotes.-->
+        </choose>
+      </else-if>
+      <!--The part immediately below makes the dates appear in British style (day month year) in footnotes for letters.-->
+      <else-if type="personal_communication">
+        <choose>
+          <if variable="issued" match="any">
+            <date variable="issued">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" form="long" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </if>
+          <else-if variable="issued" match="none">
+            <text term="no date" form="short"/>
+            <!--I added this to make the n.d. not have parentheses around it for letter footnote entries.-->
+          </else-if>
+        </choose>
+      </else-if>
+      <else-if variable="publisher-place event-place publisher" match="any">
+        <group prefix="(" suffix=")" delimiter=", ">
+          <!--I removed this tag because it went to an unused macro: <text macro="event-note"/>-->
+          <group delimiter="; ">
+            <text macro="originally-published"/>
+            <group delimiter=", ">
+              <!--I removed this tag because it went to an unused macro:<text macro="reprint-note"/>-->
+              <text macro="publisher"/>
+            </group>
+          </group>
+          <text macro="issued"/>
+        </group>
+      </else-if>
+      <else>
+        <text macro="issued"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="issue-join-with-space">
     <choose>
       <if type="article-journal" match="any">
