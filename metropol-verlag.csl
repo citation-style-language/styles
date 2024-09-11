@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" name-delimiter="; " delimiter-precedes-et-al="never" delimiter-precedes-last="always" default-locale="de-DE">
   <info>
-    <title>Metropol Verlag (Deutsch)</title>
+    <title>Metropol Verlag (German)</title>
     <id>http://www.zotero.org/styles/metropol-verlag</id>
     <link href="http://www.zotero.org/styles/metropol-verlag" rel="self"/>
     <link href="http://www.zotero.org/styles/infoclio-de" rel="template"/>
@@ -14,7 +14,7 @@
     <category field="history"/>
     <category field="social_science"/>
     <summary>Citation style for manuscripts for the Metropol Publishing House Berlin.</summary>
-    <updated>2018-12-27T18:36:18+00:00</updated>
+    <updated>2019-05-28T18:38:03+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -24,6 +24,7 @@
       <term name="number-of-volumes" form="short">Bd.</term>
       <term name="no date" form="short">o. D.</term>
       <term name="ibid" form="long">ebenda</term>
+      <term name="volume" form="short">Bd.</term>
     </terms>
   </locale>
   <macro name="subsequent-reference">
@@ -40,19 +41,20 @@
             <text macro="creator-for-subsequent"/>
             <text macro="identifier-for-subsequent"/>
           </group>
-          <text macro="locator"/>
+          <text macro="locator-subsequent"/>
         </group>
       </else>
     </choose>
   </macro>
   <macro name="creator">
     <names variable="author">
-      <name delimiter="/" et-al-min="4" et-al-use-first="3"/>
+      <name delimiter="/"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
         <names variable="composer"/>
         <names variable="director"/>
+        <text variable="authority"/>
       </substitute>
     </names>
   </macro>
@@ -69,7 +71,7 @@
   </macro>
   <macro name="creator-for-subsequent">
     <names variable="author">
-      <name form="short" et-al-min="4" et-al-use-first="1"/>
+      <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
@@ -80,11 +82,22 @@
   </macro>
   <macro name="title">
     <text variable="title"/>
+    <choose>
+      <if type="bill" match="any">
+        <text macro="legal-locator" prefix=" (" suffix=")"/>
+      </if>
+    </choose>
   </macro>
   <macro name="identifier-for-subsequent">
     <choose>
-      <if variable="title title-short" match="any">
-        <text variable="title" form="short"/>
+      <if type="article-newspaper" match="any">
+        <group delimiter=", ">
+          <text variable="title"/>
+          <group delimiter=": ">
+            <text term="in"/>
+            <text variable="container-title"/>
+          </group>
+        </group>
       </if>
       <else-if type="personal_communication">
         <group delimiter=" ">
@@ -105,11 +118,18 @@
         <text variable="collection-title"/>
         <text variable="container-title"/>
       </else-if>
+      <else>
+        <choose>
+          <if variable="title title-short" match="any">
+            <text variable="title" form="short"/>
+          </if>
+        </choose>
+      </else>
     </choose>
   </macro>
   <macro name="in">
     <choose>
-      <if type="chapter paper-conference entry-encyclopedia entry-dictionary article-magazine article-newspaper article-journal" match="any">
+      <if type="chapter paper-conference entry-encyclopedia entry-dictionary article-magazine article-newspaper article-journal legislation" match="any">
         <text term="in"/>
       </if>
     </choose>
@@ -118,7 +138,7 @@
     <choose>
       <if type="chapter paper-conference" match="any">
         <names variable="editor">
-          <name delimiter="/" et-al-min="4" et-al-use-first="3"/>
+          <name delimiter="/" et-al-min="3" et-al-use-first="1"/>
           <label form="short" prefix=" (" suffix=")"/>
           <substitute>
             <names variable="container-author"/>
@@ -140,6 +160,9 @@
           <text variable="container-title"/>
         </group>
       </else-if>
+      <else-if type="legislation" match="any">
+        <text variable="container-title" suffix=", "/>
+      </else-if>
     </choose>
   </macro>
   <macro name="journal-volume">
@@ -153,6 +176,12 @@
       </if>
       <else-if type="report song broadcast" match="any">
         <number variable="number"/>
+      </else-if>
+      <else-if type="legislation" match="any">
+        <group delimiter=" ">
+          <date form="numeric" variable="issued" prefix="(" suffix=")"/>
+          <text variable="volume"/>
+        </group>
       </else-if>
     </choose>
   </macro>
@@ -250,7 +279,7 @@
               </else>
             </choose>
           </if>
-          <else-if type="article-newspaper article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
+          <else-if type="article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
             <choose>
               <if variable="issued">
                 <date variable="issued" prefix="(" suffix=")">
@@ -262,10 +291,17 @@
               </else>
             </choose>
           </else-if>
-          <else-if type="webpage post-weblog" match="any">
+          <else-if type="webpage post-weblog article-newspaper post" match="any">
             <date variable="issued">
-              <date-part name="day" suffix=".&#160;"/>
-              <date-part name="month" form="numeric" suffix=".&#160;"/>
+              <date-part name="day" suffix=". "/>
+              <date-part name="month" form="numeric" suffix=". "/>
+              <date-part name="year"/>
+            </date>
+          </else-if>
+          <else-if type="bill article" match="any">
+            <date variable="issued">
+              <date-part name="day" suffix=". "/>
+              <date-part name="month" form="numeric" suffix=". "/>
               <date-part name="year"/>
             </date>
           </else-if>
@@ -275,18 +311,26 @@
   </macro>
   <macro name="pages">
     <choose>
-      <if variable="locator">
-        <text macro="locator"/>
-      </if>
-      <else>
+      <if type="bill" match="none">
         <group delimiter=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
-      </else>
+      </if>
     </choose>
   </macro>
   <macro name="locator">
+    <group delimiter=" ">
+      <choose>
+        <if type="article-journal chapter" match="any">
+          <text value="hier"/>
+        </if>
+      </choose>
+      <label variable="locator" form="short"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="locator-subsequent">
     <group delimiter=" ">
       <label variable="locator" form="short"/>
       <text variable="locator"/>
@@ -334,8 +378,8 @@
     <group delimiter=" ">
       <text variable="URL"/>
       <date variable="accessed" prefix="[" suffix="]">
-        <date-part name="day" suffix=".&#160;"/>
-        <date-part name="month" form="numeric" suffix=".&#160;"/>
+        <date-part name="day" suffix=". "/>
+        <date-part name="month" form="numeric" suffix=". "/>
         <date-part name="year"/>
       </date>
     </group>
@@ -346,7 +390,14 @@
       <label text-case="capitalize-first" strip-periods="false" variable="edition" form="short"/>
     </group>
   </macro>
-  <citation>
+  <macro name="legal-locator">
+    <choose>
+      <if type="bill" match="any">
+        <text variable="number"/>
+      </if>
+    </choose>
+  </macro>
+  <citation et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " suffix=".">
       <choose>
         <if position="ibid-with-locator">
@@ -373,17 +424,15 @@
                   <group delimiter=", ">
                     <text macro="title"/>
                     <group delimiter=", ">
-                      <group delimiter=": ">
-                        <text macro="in"/>
-                        <text macro="container-creator"/>
-                      </group>
-                      <group delimiter=", ">
+                      <group>
+                        <text macro="in" suffix=": "/>
+                        <text macro="container-creator" suffix=", "/>
                         <group delimiter=" ">
                           <text macro="container-information"/>
                           <text macro="journal-volume"/>
                         </group>
-                        <text macro="volumes"/>
                       </group>
+                      <text macro="volumes"/>
                     </group>
                     <text macro="type-description"/>
                   </group>
@@ -398,6 +447,7 @@
                 <text macro="artwork-description"/>
                 <text macro="pages"/>
                 <text macro="url-web-documents-only"/>
+                <text macro="locator"/>
               </group>
             </else>
           </choose>

@@ -20,17 +20,17 @@ jobs:
     # labels to a PR
     # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
     - name: Checkout repo for OWNER TEST
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: contains(github.event.pull_request.labels.*.name, 'safe to test')
       with:
         ref: ${{ github.event.pull_request.head.ref }}
 
     # otherwise, checkout the current master, and the pr to the subdirectory 'pull-request'
     - name: Checkout base repo for pull-request test
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
     - name: Checkout pull-request
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -39,7 +39,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check for relevant changes
-      uses: dorny/paths-filter@v2
+      uses: dorny/paths-filter@v3
       id: changed
       with:
         list-files: shell
@@ -59,7 +59,7 @@ jobs:
       with:
         ruby-version: 3.0.2
     - name: but use cache to speed that up
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -84,7 +84,7 @@ jobs:
     - name: commit reindented styles
       if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true'
       continue-on-error: true
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: Re-indent CSL styles
         file_pattern: ${{ steps.changed.outputs.style_files }}

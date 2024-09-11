@@ -15,10 +15,13 @@
       <name>Rob Fuller</name>
       <email>rob.fuller1@gmail.com</email>
     </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>Adaptation of Harvard referencing style used at the University of Bath.</summary>
-    <updated>2022-05-05T12:00:00+00:00</updated>
+    <updated>2024-02-01T09:39:05+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -81,11 +84,21 @@
             </group>
           </if>
           <else-if type="broadcast motion_picture song" match="any"/>
+          <else-if type="article-journal article-magazine article-newspaper" match="any">
+            <choose>
+              <if variable="container-title" match="none">
+                <group delimiter=" ">
+                  <text variable="archive" font-style="italic"/>
+                  <text macro="online"/>
+                </group>
+              </if>
+            </choose>
+          </else-if>
           <else>
             <group delimiter=" ">
               <text variable="archive" font-style="italic"/>
               <choose>
-                <if type="bill report standard webpage" match="any">
+                <if type="article bill report standard webpage" match="any">
                   <text macro="online"/>
                 </if>
               </choose>
@@ -311,7 +324,18 @@
     <group delimiter=", ">
       <group delimiter=" ">
         <text variable="container-title" font-style="italic"/>
-        <text macro="online"/>
+        <choose>
+          <if type="article">
+            <choose>
+              <if variable="archive" match="none">
+                <text macro="online"/>
+              </if>
+            </choose>
+          </if>
+          <else>
+            <text macro="online"/>
+          </else>
+        </choose>
       </group>
       <group>
         <text variable="volume"/>
@@ -341,7 +365,15 @@
   <macro name="publication">
     <choose>
       <if type="article article-journal article-magazine article-newspaper" match="any">
-        <text macro="journal"/>
+        <choose>
+          <if variable="container-title">
+            <text macro="journal"/>
+          </if>
+          <else>
+            <text macro="status"/>
+            <text macro="publisher"/>
+          </else>
+        </choose>
       </if>
       <else-if type="broadcast">
         <text macro="broadcast"/>
@@ -567,18 +599,36 @@
             </else>
           </choose>
         </else-if>
+        <else-if type="article article-journal article-magazine article-newspaper" match="any">
+          <choose>
+            <if variable="genre">
+              <text variable="genre" prefix="[" suffix="]"/>
+            </if>
+            <else>
+              <choose>
+                <if variable="container-title archive" match="none">
+                  <choose>
+                    <if variable="URL DOI accessed" match="any">
+                      <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
+                    </if>
+                  </choose>
+                </if>
+              </choose>
+            </else>
+          </choose>
+        </else-if>
         <else-if variable="container-title" match="none">
           <choose>
             <if variable="genre">
               <text variable="genre" prefix="[" suffix="]"/>
             </if>
-            <else-if variable="container-title" match="none">
+            <else>
               <choose>
                 <if variable="URL DOI accessed" match="any">
                   <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
                 </if>
               </choose>
-            </else-if>
+            </else>
           </choose>
         </else-if>
       </choose>
@@ -774,7 +824,11 @@
       </else>
     </choose>
   </macro>
-  <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true">
+  <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true" collapse="year">
+    <sort>
+      <key variable="issued"/>
+      <key variable="author"/>
+    </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <group delimiter=", ">
         <text macro="author-short"/>
