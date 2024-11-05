@@ -11,7 +11,7 @@
     </author>
     <category citation-format="note"/>
     <category field="generic-base"/>
-    <updated>2024-09-12T08:17:24+00:00</updated>
+    <updated>2024-11-04T17:05:21+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="es">
@@ -81,7 +81,7 @@
     <choose>
       <if variable="author" type="book" match="all">
         <names variable="editor translator" delimiter=", ">
-          <label form="verb-short" text-case="uppercase"/>
+          <label form="verb-short" text-case="uppercase" suffix=" "/>
           <name sort-separator=", " delimiter=", " delimiter-precedes-last="always"/>
         </names>
       </if>
@@ -147,18 +147,20 @@
   <macro name="container">
     <choose>
       <if type="chapter entry entry-dictionary entry-encyclopedia webpage" match="any">
-        <text term="in" text-case="capitalize-first" suffix=" "/>
-        <text macro="container-contributors" suffix=" "/>
-        <choose>
-          <if variable="container-title">
-            <text variable="container-title" font-style="italic"/>
-            <text prefix=" " macro="medium"/>
-          </if>
-          <else-if variable="volume">
-            <text prefix=", " term="volume" form="short" suffix=". "/>
-            <text variable="volume"/>
-          </else-if>
-        </choose>
+        <group delimiter=" ">
+          <text term="in" text-case="capitalize-first"/>
+          <text macro="container-contributors"/>
+          <choose>
+            <if variable="container-title">
+              <text variable="container-title" font-style="italic"/>
+              <text prefix=" " macro="medium"/>
+            </if>
+            <else-if variable="volume">
+              <text prefix=", " term="volume" form="short" suffix=". "/>
+              <text variable="volume"/>
+            </else-if>
+          </choose>
+        </group>
       </if>
       <else-if type="article-journal article-magazine article-newspaper" match="any">
         <text term="in" text-case="capitalize-first" suffix=" "/>
@@ -233,12 +235,12 @@
       <if type="book chapter paper-conference" match="any">
         <text prefix=" " macro="publisher" suffix=", "/>
         <date variable="issued">
-          <date-part name="year" range-delimiter=" &#8211; "/>
+          <date-part name="year" range-delimiter=" – "/>
         </date>
       </if>
       <else-if type="article-journal article-magazine article-newspaper" match="any">
         <date variable="issued">
-          <date-part name="year" range-delimiter=" &#8211; "/>
+          <date-part name="year" range-delimiter=" – "/>
         </date>
         <choose>
           <if variable="volume">
@@ -319,7 +321,16 @@
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true">
     <layout delimiter="; ">
       <choose>
-        <if position="subsequent">
+        <if match="any" position="ibid-with-locator">
+          <group delimiter=". ">
+            <text term="ibid" form="short"/>
+            <text macro="citation-locator"/>
+          </group>
+        </if>
+        <else-if match="any" position="ibid">
+          <text term="ibid" form="short"/>
+        </else-if>
+        <else-if position="subsequent">
           <text macro="contributors-short" suffix=", "/>
           <text macro="title-short"/>
           <choose>
@@ -332,7 +343,7 @@
               <text prefix=". " macro="identifier"/>
             </else-if>
           </choose>
-        </if>
+        </else-if>
         <else>
           <choose>
             <if type="book thesis manuscript report" match="any">
@@ -361,6 +372,7 @@
                   <text prefix=", " macro="citation-locator" suffix="."/>
                 </else>
               </choose>
+              <text variable="ISBN" prefix=". ISBN "/>
             </if>
             <else-if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
               <text macro="contributors-long" suffix=". "/>
