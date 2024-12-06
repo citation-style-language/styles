@@ -76,6 +76,8 @@ The release regimen described here is also used for our [CSL locales](https://gi
 
 As of November 2020, https://github.com/citation-style-language/styles-distribution, which fulfilled a similar role to the version branches, has been deprecated and no longer receives updates from https://github.com/citation-style-language/styles.
 
+To setup the test environment, please follow [the instructions on the repository wiki](https://github.com/citation-style-language/styles/wiki/Test-Environment).
+
 Licensing
 ---------
 
