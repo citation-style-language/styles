@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US" page-range-format="chicago">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US" page-range-format="minimal">
   <info>
     <title>American Journal of Neuroradiology</title>
     <title-short>AJNR</title-short>
     <id>http://www.zotero.org/styles/american-journal-of-neuroradiology</id>
     <link href="http://www.zotero.org/styles/american-journal-of-neuroradiology" rel="self"/>
-    <link href="https://github.com/citation-style-language/styles/pull/357" rel="documentation"/>
     <link href="http://www.ajnr.org/site/misc/ifora.xhtml#ref" rel="documentation"/>
     <author>
       <name>Gabriele Ciuti</name>
       <email>gabriele.ciuti@gmail.com</email>
     </author>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <issn>0195-6108</issn>
@@ -37,15 +39,6 @@
       </names>
     </group>
   </macro>
-  <macro name="author-short">
-    <names variable="author">
-      <name form="short" and="symbol" delimiter=", " initialize-with="."/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-      </substitute>
-    </names>
-  </macro>
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
@@ -60,20 +53,6 @@
     <group delimiter=": ">
       <text variable="publisher-place"/>
       <text variable="publisher"/>
-    </group>
-  </macro>
-  <macro name="year-date">
-    <group prefix=" ">
-      <choose>
-        <if variable="issued">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-        </if>
-        <else>
-          <text term="no date" form="short"/>
-        </else>
-      </choose>
     </group>
   </macro>
   <macro name="edition">
@@ -94,7 +73,7 @@
     <sort>
       <key variable="citation-number"/>
     </sort>
-    <layout delimiter="," vertical-align="baseline" prefix="(" suffix=")">
+    <layout delimiter="," vertical-align="sup">
       <text variable="citation-number"/>
       <group prefix="(" suffix=")">
         <label variable="locator" form="short" strip-periods="true"/>
@@ -103,7 +82,7 @@
     </layout>
   </citation>
   <!-- BIBLIOGRAPHY -->
-  <bibliography hanging-indent="false" et-al-min="3" et-al-use-first="3">
+  <bibliography hanging-indent="false" et-al-min="4" et-al-use-first="3" second-field-align="flush">
     <layout>
       <text variable="citation-number" suffix=". "/>
       <text macro="author"/>
@@ -197,17 +176,32 @@
         <else>
           <text macro="editor" prefix=" " suffix="."/>
           <group prefix=" " suffix=".">
-            <text variable="container-title" font-style="italic" form="short" suffix="."/>
-            <group delimiter=":" prefix=" ">
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-              <group>
-                <text variable="volume"/>
-                <text variable="issue"/>
-              </group>
-            </group>
-            <text variable="page" prefix=":"/>
+            <text variable="container-title" font-style="italic" form="short" strip-periods="true"/>
+            <choose>
+              <if variable="volume issue" match="any">
+                <group delimiter=";" prefix=" ">
+                  <date variable="issued">
+                    <date-part name="year"/>
+                  </date>
+                  <text variable="volume"/>
+                </group>
+                <text variable="page" prefix=":"/>
+              </if>
+              <!--assume Ahead of print; either with or without DOI-->
+              <else-if variable="DOI">
+                <text variable="DOI" prefix=" https://doi.org/"/>
+              </else-if>
+              <else>
+                <group delimiter=". " prefix=" ">
+                  <date variable="issued" delimiter=" ">
+                    <date-part name="year"/>
+                    <date-part name="month" form="short" strip-periods="true"/>
+                    <date-part name="day"/>
+                  </date>
+                  <text value="Epub ahead of print" prefix="[" suffix="]"/>
+                </group>
+              </else>
+            </choose>
           </group>
         </else>
       </choose>

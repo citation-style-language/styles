@@ -16,23 +16,20 @@
   </info>
   <macro name="editor">
     <names variable="editor" delimiter=", ">
-      <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with="." delimiter-precedes-last="never" delimiter=", "/>
-      <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+      <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with="." delimiter=", "/>
+      <label form="short" prefix=" (" suffix=")"/>
     </names>
   </macro>
   <macro name="editor-bib">
     <names variable="editor" delimiter=", ">
-      <name initialize-with="." and="text" sort-separator=", " delimiter-precedes-last="never" delimiter=", "/>
-      <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+      <name initialize-with="." and="text" sort-separator=", " delimiter=", "/>
+      <label form="short" prefix=" (" suffix=")"/>
     </names>
-  </macro>
-  <macro name="anon">
-    <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
   </macro>
   <macro name="author">
     <names variable="author">
-      <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with="." delimiter-precedes-last="never" delimiter=", "/>
-      <label form="short" prefix=" " suffix="." strip-periods="true"/>
+      <name and="text" name-as-sort-order="all" sort-separator=", " initialize-with="." delimiter=", "/>
+      <label form="short" prefix=" "/>
       <substitute>
         <text macro="editor"/>
       </substitute>
@@ -40,13 +37,13 @@
   </macro>
   <macro name="editor-short">
     <names variable="editor">
-      <name form="short" and="text" delimiter=", " delimiter-precedes-last="never"/>
+      <name form="short" and="text" delimiter=", "/>
       <et-al font-style="italic"/>
     </names>
   </macro>
   <macro name="author-short">
     <names variable="author">
-      <name form="short" and="text" delimiter=", " delimiter-precedes-last="never"/>
+      <name form="short" and="text" delimiter=", "/>
       <et-al font-style="italic"/>
       <substitute>
         <text macro="editor-short"/>
@@ -106,7 +103,7 @@
       <if is-numeric="edition">
         <group delimiter=" " prefix=", ">
           <number variable="edition" form="ordinal"/>
-          <text  term="edition" form="long" strip-periods="true"/>
+          <text term="edition" form="long" strip-periods="true"/>
         </group>
       </if>
       <else>
@@ -124,9 +121,20 @@
       <group>
         <text macro="author-short" suffix=" "/>
         <text macro="year-date"/>
-        <group>
-          <text variable="locator" prefix=": "/>
-        </group>
+        <choose>
+          <if locator="page">
+            <text variable="locator" prefix=":&#160;"/>
+          </if>
+          <else-if locator="paragraph">
+            <text variable="locator" prefix=":&#160;§"/>
+          </else-if>
+          <else>
+            <group prefix=":&#160;">
+              <label variable="locator" form="short" suffix=".&#160;"/>
+              <text variable="locator"/>
+            </group>
+          </else>
+        </choose>
       </group>
     </layout>
   </citation>
@@ -134,8 +142,8 @@
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
-      <key variable="title"/>
       <key variable="page-first"/>
+      <key variable="title"/>
     </sort>
     <layout>
       <choose>
@@ -196,7 +204,7 @@
         </else-if>
         <else-if type="chapter paper-conference" match="any">
           <text macro="title" quotes="true" prefix=" " suffix=", "/>
-          <group prefix=" ">
+          <group>
             <text term="in" suffix=" "/>
             <text macro="editor-bib" suffix=", "/>
             <text variable="container-title" font-style="italic"/>

@@ -5,7 +5,7 @@
     <title-short>ASM</title-short>
     <id>http://www.zotero.org/styles/american-society-for-microbiology</id>
     <link href="http://www.zotero.org/styles/american-society-for-microbiology" rel="self"/>
-    <link href="http://aem.asm.org/misc/journal-ita_org.dtl#03" rel="documentation"/>
+    <link href="https://journals.asm.org/references" rel="documentation"/>
     <author>
       <name>Julian Onions</name>
       <email>julian.onions@gmail.com</email>
@@ -22,17 +22,20 @@
     <contributor>
       <name>Charles Parnot</name>
       <uri>http://twitter.com/cparnot</uri>
-      <email>charles@mekentosj.com</email>
+      <email>charles.parnot@gmail.com</email>
+    </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
     </contributor>
     <category citation-format="numeric"/>
     <category field="biology"/>
     <summary>Style for all American Society for Microbiology journals.</summary>
-    <updated>2012-10-29T12:38:09+00:00</updated>
+    <updated>2022-01-13T16:47:12+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
     <names variable="author" suffix=".">
-      <name sort-separator=" " initialize-with="" font-weight="bold" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
     </names>
   </macro>
   <macro name="issued">
@@ -60,13 +63,13 @@
         <text term="in" text-case="capitalize-first" prefix=". " suffix=" " font-style="italic"/>
         <names variable="editor" delimiter=", " suffix=", ">
           <name initialize-with="" delimiter=", " name-as-sort-order="all" delimiter-precedes-last="always"/>
-          <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+          <label form="short" prefix=" (" suffix=")"/>
         </names>
       </if>
     </choose>
   </macro>
   <macro name="patent-specifics">
-    <text variable="number" prefix=".  "/>
+    <text variable="number" prefix=". "/>
   </macro>
   <macro name="container-title">
     <choose>
@@ -74,7 +77,7 @@
         <text variable="container-title"/>
       </if>
       <else>
-        <text variable="container-title" form="short" prefix=". "/>
+        <text variable="container-title" form="short" strip-periods="true" prefix=". "/>
       </else>
     </choose>
   </macro>
@@ -92,25 +95,60 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter=", " prefix=". ">
-      <choose>
-        <if type="article-journal article-magazine" match="none">
-          <text variable="genre"/>
-          <text variable="publisher"/>
-          <text variable="publisher-place"/>
-        </if>
-      </choose>
-    </group>
+    <choose>
+      <if type="article-journal article-magazine" match="none">
+        <group delimiter=". " prefix=". ">
+          <choose>
+            <if type="book" match="none">
+              <text variable="genre"/>
+            </if>
+          </choose>
+          <group delimiter=", ">
+            <text variable="publisher"/>
+            <text variable="publisher-place"/>
+          </group>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <group prefix=" " delimiter=":">
-          <text variable="volume" font-weight="bold"/>
-          <text variable="page"/>
-        </group>
+        <choose>
+          <if match="none" variable="volume page">
+            <text variable="DOI" prefix=" https://doi.org/"/>
+          </if>
+          <else>
+            <group prefix=" " delimiter=":">
+              <text variable="volume"/>
+              <text variable="page"/>
+            </group>
+          </else>
+        </choose>
       </if>
+      <else-if type="article">
+        <text variable="DOI" prefix=" https://doi.org/"/>
+      </else-if>
+      <else-if type="book webpage post post-weblog" match="any">
+        <group delimiter=". " prefix=". ">
+          <text variable="URL"/>
+          <group delimiter=" ">
+            <text term="retrieved" text-case="capitalize-first"/>
+            <date variable="accessed">
+              <date-part name="day"/>
+              <date-part name="month" prefix=" "/>
+              <date-part name="year" prefix=" "/>
+            </date>
+          </group>
+        </group>
+      </else-if>
     </choose>
+  </macro>
+  <macro name="title">
+    <group delimiter=" ">
+      <text variable="title"/>
+      <text variable="version" prefix="(" suffix=")"/>
+    </group>
   </macro>
   <citation collapse="citation-number">
     <sort>
@@ -120,18 +158,12 @@
       <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography entry-spacing="0" second-field-align="flush">
-    <!-- Sorting order changed in 2013 -->
-    <!-- http://jcm.asm.org/site/misc/journal-ita_org.xhtml#02: "Beginning with the January 2013 issue, ASM will change the way in which references are numbered throughout articles. Citations will be numbered in the order in which they appear in the article (citation-sequence reference system); ASM will no longer use the citation-name system with an alphabetized reference list. Also beginning with January 2013 issues, entries in References will include all authors' names; “et al.” will not be used in author lines." -->
-    <!-- Ch-ch-Changes
-         Just gonna have to be a different man
-         Time may change me
-         But I can't trace time -->
+  <bibliography entry-spacing="1" line-spacing="2" second-field-align="flush">
     <layout suffix=".">
       <text variable="citation-number" suffix=". "/>
       <text macro="author"/>
       <text macro="issued"/>
-      <text variable="title" prefix=" "/>
+      <text macro="title" prefix=" "/>
       <text macro="chapter-specifics"/>
       <text macro="patent-specifics"/>
       <text macro="container-title"/>

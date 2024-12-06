@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="de-DE">
   <info>
-    <title>DIN 1505-2 (author-date, German)</title>
+    <title>DIN 1505-2 (author-date, Deutsch) - standard superseded by ISO-690</title>
     <id>http://www.zotero.org/styles/din-1505-2</id>
     <link href="http://www.zotero.org/styles/din-1505-2" rel="self"/>
     <link href="http://www.bui.haw-hamburg.de/fileadmin/redaktion/diplom/Lorenzen__litverz.pdf" rel="documentation"/>
@@ -99,12 +99,12 @@
     </names>
   </macro>
   <!--  <macro name="contributor">
-    <names variable="  " delimiter=" ; ">
+    <names variable=" " delimiter=" ; ">
     <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=" ; "
     delimiter-precedes-last="always" font-variant="small-caps"/>
     <label form="short" prefix=" (" suffix=")"/>
     </names>
-    </macro>-->
+  </macro>-->
   <macro name="translator">
     <names variable="translator" delimiter=" ; ">
       <name name-as-sort-order="all" sort-separator=", " initialize-with=". " delimiter=" ; " delimiter-precedes-last="always" font-variant="small-caps"/>
@@ -178,12 +178,6 @@
       </if>
     </choose>
   </macro>
-  <macro name="publisher">
-    <group delimiter=": ">
-      <text variable="publisher-place"/>
-      <text variable="publisher"/>
-    </group>
-  </macro>
   <macro name="volumes">
     <group delimiter=" ">
       <text term="volume" form="short" plural="false"/>
@@ -192,10 +186,17 @@
     </group>
   </macro>
   <macro name="edition">
-    <group>
-      <number variable="edition" form="numeric" suffix=". "/>
-      <text term="edition" form="short" plural="false"/>
-    </group>
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="numeric" suffix=". "/>
+          <text term="edition" form="short" plural="false"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition" suffix="."/>
+      </else>
+    </choose>
   </macro>
   <macro name="pages">
     <choose>
@@ -238,48 +239,62 @@
   </macro>
   <macro name="cite-year">
     <group>
-      <choose>
-        <if type="bill legislation" match="any">
-          <date variable="issued" prefix=" (" suffix=")">
-            <date-part name="year" prefix="idF. v. "/>
-          </date>
-        </if>
-        <else>
-          <date variable="issued" prefix=", ">
-            <date-part name="year"/>
-          </date>
-          <text variable="year-suffix"/>
-        </else>
-      </choose>
+      <date variable="issued">
+        <date-part name="year"/>
+      </date>
+      <text variable="year-suffix"/>
     </group>
+  </macro>
+  <macro name="bibliography-year">
+    <date variable="issued" form="numeric" date-parts="year"/>
+    <text variable="year-suffix"/>
   </macro>
   <macro name="locator">
     <group>
       <choose>
         <if type="bill legislation" match="any">
-          <text variable="locator" prefix=" "/>
+          <text variable="locator"/>
         </if>
         <else>
-          <label variable="locator" form="short" prefix=", "/>
+          <label variable="locator" form="short"/>
           <text variable="locator" prefix=" "/>
         </else>
       </choose>
     </group>
   </macro>
-  <citation et-al-min="3" et-al-use-first="1" et-al-subsequent-min="3" et-al-subsequent-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="false" collapse="year">
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="false" collapse="year">
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group>
-        <text macro="author-short"/>
-        <text macro="cite-year"/>
-        <text macro="locator"/>
-      </group>
+      <choose>
+        <if type="bill legislation" match="any">
+          <group delimiter=" ">
+            <text macro="author-short"/>
+            <group delimiter=", ">
+              <group>
+                <date variable="issued" prefix=" (" suffix=")">
+                  <date-part name="year" prefix="idF. v. "/>
+                </date>
+                <text variable="year-suffix"/>
+              </group>
+              <text macro="locator"/>
+            </group>
+          </group>
+        </if>
+        <else>
+          <group delimiter=", ">
+            <text macro="author-short"/>
+            <text macro="cite-year"/>
+            <text macro="locator"/>
+          </group>
+          <text variable="year-suffix"/>
+        </else>
+      </choose>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="9" et-al-use-first="9">
+  <bibliography hanging-indent="true" et-al-min="9" et-al-use-first="8">
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
@@ -312,7 +327,7 @@
           <text prefix=". " macro="dimensions"/>
           <text prefix=". " variable="publisher-place"/>
           <text prefix="&#160;: " variable="publisher"/>
-          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
+          <text macro="bibliography-year" prefix=", "/>
           <!-- " (1. Gesamttitel mit Zählung)"
             " (2. Gesamttitel mit Zählung)" -->
           <text prefix=" &#8211;&#160;" macro="scale"/>
@@ -337,7 +352,7 @@
           <text prefix=". " macro="edition"/>
           <text prefix=". " variable="publisher-place"/>
           <text prefix="&#160;: " variable="publisher"/>
-          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
+          <text macro="bibliography-year" prefix=", "/>
           <!-- " (1. Gesamttitel mit Zählung)"
             " (2. Gesamttitel mit Zählung)" -->
           <text prefix=". &#8212;&#160;" variable="note"/>
@@ -353,10 +368,10 @@
           <text prefix=", " variable="publisher" form="long"/>
           <!-- <text prefix=", " variable="faculty"/> -->
           <text prefix=", " macro="genre"/>
-          <date prefix=", " variable="issued" form="numeric" date-parts="year"/>
+          <text macro="bibliography-year" prefix=", "/>
           <text prefix=". &#8212;&#160;" variable="note"/>
         </else-if>
-        <else-if type="webpage post post-weblog " match="any">
+        <else-if type="webpage post post-weblog" match="any">
           <text prefix=" " macro="title" suffix=". " font-style="italic"/>
           <text prefix="URL " variable="URL"/>
           <text prefix=". - " macro="access"/>
@@ -380,7 +395,7 @@
           <text prefix=" " macro="volumes"/>
           <text prefix=". " variable="publisher-place"/>
           <text prefix=", " variable="publisher" form="long"/>
-          <date prefix=" (" suffix=")" variable="issued" form="numeric" date-parts="year"/>
+          <text macro="bibliography-year" prefix=" (" suffix=")"/>
           <text prefix=", Nr.&#160;" variable="issue"/>
           <text prefix=", " macro="pages"/>
           <text prefix=". &#8212;&#160;" variable="note"/>

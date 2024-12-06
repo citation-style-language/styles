@@ -14,7 +14,7 @@
     <category field="anthropology"/>
     <issn>1047-7594</issn>
     <summary>Citation style edited for Journal of Roman Archaeology - system B (mainly used for reviews). Known issues: impossible to use 'id.' for author in subsequent position. Encyclopedias and dictionnaries which articles are cited: title-short item need to be the short title of the encyclopedia/dictionnary</summary>
-    <updated>2013-05-17T11:00:00+01:00</updated>
+    <updated>2017-02-14T08:55:36+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -24,17 +24,22 @@
         <single>ed.</single>
         <multiple>edd.</multiple>
       </term>
-      <term name="edition" form="short">
-        <single>edn.</single>
-        <multiple>edn.</multiple>
-      </term>
-      <term name="cited">supra n. 000</term>
+      <term name="edition" form="short">edn.</term>
+      <term name="cited">supra</term>
     </terms>
   </locale>
   <macro name="editor">
     <names variable="editor">
       <name and="text" sort-separator=", " initialize-with="." delimiter-precedes-last="never" delimiter=", "/>
-      <label form="short" prefix=" (" suffix=".)" strip-periods="true"/>
+      <label form="short" prefix=" (" suffix=")"/>
+      <substitute>
+        <text macro="container-author"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="container-author">
+    <names variable="container-author" delimiter=", ">
+      <name and="text" sort-separator=", " initialize-with="." delimiter-precedes-last="never" delimiter=", "/>
     </names>
   </macro>
   <macro name="author">
@@ -50,20 +55,22 @@
       <name and="text" form="short" sort-separator=", " delimiter-precedes-last="never" delimiter=", "/>
     </names>
   </macro>
+  <macro name="container-author-short">
+    <names variable="container-author" delimiter=", ">
+      <name and="text" form="short" sort-separator=", " delimiter-precedes-last="never" delimiter=", "/>
+      <et-al font-style="italic"/>
+    </names>
+  </macro>
   <macro name="author-short">
-    <choose>
-      <if variable="author editor" match="none">
+    <names variable="author">
+      <name and="text" form="short" sort-separator=", " delimiter-precedes-last="never" delimiter=", "/>
+      <et-al font-style="italic"/>
+      <substitute>
+        <text macro="editor-short"/>
+        <text macro="container-author-short"/>
         <text variable="title-short" font-style="italic"/>
-      </if>
-      <else>
-        <names variable="author">
-          <name and="text" form="short" sort-separator=", " delimiter-precedes-last="never" delimiter=", "/>
-          <substitute>
-            <text macro="editor-short"/>
-          </substitute>
-        </names>
-      </else>
-    </choose>
+      </substitute>
+    </names>
   </macro>
   <macro name="collection">
     <group delimiter=" " suffix=", ">
@@ -144,16 +151,19 @@
       </else>
     </choose>
   </macro>
-  <macro name="edition">
+  <macro name="locator">
     <choose>
-      <if is-numeric="edition">
-        <group delimiter=" ">
-          <number variable="edition" form="ordinal"/>
-          <text  term="edition" form="short" strip-periods="true"/>
-        </group>
+      <if locator="page">
+        <text variable="locator"/>
       </if>
+      <else-if locator="paragraph">
+        <text variable="locator" prefix="§"/>
+      </else-if>
       <else>
-        <text variable="edition"/>
+        <group>
+          <label variable="locator" form="short" suffix=".&#160;"/>
+          <text variable="locator"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -166,7 +176,7 @@
         <else-if position="ibid-with-locator">
           <group delimiter=" ">
             <text term="ibid" suffix="."/>
-            <text variable="locator" prefix="in partic. "/>
+            <text macro="locator" prefix=" in partic.&#160;"/>
           </group>
         </else-if>
         <else-if position="ibid">
@@ -175,8 +185,14 @@
         <else-if position="subsequent">
           <group delimiter=" ">
             <text macro="author-short"/>
-            <text term="cited" prefix="(" suffix=")"/>
-            <text variable="locator"/>
+            <group prefix="(" suffix=")" delimiter=" ">
+              <text term="cited"/>
+              <group delimiter="&#160;">
+                <text term="note" form="short"/>
+                <text variable="first-reference-note-number"/>
+              </group>
+            </group>
+            <text macro="locator"/>
           </group>
         </else-if>
         <else>
@@ -184,7 +200,7 @@
           <text macro="title" suffix=" "/>
           <text macro="year-place"/>
           <text variable="page" prefix=" "/>
-          <text variable="locator" prefix=" in partic. "/>
+          <text macro="locator" prefix=" in partic.&#160;"/>
         </else>
       </choose>
     </layout>
