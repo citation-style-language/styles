@@ -16,10 +16,13 @@
     <contributor>
       <name>Patrick O'Brien</name>
     </contributor>
+    <contributor>
+      <name>Timothy Magill</name>
+    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
     <summary>The Bluebook legal citation style for law reviews.</summary>
-    <updated>2023-06-28T09:05:37+00:00</updated>
+    <updated>2024-12-19T04:13:36+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -71,9 +74,12 @@
   </macro>
   <macro name="author">
     <choose>
-      <if type="bill legal_case legislation" match="any">
+      <if type="legal_case legislation" match="any">
+        <!-- legal cases do not display the author at the beginning of the line -->
+      </if> 
+      <else-if type="bill" match="any">
         <text macro="name-macro"/>
-      </if>
+      </else-if>
       <else-if type="book graphic motion_picture report song" match="any">
         <text macro="name-macro" font-variant="small-caps"/>
       </else-if>
@@ -90,7 +96,10 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="URL">
+      <if type="legal_case legislation" match="any">
+        <!-- legal case citations generally do not use URL's -->
+      </if>
+      <else-if variable="URL">
         <group delimiter=" ">
           <text variable="URL"/>
           <group delimiter=" " prefix="(" suffix=")">
@@ -102,7 +111,7 @@
             </date>
           </group>
         </group>
-      </if>
+      </else-if>
     </choose>
   </macro>
   <macro name="source">
@@ -133,6 +142,25 @@
             <text variable="locator"/>
           </group>
           <text macro="issuance" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
+      <else-if type="legislation">
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <group>
+              <text variable="title" text-case="title"/>
+              <text macro="issuance" prefix=" of "/>
+            </group>
+            <text variable="number"/>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text macro="container"/>
+                <group delimiter=" ">
+                  <text value="§"/>
+                  <text variable="section"/>
+                </group>
+            </group>
+          </group>
         </group>
       </else-if>
       <else-if type="article-newspaper article-magazine thesis" match="any">
@@ -247,6 +275,9 @@
       <else-if type="legal_case">
         <text variable="container-title" form="short" prefix=" "/>
       </else-if>
+      <else-if type="legislation">
+        <text variable="container-title"/>
+      </else-if>
       <else-if type="article-journal">
         <text variable="container-title" form="short" font-variant="small-caps" prefix=" "/>
       </else-if>
@@ -268,22 +299,47 @@
           <text term="ibid" text-case="capitalize-first" font-style="italic"/>
         </else-if>
         <else-if position="subsequent">
-          <group delimiter=", ">
-            <group delimiter=" ">
-              <choose>
-                <if type="book" match="any">
+          <choose>
+            <!-- subsequent legal citations do not use supra -->
+            <if type="legal_case">
+              <group delimiter=", ">
+                <text variable="title" form="short" font-style="italic"/>
+                <group delimiter=" ">
                   <text variable="volume"/>
-                </if>
-              </choose>
-              <text macro="author-short"/>
-            </group>
-            <group delimiter=" ">
-              <text value="supra" font-style="italic"/>
-              <text value="note"/>
-              <text variable="first-reference-note-number"/>
-              <text macro="at_page"/>
-            </group>
-          </group>
+                  <text variable="container-title" form="short"/>
+                  <text macro="at_page"/>
+                </group>
+              </group>
+            </if>
+            <else-if type="legislation">
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title" form="short"/>
+                <group delimiter=" ">
+                  <text value="§"/>
+                  <text variable="section"/>
+                </group>
+              </group>
+            </else-if>
+            <else>
+              <group delimiter=", ">
+                <group delimiter=" ">
+                  <choose>
+                    <if type="book" match="any">
+                      <text variable="volume"/>
+                    </if>
+                  </choose>
+                  <text macro="author-short"/>
+                </group>
+                <group delimiter=" ">
+                  <text value="supra" font-style="italic"/>
+                  <text value="note"/>
+                  <text variable="first-reference-note-number"/>
+                  <text macro="at_page"/>
+                </group>
+              </group>
+              </else>
+            </choose>
         </else-if>
         <else>
           <group delimiter=", ">
