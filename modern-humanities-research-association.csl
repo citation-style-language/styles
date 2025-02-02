@@ -25,7 +25,7 @@
     <category field="generic-base"/>
     <category field="humanities"/>
     <summary>MHRA format with full notes and bibliography</summary>
-    <updated>2025-02-02T22:26:03+00:00</updated>
+    <updated>2025-02-02T22:54:15+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -213,20 +213,17 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="issue-note">
+  <macro name="issue-join-with-space">
     <choose>
       <if type="article-journal">
         <choose>
           <if variable="volume">
-            <text macro="issued" prefix=" (" suffix=")"/>
+            <text macro="issued" prefix="(" suffix=")"/>
           </if>
-          <else>
-            <text macro="issued" prefix=", "/>
-          </else>
         </choose>
       </if>
       <else-if match="any" variable="publisher-place publisher">
-        <group delimiter=", " prefix=" (" suffix=")">
+        <group delimiter=", " prefix="(" suffix=")">
           <group delimiter=" ">
             <choose>
               <if match="none" variable="title"/>
@@ -240,9 +237,20 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <else>
-        <text macro="issued" prefix=", "/>
-      </else>
+    </choose>
+  </macro>
+  <macro name="issue-join-with-comma">
+    <choose>
+      <if type="article-journal">
+        <choose>
+          <if match="none" variable="volume">
+            <text macro="issued"/>
+          </if>
+        </choose>
+      </if>
+      <else-if match="none" variable="publisher-place publisher">
+        <text macro="issued"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="locators-specific-note">
@@ -258,7 +266,7 @@
             </else>
           </choose>
           <choose>
-            <if position="first">
+            <if match="all" position="first">
               <text font-style="italic" text-case="title" variable="volume-title"/>
             </if>
           </choose>
@@ -483,18 +491,21 @@
           </group>
         </if>
         <else>
-          <group delimiter=", ">
-            <text macro="contributors-note"/>
-            <text macro="title-note"/>
-            <text macro="secondary-contributors-note"/>
-            <text macro="container-title-note"/>
-            <text macro="container-contributors-note"/>
-            <text macro="collection-title"/>
-            <text macro="locators-note"/>
-          </group>
           <group delimiter=" ">
             <group delimiter=", ">
-              <text macro="issue-note"/>
+              <group delimiter=" ">
+                <group delimiter=", ">
+                  <text macro="contributors-note"/>
+                  <text macro="title-note"/>
+                  <text macro="secondary-contributors-note"/>
+                  <text macro="container-title-note"/>
+                  <text macro="container-contributors-note"/>
+                  <text macro="collection-title"/>
+                  <text macro="locators-note"/>
+                </group>
+                <text macro="issue-join-with-space"/>
+              </group>
+              <text macro="issue-join-with-comma"/>
               <text macro="locators-specific-note"/>
               <text macro="locators-newspaper"/>
               <text macro="point-locators"/>
@@ -512,18 +523,21 @@
       <key variable="title"/>
     </sort>
     <layout>
-      <group delimiter=", ">
-        <text macro="author"/>
-        <text macro="title-note"/>
-        <text macro="secondary-contributors-note"/>
-        <text macro="container-title-note"/>
-        <text macro="container-contributors-note"/>
-        <text macro="collection-title"/>
-        <text macro="volume"/>
-      </group>
       <group delimiter=" ">
         <group delimiter=", ">
-          <text macro="issue-note"/>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="author"/>
+              <text macro="title-note"/>
+              <text macro="secondary-contributors-note"/>
+              <text macro="container-title-note"/>
+              <text macro="container-contributors-note"/>
+              <text macro="collection-title"/>
+              <text macro="volume"/>
+            </group>
+            <text macro="issue-join-with-space"/>
+          </group>
+          <text macro="issue-join-with-comma"/>
           <text macro="locators-specific-note"/>
           <text macro="artwork"/>
           <text macro="locators-newspaper"/>
