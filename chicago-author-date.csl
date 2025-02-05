@@ -58,14 +58,19 @@
       <label form="short" prefix=", "/>
     </names>
   </macro>
-  <macro name="substitute-title">
-    <choose>
-      <if match="any" type="article-magazine article-newspaper review review-book">
-        <text macro="container-title"/>
-      </if>
-    </choose>
+  <macro name="director">
+    <names variable="director">
+      <name delimiter-precedes-last="always" name-as-sort-order="first"/>
+      <label form="short" prefix=", "/>
+    </names>
   </macro>
   <macro name="recipient">
+    <names variable="recipient">
+      <label form="verb" suffix=" "/>
+      <name/>
+    </names>
+  </macro>
+  <macro name="communication-recipient">
     <group delimiter=" ">
       <choose>
         <if type="personal_communication">
@@ -79,38 +84,47 @@
           </choose>
         </if>
       </choose>
-      <names variable="recipient">
-        <label form="verb" suffix=" "/>
-        <name/>
-      </names>
+      <text macro="recipient"/>
     </group>
   </macro>
-  <macro name="contributors-short">
-    <names variable="author">
-      <name form="short" initialize-with=". "/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <names variable="director"/>
-        <text macro="substitute-title"/>
-        <text macro="title"/>
-      </substitute>
-    </names>
+  <macro name="substitute-title">
+    <choose>
+      <if match="any" type="article-magazine article-newspaper review review-book">
+        <text macro="container-title"/>
+      </if>
+      <else-if match="any" type="webpage post-weblog">
+        <text macro="container-title"/>
+      </else-if>
+    </choose>
   </macro>
-  <macro name="contributors">
-    <group delimiter=". ">
+  <macro name="contributors-short">
+    <group delimiter=" ">
       <names variable="author">
-        <name delimiter-precedes-last="always" name-as-sort-order="first"/>
-        <label form="short" prefix=", "/>
+        <name form="short"/>
         <substitute>
           <names variable="editor"/>
           <names variable="translator"/>
           <names variable="director"/>
           <text macro="substitute-title"/>
+          <text macro="title-short"/>
+        </substitute>
+      </names>
+      <text macro="recipient-short"/>
+    </group>
+  </macro>
+  <macro name="contributors">
+    <group delimiter=". ">
+      <names variable="author">
+        <name delimiter-precedes-last="always" name-as-sort-order="first"/>
+        <substitute>
+          <text macro="editor"/>
+          <text macro="translator"/>
+          <text macro="director"/>
+          <text macro="substitute-title"/>
           <text macro="title"/>
         </substitute>
       </names>
-      <text macro="recipient"/>
+      <text macro="communication-recipient"/>
     </group>
   </macro>
   <macro name="date-in-text">
@@ -157,6 +171,35 @@
       <else>
         <text form="short" term="no date"/>
         <text prefix="-" variable="year-suffix"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-short">
+    <choose>
+      <if match="none" variable="title">
+        <choose>
+          <if type="interview">
+            <text term="interview"/>
+          </if>
+          <else-if match="any" type="manuscript speech">
+            <text form="short" variable="genre"/>
+          </else-if>
+        </choose>
+      </if>
+      <else-if match="any" type="book graphic motion_picture song">
+        <text font-style="italic" form="short" text-case="title" variable="title"/>
+      </else-if>
+      <else-if type="legal_case" variable="title-short">
+        <text font-style="italic" form="short" variable="title"/>
+      </else-if>
+      <else-if match="any" type="patent interview">
+        <text form="short" variable="title"/>
+      </else-if>
+      <else-if match="any" type="legal_case bill legislation">
+        <text variable="title"/>
+      </else-if>
+      <else>
+        <text form="short" quotes="true" text-case="title" variable="title"/>
       </else>
     </choose>
   </macro>
