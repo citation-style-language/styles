@@ -82,7 +82,7 @@
   <macro name="contributors-short">
     <group delimiter=" ">
       <names variable="author">
-        <name form="short"/>
+        <name form="short" initialize-with=". "/>
         <substitute>
           <names variable="editor"/>
           <names variable="translator"/>
@@ -138,7 +138,14 @@
     <choose>
       <if variable="issued">
         <group delimiter=" ">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="original-date"/>
+          <choose>
+            <if is-uncertain-date="issued">
+              <date date-parts="year" form="text" prefix="[" suffix="?]" variable="issued"/>
+            </if>
+            <else-if variable="original-date">
+              <date date-parts="year" form="text" prefix="(" suffix=")" variable="original-date"/>
+            </else-if>
+          </choose>
           <date variable="issued">
             <date-part name="year"/>
           </date>
@@ -376,14 +383,42 @@
       </if>
     </choose>
   </macro>
-  <macro name="collection-title-journal">
+  <macro name="locators-journal">
     <choose>
-      <if type="article-journal">
+      <if variable="volume">
         <group delimiter=" ">
-          <text variable="collection-title"/>
-          <text variable="collection-number"/>
+          <group delimiter=", ">
+            <text variable="collection-title"/>
+            <text variable="volume"/>
+          </group>
+          <group prefix="(" suffix=")">
+            <choose>
+              <if variable="issue">
+                <text variable="issue"/>
+              </if>
+              <else>
+                <date variable="issued">
+                  <date-part name="month"/>
+                </date>
+              </else>
+            </choose>
+          </group>
         </group>
       </if>
+      <else-if variable="issue">
+        <group delimiter=" ">
+          <text form="short" term="issue"/>
+          <text variable="issue"/>
+          <date prefix="(" suffix=")" variable="issued">
+            <date-part name="month"/>
+          </date>
+        </group>
+      </else-if>
+      <else>
+        <date variable="issued">
+          <date-part name="month"/>
+        </date>
+      </else>
     </choose>
   </macro>
   <macro name="collection-title">
@@ -406,50 +441,126 @@
       </if>
     </choose>
   </macro>
+  <macro name="number-of-volumes">
+    <choose>
+      <if match="none" variable="volume volume-title">
+        <group delimiter=" ">
+          <number form="numeric" variable="number-of-volumes"/>
+          <text form="short" plural="true" term="volume"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="legal-cites">
+    <choose>
+      <if match="any" type="legal_case">
+        <group delimiter=" ">
+          <choose>
+            <if variable="container-title">
+              <text variable="volume"/>
+              <text variable="container-title"/>
+              <group delimiter=" ">
+                <label form="symbol" variable="section"/>
+                <text variable="section"/>
+              </group>
+              <group delimiter=", ">
+                <text variable="page"/>
+                <choose>
+                  <if locator="page" match="any">
+                    <text variable="locator"/>
+                  </if>
+                  <else>
+                    <group delimiter=" ">
+                      <label form="short" variable="locator"/>
+                      <text variable="locator"/>
+                    </group>
+                  </else>
+                </choose>
+              </group>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <label variable="number"/>
+                <text variable="number"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </if>
+      <else-if match="any" type="bill legislation">
+        <group delimiter=", ">
+          <choose>
+            <if variable="number">
+              <text variable="number"/>
+              <text variable="authority"/>
+              <group delimiter=" ">
+                <label form="symbol" variable="section"/>
+                <text variable="section"/>
+              </group>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <text variable="page-first"/>
+              </group>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title"/>
+                <label form="symbol" variable="section"/>
+                <text variable="section"/>
+              </group>
+            </else>
+          </choose>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="locators-join-with-comma">
+    <choose>
+      <if match="any" type="bill chapter legislation legal_case paper-conference">
+        <text macro="locators"/>
+      </if>
+      <else-if type="article-journal">
+        <choose>
+          <if match="none" variable="volume">
+            <text macro="locators"/>
+          </if>
+          <else-if match="any" variable="collection-title">
+            <text macro="locators"/>
+          </else-if>
+        </choose>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="locators-join-with-period">
+    <choose>
+      <if match="none" type="bill legislation legal_case article-journal chapter paper-conference">
+        <text macro="locators"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="locators-join-with-space">
+    <choose>
+      <if type="article-journal" variable="volume">
+        <choose>
+          <if match="none" variable="collection-title">
+            <text macro="locators"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <choose>
-          <if variable="volume">
-            <text prefix=" " variable="volume"/>
-            <group prefix=" (" suffix=")">
-              <choose>
-                <if variable="issue">
-                  <text variable="issue"/>
-                </if>
-                <else>
-                  <date variable="issued">
-                    <date-part name="month"/>
-                  </date>
-                </else>
-              </choose>
-            </group>
-          </if>
-          <else-if variable="issue">
-            <group delimiter=" " prefix=", ">
-              <text form="short" term="issue"/>
-              <text variable="issue"/>
-              <date prefix="(" suffix=")" variable="issued">
-                <date-part name="month"/>
-              </date>
-            </group>
-          </else-if>
-          <else>
-            <date prefix=", " variable="issued">
-              <date-part name="month"/>
-            </date>
-          </else>
-        </choose>
+        <text macro="locators-journal"/>
       </if>
-      <else-if type="legal_case">
-        <group delimiter=" ">
-          <text prefix=", " variable="volume"/>
-          <text variable="container-title"/>
-          <text variable="page"/>
-        </group>
+      <else-if match="any" type="bill legislation legal_case">
+        <text macro="legal-cites"/>
       </else-if>
-      <else-if match="any" type="bill book graphic legal_case legislation motion_picture report song">
-        <group delimiter=". " prefix=". ">
+      <else-if match="any" type="book graphic motion_picture report song">
+        <group delimiter=". ">
           <group delimiter=", ">
             <group delimiter=" ">
               <text form="short" term="volume" text-case="capitalize-first"/>
@@ -457,22 +568,57 @@
             </group>
             <text font-style="italic" text-case="title" variable="volume-title"/>
           </group>
-          <group delimiter=" ">
-            <number form="numeric" variable="number-of-volumes"/>
-            <text form="short" plural="true" term="volume"/>
-          </group>
+          <text macro="edition"/>
+          <text macro="number-of-volumes"/>
         </group>
       </else-if>
       <else-if match="any" type="chapter entry-dictionary entry-encyclopedia paper-conference">
+        <group delimiter=". ">
+          <text macro="edition"/>
+          <choose>
+            <if match="none" variable="page">
+              <group delimiter=" ">
+                <text form="short" term="volume" text-case="capitalize-first"/>
+                <number form="numeric" variable="volume"/>
+              </group>
+            </if>
+          </choose>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="issued">
+    <choose>
+      <if variable="issued">
         <choose>
-          <if match="none" variable="page">
-            <group delimiter=" " prefix=". ">
-              <text form="short" term="volume" text-case="capitalize-first"/>
-              <number form="numeric" variable="volume"/>
+          <if type="legal_case">
+            <group delimiter=" ">
+              <text variable="authority"/>
+              <date form="text" variable="issued"/>
             </group>
           </if>
+          <else-if type="patent">
+            <group delimiter=", ">
+              <group delimiter=" ">
+                <text value="filed"/>
+                <date form="text" variable="submitted"/>
+              </group>
+              <group delimiter=" ">
+                <choose>
+                  <if variable="issued submitted">
+                    <text term="and"/>
+                  </if>
+                </choose>
+                <text value="issued"/>
+                <date form="text" variable="issued"/>
+              </group>
+            </group>
+          </else-if>
+          <else-if type="article-newspaper article-magazine">
+            <date form="text" variable="issued"/>
+          </else-if>
         </choose>
-      </else-if>
+      </if>
     </choose>
   </macro>
   <macro name="event">
@@ -487,6 +633,29 @@
       </choose>
       <text variable="event"/>
     </group>
+  </macro>
+  <macro name="originally-published">
+    <group delimiter=", ">
+      <group delimiter=": ">
+        <!-- <text variable="original-publisher-place"/> -->
+        <text variable="original-publisher"/>
+      </group>
+      <choose>
+        <if is-uncertain-date="original-date">
+          <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="original-date"/>
+        </if>
+        <else>
+          <date date-parts="year" form="numeric" variable="original-date"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="reprint">
+    <choose>
+      <if variable="original-date issued">
+        <text text-case="capitalize-first" value="reprint"/>
+      </if>
+    </choose>
   </macro>
   <macro name="publisher">
     <choose>
@@ -504,65 +673,157 @@
       </else>
     </choose>
   </macro>
+  <macro name="issue-map-graphic">
+    <choose>
+      <if match="any" type="graphic map">
+        <choose>
+          <if match="none" variable="publisher publisher-place">
+            <text macro="issued"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="issue-join-with-comma">
+    <choose>
+      <if match="none" type="bill legislation legal_case">
+        <choose>
+          <if match="none" type="article-journal">
+            <choose>
+              <if match="any" type="article-newspaper article-magazine">
+                <choose>
+                  <if match="any" variable="author editor">
+                    <text macro="issue"/>
+                  </if>
+                </choose>
+              </if>
+              <else-if match="none" type="speech" variable="publisher publisher-place">
+                <text macro="issue"/>
+              </else-if>
+            </choose>
+          </if>
+          <else-if match="none" variable="volume issue">
+            <text macro="issue"/>
+          </else-if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="issue-join-with-period">
+    <choose>
+      <if match="none" type="article-journal bill legislation legal_case">
+        <choose>
+          <if match="any" type="article-newspaper article-magazine">
+            <choose>
+              <if match="none" variable="author editor">
+                <text macro="issue"/>
+              </if>
+            </choose>
+          </if>
+          <else-if match="any" type="speech" variable="publisher publisher-place">
+            <text macro="issue"/>
+          </else-if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="issue-join-with-space">
+    <choose>
+      <if match="any" type="article-journal">
+        <choose>
+          <if match="any" variable="issue volume">
+            <text macro="issue"/>
+          </if>
+        </choose>
+      </if>
+      <else-if match="any" type="bill legislation legal_case">
+        <text macro="issue"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="issue">
     <choose>
-      <if type="legal_case">
-        <text prefix=". " variable="authority"/>
+      <if match="any" type="bill legislation legal_case">
+        <text macro="issued"/>
       </if>
+      <else-if type="article-journal">
+        <choose>
+          <if match="any" variable="issue volume">
+            <text macro="issued" prefix="(" suffix=")"/>
+          </if>
+          <else>
+            <text macro="issued"/>
+          </else>
+        </choose>
+      </else-if>
       <else-if type="speech">
-        <group delimiter=", " prefix=". ">
+        <group delimiter=", ">
           <group delimiter=" ">
-            <text text-case="capitalize-first" variable="genre"/>
+            <choose>
+              <if match="none" variable="title"/>
+              <else>
+                <text text-case="capitalize-first" variable="genre"/>
+              </else>
+            </choose>
             <text macro="event"/>
           </group>
           <text variable="event-place"/>
-          <date delimiter=" " variable="issued">
-            <date-part name="month"/>
-            <date-part name="day"/>
-          </date>
+          <text macro="issued"/>
         </group>
       </else-if>
-      <else-if match="any" type="article-newspaper article-magazine personal_communication">
-        <date form="text" prefix=", " variable="issued"/>
+      <else-if type="article-newspaper">
+        <text macro="issued"/>
       </else-if>
-      <else-if type="patent">
-        <group delimiter=", " prefix=", ">
-          <group delimiter=" ">
-            <!--Needs Localization-->
-            <text value="filed"/>
-            <date form="text" variable="submitted"/>
-          </group>
-          <group delimiter=" ">
-            <choose>
-              <if variable="issued submitted">
-                <text term="and"/>
-              </if>
-            </choose>
-            <!--Needs Localization-->
-            <text value="issued"/>
-            <date form="text" variable="issued"/>
-          </group>
-        </group>
-      </else-if>
-      <else-if match="any" type="article-journal"/>
-      <else>
-        <group delimiter=", " prefix=". ">
+      <else-if match="any" variable="publisher-place publisher">
+        <group delimiter=", ">
           <choose>
             <if type="thesis">
               <text text-case="capitalize-first" variable="genre"/>
             </if>
           </choose>
-          <text macro="publisher"/>
+          <group delimiter=". ">
+            <text macro="originally-published"/>
+            <group delimiter=", ">
+              <text macro="reprint"/>
+              <text macro="publisher"/>
+            </group>
+          </group>
+          <text macro="issued"/>
         </group>
-      </else>
+      </else-if>
+      <else-if match="none" type="graphic map">
+        <text macro="issued"/>
+      </else-if>
     </choose>
   </macro>
-  <macro name="locators-article">
+  <macro name="point-locators-journal-join-with-colon">
+    <choose>
+      <if type="article-journal">
+        <choose>
+          <if match="any" variable="volume issue">
+            <text variable="page"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="point-locators-journal-join-with-comma">
+    <choose>
+      <if type="article-journal">
+        <choose>
+          <if match="none" variable="volume issue">
+            <text variable="page"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="point-locators-newspaper">
     <choose>
       <if type="article-newspaper">
-        <group delimiter=", " prefix=", ">
+        <group delimiter=", ">
           <group delimiter=" ">
-            <text variable="edition"/>
+            <number variable="edition"/>
             <text term="edition"/>
           </group>
           <group delimiter=" ">
@@ -571,62 +832,63 @@
           </group>
         </group>
       </if>
-      <else-if type="article-journal">
+    </choose>
+  </macro>
+  <macro name="point-locators-join-with-colon">
+    <choose>
+      <if type="article-journal">
         <choose>
-          <if variable="volume">
+          <if match="any" variable="locator page">
             <choose>
-              <if variable="issue">
-                <text prefix=": " variable="page"/>
+              <if match="any" variable="volume issue">
+                <text macro="point-locators"/>
               </if>
-              <else>
-                <!-- CMoS 15.48: If the month or season is included, it is
-                  enclosed in parentheses, and a space follows the colon.
-                  Unfortunately we can't check the month in CSL v1.0.2.
-                -->
-                <text prefix=":" variable="page"/>
-              </else>
             </choose>
           </if>
-          <else>
-            <text prefix=", " variable="page"/>
-          </else>
         </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="point-locators-join-with-comma">
+    <choose>
+      <if match="none" type="article-journal">
+        <text macro="point-locators"/>
+      </if>
+      <else-if match="none" variable="volume issue">
+        <text macro="point-locators"/>
       </else-if>
     </choose>
   </macro>
   <macro name="point-locators">
     <choose>
-      <if variable="locator">
+      <if match="none" variable="locator">
         <choose>
-          <if locator="page" match="none">
-            <choose>
-              <if match="any" type="bill book graphic legal_case legislation motion_picture report song">
-                <choose>
-                  <if variable="volume">
-                    <group delimiter=" ">
-                      <text form="short" term="volume"/>
-                      <group delimiter=", ">
-                        <number form="numeric" variable="volume"/>
-                        <label form="short" suffix=" " variable="locator"/>
-                      </group>
-                    </group>
-                  </if>
-                  <else>
-                    <label form="short" suffix=" " variable="locator"/>
-                  </else>
-                </choose>
-              </if>
-              <else>
-                <label form="short" suffix=" " variable="locator"/>
-              </else>
-            </choose>
+          <if match="any" type="article-journal paper-conference">
+            <text variable="page"/>
           </if>
-          <else-if match="any" type="bill book graphic legal_case legislation motion_picture report song">
-            <number form="numeric" suffix=":" variable="volume"/>
-          </else-if>
         </choose>
-        <text variable="locator"/>
       </if>
+      <else-if type="article-journal">
+        <group delimiter=" ">
+          <choose>
+            <if locator="page" match="none">
+              <label form="short" variable="locator"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </group>
+      </else-if>
+      <else-if type="legal_case"/>
+      <else>
+        <group delimiter=" ">
+          <choose>
+            <if locator="page" match="none">
+              <label form="short" variable="locator"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </group>
+      </else>
     </choose>
   </macro>
   <macro name="archive">
@@ -691,7 +953,6 @@
               <text macro="date-in-text"/>
             </group>
           </if>
-          <!---comma before forthcoming and n.d.-->
           <else>
             <group delimiter=", ">
               <text macro="contributors-short"/>
@@ -711,21 +972,44 @@
     </sort>
     <layout suffix=".">
       <group delimiter=". ">
-        <text macro="contributors"/>
-        <text macro="date"/>
-        <text macro="title"/>
+        <group delimiter=": ">
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <group delimiter=". ">
+                <group delimiter=" ">
+                  <group delimiter=", ">
+                    <group delimiter=". ">
+                      <group delimiter=". ">
+                        <text macro="contributors"/>
+                        <text macro="date"/>
+                        <text macro="title"/>
+                        <text macro="issue-map-graphic"/>
+                      </group>
+                      <text macro="description"/>
+                      <text macro="secondary-contributors"/>
+                      <group delimiter=", ">
+                        <text macro="container-title"/>
+                        <text macro="container-contributors"/>
+                      </group>
+                      <text macro="locators-join-with-period"/>
+                    </group>
+                    <text macro="locators-join-with-comma"/>
+                  </group>
+                  <text macro="locators-join-with-space"/>
+                </group>
+                <text macro="collection-title"/>
+                <text macro="issue-join-with-period"/>
+              </group>
+              <text macro="issue-join-with-space"/>
+            </group>
+            <text macro="issue-join-with-comma"/>
+            <text macro="point-locators-journal-join-with-comma"/>
+            <text macro="point-locators-newspaper"/>
+          </group>
+          <text macro="point-locators-journal-join-with-colon"/>
+        </group>
+        <text macro="access"/>
       </group>
-      <text macro="description"/>
-      <text macro="secondary-contributors" prefix=". "/>
-      <text macro="container-title" prefix=". "/>
-      <text macro="container-contributors"/>
-      <text macro="edition"/>
-      <text macro="collection-title-journal" prefix=", " suffix=", "/>
-      <text macro="locators"/>
-      <text macro="collection-title" prefix=". "/>
-      <text macro="issue"/>
-      <text macro="locators-article"/>
-      <text macro="access" prefix=". "/>
     </layout>
   </bibliography>
 </style>

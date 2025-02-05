@@ -93,7 +93,7 @@
         </substitute>
       </names>
       <names variable="recipient">
-        <label form="verb" suffix=" "/>
+        <label form="verb-short" suffix=" "/>
         <name form="short"/>
       </names>
     </group>
@@ -497,15 +497,15 @@
       </if>
     </choose>
   </macro>
-  <macro name="collection-title-journal">
-    <choose>
-      <if type="article-journal">
-        <group delimiter=" ">
-          <text variable="collection-title"/>
-          <text variable="collection-number"/>
-        </group>
-      </if>
-    </choose>
+  <macro name="locators-journal">
+    <group delimiter=", ">
+      <text variable="collection-title"/>
+      <text variable="volume"/>
+      <group delimiter=" ">
+        <text form="short" term="issue"/>
+        <text variable="issue"/>
+      </group>
+    </group>
   </macro>
   <macro name="collection-title">
     <choose>
@@ -546,8 +546,7 @@
               <text variable="volume"/>
               <text variable="container-title"/>
               <group delimiter=" ">
-                <!--change to label variable="section" as that becomes available -->
-                <text form="symbol" term="section"/>
+                <label form="symbol" variable="section"/>
                 <text variable="section"/>
               </group>
               <group delimiter=", ">
@@ -566,7 +565,10 @@
               </group>
             </if>
             <else>
-              <text prefix="No. " variable="number"/>
+              <group delimiter=" ">
+                <label variable="number"/>
+                <text variable="number"/>
+              </group>
             </else>
           </choose>
         </group>
@@ -575,11 +577,10 @@
         <group delimiter=", ">
           <choose>
             <if variable="number">
-              <!--There's a public law number-->
-              <text prefix="Pub. L. No. " variable="number"/>
+              <text variable="number"/>
+              <text variable="authority"/>
               <group delimiter=" ">
-                <!--change to label variable="section" as that becomes available -->
-                <text form="symbol" term="section"/>
+                <label form="symbol" variable="section"/>
                 <text variable="section"/>
               </group>
               <group delimiter=" ">
@@ -592,8 +593,7 @@
               <group delimiter=" ">
                 <text variable="volume"/>
                 <text variable="container-title"/>
-                <!--change to label variable="section" as that becomes available -->
-                <text form="symbol" term="section"/>
+                <label form="symbol" variable="section"/>
                 <text variable="section"/>
               </group>
             </else>
@@ -633,14 +633,7 @@
   <macro name="locators-note">
     <choose>
       <if type="article-journal">
-        <group delimiter=", ">
-          <text macro="collection-title-journal"/>
-          <text variable="volume"/>
-          <group delimiter=" ">
-            <text form="short" term="issue"/>
-            <text variable="issue"/>
-          </group>
-        </group>
+        <text macro="locators-journal"/>
       </if>
       <else-if match="any" type="bill legislation legal_case">
         <text macro="legal-cites"/>
@@ -695,14 +688,7 @@
   <macro name="locators">
     <choose>
       <if type="article-journal">
-        <group delimiter=", ">
-          <text macro="collection-title-journal"/>
-          <text variable="volume"/>
-          <group delimiter=" ">
-            <text form="short" term="issue"/>
-            <text variable="issue"/>
-          </group>
-        </group>
+        <text macro="locators-journal"/>
       </if>
       <else-if match="any" type="bill legislation legal_case">
         <text macro="legal-cites"/>
@@ -753,6 +739,16 @@
               </choose>
             </group>
           </if>
+          <else-if type="article-journal">
+            <choose>
+              <if match="none" variable="volume">
+                <date date-parts="year-month" form="text" variable="issued"/>
+              </if>
+              <else>
+                <date date-parts="year" form="text" variable="issued"/>
+              </else>
+            </choose>
+          </else-if>
           <else-if match="any" type="article-journal book bill chapter legislation motion_picture paper-conference song thesis">
             <choose>
               <if is-uncertain-date="issued">
@@ -766,7 +762,6 @@
           <else-if type="patent">
             <group delimiter=", ">
               <group delimiter=" ">
-                <!--Needs Localization-->
                 <text value="filed"/>
                 <date form="text" variable="submitted"/>
               </group>
@@ -776,7 +771,6 @@
                     <text term="and"/>
                   </if>
                 </choose>
-                <!--Needs Localization-->
                 <text value="issued"/>
                 <date form="text" variable="issued"/>
               </group>
@@ -797,10 +791,9 @@
       <else-if variable="status">
         <text variable="status"/>
       </else-if>
-      <else-if variable="accessed URL"/>
-      <else>
+      <else-if match="none" variable="accessed URL">
         <text form="short" term="no date"/>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="event-note">
@@ -839,20 +832,13 @@
     </group>
   </macro>
   <macro name="reprint-note">
-    <!--needs localization-->
     <choose>
       <if variable="original-date issued">
-        <choose>
-          <!--for whatever reason in notes, when we have both original and new publishers, reprint doesn't appear-->
-          <if match="none" variable="original-publisher original-publisher-place">
-            <text value="repr."/>
-          </if>
-        </choose>
+        <text value="repr."/>
       </if>
     </choose>
   </macro>
   <macro name="reprint">
-    <!--needs localization-->
     <choose>
       <if variable="original-date issued">
         <text text-case="capitalize-first" value="reprint"/>
@@ -876,7 +862,6 @@
     </choose>
   </macro>
   <macro name="issue-map-graphic">
-    <!--See 14.235 and 14.237-->
     <choose>
       <if match="any" type="graphic map">
         <choose>
@@ -1000,7 +985,6 @@
     <choose>
       <if match="none" type="article-journal bill legislation legal_case">
         <choose>
-          <!-- We need a perdiod here when the container title gets moved up into author position, otherwise a comma (below)-->
           <if match="any" type="article-newspaper article-magazine">
             <choose>
               <if match="none" variable="author editor">
@@ -1059,7 +1043,6 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <!--Chicago doesn't use publisher/place for Newspapers -->
       <else-if type="article-newspaper">
         <text macro="issued"/>
       </else-if>
@@ -1080,7 +1063,6 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <!--location for data for maps and artwork is different-->
       <else-if match="none" type="graphic map">
         <text macro="issued"/>
       </else-if>
@@ -1388,7 +1370,6 @@
             <group delimiter=" ">
               <group delimiter=", ">
                 <text macro="title-short"/>
-                <!--if title & author are the same: -->
                 <text macro="date-disambiguate"/>
                 <text macro="locator-case-subsequent"/>
               </group>
