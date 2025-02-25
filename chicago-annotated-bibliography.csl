@@ -152,16 +152,16 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <if match="none" variable="title">
-        <choose>
-          <if type="interview">
-            <text term="interview"/>
-          </if>
-          <else-if match="any" type="manuscript speech">
-            <text form="short" variable="genre"/>
-          </else-if>
-        </choose>
+      <if type="interview">
+        <text term="interview"/>
       </if>
+      <else-if match="none" variable="title">
+        <choose>
+          <if match="any" type="manuscript speech">
+            <text form="short" variable="genre"/>
+          </if>
+        </choose>
+      </else-if>
       <else-if match="any" type="book graphic motion_picture pamphlet song">
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else-if>
@@ -737,7 +737,7 @@
   </macro>
   <macro name="locators-join-with-period">
     <choose>
-      <if match="none" type="bill legislation legal_case article-journal chapter paper-conference">
+      <if match="none" type="article-journal bill chapter legislation legal_case paper-conference">
         <text macro="locators"/>
       </if>
     </choose>
@@ -930,38 +930,43 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="article-newspaper">
-        <text macro="issued"/>
-      </else-if>
-      <else-if type="article">
+      <else-if type="speech">
         <group delimiter=", ">
-          <text term="preprint"/>
-          <text variable="publisher"/>
+          <group delimiter=" ">
+            <choose>
+              <if match="none" variable="title"/>
+              <else>
+                <text variable="genre"/>
+              </else>
+            </choose>
+            <text macro="event-note"/>
+          </group>
+          <text variable="event-place"/>
           <text macro="issued"/>
         </group>
       </else-if>
-      <else-if type="interview">
+      <else-if type="article article-newspaper interview">
         <group delimiter=", ">
-          <text variable="publisher"/>
+          <choose>
+            <if type="article">
+              <text term="preprint"/>
+            </if>
+          </choose>
+          <choose>
+            <if match="none" type="article-newspaper">
+              <text variable="publisher"/>
+            </if>
+          </choose>
           <text macro="issued"/>
         </group>
       </else-if>
-      <else-if match="any" type="manuscript thesis speech">
+      <else-if match="any" variable="publisher-place publisher">
         <group delimiter=", " prefix="(" suffix=")">
           <choose>
-            <if variable="title">
+            <if type="thesis">
               <text variable="genre"/>
             </if>
           </choose>
-          <text variable="event"/>
-          <text variable="event-place"/>
-          <text variable="publisher"/>
-          <text macro="issued"/>
-        </group>
-      </else-if>
-      <else-if match="any" variable="publisher-place event-place publisher">
-        <group delimiter=", " prefix="(" suffix=")">
-          <text macro="event-note"/>
           <group delimiter="; ">
             <text macro="originally-published"/>
             <group delimiter=", ">
@@ -972,9 +977,9 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <else>
+      <else-if match="none" type="graphic map">
         <text macro="issued"/>
-      </else>
+      </else-if>
     </choose>
   </macro>
   <macro name="issue">
@@ -1007,13 +1012,18 @@
           <text macro="issued"/>
         </group>
       </else-if>
-      <else-if type="article-newspaper">
-        <text macro="issued"/>
-      </else-if>
-      <else-if type="article">
+      <else-if type="article article-newspaper interview">
         <group delimiter=", ">
-          <text term="preprint" text-case="capitalize-first"/>
-          <text variable="publisher"/>
+          <choose>
+            <if type="article">
+              <text term="preprint" text-case="capitalize-first"/>
+            </if>
+          </choose>
+          <choose>
+            <if match="none" type="article-newspaper">
+              <text variable="publisher"/>
+            </if>
+          </choose>
           <text macro="issued"/>
         </group>
       </else-if>
