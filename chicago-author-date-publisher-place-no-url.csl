@@ -86,13 +86,16 @@
             <if variable="genre">
               <text variable="genre"/>
             </if>
-            <else>
+            <else-if match="none" variable="archive container-title DOI publisher URL">
               <text form="short" term="personal-communication"/>
+            </else-if>
+            <else>
+              <text form="short" term="letter"/>
             </else>
           </choose>
+          <text macro="recipient"/>
         </if>
       </choose>
-      <text macro="recipient"/>
     </group>
   </macro>
   <macro name="communication-recipient">
@@ -103,26 +106,26 @@
             <if variable="genre">
               <text text-case="capitalize-first" variable="genre"/>
             </if>
-            <else>
+            <else-if match="none" variable="archive container-title DOI publisher URL">
               <text term="personal-communication" text-case="capitalize-first"/>
+            </else-if>
+            <else>
+              <text term="letter" text-case="capitalize-first"/>
             </else>
           </choose>
+          <text macro="recipient"/>
         </if>
       </choose>
-      <text macro="recipient"/>
     </group>
   </macro>
-  <macro name="substitute-title">
+  <macro name="container-title-substitute">
     <choose>
-      <if match="any" type="article-magazine article-newspaper review review-book">
+      <if match="any" type="article-magazine article-newspaper review review-book post-weblog webpage">
         <text macro="container-title"/>
       </if>
-      <else-if match="any" type="post-weblog webpage">
-        <text macro="container-title"/>
-      </else-if>
     </choose>
   </macro>
-  <macro name="contributors-short">
+  <macro name="author-short">
     <group delimiter=" ">
       <names variable="composer">
         <name form="short" initialize-with=". "/>
@@ -135,7 +138,7 @@
           <names variable="compiler"/>
           <names variable="host"/>
           <names variable="collection-editor"/>
-          <text macro="substitute-title"/>
+          <text macro="container-title-substitute"/>
           <text macro="title-short"/>
         </substitute>
       </names>
@@ -152,7 +155,7 @@
       </choose>
     </group>
   </macro>
-  <macro name="contributors">
+  <macro name="author">
     <group delimiter=". ">
       <names variable="composer">
         <name delimiter-precedes-last="always" name-as-sort-order="first"/>
@@ -166,7 +169,7 @@
           <names variable="compiler"/>
           <names variable="host"/>
           <names variable="collection-editor"/>
-          <text macro="substitute-title"/>
+          <text macro="container-title-substitute"/>
           <text macro="title"/>
         </substitute>
       </names>
@@ -290,14 +293,20 @@
               <group delimiter=". ">
                 <text quotes="true" text-case="title" variable="title"/>
                 <group delimiter=", ">
-                  <text font-style="italic" prefix="Review of " text-case="title" variable="reviewed-title"/>
+                  <group delimiter=" ">
+                    <text term="review-of" text-case="capitalize-first"/>
+                    <text font-style="italic" text-case="title" variable="reviewed-title"/>
+                  </group>
                   <text macro="reviewed-author"/>
                 </group>
               </group>
             </if>
             <else>
               <group delimiter=", ">
-                <text font-style="italic" prefix="Review of " text-case="title" variable="title"/>
+                <group delimiter=" ">
+                  <text term="review-of" text-case="capitalize-first"/>
+                  <text font-style="italic" text-case="title" variable="title"/>
+                </group>
                 <text macro="reviewed-author"/>
               </group>
             </else>
@@ -333,12 +342,6 @@
       </if>
     </choose>
   </macro>
-  <macro name="interviewer">
-    <names variable="interviewer">
-      <label form="verb" suffix=" " text-case="capitalize-first"/>
-      <name/>
-    </names>
-  </macro>
   <macro name="scale-dimensions">
     <choose>
       <if type="map">
@@ -371,8 +374,11 @@
         </if>
       </choose>
       <choose>
-        <if match="any" type="interview" variable="interviewer">
-          <text macro="interviewer"/>
+        <if type="interview">
+          <names variable="interviewer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
         </if>
         <else-if type="patent">
           <group delimiter=" ">
@@ -389,6 +395,10 @@
     <choose>
       <if match="none" variable="container-title">
         <group delimiter=". ">
+          <names variable="container-author">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
           <choose>
             <if match="any" variable="volume volume-title">
               <names variable="collection-editor">
@@ -403,10 +413,6 @@
               </names>
             </else>
           </choose>
-          <names variable="container-author">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
           <names variable="compiler">
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name/>
@@ -423,6 +429,14 @@
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name/>
           </names>
+          <choose>
+            <if match="none" type="interview">
+              <names variable="interviewer">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name/>
+              </names>
+            </if>
+          </choose>
           <names variable="contributor">
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name/>
@@ -511,6 +525,14 @@
             <label form="verb" suffix=" "/>
             <name/>
           </names>
+          <choose>
+            <if match="none" type="interview">
+              <names variable="interviewer">
+                <label form="verb" suffix=" "/>
+                <name/>
+              </names>
+            </if>
+          </choose>
           <names variable="contributor">
             <label form="verb" suffix=" "/>
             <name/>
@@ -519,7 +541,7 @@
       </if>
     </choose>
   </macro>
-  <macro name="locators-journal">
+  <macro name="volume-journal">
     <choose>
       <if variable="volume">
         <group delimiter=" ">
@@ -557,26 +579,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="collection-title">
-    <choose>
-      <if match="none" type="article-journal">
-        <choose>
-          <if is-numeric="collection-number" match="none">
-            <group delimiter=", ">
-              <text text-case="title" variable="collection-title"/>
-              <text variable="collection-number"/>
-            </group>
-          </if>
-          <else>
-            <group delimiter=" ">
-              <text text-case="title" variable="collection-title"/>
-              <text variable="collection-number"/>
-            </group>
-          </else>
-        </choose>
-      </if>
-    </choose>
-  </macro>
   <macro name="number-of-volumes">
     <choose>
       <if match="none" variable="volume volume-title">
@@ -587,7 +589,7 @@
       </if>
     </choose>
   </macro>
-  <macro name="legal-cites">
+  <macro name="legal-citation">
     <choose>
       <if type="legal_case">
         <group delimiter=" ">
@@ -648,16 +650,16 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="locators">
-    <group delimiter=". ">
-      <choose>
-        <if type="article-journal">
-          <text macro="locators-journal"/>
-        </if>
-        <else-if match="any" type="bill legal_case legislation">
-          <text macro="legal-cites"/>
-        </else-if>
-        <else-if match="any" type="book graphic motion_picture pamphlet report song">
+  <macro name="volume">
+    <choose>
+      <if type="article-journal">
+        <text macro="volume-journal"/>
+      </if>
+      <else-if match="any" type="bill legal_case legislation">
+        <text macro="legal-citation"/>
+      </else-if>
+      <else-if match="any" type="book graphic motion_picture pamphlet report song">
+        <group delimiter=". ">
           <group delimiter=", ">
             <group delimiter=" ">
               <text form="short" term="volume" text-case="capitalize-first"/>
@@ -674,67 +676,79 @@
             </choose>
           </group>
           <text macro="number-of-volumes"/>
-        </else-if>
-        <else-if variable="container-title">
-          <choose>
-            <if match="none" variable="page">
-              <group delimiter=" ">
-                <text form="short" term="volume" text-case="capitalize-first"/>
-                <number form="numeric" variable="volume"/>
-              </group>
-            </if>
-          </choose>
-        </else-if>
-      </choose>
-      <group delimiter=", ">
-        <text macro="collection-title"/>
-        <choose>
-          <if match="none" variable="volume volume-title">
-            <names variable="collection-editor">
-              <label form="verb" suffix=" "/>
-              <name/>
-            </names>
-          </if>
-        </choose>
-      </group>
-    </group>
+        </group>
+      </else-if>
+    </choose>
   </macro>
-  <macro name="locators-join-with-comma">
+  <macro name="volume-join-with-comma">
     <choose>
       <if match="any" type="bill chapter legal_case legislation paper-conference">
-        <text macro="locators"/>
+        <text macro="volume"/>
       </if>
       <else-if type="article-journal">
         <choose>
           <if match="none" variable="volume">
-            <text macro="locators"/>
+            <text macro="volume"/>
           </if>
           <else-if variable="collection-title">
-            <text macro="locators"/>
+            <text macro="volume"/>
           </else-if>
         </choose>
       </else-if>
     </choose>
   </macro>
-  <macro name="locators-join-with-period">
+  <macro name="volume-join-with-period">
     <choose>
       <if match="none" type="article-journal bill chapter legal_case legislation paper-conference">
-        <text macro="locators"/>
+        <text macro="volume"/>
       </if>
     </choose>
   </macro>
-  <macro name="locators-join-with-space">
+  <macro name="volume-join-with-space">
     <choose>
       <if type="article-journal" variable="volume">
         <choose>
           <if match="none" variable="collection-title">
-            <text macro="locators"/>
+            <text macro="volume"/>
           </if>
         </choose>
       </if>
     </choose>
   </macro>
-  <macro name="issued">
+  <macro name="series-title-number">
+    <choose>
+      <if match="none" type="article-journal">
+        <choose>
+          <if is-numeric="collection-number" match="none">
+            <group delimiter=", ">
+              <text text-case="title" variable="collection-title"/>
+              <text variable="collection-number"/>
+            </group>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text text-case="title" variable="collection-title"/>
+              <text variable="collection-number"/>
+            </group>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="series">
+    <group delimiter=", ">
+      <text macro="series-title-number"/>
+      <choose>
+        <if match="none" variable="volume volume-title">
+          <names variable="collection-editor">
+            <label form="verb" suffix=" "/>
+            <name/>
+          </names>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="date-issued">
     <choose>
       <if variable="issued">
         <choose>
@@ -784,7 +798,7 @@
       <text variable="event"/>
     </group>
   </macro>
-  <macro name="originally-published">
+  <macro name="original-publication">
     <group delimiter=", ">
       <group delimiter=": ">
         <text variable="original-publisher-place"/>
@@ -799,13 +813,6 @@
         </else>
       </choose>
     </group>
-  </macro>
-  <macro name="reprint">
-    <choose>
-      <if variable="original-date issued">
-        <text text-case="capitalize-first" value="reprint"/>
-      </if>
-    </choose>
   </macro>
   <macro name="publisher">
     <choose>
@@ -823,29 +830,29 @@
       </else>
     </choose>
   </macro>
-  <macro name="issue-map-graphic">
+  <macro name="publication-info-map-graphic">
     <choose>
       <if match="any" type="graphic map">
         <choose>
           <if match="none" variable="publisher publisher-place">
-            <text macro="issued"/>
+            <text macro="date-issued"/>
           </if>
         </choose>
       </if>
     </choose>
   </macro>
-  <macro name="issue">
+  <macro name="publication-info">
     <choose>
       <if match="any" type="bill legal_case legislation">
-        <text macro="issued"/>
+        <text macro="date-issued"/>
       </if>
       <else-if type="article-journal">
         <choose>
           <if match="any" variable="issue volume">
-            <text macro="issued" prefix="(" suffix=")"/>
+            <text macro="date-issued" prefix="(" suffix=")"/>
           </if>
           <else>
-            <text macro="issued"/>
+            <text macro="date-issued"/>
           </else>
         </choose>
       </else-if>
@@ -861,7 +868,7 @@
             <text macro="event"/>
           </group>
           <text variable="event-place"/>
-          <text macro="issued"/>
+          <text macro="date-issued"/>
         </group>
       </else-if>
       <else-if match="any" type="article article-newspaper interview">
@@ -876,7 +883,7 @@
               <text text-case="title" variable="publisher"/>
             </if>
           </choose>
-          <text macro="issued"/>
+          <text macro="date-issued"/>
         </group>
       </else-if>
       <else-if match="any" variable="publisher publisher-place">
@@ -887,21 +894,25 @@
             </if>
           </choose>
           <group delimiter=". ">
-            <text macro="originally-published"/>
+            <text macro="original-publication"/>
             <group delimiter=", ">
-              <text macro="reprint"/>
+              <choose>
+                <if variable="issued original-date">
+                  <text text-case="capitalize-first" value="reprint"/>
+                </if>
+              </choose>
               <text macro="publisher"/>
             </group>
           </group>
-          <text macro="issued"/>
+          <text macro="date-issued"/>
         </group>
       </else-if>
       <else-if match="none" type="graphic map">
-        <text macro="issued"/>
+        <text macro="date-issued"/>
       </else-if>
     </choose>
   </macro>
-  <macro name="issue-join-with-comma">
+  <macro name="publication-info-join-with-comma">
     <choose>
       <if match="none" type="bill legal_case legislation">
         <choose>
@@ -910,77 +921,55 @@
               <if match="any" type="article-magazine article-newspaper interview">
                 <choose>
                   <if match="any" variable="author editor">
-                    <text macro="issue"/>
+                    <text macro="publication-info"/>
                   </if>
                 </choose>
               </if>
               <else-if match="none" type="speech" variable="publisher publisher-place">
-                <text macro="issue"/>
+                <text macro="publication-info"/>
               </else-if>
             </choose>
           </if>
           <else-if match="none" variable="volume issue">
-            <text macro="issue"/>
+            <text macro="publication-info"/>
           </else-if>
         </choose>
       </if>
     </choose>
   </macro>
-  <macro name="issue-join-with-period">
+  <macro name="publication-info-join-with-period">
     <choose>
       <if match="none" type="article-journal bill interview legal_case legislation">
         <choose>
           <if match="any" type="article-magazine article-newspaper">
             <choose>
               <if match="none" variable="author editor">
-                <text macro="issue"/>
+                <text macro="publication-info"/>
               </if>
             </choose>
           </if>
           <else-if match="any" type="speech" variable="publisher publisher-place">
-            <text macro="issue"/>
+            <text macro="publication-info"/>
           </else-if>
         </choose>
       </if>
     </choose>
   </macro>
-  <macro name="issue-join-with-space">
+  <macro name="publication-info-join-with-space">
     <choose>
       <if type="article-journal">
         <choose>
           <if match="any" variable="issue volume">
-            <text macro="issue"/>
+            <text macro="publication-info"/>
           </if>
         </choose>
       </if>
       <else-if match="any" type="bill legal_case legislation">
-        <text macro="issue"/>
+        <text macro="publication-info"/>
       </else-if>
     </choose>
   </macro>
-  <macro name="point-locators-journal-join-with-colon">
-    <choose>
-      <if type="article-journal">
-        <choose>
-          <if match="any" variable="volume issue">
-            <text variable="page"/>
-          </if>
-        </choose>
-      </if>
-    </choose>
-  </macro>
-  <macro name="point-locators-journal-join-with-comma">
-    <choose>
-      <if type="article-journal">
-        <choose>
-          <if match="none" variable="volume issue">
-            <text variable="page"/>
-          </if>
-        </choose>
-      </if>
-    </choose>
-  </macro>
-  <macro name="point-locators-newspaper">
+  <macro name="locators-newspaper">
     <choose>
       <if type="article-newspaper">
         <group delimiter=", ">
@@ -996,7 +985,32 @@
       </if>
     </choose>
   </macro>
-  <macro name="point-locators">
+  <macro name="locators-join-with-colon">
+    <choose>
+      <if type="article-journal">
+        <choose>
+          <if match="any" variable="locator page">
+            <choose>
+              <if match="any" variable="volume issue">
+                <text macro="locators"/>
+              </if>
+            </choose>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="locators-join-with-comma">
+    <choose>
+      <if match="none" type="article-journal">
+        <text macro="locators"/>
+      </if>
+      <else-if match="none" variable="volume issue">
+        <text macro="locators"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="locators">
     <choose>
       <if type="article-journal">
         <group delimiter=" ">
@@ -1082,24 +1096,24 @@
         <choose>
           <if variable="issued">
             <group delimiter=" ">
-              <text macro="contributors-short"/>
+              <text macro="author-short"/>
               <text macro="date-in-text"/>
             </group>
           </if>
           <else>
             <group delimiter=", ">
-              <text macro="contributors-short"/>
+              <text macro="author-short"/>
               <text macro="date-in-text"/>
             </group>
           </else>
         </choose>
-        <text macro="point-locators"/>
+        <text macro="locators"/>
       </group>
     </layout>
   </citation>
   <bibliography et-al-min="7" et-al-use-first="3" hanging-indent="true">
     <sort>
-      <key macro="contributors"/>
+      <key macro="author"/>
       <key macro="date"/>
       <key variable="title"/>
     </sort>
@@ -1113,10 +1127,10 @@
                   <group delimiter=", ">
                     <group delimiter=". ">
                       <group delimiter=". ">
-                        <text macro="contributors"/>
+                        <text macro="author"/>
                         <text macro="date"/>
                         <text macro="title"/>
-                        <text macro="issue-map-graphic"/>
+                        <text macro="publication-info-map-graphic"/>
                       </group>
                       <text macro="description"/>
                       <text macro="secondary-contributors"/>
@@ -1124,21 +1138,22 @@
                         <text macro="container-title"/>
                         <text macro="container-contributors"/>
                       </group>
-                      <text macro="locators-join-with-period"/>
+                      <text macro="volume-join-with-period"/>
                     </group>
-                    <text macro="locators-join-with-comma"/>
+                    <text macro="volume-join-with-comma"/>
                   </group>
-                  <text macro="locators-join-with-space"/>
+                  <text macro="volume-join-with-space"/>
                 </group>
-                <text macro="issue-join-with-period"/>
+                <text macro="series"/>
+                <text macro="publication-info-join-with-period"/>
               </group>
-              <text macro="issue-join-with-space"/>
+              <text macro="publication-info-join-with-space"/>
             </group>
-            <text macro="issue-join-with-comma"/>
-            <text macro="point-locators-journal-join-with-comma"/>
-            <text macro="point-locators-newspaper"/>
+            <text macro="publication-info-join-with-comma"/>
+            <text macro="locators-join-with-comma"/>
+            <text macro="locators-newspaper"/>
           </group>
-          <text macro="point-locators-journal-join-with-colon"/>
+          <text macro="locators-join-with-colon"/>
         </group>
         <text macro="access"/>
       </group>
