@@ -80,45 +80,64 @@
       <name/>
     </names>
   </macro>
-  <macro name="communication-recipient-note">
-    <group delimiter=" ">
+  <macro name="personal-communication-issued">
+    <group delimiter=", ">
       <choose>
-        <if type="personal_communication">
-          <choose>
-            <if variable="genre">
-              <text variable="genre"/>
-            </if>
-            <else-if match="none" variable="archive container-title DOI publisher URL">
-              <text form="short" term="personal-communication"/>
-            </else-if>
-            <else>
-              <text form="short" term="letter"/>
-            </else>
-          </choose>
-          <text macro="recipient"/>
+        <if match="any" variable="archive container-title DOI publisher URL">
+          <text variable="genre"/>
         </if>
       </choose>
+      <text variable="event-place"/>
+      <date form="text" variable="event-date"/>
     </group>
   </macro>
-  <macro name="communication-recipient">
-    <group delimiter=" ">
-      <choose>
-        <if type="personal_communication">
-          <choose>
-            <if variable="genre">
-              <text text-case="capitalize-first" variable="genre"/>
-            </if>
-            <else-if match="none" variable="archive container-title DOI publisher URL">
-              <text term="personal-communication" text-case="capitalize-first"/>
-            </else-if>
-            <else>
-              <text term="letter" text-case="capitalize-first"/>
-            </else>
-          </choose>
-          <text macro="recipient"/>
-        </if>
-      </choose>
-    </group>
+  <macro name="personal-communication-note">
+    <choose>
+      <if type="personal_communication">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <choose>
+              <if match="none" variable="archive container-title DOI publisher URL">
+                <choose>
+                  <if variable="genre">
+                    <text variable="genre"/>
+                  </if>
+                  <else>
+                    <text form="short" term="personal-communication"/>
+                  </else>
+                </choose>
+              </if>
+            </choose>
+            <text macro="recipient"/>
+          </group>
+          <text macro="personal-communication-issued"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="personal-communication">
+    <choose>
+      <if type="personal_communication">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <choose>
+              <if match="none" variable="archive container-title DOI publisher URL">
+                <choose>
+                  <if variable="genre">
+                    <text text-case="capitalize-first" variable="genre"/>
+                  </if>
+                  <else>
+                    <text term="personal-communication" text-case="capitalize-first"/>
+                  </else>
+                </choose>
+              </if>
+            </choose>
+            <text macro="recipient"/>
+          </group>
+          <text macro="personal-communication-issued"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="container-title-substitute">
     <choose>
@@ -152,13 +171,13 @@
           </names>
         </if>
         <else-if type="personal_communication">
-          <text macro="communication-recipient-note"/>
+          <text macro="personal-communication-note"/>
         </else-if>
       </choose>
     </group>
   </macro>
   <macro name="author-note">
-    <group delimiter=", ">
+    <group delimiter=" ">
       <names variable="composer">
         <label form="short" prefix=", "/>
         <substitute>
@@ -174,11 +193,11 @@
           <text macro="title"/>
         </substitute>
       </names>
-      <text macro="communication-recipient-note"/>
+      <text macro="personal-communication-note"/>
     </group>
   </macro>
   <macro name="author">
-    <group delimiter=". ">
+    <group delimiter=" ">
       <names variable="composer">
         <name delimiter-precedes-last="always" name-as-sort-order="first"/>
         <label form="short" prefix=", "/>
@@ -195,7 +214,7 @@
           <text macro="title"/>
         </substitute>
       </names>
-      <text macro="communication-recipient"/>
+      <text macro="personal-communication"/>
     </group>
   </macro>
   <macro name="reviewed-author">
@@ -348,9 +367,19 @@
   </macro>
   <macro name="date-disambiguate">
     <choose>
-      <if disambiguate="true" match="any" type="personal_communication">
+      <if disambiguate="true">
         <text macro="date-issued"/>
       </if>
+      <else-if type="personal_communication">
+        <choose>
+          <if variable="event-date">
+            <date form="text" variable="event-date"/>
+          </if>
+          <else>
+            <text macro="date-issued"/>
+          </else>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="edition-note">
@@ -643,11 +672,22 @@
   </macro>
   <macro name="container-volume-title">
     <group delimiter=", ">
-      <group delimiter=" ">
-        <text form="short" term="volume"/>
-        <number form="numeric" variable="volume"/>
-      </group>
-      <text font-style="italic" text-case="title" variable="volume-title"/>
+      <choose>
+        <if match="none" type="article-journal">
+          <group delimiter=" ">
+            <text form="short" term="volume"/>
+            <number form="numeric" variable="volume"/>
+          </group>
+        </if>
+      </choose>
+      <choose>
+        <if type="article-journal">
+          <text quotes="true" text-case="title" variable="volume-title"/>
+        </if>
+        <else>
+          <text font-style="italic" text-case="title" variable="volume-title"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="container-title-note">
@@ -952,6 +992,17 @@
       </if>
     </choose>
   </macro>
+  <macro name="locators-container">
+    <choose>
+      <if variable="container-title">
+        <choose>
+          <if match="none" type="article-journal chapter entry-dictionary entry-encyclopedia">
+            <text macro="locators"/>
+          </if>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <macro name="series-title-number">
     <choose>
       <if match="none" type="article-journal">
@@ -1025,7 +1076,7 @@
               </else>
             </choose>
           </else-if>
-          <else-if match="any" type="article-journal book bill chapter legislation motion_picture pamphlet paper-conference song thesis">
+          <else-if match="any" type="article-journal book bill chapter entry-dictionary entry-encyclopedia legislation motion_picture pamphlet paper-conference song thesis">
             <choose>
               <if is-uncertain-date="issued">
                 <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="issued"/>
@@ -1490,7 +1541,7 @@
     <choose>
       <if match="none" variable="locator">
         <choose>
-          <if match="any" type="article-journal paper-conference">
+          <if match="none" type="chapter">
             <text variable="page"/>
           </if>
         </choose>
@@ -1708,6 +1759,7 @@
                       <text macro="volume-join-with-period"/>
                     </group>
                     <text macro="volume-join-with-comma"/>
+                    <text macro="locators-container"/>
                   </group>
                   <text macro="volume-join-with-space"/>
                 </group>
@@ -1717,7 +1769,11 @@
               <text macro="publication-info-join-with-space"/>
             </group>
             <text macro="publication-info-join-with-comma"/>
-            <text macro="locators-join-with-comma"/>
+            <choose>
+              <if match="none" variable="container-title">
+                <text macro="locators-join-with-comma"/>
+              </if>
+            </choose>
             <text macro="locators-newspaper"/>
           </group>
           <text macro="locators-join-with-colon"/>
