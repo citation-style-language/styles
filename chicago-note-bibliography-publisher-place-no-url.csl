@@ -221,7 +221,7 @@
       <else-if type="legal_case" variable="title-short">
         <text font-style="italic" form="short" variable="title"/>
       </else-if>
-      <else-if type="patent">
+      <else-if match="any" type="patent personal_communication">
         <text form="short" variable="title"/>
       </else-if>
       <else-if match="any" type="bill legal_case legislation">
@@ -277,7 +277,7 @@
             </else>
           </choose>
         </else-if>
-        <else-if match="any" type="legal_case patent">
+        <else-if match="any" type="legal_case patent personal_communication">
           <text variable="title"/>
         </else-if>
         <else-if type="post">
@@ -484,10 +484,7 @@
     <group delimiter=", ">
       <choose>
         <if match="none" type="article-journal">
-          <group delimiter=" ">
-            <text form="short" term="volume"/>
-            <number form="numeric" variable="volume"/>
-          </group>
+          <text macro="volume-label-number-note"/>
         </if>
       </choose>
       <choose>
@@ -522,6 +519,14 @@
       <choose>
         <if variable="container-title">
           <text macro="edition"/>
+          <choose>
+            <if match="any" variable="volume volume-title">
+              <names variable="collection-editor">
+                <label form="verb" suffix=" "/>
+                <name/>
+              </names>
+            </if>
+          </choose>
           <text macro="container-volume-title"/>
         </if>
       </choose>
@@ -554,17 +559,7 @@
       </group>
     </group>
   </macro>
-  <macro name="number-of-volumes">
-    <choose>
-      <if match="none" variable="volume volume-title">
-        <group delimiter=" ">
-          <number form="numeric" variable="number-of-volumes"/>
-          <text form="short" plural="true" term="volume"/>
-        </group>
-      </if>
-    </choose>
-  </macro>
-  <macro name="legal-citation">
+  <macro name="volume-legal">
     <choose>
       <if type="legal_case">
         <group delimiter=" ">
@@ -625,21 +620,61 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="volume-label-number-note">
+    <choose>
+      <if is-numeric="volume">
+        <group delimiter=" ">
+          <text form="short" term="volume"/>
+          <number variable="volume"/>
+        </group>
+      </if>
+      <else>
+        <text variable="volume"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="volume-label-number">
+    <choose>
+      <if is-numeric="volume">
+        <group delimiter=" ">
+          <text form="short" term="volume" text-case="capitalize-first"/>
+          <number variable="volume"/>
+        </group>
+      </if>
+      <else>
+        <text variable="volume"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="volumes-number-label">
+    <choose>
+      <if match="none" variable="volume volume-title">
+        <choose>
+          <if is-numeric="number-of-volumes">
+            <group delimiter=" ">
+              <number variable="number-of-volumes"/>
+              <text form="short" plural="true" term="volume"/>
+            </group>
+          </if>
+          <else>
+            <text variable="number-of-volumes"/>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <macro name="volume">
     <choose>
       <if type="article-journal">
         <text macro="volume-journal"/>
       </if>
       <else-if match="any" type="bill legal_case legislation">
-        <text macro="legal-citation"/>
+        <text macro="volume-legal"/>
       </else-if>
       <else-if match="any" type="book graphic motion_picture pamphlet report song">
         <group delimiter=". ">
           <group delimiter=", ">
-            <group delimiter=" ">
-              <text form="short" term="volume" text-case="capitalize-first"/>
-              <number form="numeric" variable="volume"/>
-            </group>
+            <text macro="volume-label-number"/>
             <choose>
               <if variable="volume-title">
                 <text font-style="italic" text-case="title" variable="volume-title"/>
@@ -650,7 +685,7 @@
               </if>
             </choose>
           </group>
-          <text macro="number-of-volumes"/>
+          <text macro="volumes-number-label"/>
         </group>
       </else-if>
     </choose>
@@ -1063,60 +1098,41 @@
   </macro>
   <macro name="locators-subsequent">
     <choose>
-      <if type="legal_case" variable="locator">
+      <if match="none" variable="container-title">
         <choose>
-          <if locator="page">
+          <if match="none" variable="locator">
+            <text macro="volume-label-number-note"/>
+          </if>
+          <else-if is-numeric="volume" locator="page" match="all">
             <group delimiter=":">
               <text variable="volume"/>
               <text variable="locator"/>
             </group>
-          </if>
-          <else>
+          </else-if>
+          <else-if variable="locator">
             <group delimiter=" ">
-              <label form="short" variable="locator"/>
-              <text variable="locator"/>
-            </group>
-          </else>
-        </choose>
-      </if>
-      <else-if variable="locator">
-        <choose>
-          <if locator="page" match="none">
-            <group delimiter=" ">
-              <choose>
-                <if match="any" type="book graphic motion_picture pamphlet report song">
-                  <choose>
-                    <if variable="volume">
-                      <group delimiter=", ">
-                        <group delimiter=" ">
-                          <text form="short" term="volume"/>
-                          <number form="numeric" variable="volume"/>
-                        </group>
-                        <label form="short" variable="locator"/>
-                      </group>
-                    </if>
-                    <else>
-                      <label form="short" variable="locator"/>
-                    </else>
-                  </choose>
-                </if>
-                <else>
-                  <label form="short" variable="locator"/>
-                </else>
-              </choose>
-              <text variable="locator"/>
-            </group>
-          </if>
-          <else-if match="any" type="book graphic motion_picture pamphlet report song">
-            <group delimiter=":">
-              <number form="numeric" variable="volume"/>
+              <group delimiter=", ">
+                <text macro="volume-label-number-note"/>
+                <choose>
+                  <if locator="page" match="none">
+                    <label form="short" variable="locator"/>
+                  </if>
+                </choose>
+              </group>
               <text variable="locator"/>
             </group>
           </else-if>
-          <else>
-            <text variable="locator"/>
-          </else>
         </choose>
+      </if>
+      <else-if variable="locator">
+        <group delimiter=" ">
+          <choose>
+            <if locator="page" match="none">
+              <label form="short" variable="locator"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </group>
       </else-if>
     </choose>
   </macro>
