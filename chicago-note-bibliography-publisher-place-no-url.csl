@@ -47,6 +47,10 @@
       <name>Brenton M. Wiernik</name>
       <uri>https://orcid.org/0000-0001-9560-6336</uri>
     </contributor>
+    <contributor>
+      <name>Zeping Lee</name>
+      <uri>https://github.com/zepinglee</uri>
+    </contributor>
     <category citation-format="note"/>
     <category field="humanities"/>
     <category field="social_science"/>
@@ -294,7 +298,7 @@
   <macro name="date-disambiguate">
     <choose>
       <if disambiguate="true">
-        <text macro="date-issued"/>
+        <text macro="issued-date"/>
       </if>
       <else-if type="personal_communication">
         <choose>
@@ -302,7 +306,7 @@
             <date form="text" variable="event-date"/>
           </if>
           <else>
-            <text macro="date-issued"/>
+            <text macro="issued-date"/>
           </else>
         </choose>
       </else-if>
@@ -821,7 +825,47 @@
       </if>
     </choose>
   </macro>
-  <macro name="date-issued">
+  <macro name="date-original-full">
+    <choose>
+      <if is-uncertain-date="original-date">
+        <date form="text" prefix="[" suffix="?]" variable="original-date"/>
+      </if>
+      <else>
+        <date form="text" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-original-year">
+    <choose>
+      <if is-uncertain-date="original-date">
+        <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="original-date"/>
+      </if>
+      <else>
+        <date date-parts="year" form="numeric" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-issued-full">
+    <choose>
+      <if is-uncertain-date="issued">
+        <date form="text" prefix="[" suffix="?]" variable="issued"/>
+      </if>
+      <else>
+        <date form="text" variable="issued"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-issued-year">
+    <choose>
+      <if is-uncertain-date="issued">
+        <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="issued"/>
+      </if>
+      <else>
+        <date date-parts="year" form="numeric" variable="issued"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="issued-date">
     <choose>
       <if variable="issued">
         <choose>
@@ -829,34 +873,43 @@
             <group delimiter=" ">
               <text variable="authority"/>
               <choose>
-                <if variable="container-title">
-                  <date date-parts="year" form="numeric" variable="issued"/>
+                <if match="none" variable="container-title">
+                  <text macro="date-issued-full"/>
                 </if>
                 <else>
-                  <date form="text" variable="issued"/>
+                  <text macro="date-issued-year"/>
                 </else>
               </choose>
             </group>
           </if>
           <else-if type="article-journal">
             <choose>
-              <if match="none" variable="volume">
-                <date date-parts="year-month" form="text" variable="issued"/>
+              <if variable="status">
+                <group delimiter=", ">
+                  <text variable="status"/>
+                  <text macro="date-issued-full"/>
+                </group>
               </if>
+              <else-if match="none" variable="volume">
+                <date date-parts="year-month" form="text" variable="issued"/>
+              </else-if>
+              <else-if match="none" variable="issue">
+                <date date-parts="year-month" form="text" variable="issued"/>
+              </else-if>
               <else>
-                <date date-parts="year" form="text" variable="issued"/>
+                <text macro="date-issued-year"/>
               </else>
             </choose>
           </else-if>
-          <else-if match="any" type="article-journal book bill chapter entry-dictionary entry-encyclopedia legislation motion_picture pamphlet paper-conference song thesis">
-            <choose>
-              <if is-uncertain-date="issued">
-                <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="issued"/>
-              </if>
-              <else>
-                <date date-parts="year" form="numeric" variable="issued"/>
-              </else>
-            </choose>
+          <else-if match="any" type="book bill chapter entry-dictionary entry-encyclopedia legislation motion_picture pamphlet paper-conference song thesis">
+            <group delimiter=" ">
+              <choose>
+                <if match="none" variable="original-publisher original-publisher-place publisher publisher-place">
+                  <text macro="date-original-year" prefix="(" suffix=")"/>
+                </if>
+              </choose>
+              <text macro="date-issued-year"/>
+            </group>
           </else-if>
           <else-if type="patent">
             <group delimiter=", ">
@@ -871,19 +924,15 @@
                   </if>
                 </choose>
                 <text value="issued"/>
-                <date form="text" variable="issued"/>
+                <text macro="date-issued-full"/>
               </group>
             </group>
           </else-if>
           <else>
-            <choose>
-              <if is-uncertain-date="issued">
-                <date form="text" prefix="[" suffix="?]" variable="issued"/>
-              </if>
-              <else>
-                <date form="text" variable="issued"/>
-              </else>
-            </choose>
+            <group delimiter=" ">
+              <text macro="date-original-full" prefix="(" suffix=")"/>
+              <text macro="date-issued-full"/>
+            </group>
           </else>
         </choose>
       </if>
@@ -921,14 +970,7 @@
           </group>
         </else>
       </choose>
-      <choose>
-        <if is-uncertain-date="original-date">
-          <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="original-date"/>
-        </if>
-        <else>
-          <date date-parts="year" form="numeric" variable="original-date"/>
-        </else>
-      </choose>
+      <text macro="date-original-year"/>
     </group>
   </macro>
   <macro name="publisher">
@@ -954,12 +996,22 @@
       </else>
     </choose>
   </macro>
+  <macro name="publication-info-journal">
+    <choose>
+      <if match="any" variable="volume issue">
+        <text macro="issued-date" prefix="(" suffix=")"/>
+      </if>
+      <else>
+        <text macro="issued-date"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="publication-info-map-graphic">
     <choose>
       <if match="any" type="graphic map">
         <choose>
-          <if match="none" variable="publisher publisher-place">
-            <text macro="date-issued"/>
+          <if match="none" variable="original-publisher original-publisher-place publisher publisher-place">
+            <text macro="issued-date"/>
           </if>
         </choose>
       </if>
@@ -968,17 +1020,10 @@
   <macro name="publication-info">
     <choose>
       <if match="any" type="bill legal_case legislation">
-        <text macro="date-issued" prefix="(" suffix=")"/>
+        <text macro="issued-date" prefix="(" suffix=")"/>
       </if>
       <else-if type="article-journal">
-        <choose>
-          <if match="any" variable="issue volume">
-            <text macro="date-issued" prefix="(" suffix=")"/>
-          </if>
-          <else>
-            <text macro="date-issued"/>
-          </else>
-        </choose>
+        <text macro="publication-info-journal"/>
       </else-if>
       <else-if type="speech">
         <group delimiter=", ">
@@ -992,7 +1037,7 @@
             <text macro="event"/>
           </group>
           <text variable="event-place"/>
-          <text macro="date-issued"/>
+          <text macro="issued-date"/>
         </group>
       </else-if>
       <else-if match="any" type="article article-newspaper interview">
@@ -1007,10 +1052,10 @@
               <text variable="publisher"/>
             </if>
           </choose>
-          <text macro="date-issued"/>
+          <text macro="issued-date"/>
         </group>
       </else-if>
-      <else-if match="any" variable="publisher publisher-place">
+      <else-if match="any" variable="original-publisher original-publisher-place publisher publisher-place">
         <group delimiter=", ">
           <choose>
             <if type="thesis">
@@ -1035,11 +1080,11 @@
               <text macro="publisher"/>
             </group>
           </group>
-          <text macro="date-issued"/>
+          <text macro="issued-date"/>
         </group>
       </else-if>
       <else-if match="none" type="graphic map">
-        <text macro="date-issued"/>
+        <text macro="issued-date"/>
       </else-if>
     </choose>
   </macro>
@@ -1056,7 +1101,7 @@
                   </if>
                 </choose>
               </if>
-              <else-if match="none" type="speech" variable="publisher publisher-place">
+              <else-if is-uncertain-date="issued original-date" match="none" type="speech" variable="original-publisher original-publisher-place publisher publisher-place">
                 <text macro="publication-info"/>
               </else-if>
             </choose>
@@ -1079,7 +1124,7 @@
               </if>
             </choose>
           </if>
-          <else-if match="any" type="speech" variable="publisher publisher-place">
+          <else-if match="any" type="speech" variable="original-publisher original-publisher-place publisher publisher-place">
             <text macro="publication-info"/>
           </else-if>
         </choose>
@@ -1097,6 +1142,13 @@
       </if>
       <else-if match="any" type="bill legal_case legislation">
         <text macro="publication-info"/>
+      </else-if>
+      <else-if match="none" variable="event-place original-publisher original-publisher-place publisher publisher-place">
+        <choose>
+          <if is-uncertain-date="issued original-date" match="any">
+            <text macro="publication-info"/>
+          </if>
+        </choose>
       </else-if>
     </choose>
   </macro>
