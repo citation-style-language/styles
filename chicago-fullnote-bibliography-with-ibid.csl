@@ -897,16 +897,19 @@
         <group delimiter=", ">
           <group delimiter=" ">
             <choose>
-              <if type="book chapter entry-dictionary entry-encyclopedia paper-conference personal_communication" variable="container-title">
+              <if match="any" type="book chapter entry-dictionary entry-encyclopedia paper-conference personal_communication">
                 <choose>
-                  <if variable="chapter-number">
+                  <if match="none" variable="chapter-number page">
+                    <text term="in"/>
+                  </if>
+                  <else-if variable="page">
+                    <text term="in"/>
+                  </else-if>
+                  <else-if variable="chapter-number">
                     <label form="short" variable="chapter-number"/>
                     <text variable="chapter-number"/>
                     <text term="in"/>
-                  </if>
-                  <else>
-                    <text term="in"/>
-                  </else>
+                  </else-if>
                 </choose>
               </if>
             </choose>
@@ -938,16 +941,19 @@
         <group delimiter=", ">
           <group delimiter=" ">
             <choose>
-              <if type="book chapter entry-dictionary entry-encyclopedia paper-conference personal_communication" variable="container-title">
+              <if match="any" type="book chapter entry-dictionary entry-encyclopedia paper-conference personal_communication">
                 <choose>
-                  <if variable="chapter-number">
+                  <if match="none" variable="chapter-number page">
+                    <text term="in" text-case="capitalize-first"/>
+                  </if>
+                  <else-if variable="page">
+                    <text term="in" text-case="capitalize-first"/>
+                  </else-if>
+                  <else-if variable="chapter-number">
                     <label form="short" text-case="capitalize-first" variable="chapter-number"/>
                     <text variable="chapter-number"/>
                     <text term="in"/>
-                  </if>
-                  <else>
-                    <text term="in" text-case="capitalize-first"/>
-                  </else>
+                  </else-if>
                 </choose>
               </if>
             </choose>
@@ -995,17 +1001,7 @@
               <text variable="section"/>
               <group delimiter=", ">
                 <text variable="page"/>
-                <choose>
-                  <if locator="page">
-                    <text variable="locator"/>
-                  </if>
-                  <else>
-                    <group delimiter=" ">
-                      <label form="short" variable="locator"/>
-                      <text variable="locator"/>
-                    </group>
-                  </else>
-                </choose>
+                <text macro="locator-label"/>
               </group>
             </if>
             <else>
@@ -1097,7 +1093,18 @@
       </else-if>
       <else-if match="any" variable="volume volume-title">
         <group delimiter=", ">
-          <text macro="volume-label-number-note"/>
+          <choose>
+            <if match="any" variable="collection-editor volume-title">
+              <choose>
+                <if variable="container-title">
+                  <text macro="volume-label-number-note"/>
+                </if>
+                <else>
+                  <text macro="volume-label-number-note"/>
+                </else>
+              </choose>
+            </if>
+          </choose>
           <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="secondary-contributors-list-note"/>
         </group>
@@ -1117,7 +1124,18 @@
       </else-if>
       <else-if match="any" variable="volume volume-title">
         <group delimiter=", ">
-          <text macro="volume-label-number"/>
+          <choose>
+            <if match="any" variable="collection-editor volume-title">
+              <choose>
+                <if variable="container-title">
+                  <text macro="volume-label-number-note"/>
+                </if>
+                <else>
+                  <text macro="volume-label-number"/>
+                </else>
+              </choose>
+            </if>
+          </choose>
           <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="secondary-contributors-list-full"/>
         </group>
@@ -1146,10 +1164,7 @@
   </macro>
   <macro name="volume-join-with-comma">
     <choose>
-      <if match="any" type="bill chapter hearing legal_case legislation paper-conference regulation treaty">
-        <text macro="volume"/>
-      </if>
-      <else-if type="article-journal">
+      <if type="article-journal">
         <choose>
           <if match="none" variable="volume">
             <text macro="volume"/>
@@ -1158,12 +1173,15 @@
             <text macro="volume"/>
           </else-if>
         </choose>
+      </if>
+      <else-if match="any" type="bill hearing legal_case legislation paper-conference regulation treaty" variable="container-title">
+        <text macro="volume"/>
       </else-if>
     </choose>
   </macro>
   <macro name="volume-join-with-period">
     <choose>
-      <if match="none" type="article-journal bill chapter hearing legal_case legislation paper-conference regulation treaty">
+      <if match="none" type="article-journal bill hearing legal_case legislation paper-conference regulation treaty" variable="container-title">
         <text macro="volume"/>
       </if>
     </choose>
@@ -1753,6 +1771,16 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="locator-label">
+    <group delimiter=" ">
+      <choose>
+        <if locator="page" match="none">
+          <label form="short" variable="locator"/>
+        </if>
+      </choose>
+      <text variable="locator"/>
+    </group>
+  </macro>
   <macro name="locators-case-subsequent">
     <choose>
       <if type="legal_case">
@@ -1826,57 +1854,50 @@
             </group>
           </else-if>
           <else-if variable="locator">
-            <group delimiter=" ">
-              <group delimiter=", ">
-                <text macro="volume-label-number-note"/>
-                <choose>
-                  <if locator="page" match="none">
-                    <label form="short" variable="locator"/>
-                  </if>
-                </choose>
-              </group>
-              <text variable="locator"/>
+            <group delimiter=", ">
+              <text macro="volume-label-number-note"/>
+              <text macro="locator-label"/>
             </group>
           </else-if>
         </choose>
       </if>
       <else-if variable="locator">
-        <group delimiter=" ">
-          <choose>
-            <if locator="page" match="none">
-              <label form="short" variable="locator"/>
-            </if>
-          </choose>
-          <text variable="locator"/>
-        </group>
+        <text macro="locator-label"/>
       </else-if>
     </choose>
   </macro>
   <macro name="locators">
     <choose>
       <if match="none" variable="locator">
-        <text variable="page"/>
+        <choose>
+          <if is-numeric="volume" locator="page" match="all">
+            <group delimiter=":">
+              <choose>
+                <if match="none" type="article-journal" variable="collection-editor volume-title">
+                  <text variable="volume"/>
+                </if>
+              </choose>
+              <text variable="page"/>
+            </group>
+          </if>
+          <else-if variable="page">
+            <group delimiter=", ">
+              <choose>
+                <if match="none" type="article-journal" variable="collection-editor volume-title">
+                  <text macro="volume-label-number-note"/>
+                </if>
+              </choose>
+              <text variable="page"/>
+            </group>
+          </else-if>
+        </choose>
       </if>
       <else-if type="article-journal">
-        <group delimiter=" ">
-          <choose>
-            <if locator="page" match="none">
-              <label form="short" variable="locator"/>
-            </if>
-          </choose>
-          <text variable="locator"/>
-        </group>
+        <text macro="locator-label"/>
       </else-if>
       <else-if type="legal_case"/>
       <else>
-        <group delimiter=" ">
-          <choose>
-            <if locator="page" match="none">
-              <label form="short" variable="locator"/>
-            </if>
-          </choose>
-          <text variable="locator"/>
-        </group>
+        <text macro="locator-label"/>
       </else>
     </choose>
   </macro>
