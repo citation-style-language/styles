@@ -230,22 +230,106 @@
         </choose>
       </else-if>
       <else-if match="any" type="book graphic motion_picture pamphlet song">
-        <text font-style="italic" form="short" text-case="title" variable="title"/>
+        <choose>
+          <if variable="original-title">
+            <text font-style="italic" form="short" text-case="title" variable="original-title"/>
+          </if>
+          <else>
+            <text font-style="italic" form="short" text-case="title" variable="title"/>
+          </else>
+        </choose>
       </else-if>
-      <else-if type="legal_case" variable="title-short">
-        <text font-style="italic" form="short" variable="title"/>
+      <else-if type="legal_case">
+        <choose>
+          <if variable="original-title">
+            <text font-style="italic" form="short" variable="original-title"/>
+          </if>
+          <else>
+            <text font-style="italic" form="short" variable="title"/>
+          </else>
+        </choose>
       </else-if>
-      <else-if match="any" type="patent personal_communication">
-        <text form="short" variable="title"/>
-      </else-if>
-      <else-if match="any" type="bill hearing legal_case legislation regulation treaty">
-        <text variable="title"/>
+      <else-if match="any" type="bill hearing legislation patent personal_communication regulation treaty">
+        <choose>
+          <if variable="original-title">
+            <text form="short" variable="original-title"/>
+          </if>
+          <else>
+            <text form="short" variable="title"/>
+          </else>
+        </choose>
       </else-if>
       <else-if type="post">
-        <text form="short" quotes="true" variable="title"/>
+        <choose>
+          <if variable="original-title">
+            <text form="short" quotes="true" variable="original-title"/>
+          </if>
+          <else>
+            <text form="short" quotes="true" variable="title"/>
+          </else>
+        </choose>
       </else-if>
       <else>
-        <text form="short" quotes="true" text-case="title" variable="title"/>
+        <choose>
+          <if variable="original-title">
+            <text form="short" quotes="true" text-case="title" variable="original-title"/>
+          </if>
+          <else>
+            <text form="short" quotes="true" text-case="title" variable="title"/>
+          </else>
+        </choose>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-italic-title-case">
+    <choose>
+      <if variable="original-title">
+        <group delimiter=" ">
+          <text font-style="italic" text-case="title" variable="original-title"/>
+          <text prefix="[" suffix="]" variable="title"/>
+        </group>
+      </if>
+      <else>
+        <text font-style="italic" text-case="title" variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-plain">
+    <choose>
+      <if variable="original-title">
+        <group delimiter=" ">
+          <text variable="original-title"/>
+          <text prefix="[" suffix="]" variable="title"/>
+        </group>
+      </if>
+      <else>
+        <text variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-quotes">
+    <choose>
+      <if variable="original-title">
+        <group delimiter=" ">
+          <text quotes="true" variable="original-title"/>
+          <text prefix="[" suffix="]" variable="title"/>
+        </group>
+      </if>
+      <else>
+        <text quotes="true" variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-quotes-title-case">
+    <choose>
+      <if variable="original-title">
+        <group delimiter=" ">
+          <text quotes="true" text-case="title" variable="original-title"/>
+          <text prefix="[" suffix="]" variable="title"/>
+        </group>
+      </if>
+      <else>
+        <text quotes="true" text-case="title" variable="title"/>
       </else>
     </choose>
   </macro>
@@ -266,14 +350,14 @@
               <text text-case="capitalize-first" variable="number"/>
               <choose>
                 <if variable="title">
-                  <text quotes="true" text-case="title" variable="title"/>
+                  <text macro="title-quotes-title-case"/>
                   <text macro="secondary-contributors-list-full"/>
                 </if>
               </choose>
             </group>
           </group>
         </if>
-        <else-if match="none" variable="title">
+        <else-if match="none" variable="original-title title">
           <choose>
             <if match="none" type="personal_communication speech thesis" variable="container-title">
               <text text-case="capitalize-first" variable="genre"/>
@@ -281,7 +365,7 @@
           </choose>
         </else-if>
         <else-if match="any" type="bill book graphic legislation motion_picture pamphlet song">
-          <text font-style="italic" text-case="title" variable="title"/>
+          <text macro="title-italic-title-case"/>
           <group delimiter=" " prefix="(" suffix=")">
             <text term="version"/>
             <text variable="version"/>
@@ -291,7 +375,7 @@
           <choose>
             <if variable="reviewed-title">
               <group delimiter=". ">
-                <text quotes="true" text-case="title" variable="title"/>
+                <text macro="title-quotes-title-case"/>
                 <group delimiter=", ">
                   <group delimiter=" ">
                     <text term="review-of" text-case="capitalize-first"/>
@@ -305,7 +389,7 @@
               <group delimiter=", ">
                 <group delimiter=" ">
                   <text term="review-of" text-case="capitalize-first"/>
-                  <text font-style="italic" text-case="title" variable="title"/>
+                  <text macro="title-italic-title-case"/>
                 </group>
                 <text macro="reviewed-author"/>
               </group>
@@ -313,16 +397,15 @@
           </choose>
         </else-if>
         <else-if match="any" type="hearing legal_case regulation patent personal_communication treaty">
-          <text variable="title"/>
+          <text macro="title-plain"/>
         </else-if>
         <else-if type="post">
-          <text quotes="true" variable="title"/>
+          <text macro="title-quotes"/>
         </else-if>
         <else>
-          <text quotes="true" text-case="title" variable="title"/>
+          <text macro="title-quotes-title-case"/>
         </else>
       </choose>
-      <text prefix="[" suffix="]" variable="original-title"/>
     </group>
   </macro>
   <macro name="date-disambiguate">
@@ -1476,6 +1559,7 @@
   <bibliography et-al-min="7" et-al-use-first="3" hanging-indent="true">
     <sort>
       <key macro="author"/>
+      <key variable="original-title"/>
       <key variable="title"/>
       <key variable="genre"/>
       <key variable="issued"/>
