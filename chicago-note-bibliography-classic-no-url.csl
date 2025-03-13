@@ -910,16 +910,23 @@
       <else-if match="any" variable="volume volume-title">
         <group delimiter=", ">
           <choose>
-            <if match="any" variable="collection-editor volume-title">
+            <if variable="container-title">
               <choose>
-                <if variable="container-title">
-                  <text macro="volume-label-number-note"/>
+                <if match="any" variable="chair compiler container-author contributor curator director editor translator editor-translator editorial-director executive-producer guest host illustrator interviewer narrator organizer original-author performer producer script-writer series-creator volume-title">
+                  <choose>
+                    <if variable="collection-editor">
+                      <text macro="volume-label-number-note"/>
+                    </if>
+                  </choose>
                 </if>
-                <else>
-                  <text macro="volume-label-number"/>
-                </else>
+                <else-if match="none" variable="page">
+                  <text macro="volume-label-number-note"/>
+                </else-if>
               </choose>
             </if>
+            <else>
+              <text macro="volume-label-number"/>
+            </else>
           </choose>
           <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="secondary-contributors-list-full"/>
@@ -1467,26 +1474,44 @@
     <choose>
       <if match="none" variable="locator">
         <choose>
-          <if is-numeric="volume" locator="page" match="all">
-            <group delimiter=":">
-              <choose>
-                <if match="none" type="article-journal" variable="collection-editor volume-title">
-                  <text variable="volume"/>
-                </if>
-              </choose>
-              <text variable="page"/>
-            </group>
+          <if is-numeric="page">
+            <choose>
+              <if is-numeric="volume">
+                <group delimiter=":">
+                  <choose>
+                    <if variable="collection-editor">
+                      <choose>
+                        <if match="none" type="article-journal" variable="chair compiler container-author contributor curator director editor translator editor-translator editorial-director executive-producer guest host illustrator interviewer narrator organizer original-author performer producer script-writer series-creator volume-title">
+                          <text variable="volume"/>
+                        </if>
+                      </choose>
+                    </if>
+                    <else-if match="none" type="article-journal">
+                      <text variable="volume"/>
+                    </else-if>
+                  </choose>
+                  <text variable="page"/>
+                </group>
+              </if>
+              <else>
+                <group delimiter=", ">
+                  <choose>
+                    <if variable="collection-editor">
+                      <choose>
+                        <if match="none" type="article-journal" variable="chair compiler container-author contributor curator director editor translator editor-translator editorial-director executive-producer guest host illustrator interviewer narrator organizer original-author performer producer script-writer series-creator volume-title">
+                          <text macro="volume-label-number-note"/>
+                        </if>
+                      </choose>
+                    </if>
+                    <else>
+                      <text macro="volume-label-number-note"/>
+                    </else>
+                  </choose>
+                  <text variable="page"/>
+                </group>
+              </else>
+            </choose>
           </if>
-          <else-if variable="page">
-            <group delimiter=", ">
-              <choose>
-                <if match="none" type="article-journal" variable="collection-editor volume-title">
-                  <text macro="volume-label-number-note"/>
-                </if>
-              </choose>
-              <text variable="page"/>
-            </group>
-          </else-if>
         </choose>
       </if>
       <else-if type="article-journal">
