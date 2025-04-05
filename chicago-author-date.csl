@@ -84,6 +84,33 @@
       <term form="verb-short" name="translator">trans.</term>
     </terms>
   </locale>
+  <!-- Basic citation structure (see CMOS 14.2, 16.64, 14.161):
+        - Author
+        - Title
+        - Edition
+        - Additional contributors
+        - Volume details
+        - Series information
+        - Publication facts (publisher, date)
+        - Page references/citation locators
+        - Medium
+        - URI
+  -->
+  <!-- General categories of item types:
+        Periodical: article-journal article-magazine article-newspaper periodical post-weblog review review-book
+        Periodical or Booklike: paper-conference
+        Booklike: article book chapter classic collection dataset document
+                  entry entry-dictionary entry-encyclopedia event figure
+                  graphic interview manuscript map musical_score
+                  pamphlet patent performance personal_communication post report
+                  software speech standard thesis webpage
+        Booklike or multimedia: interview
+        Multimedia: broadcast motion_picture song
+        Legal: bill hearing legal_case legislation regulation treaty -->
+  <!-- Reviews are detected if an item has type `review` or `review-book` or if it has any of the variables
+       `reviewed-title`, `reviewed-author`, or `reviewed-genre`. For the latter case, reviews are commonly 
+       stored as types `article-journal`, `article-magazine`, `article-newspaper`, `post-weblog`, or `webpage` 
+  -->
   <macro name="recipient">
     <names variable="recipient">
       <label form="verb" suffix=" "/>
@@ -150,8 +177,12 @@
   </macro>
   <macro name="container-title-substitute">
     <choose>
-      <if match="any" type="article-magazine article-newspaper entry-dictionary entry-encyclopedia review review-book post-weblog webpage">
-        <text macro="container-title-short"/>
+      <if variable="container-title">
+        <choose>
+          <if match="any" type="article-magazine article-newspaper entry-dictionary entry-encyclopedia review review-book post-weblog webpage">
+            <text macro="container-title-short"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -163,13 +194,21 @@
           <names variable="author"/>
           <choose>
             <if match="none" type="classic">
+              <!-- CMOS 14.147: Anonymous classic works open with a title -->
+              <names variable="illustrator"/>
+              <choose>
+                <if type="broadcast">
+                  <names variable="script-writer director"/>
+                </if>
+              </choose>
+              <names variable="director"/>
+              <names variable="guest host"/>
+              <names variable="producer"/>
               <names variable="editor-translator"/>
               <names variable="editor"/>
               <names variable="translator"/>
               <names variable="compiler"/>
               <names variable="collection-editor"/>
-              <names variable="director"/>
-              <names variable="host"/>
               <names variable="interviewer"/>
             </if>
           </choose>
@@ -200,13 +239,20 @@
           <choose>
             <if match="none" type="classic">
               <!-- CMOS 14.147: Anonymous classic works open with a title -->
+              <names variable="illustrator"/>
+              <choose>
+                <if type="broadcast">
+                  <names variable="script-writer director"/>
+                </if>
+              </choose>
+              <names variable="director"/>
+              <names variable="guest host"/>
+              <names variable="producer"/>
               <names variable="editor-translator"/>
               <names variable="editor"/>
               <names variable="translator"/>
               <names variable="compiler"/>
               <names variable="collection-editor"/>
-              <names variable="director"/>
-              <names variable="host"/>
               <names variable="interviewer"/>
             </if>
           </choose>
@@ -256,6 +302,36 @@
       </else-if>
       <else-if variable="status">
         <text variable="status"/>
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else>
+        <text form="short" term="no date"/>
+        <text prefix="-" variable="year-suffix"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-bib">
+    <!-- For author–date -->
+    <choose>
+      <if type="personal_communication" variable="event-date">
+        <date form="text" variable="event-date"/>
+      </if>
+      <else-if variable="issued">
+        <group delimiter=" ">
+          <text macro="date-original-year" prefix="(" suffix=")"/>
+          <choose>
+            <if type="personal_communication">
+              <date form="text" variable="issued"/>
+            </if>
+            <else>
+              <text macro="date-issued-year"/>
+            </else>
+          </choose>
+        </group>
+        <text variable="year-suffix"/>
+      </else-if>
+      <else-if variable="status">
+        <text text-case="capitalize-first" variable="status"/>
         <text prefix="-" variable="year-suffix"/>
       </else-if>
       <else>
@@ -1158,28 +1234,21 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="volume-journal-issue-bracketed">
-    <group delimiter=" ">
+  <macro name="volume-journal">
+    <group delimiter=", ">
       <choose>
-        <if variable="volume">
-          <group delimiter=", ">
-            <choose>
-              <if variable="collection-title">
-                <text variable="collection-title"/>
-                <text macro="volume-label-number-note"/>
-              </if>
-              <else>
-                <text variable="volume"/>
-              </else>
-            </choose>
-          </group>
-          <text prefix="(" suffix=")" variable="issue"/>
+        <if variable="collection-title">
+          <text variable="collection-title"/>
+          <text macro="volume-label-number-note"/>
         </if>
-        <else-if variable="issue">
-          <text form="short" term="issue"/>
-          <text variable="issue"/>
-        </else-if>
+        <else>
+          <text variable="volume"/>
+        </else>
       </choose>
+      <group delimiter=" ">
+        <text form="short" term="issue"/>
+        <text variable="issue"/>
+      </group>
     </group>
   </macro>
   <macro name="volume-number-with-locators-container">
@@ -1229,7 +1298,7 @@
     <group delimiter=", ">
       <choose>
         <if match="any" type="article-journal periodical">
-          <text macro="volume-journal-issue-bracketed"/>
+          <text macro="volume-journal"/>
         </if>
         <else-if match="any" variable="volume volume-title">
           <choose>
@@ -1903,7 +1972,7 @@
                 <group delimiter=", ">
                   <group delimiter=". ">
                     <text macro="author-bib"/>
-                    <text macro="date"/>
+                    <text macro="date-bib"/>
                     <text macro="title-bib"/>
                     <text macro="description-bib"/>
                     <text macro="secondary-contributors-bib"/>
