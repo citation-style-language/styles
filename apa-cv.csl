@@ -145,8 +145,8 @@
        `article-journal`, `article-magazine`, `article-newspaper`,
        `post-weblog`, or `webpage`.
   -->
-  <!-- Indigeneous Knowledge:
-
+  <!-- Indigeneous knowledge:
+  
        Assume the item is stored as `document` or `speech`
        and that Nation/Community, treaty territory,
        where the Elder lives, and topic are all stored in `title`.
@@ -614,16 +614,23 @@
         </else-if>
       </choose>
       <!-- For book-like items, assume part-number and part-title refer to the book/volume. -->
-      <text macro="title-part"/>
+      <choose>
+        <if match="none" type="broadcast">
+          <text macro="title-part"/>
+        </if>
+      </choose>
     </group>
   </macro>
   <!-- Title logic -->
   <macro name="booklike-title">
     <!-- For book-like items, assume part-number and part-title refer to the book/volume. -->
     <choose>
-      <if variable="container-title">
-        <text variable="title"/>
+      <if type="broadcast">
+        <text macro="title-plus-part-title"/>
       </if>
+      <else-if variable="container-title">
+        <text variable="title"/>
+      </else-if>
       <else>
         <!-- For book-like items without container titles and with volume-title, append volume-title to title (APA example 30) -->
         <text font-style="italic" macro="title-plus-volume-title"/>
@@ -1701,12 +1708,25 @@
   </macro>
   <!-- Parallel rules for legal citations -->
   <macro name="legal-bib">
-    <!-- `treaty`: for treaties -->
-    <!-- `legal_case`: for all legal and court cases -->
-    <!-- `bill`: for bills, resolutions, federal reports -->
-    <!-- `hearing`: for hearings and testimony -->
-    <!-- `legislation`: for statutes, constitutional items, and charters -->
-    <!-- `regulation`: codified regulations, uncodified regulations, executive orders -->
+    <!-- Type usage:
+
+         `treaty`
+         : treaties
+
+         `legal_case`
+         : all legal and court cases
+
+         `bill`
+         : bills, resolutions, federal reports
+
+         `hearing`
+         : hearings and testimony
+
+         `legislation`
+         : statutes, constitutional items, and charters
+
+         `regulation`
+         : codified regulations, uncodified regulations, executive orders -->
     <group delimiter=" ">
       <choose>
         <if type="treaty">
@@ -1853,7 +1873,7 @@
         <group delimiter=" ">
           <choose>
             <!-- If there is no session number or code/record title, assume
-                 assume the item is a congressional report and include 'No.' term. -->
+                 the item is a congressional report and include 'No.' term. -->
             <if match="none" variable="chapter-number container-title">
               <!-- The item is a congressional report, rather than a bill or resultion. -->
               <text macro="number-labelled"/>
