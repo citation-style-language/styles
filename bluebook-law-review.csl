@@ -16,10 +16,14 @@
     <contributor>
       <name>Patrick O'Brien</name>
     </contributor>
+    <contributor>
+      <name>James Tierney</name>
+      <email>jtierney1@kentlaw.iit.edu</email>
+    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
     <summary>The Bluebook legal citation style for law reviews.</summary>
-    <updated>2023-06-28T09:05:37+00:00</updated>
+    <updated>2025-04-14T11:13:30+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -37,6 +41,18 @@
         <text variable="title"/>
       </substitute>
     </names>
+  </macro>
+  <macro name="consec-periodical-issuance">
+    <date variable="issued">
+      <date-part name="year"/>
+    </date>
+  </macro>
+  <macro name="periodical-issuance">
+    <date variable="issued">
+      <date-part name="month" form="short" suffix=" "/>
+      <date-part name="day" suffix=", "/>
+      <date-part name="year"/>
+    </date>
   </macro>
   <macro name="author-short">
     <choose>
@@ -64,6 +80,7 @@
   <macro name="name-short-macro">
     <names variable="author">
       <name form="short" and="text" delimiter=", "/>
+      <label form="verb-short" prefix=", "/>
       <substitute>
         <text variable="title" form="short"/>
       </substitute>
@@ -116,11 +133,24 @@
               <text macro="container"/>
               <text variable="page-first"/>
             </group>
-            <text variable="locator"/>
+            <choose>
+              <if variable="locator">
+                <text variable="locator"/>
+              </if>
+            </choose>
           </group>
-          <text macro="issuance" prefix="(" suffix=")"/>
+          <text macro="consec-periodical-issuance" prefix="(" suffix=")"/>
         </group>
       </if>
+      <else-if type="bill legislation" match="any">
+        <text macro="statute-citation"/>
+      </else-if>
+      <else-if type="book">
+        <text macro="restatement"/>
+      </else-if>
+      <else-if type="manuscript">
+        <text macro="rules"/>
+      </else-if>
       <else-if type="legal_case">
         <group delimiter=" ">
           <group delimiter=", ">
@@ -130,23 +160,29 @@
           <text macro="container"/>
           <group delimiter=", ">
             <text variable="page-first"/>
-            <text variable="locator"/>
+            <choose>
+              <if variable="locator">
+                <text variable="locator" prefix="at "/>
+              </if>
+            </choose>
           </group>
-          <text macro="issuance" prefix="(" suffix=")"/>
+          <text macro="legal-case-issuance"/>
         </group>
       </else-if>
       <else-if type="article-newspaper article-magazine thesis" match="any">
         <group delimiter=", ">
           <text variable="title" text-case="title" font-style="italic"/>
-          <group delimiter=" ">
-            <text variable="volume"/>
-            <text macro="container"/>
-          </group>
-          <text macro="issuance"/>
-          <group delimiter=" ">
+          <text macro="container"/>
+          <text macro="periodical-issuance"/>
+          <group delimiter=" " prefix=", ">
             <text value="at"/>
             <text variable="page-first"/>
           </group>
+          <choose>
+            <if variable="locator">
+               <text variable="locator" prefix=", "/>
+            </if>
+          </choose>
         </group>
       </else-if>
       <else-if type="chapter paper-conference" match="any">
@@ -157,11 +193,6 @@
         </group>
         <text variable="page-first"/>
         <text variable="locator" prefix=", "/>
-        <text macro="issuance" prefix=" (" suffix=")"/>
-      </else-if>
-      <else-if type="book" match="any">
-        <text variable="title" text-case="title" font-variant="small-caps"/>
-        <text variable="locator" prefix=" "/>
         <text macro="issuance" prefix=" (" suffix=")"/>
       </else-if>
       <else>
@@ -177,6 +208,21 @@
         </group>
       </else>
     </choose>
+  </macro>
+  <macro name="statute-citation">
+  <group delimiter=", ">
+      <text variable="title" suffix=" "/>
+      <group delimiter=" " prefix="§ ">
+        <text variable="section"/>
+        <text variable="locator"/>
+      </group>
+      <group delimiter=" " prefix="(" suffix=")">
+        <text variable="publisher"/>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </group>
+    </group>
   </macro>
   <macro name="issuance">
     <choose>
@@ -213,13 +259,8 @@
             </group>
           </if>
           <else-if type="legal_case">
-            <group delimiter=" ">
-              <text variable="authority"/>
-              <date variable="issued">
-                <date-part name="year"/>
-              </date>
-            </group>
-          </else-if>
+             <text macro="legal-case-issuance"/>
+          </else-if>  
           <else>
             <group delimiter=", ">
               <text macro="editor-translator"/>
@@ -228,15 +269,39 @@
                   <text variable="edition"/>
                   <label variable="edition" form="short"/>
                 </group>
-                <date variable="issued">
-                  <date-part name="year"/>
-                </date>
+                <choose>
+                  <if match="any" variable="authority">
+                    <group>
+                      <text variable="authority"/>
+                    </group>
+                  </if>
+                  <else>
+                    <date form="text" variable="issued">
+                      <date-part name="year"/>
+                    </date>
+                  </else>
+                </choose>
               </group>
             </group>
           </else>
         </choose>
       </else>
     </choose>
+  </macro>
+  <macro name="restatement">
+    <group delimiter=" ">
+      <text variable="title" text-case="title" font-variant="small-caps"/>
+      <group delimiter=" ">
+        <text variable="locator" prefix=" "/>
+      </group>
+      <text macro="issuance" prefix="(" suffix=")"/>
+    </group>
+  </macro>
+  <macro name="rules">
+    <group delimiter=" ">
+      <text variable="title"/>
+      <text variable="locator"/>
+    </group>
   </macro>
   <macro name="at_page">
     <group delimiter=" ">
@@ -263,6 +328,33 @@
       </else>
     </choose>
   </macro>
+  <macro name="uniform-act">
+  <group delimiter=", ">
+      <text variable="title" font-variant="small-caps" prefix=" "/>
+      <group delimiter=" ">
+        <text variable="section" prefix="§ "/>
+        <group>
+          <text variable="volume"/>
+          <text variable="container-title"/>
+          <text variable="page-first"/>
+        </group>
+      </group>
+      <group delimiter=" " prefix="(" suffix=")">
+        <text variable="publisher"/>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </group>
+    </group>
+  </macro>
+  <macro name="legal-case-issuance">
+        <group delimiter=" " prefix="(" suffix=")">
+          <text variable="authority"/>
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+        </group>
+  </macro>
   <citation et-al-min="4" et-al-use-first="1">
     <layout suffix="." delimiter="; ">
       <choose>
@@ -276,22 +368,64 @@
           <text term="ibid" text-case="capitalize-first" font-style="italic"/>
         </else-if>
         <else-if position="subsequent">
-          <group delimiter=", ">
-            <group delimiter=" ">
-              <choose>
-                <if type="book" match="any">
-                  <text variable="volume"/>
-                </if>
-              </choose>
-              <text macro="author-short"/>
-            </group>
-            <group delimiter=" ">
-              <text value="supra" font-style="italic"/>
-              <text value="note"/>
-              <text variable="first-reference-note-number"/>
-              <text macro="at_page"/>
-            </group>
-          </group>
+          <choose>
+            <if type="article-journal article-newspaper article-magazine thesis" match="any">
+              <group delimiter=", ">
+                <text macro="author-short"/>
+                <group delimiter=", ">
+                  <text value="supra" font-style="italic"/>
+                  <text variable="first-reference-note-number"/>
+                  <group delimiter=" " prefix=", at ">
+                    <text variable="page-first"/>
+                    <choose>
+                      <if variable="locator">
+                        <text variable="locator" prefix=", "/>
+                      </if>
+                    </choose>
+                  </group>
+                </group>
+              </group>
+            </if>
+            <else>
+              <group delimiter=", ">
+                <group delimiter=" ">
+                  <choose>
+                    <if type="book" match="any">
+                      <text variable="volume"/>
+                    </if>
+                  </choose>
+                  <text macro="author-short"/>
+                </group>
+                <group delimiter=" ">
+                  <choose>
+                    <if type="legal_case" match="any">
+                      <group>
+                        <text variable="volume" suffix=" "/>
+                        <text variable="container-title"/>
+                        <group>
+                          <text value="at" prefix=" " suffix=" "/>
+                          <choose>
+                            <if match="any" variable="locator">
+                              <text variable="locator"/>
+                            </if>
+                            <else>
+                              <text variable="page" form="short"/>
+                            </else>
+                          </choose>
+                        </group>
+                      </group>
+                    </if>
+                    <else>
+                      <text value="supra" font-style="italic"/>
+                      <text value="note"/>
+                      <text variable="first-reference-note-number"/>
+                      <text macro="at_page"/>
+                    </else>
+                  </choose>
+                </group>
+              </group>
+            </else>
+          </choose>
         </else-if>
         <else>
           <group delimiter=", ">
