@@ -718,16 +718,7 @@
         <if type="patent">
           <text macro="identifier-patent"/>
         </if>
-        <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post webpage` as `publisher` -->
-          <group delimiter="; ">
-            <text macro="identifier-contributors"/>
-            <text macro="identifier-database"/>
-            <text macro="identifier-number"/>
-            <text macro="identifier-booklike"/>
-          </group>
-        </else-if>
-        <else-if match="any" type="report">
+        <else-if type="report">
           <choose>
             <if match="none" variable="title">
               <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
@@ -748,6 +739,15 @@
               </group>
             </else>
           </choose>
+        </else-if>
+        <else-if match="any" type="post webpage">
+          <!-- Handle `container-title` on `post webpage` as `publisher` -->
+          <group delimiter="; ">
+            <text macro="identifier-contributors"/>
+            <text macro="identifier-database"/>
+            <text macro="identifier-number"/>
+            <text macro="identifier-booklike"/>
+          </group>
         </else-if>
         <else-if variable="container-title">
           <group delimiter="; ">
@@ -926,19 +926,17 @@
       <if variable="number">
         <group delimiter=", ">
           <group delimiter=" ">
-            <text text-case="title" variable="genre"/>
+            <choose>
+              <if type="thesis" variable="genre">
+                <!-- `genre` provided with thesis description (APA example 65) -->
+                <text text-case="capitalize-first" value="publication"/>
+              </if>
+              <else>
+                <text text-case="title" variable="genre"/>
+              </else>
+            </choose>
             <text macro="label-number"/>
           </group>
-          <choose>
-            <if type="thesis">
-              <choose>
-                <if match="any" variable="archive DOI URL">
-                  <!-- Include the university in brackets if thesis is published -->
-                  <text variable="publisher"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
         </group>
       </if>
     </choose>
@@ -1252,19 +1250,15 @@
   <macro name="description-thesis">
     <!-- Thesis type and institution -->
     <group delimiter="; ">
-      <choose>
-        <if match="none" variable="number">
-          <group delimiter=", ">
-            <text text-case="capitalize-first" variable="genre"/>
-            <choose>
-              <if match="any" variable="archive DOI URL">
-                <!-- Include the university in brackets if thesis is published -->
-                <text variable="publisher"/>
-              </if>
-            </choose>
-          </group>
-        </if>
-      </choose>
+      <group delimiter=", ">
+        <text text-case="capitalize-first" variable="genre"/>
+        <choose>
+          <if match="any" variable="archive DOI URL">
+            <!-- Include the university in description if thesis is published -->
+            <text variable="publisher"/>
+          </if>
+        </choose>
+      </group>
       <text text-case="capitalize-first" variable="medium"/>
     </group>
   </macro>
@@ -1463,7 +1457,7 @@
       <if type="thesis">
         <choose>
           <if match="none" variable="archive DOI URL">
-            <!-- An accessible thesis gives `publisher` with the description -->
+            <!-- Provide university in `publisher` if unpublished -->
             <text variable="publisher"/>
           </if>
         </choose>
