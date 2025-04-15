@@ -11,7 +11,7 @@
     </author>
     <category citation-format="author-date"/>
     <category field="biology"/>
-    <updated>2023-01-02T20:08:41+00:00</updated>
+    <updated>2023-05-13T16:14:52+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -103,58 +103,6 @@
       </substitute>
     </names>
   </macro>
-  <macro name="author-intext">
-    <choose>
-      <if type="interview personal_communication" match="any">
-        <choose>
-          <!-- These variables indicate that the letter is retrievable by the reader.
-                If not, then use the APA in-text-only personal communication format -->
-          <if variable="archive container-title DOI publisher URL" match="none">
-            <group delimiter=", ">
-              <names variable="author">
-                <name and="text" delimiter=", " initialize-with=". "/>
-                <substitute>
-                  <text macro="title-intext"/>
-                </substitute>
-              </names>
-              <!-- Replace with term="personal-communication" if that becomes available -->
-              <text term="letter"/>
-            </group>
-          </if>
-          <else>
-            <names variable="author" delimiter=", ">
-              <name form="short" and="text" delimiter=", " initialize-with=". "/>
-              <substitute>
-                <text macro="title-intext"/>
-              </substitute>
-            </names>
-          </else>
-        </choose>
-      </if>
-      <else>
-        <names variable="composer" delimiter=", ">
-          <name form="short" and="text" delimiter=", " initialize-with=". "/>
-          <substitute>
-            <names variable="author"/>
-            <names variable="illustrator"/>
-            <names variable="director"/>
-            <choose>
-              <if variable="container-title">
-                <choose>
-                  <if type="book entry entry-dictionary entry-encyclopedia" match="any">
-                    <text macro="title-intext"/>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-            <names variable="editor"/>
-            <names variable="editorial-director"/>
-            <text macro="title-intext"/>
-          </substitute>
-        </names>
-      </else>
-    </choose>
-  </macro>
   <macro name="date-bib">
     <group delimiter=" " prefix="(" suffix=")">
       <choose>
@@ -205,77 +153,6 @@
         </choose>
       </group>
     </group>
-  </macro>
-  <macro name="date-sort-group">
-    <!-- APA sorts 1. no-date items, 2. items with dates, 3. in-press (status) items -->
-    <choose>
-      <if variable="issued">
-        <text value="1"/>
-      </if>
-      <else-if variable="status">
-        <text value="2"/>
-      </else-if>
-      <else>
-        <text value="0"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="date-intext">
-    <choose>
-      <if variable="issued">
-        <group delimiter="/">
-          <group delimiter=" ">
-            <choose>
-              <if is-uncertain-date="original-date">
-                <text term="circa" form="short"/>
-              </if>
-            </choose>
-            <date variable="original-date">
-              <date-part name="year"/>
-            </date>
-          </group>
-          <group delimiter=" ">
-            <choose>
-              <if is-uncertain-date="issued">
-                <text term="circa" form="short"/>
-              </if>
-            </choose>
-            <group>
-              <choose>
-                <if type="interview personal_communication" match="any">
-                  <choose>
-                    <if variable="archive container-title DOI publisher URL" match="none">
-                      <!-- These variables indicate that the communication is retrievable by the reader.
-                           If not, then use the in-text-only personal communication format -->
-                      <date variable="issued" form="text"/>
-                    </if>
-                    <else>
-                      <date variable="issued">
-                        <date-part name="year"/>
-                      </date>
-                    </else>
-                  </choose>
-                </if>
-                <else>
-                  <date variable="issued">
-                    <date-part name="year"/>
-                  </date>
-                </else>
-              </choose>
-              <text variable="year-suffix"/>
-            </group>
-          </group>
-        </group>
-      </if>
-      <else-if variable="status">
-        <text variable="status" text-case="lowercase"/>
-        <text variable="year-suffix" prefix="-"/>
-      </else-if>
-      <else>
-        <text term="no date" form="short"/>
-        <text variable="year-suffix" prefix="-"/>
-      </else>
-    </choose>
   </macro>
   <!-- APA has two description elements following the title:
        title (parenthetical) [bracketed]  -->
@@ -1339,44 +1216,21 @@
       </else>
     </choose>
   </macro>
-  <macro name="citation-locator">
-    <group delimiter=" ">
-      <choose>
-        <if locator="chapter">
-          <label variable="locator" text-case="capitalize-first"/>
-        </if>
-        <else>
-          <label variable="locator" form="short"/>
-        </else>
-      </choose>
-      <text variable="locator"/>
-    </group>
-  </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name-with-initials">
+ <citation collapse="citation-number">
     <sort>
-      <key macro="author-bib" names-min="3" names-use-first="1"/>
-      <key macro="date-sort-group"/>
-      <key macro="date-bib" sort="ascending"/>
-      <key variable="status"/>
+      <key variable="citation-number"/>
     </sort>
-    <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <text macro="author-intext"/>
-        <text macro="date-intext"/>
-        <text macro="citation-locator"/>
-      </group>
+    <layout delimiter="," prefix="[" suffix="]">
+      <text variable="citation-number"/>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="11" et-al-use-first="10">
-    <sort>
-      <key macro="author-bib"/>
-      <key macro="date-sort-group"/>
-      <key macro="date-bib" sort="ascending"/>
-      <key variable="status"/>
-      <key macro="title"/>
-    </sort>
+   <sort>
+    <key variable="citation-number"/>
+  </sort>
     <layout>
       <group delimiter=" ">
+      <text variable="citation-number" suffix="."/>
         <group delimiter=". " suffix=".">
           <text macro="author-bib"/>
           <text macro="date-bib"/>
