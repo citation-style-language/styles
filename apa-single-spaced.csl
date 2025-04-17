@@ -117,9 +117,9 @@
         4. Source (APA 9.23-37)
             4.1. Periodical sources (APA 9.25-27)
             4.2. Book-like sources (APA 9.28)
-            4.3. Publisher (APA 9.29)
-            4.4. Database and archive (APA 9.30)
-            4.5. Event (APA 9.31)
+            4.3. Publisher sources (APA 9.29)
+            4.4. Database and archive sources (APA 9.30)
+            4.5. Works with specific locations (APA 9.31)
             4.6. Social media and website sources (APA 9.32-33)
             4.7. DOI or URL (APA 9.34-36)
 
@@ -162,20 +162,20 @@
   <!-- Equivalencies:
 
        `classic` == `book`
-       `document` == `report`, but give full date
+       `document` == `report` (but give full date)
        `standard` == `report`
        `performance` == `speech`
        `event` == `speech`
-       `collection` == `book`, but give full date
+       `collection` == `book` (but give full date)
   -->
   <!-- Role equivalencies:
 
-       compiler == editor
-       organizer, curator == chair
-       script-writer == director
-       producer == director (but don't print both)
-       guest, host == director
-       series-creator, executive-producer == editor
+       `compiler` == `editor`
+       `organizer`, `curator` == `chair`
+       `script-writer` == `director`
+       `producer` == `director` (but don't print both)
+       `guest`, `host` == `director`
+       `series-creator`, `executive-producer` == `editor`
   -->
   <!-- Reviews are detected if an item has type `review` or `review-book`
        or if it has any of the variables
@@ -382,6 +382,72 @@
     </choose>
   </macro>
   <!-- Author elements -->
+  <macro name="author-short-plus-recipient">
+    <choose>
+      <!-- These variables indicate that the letter is retrievable by the reader.
+           If not, then use the APA in-text-only personal communication format -->
+      <if match="none" variable="archive archive-place container-title DOI number publisher URL">
+        <group delimiter=", ">
+          <names variable="author">
+            <substitute>
+              <text macro="title-short"/>
+            </substitute>
+          </names>
+          <text term="personal-communication"/>
+        </group>
+      </if>
+      <else>
+        <names variable="author">
+          <name form="short"/>
+          <substitute>
+            <text macro="title-short"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
+  </macro>
+  <macro name="author-short-substitute">
+    <names variable="composer">
+      <name form="short"/>
+      <substitute>
+        <names variable="author"/>
+        <names variable="illustrator"/>
+        <choose>
+          <if type="broadcast">
+            <!-- TODO: Collapse variables when that becomes available. -->
+            <!-- Ideally combine as `script-writer director` -->
+            <names variable="script-writer"/>
+          </if>
+        </choose>
+        <names variable="director"/>
+        <!-- TODO: Collapse variables when that becomes available. -->
+        <names variable="guest host"/>
+        <names variable="producer"/>
+        <choose>
+          <if variable="container-title">
+            <choose>
+              <if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
+                <text macro="title-short"/>
+              </if>
+            </choose>
+          </if>
+        </choose>
+        <names variable="executive-producer"/>
+        <names variable="series-creator"/>
+        <names variable="editor"/>
+        <names variable="editorial-director"/>
+        <names variable="compiler"/>
+        <choose>
+          <if match="any" type="event performance speech">
+            <names variable="chair"/>
+            <names variable="organizer"/>
+          </if>
+        </choose>
+        <names variable="curator"/>
+        <text macro="title-short"/>
+      </substitute>
+    </names>
+  </macro>
   <macro name="author-substitute">
     <names variable="composer">
       <name delimiter-precedes-last="always" name-as-sort-order="all"/>
@@ -461,72 +527,6 @@
         </names>
         <names variable="collection-editor"/>
         <text macro="author-title-substitute"/>
-      </substitute>
-    </names>
-  </macro>
-  <macro name="author-short-plus-recipient">
-    <choose>
-      <!-- These variables indicate that the letter is retrievable by the reader.
-           If not, then use the APA in-text-only personal communication format -->
-      <if match="none" variable="archive archive-place container-title DOI number publisher URL">
-        <group delimiter=", ">
-          <names variable="author">
-            <substitute>
-              <text macro="title-short"/>
-            </substitute>
-          </names>
-          <text term="personal-communication"/>
-        </group>
-      </if>
-      <else>
-        <names variable="author">
-          <name form="short"/>
-          <substitute>
-            <text macro="title-short"/>
-          </substitute>
-        </names>
-      </else>
-    </choose>
-  </macro>
-  <macro name="author-short-substitute">
-    <names variable="composer">
-      <name form="short"/>
-      <substitute>
-        <names variable="author"/>
-        <names variable="illustrator"/>
-        <choose>
-          <if type="broadcast">
-            <!-- TODO: Collapse variables when that becomes available. -->
-            <!-- Ideally combine as `script-writer director` -->
-            <names variable="script-writer"/>
-          </if>
-        </choose>
-        <names variable="director"/>
-        <!-- TODO: Collapse variables when that becomes available. -->
-        <names variable="guest host"/>
-        <names variable="producer"/>
-        <choose>
-          <if variable="container-title">
-            <choose>
-              <if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
-                <text macro="title-short"/>
-              </if>
-            </choose>
-          </if>
-        </choose>
-        <names variable="executive-producer"/>
-        <names variable="series-creator"/>
-        <names variable="editor"/>
-        <names variable="editorial-director"/>
-        <names variable="compiler"/>
-        <choose>
-          <if match="any" type="event performance speech">
-            <names variable="chair"/>
-            <names variable="organizer"/>
-          </if>
-        </choose>
-        <names variable="curator"/>
-        <text macro="title-short"/>
       </substitute>
     </names>
   </macro>
@@ -687,6 +687,13 @@
       <date-part name="day" prefix=" "/>
     </date>
   </macro>
+  <macro name="date-issued-uncertain">
+    <choose>
+      <if is-uncertain-date="issued">
+        <text form="short" term="circa"/>
+      </if>
+    </choose>
+  </macro>
   <macro name="date-issued-year">
     <group delimiter=" ">
       <text macro="date-issued-uncertain"/>
@@ -704,13 +711,6 @@
         <date-part name="year"/>
       </date>
     </group>
-  </macro>
-  <macro name="date-issued-uncertain">
-    <choose>
-      <if is-uncertain-date="issued">
-        <text form="short" term="circa"/>
-      </if>
-    </choose>
   </macro>
   <!-- 3. Title and descriptions (APA 9.18-22) -->
   <macro name="title-and-descriptions">
@@ -745,7 +745,7 @@
   <macro name="title">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post webpage` as `publisher` -->
+        <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
         <text font-style="italic" macro="title-plus-part-filter-review"/>
       </if>
       <!-- Other types are italicized based on presence of `container-title`.
@@ -779,7 +779,7 @@
         <text macro="title-short-description"/>
       </else-if>
       <else-if match="any" type="legislation regulation treaty">
-        <!-- No italics or quotes, sentence case -->
+        <!-- No italics or quotes, title case -->
         <text form="short" text-case="title" variable="title"/>
       </else-if>
       <else-if match="any" type="legal_case post">
@@ -792,7 +792,7 @@
       </else-if>
       <!-- Other types are formatted based on presence of `container-title`, as in title macro -->
       <else-if variable="container-title">
-        <!-- Italicized, title case -->
+        <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
       </else-if>
       <else>
@@ -1003,7 +1003,7 @@
           </choose>
         </else-if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post webpage` as `publisher` -->
+          <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <group delimiter="; ">
             <text macro="identifier-contributors"/>
             <text macro="identifier-database"/>
@@ -1089,7 +1089,7 @@
       </choose>
       <choose>
         <if match="none" type="post webpage">
-          <!-- Handle `container-title` on `post webpage` as `publisher` -->
+          <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <group delimiter="; ">
             <names delimiter="; " variable="illustrator narrator">
               <name/>
@@ -1549,7 +1549,7 @@
       </choose>
       <text macro="source-publisher"/>
       <text macro="source-archive"/>
-      <text macro="source-event"/>
+      <text macro="source-location"/>
       <text macro="source-website"/>
     </group>
   </macro>
@@ -1565,7 +1565,7 @@
         <if variable="issued">
           <choose>
             <if match="none" variable="issue number page volume">
-              <!-- We print the status variable directly rather than using in-press, etc. terms. -->
+              <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
               <text text-case="capitalize-first" variable="status"/>
             </if>
           </choose>
@@ -1680,7 +1680,7 @@
             <text macro="identifier-database"/>
             <choose>
               <if match="none" type="broadcast graphic map motion_picture song">
-                <!-- For audiovisual media, number information comes after title, not container-title (APA example 94) -->
+                <!-- For audiovisual media, number information comes after `title`, not `container-title` (APA example 94) -->
                 <text macro="identifier-number"/>
               </if>
             </choose>
@@ -1713,7 +1713,7 @@
       </choose>
     </group>
   </macro>
-  <!-- 4.3. Publisher (APA 9.29) -->
+  <!-- 4.3. Publisher sources (APA 9.29) -->
   <macro name="source-publisher">
     <choose>
       <if type="thesis">
@@ -1737,7 +1737,7 @@
       </else-if>
     </choose>
   </macro>
-  <!-- 4.4. Database and archive (APA 9.30) -->
+  <!-- 4.4. Database and archive sources (APA 9.30) -->
   <macro name="source-archive">
     <group delimiter=", ">
       <choose>
@@ -1773,8 +1773,8 @@
       </choose>
     </group>
   </macro>
-  <!-- 4.5. Event (APA 9.31) -->
-  <macro name="source-event">
+  <!-- 4.5. Works with specific locations (APA 9.31) -->
+  <macro name="source-location">
     <choose>
       <if match="any" variable="event event-title">
         <!-- TODO: To prevent Zotero from printing `event-place`,
@@ -1785,20 +1785,20 @@
             <choose>
               <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
                 <!-- Don't print event info for conference papers published in a proceedings -->
-                <text macro="source-event-title-place-date"/>
+                <text macro="source-location-title-place-date"/>
               </if>
             </choose>
           </if>
           <else>
             <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs).
                  These items aren't given explicit examples in the APA manual, so err on the side of providing too much information. -->
-            <text macro="source-event-title-place-date"/>
+            <text macro="source-location-title-place-date"/>
           </else>
         </choose>
       </if>
     </choose>
   </macro>
-  <macro name="source-event-title">
+  <macro name="source-location-title">
     <choose>
       <!-- TODO: We expect `event-title` to be used,
            but processors and applications may not be updated yet.
@@ -1812,9 +1812,9 @@
       </else>
     </choose>
   </macro>
-  <macro name="source-event-title-place-date">
+  <macro name="source-location-title-place-date">
     <group delimiter=", ">
-      <text macro="source-event-title"/>
+      <text macro="source-location-title"/>
       <text variable="event-place"/>
       <date form="text" variable="event-date"/>
     </group>
