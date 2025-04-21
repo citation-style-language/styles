@@ -424,13 +424,25 @@
   </macro>
   <macro name="author-title-substitute">
     <choose>
-      <if variable="title">
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-title`, assume that `title` contains
+             the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-title title">
+            <text macro="title"/>
+          </if>
+          <else>
+            <text macro="title-and-descriptions"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="title">
         <!-- If an item has a `title`, substitute missing author with title and identifier, but leave description after the date (in the title position). -->
         <group delimiter=" ">
           <text macro="title"/>
           <text macro="identifier"/>
         </group>
-      </if>
+      </else-if>
       <else>
         <!-- If an item has no `title`, substitute with descriptions. -->
         <text macro="title-and-descriptions"/>
@@ -660,12 +672,11 @@
     <choose>
       <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
         <!-- If a review has no `reviewed-title`, assume that `title` contains
-             the title of the reviewed work and omit it here; the description provides it. -->
+             the title of the reviewed work; the description provides it. -->
         <choose>
-          <if match="none" variable="reviewed-title"/>
-          <else>
+          <if variable="reviewed-title title">
             <text macro="title-plus-part-title"/>
-          </else>
+          </if>
         </choose>
       </if>
       <else>

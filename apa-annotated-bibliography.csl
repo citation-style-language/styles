@@ -517,13 +517,25 @@
   </macro>
   <macro name="author-title-substitute">
     <choose>
-      <if variable="title">
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-title`, assume that `title` contains
+             the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-title title">
+            <text macro="title"/>
+          </if>
+          <else>
+            <text macro="title-and-descriptions"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="title">
         <!-- If an item has a `title`, substitute missing author with title and identifier, but leave description after the date (in the title position). -->
         <group delimiter=" ">
           <text macro="title"/>
           <text macro="identifier"/>
         </group>
-      </if>
+      </else-if>
       <else>
         <!-- If an item has no `title`, substitute with descriptions. -->
         <text macro="title-and-descriptions"/>
@@ -776,10 +788,23 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <if match="any" type="bill legislation regulation report treaty">
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-title`, assume that `title` contains
+             the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-title title">
+            <!-- Quotes, title case -->
+            <text form="short" quotes="true" text-case="title" variable="title"/>
+          </if>
+          <else>
+            <text macro="description-short"/>
+          </else>
+        </choose>
+      </if>
+      <else-if match="any" type="bill legislation regulation report treaty">
         <!-- No italics or quotes, title case -->
         <text form="short" text-case="title" variable="title"/>
-      </if>
+      </else-if>
       <else-if match="any" type="legal_case post">
         <!-- Italicized, sentence case -->
         <text font-style="italic" form="short" variable="title"/>
@@ -834,12 +859,11 @@
     <choose>
       <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
         <!-- If a review has no `reviewed-title`, assume that `title` contains
-             the title of the reviewed work and omit it here; the description provides it. -->
+             the title of the reviewed work; the description provides it. -->
         <choose>
-          <if match="none" variable="reviewed-title"/>
-          <else>
+          <if variable="reviewed-title title">
             <text macro="title-plus-part-title"/>
-          </else>
+          </if>
         </choose>
       </if>
       <else>
@@ -1202,7 +1226,7 @@
   <macro name="description-short">
     <group prefix="[" suffix="]">
       <choose>
-        <if variable="reviewed-title">
+        <if match="any" type="interview" variable="interviewer">
           <text macro="description-interview-short"/>
         </if>
         <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
@@ -1450,7 +1474,7 @@
   </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text term="review-of" text-case="capitalize-first"/>
+      <text form="short" term="review-of" text-case="capitalize-first"/>
       <text macro="description-review-title-short"/>
     </group>
   </macro>
