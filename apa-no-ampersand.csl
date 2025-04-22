@@ -748,7 +748,7 @@
         <choose>
           <if match="any" type="bill report">
             <!-- Bills, resolutions, and congressional reports substitute bill number if no title. -->
-            <text macro="identifier-short"/>
+            <text macro="legal-identifier-bill-report"/>
           </if>
           <else>
             <text macro="description-short"/>
@@ -959,21 +959,6 @@
           </group>
         </else>
       </choose>
-    </group>
-  </macro>
-  <macro name="identifier-short">
-    <group delimiter=" ">
-      <text variable="genre"/>
-      <group delimiter=" ">
-        <choose>
-          <if match="none" variable="chapter-number container-title">
-            <text macro="label-number-capitalized"/>
-          </if>
-          <else>
-            <text variable="number"/>
-          </else>
-        </choose>
-      </group>
     </group>
   </macro>
   <!-- Identifier elements -->
@@ -2100,6 +2085,24 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="legal-identifier-bill-report">
+    <group delimiter=" ">
+      <text variable="genre"/>
+      <group delimiter=" ">
+        <choose>
+          <!-- If there is no legislative body, session number, or code/record title, assume
+                 the item is a congressional report and include 'No.' term. -->
+          <if match="none" variable="authority chapter-number container-title">
+            <!-- The item is a congressional report rather than a bill or resolution. -->
+            <text macro="label-number-capitalized"/>
+          </if>
+          <else>
+            <text variable="number"/>
+          </else>
+        </choose>
+      </group>
+    </group>
+  </macro>
   <!-- 6.4. Legal source -->
   <macro name="legal-source">
     <!-- Expect legal item container-titles to be stored in short form -->
@@ -2127,22 +2130,7 @@
   <!-- Legal source types -->
   <macro name="legal-source-bill">
     <group delimiter=", ">
-      <group delimiter=" ">
-        <text variable="genre"/>
-        <group delimiter=" ">
-          <choose>
-            <!-- If there is no session number or code/record title, assume
-                 the item is a congressional report and include 'No.' term. -->
-            <if match="none" variable="chapter-number container-title">
-              <!-- The item is a congressional report, rather than a bill or resultion. -->
-              <text macro="label-number"/>
-            </if>
-            <else>
-              <text variable="number"/>
-            </else>
-          </choose>
-        </group>
-      </group>
+      <text macro="legal-identifier-bill-report"/>
       <group delimiter=" ">
         <text variable="authority"/>
         <!-- 'session' is `chapter-number` -->
