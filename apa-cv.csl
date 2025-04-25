@@ -277,12 +277,12 @@
   <macro name="label-part-number-capitalized">
     <group delimiter=" ">
       <choose>
-        <if variable="part-number">
+        <if is-numeric="part-number">
           <!-- TODO: Replace with `part-number` label when CSL provides one -->
           <text form="short" term="part" text-case="capitalize-first"/>
-          <text variable="part-number"/>
         </if>
       </choose>
+      <text text-case="capitalize-first" variable="part-number"/>
     </group>
   </macro>
   <macro name="label-section-symbol">
@@ -291,15 +291,15 @@
       <text variable="section"/>
     </group>
   </macro>
-  <macro name="label-supplement-number">
+  <macro name="label-supplement-number-capitalized">
     <group delimiter=" ">
       <choose>
-        <if variable="supplement-number">
+        <if is-numeric="supplement-number">
           <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
           <text form="short" term="supplement" text-case="capitalize-first"/>
-          <text variable="supplement-number"/>
         </if>
       </choose>
+      <text text-case="capitalize-first" variable="supplement-number"/>
     </group>
   </macro>
   <macro name="label-version-capitalized">
@@ -311,7 +311,7 @@
   <macro name="label-volume-capitalized">
     <group delimiter=" ">
       <label form="short" text-case="capitalize-first" variable="volume"/>
-      <text variable="volume"/>
+      <text text-case="capitalize-first" variable="volume"/>
     </group>
   </macro>
   <!-- 1. Author (APA 9.7-12) -->
@@ -972,7 +972,7 @@
   <macro name="identifier-volume">
     <group delimiter=", ">
       <text macro="identifier-series"/>
-      <text macro="label-supplement-number"/>
+      <text macro="label-supplement-number-capitalized"/>
       <choose>
         <if variable="volume">
           <choose>
@@ -1078,6 +1078,9 @@
       <else-if type="motion_picture">
         <text term="motion_picture" text-case="capitalize-first"/>
       </else-if>
+      <else-if type="periodical" variable="supplement-number">
+        <text term="supplement" text-case="capitalize-first"/>
+      </else-if>
       <else-if type="song">
         <text term="song" text-case="capitalize-first"/>
       </else-if>
@@ -1177,7 +1180,22 @@
           <text variable="section"/>
         </if>
       </choose>
-      <text macro="description-format"/>
+      <choose>
+        <if variable="volume-title">
+          <choose>
+            <if type="periodical">
+              <text macro="description-format"/>
+            </if>
+            <else>
+              <!-- Assume `genre` (special issue or similar) applies to volume, not individual article -->
+              <text text-case="capitalize-first" variable="medium"/>
+            </else>
+          </choose>
+        </if>
+        <else>
+          <text macro="description-format"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="description-review">
@@ -1332,6 +1350,9 @@
   <macro name="source-periodical-title">
     <group delimiter=", " font-style="italic">
       <text text-case="title" variable="container-title"/>
+      <!-- `collection-title` is for any periodical with multiple series of volumes,
+           i.e. multiple runs (e.g. 'second series') or separately numbered supplements (e.g. Sonderband or subsidia) -->
+      <!-- `genre` is used for a special issue or similar within a standard journal run; in APA, only needed with `periodical` type -->
       <text text-case="title" variable="collection-title"/>
     </group>
   </macro>
@@ -1356,10 +1377,23 @@
     <choose>
       <if variable="volume">
         <text font-style="italic" variable="volume"/>
-        <text prefix="(" suffix=")" variable="issue"/>
+        <group delimiter=", " prefix="(" suffix=")">
+          <text variable="issue"/>
+          <text macro="label-supplement-number-capitalized"/>
+        </group>
       </if>
       <else>
-        <text font-style="italic" variable="issue"/>
+        <group delimiter=", " font-style="italic">
+          <text variable="issue"/>
+          <choose>
+            <if variable="collection-title">
+              <text variable="supplement-number"/>
+            </if>
+            <else>
+              <text macro="label-supplement-number-capitalized"/>
+            </else>
+          </choose>
+        </group>
       </else>
     </choose>
   </macro>
