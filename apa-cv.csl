@@ -663,10 +663,17 @@
     </choose>
   </macro>
   <macro name="title-part">
-    <group delimiter=". ">
-      <text macro="label-part-number-capitalized"/>
-      <text text-case="capitalize-first" variable="part-title"/>
-    </group>
+    <choose>
+      <if variable="part-title">
+        <group delimiter=". ">
+          <text macro="label-part-number-capitalized"/>
+          <text text-case="capitalize-first" variable="part-title"/>
+        </group>
+      </if>
+      <else-if is-numeric="part-number" match="none">
+        <text macro="label-part-number-capitalized"/>
+      </else-if>
+    </choose>
   </macro>
   <macro name="title-periodical">
     <!-- For periodicals, assume that `part-number` and `part-title` refer to the article and append to `title` -->
@@ -732,6 +739,9 @@
           <text macro="label-volume-capitalized"/>
           <text macro="title-part"/>
         </else-if>
+        <else-if is-numeric="part-number" match="none">
+          <text macro="title-part"/>
+        </else-if>
       </choose>
     </group>
   </macro>
@@ -781,6 +791,11 @@
               <if match="any" type="broadcast graphic map motion_picture">
                 <!-- For some audiovisual media, `number` information comes after title, not `container-title` (APA example 94); but an album track number is `chapter-number` -->
                 <text macro="identifier-number"/>
+              </if>
+            </choose>
+            <choose>
+              <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+                <text macro="identifier-part"/>
               </if>
             </choose>
           </group>
@@ -966,6 +981,15 @@
       </if>
     </choose>
   </macro>
+  <macro name="identifier-part">
+    <choose>
+      <!-- Non-numeric part numbers are already printed as part of the book title -->
+      <if variable="part-title"/>
+      <else-if is-numeric="part-number">
+        <text macro="label-part-number-capitalized"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="identifier-patent">
     <!-- `authority`: U.S. ; `genre`: patent ; `number`: 123,445 -->
     <group delimiter=" ">
@@ -1000,7 +1024,8 @@
         <if variable="volume">
           <choose>
             <!-- Non-numeric volumes are already printed as part of the book title -->
-            <if match="any" variable="part-title volume-title"/>
+            <if variable="volume-title"/>
+            <else-if variable="part-title volume"/>
             <else-if is-numeric="volume">
               <text macro="label-volume-capitalized"/>
             </else-if>
@@ -1010,6 +1035,7 @@
           <text macro="label-number-of-volumes-capitalized"/>
         </else>
       </choose>
+      <text macro="identifier-part"/>
       <text macro="label-issue-capitalized"/>
       <text macro="identifier-locators"/>
     </group>
