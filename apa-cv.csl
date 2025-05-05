@@ -648,6 +648,37 @@
     </choose>
   </macro>
   <!-- Title elements -->
+  <macro name="title-and-part-filter-review">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-genre` or `reviewed-title`, assume that `title` contains
+             the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-genre title">
+            <text macro="title-and-part-title"/>
+          </if>
+          <else-if variable="reviewed-title title">
+            <text macro="title-and-part-title"/>
+          </else-if>
+        </choose>
+      </if>
+      <else>
+        <text macro="title-and-part-title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-and-part-title">
+    <group delimiter=": ">
+      <text variable="title"/>
+      <text macro="title-part"/>
+    </group>
+  </macro>
+  <macro name="title-and-volume-title">
+    <group delimiter=": ">
+      <text variable="title"/>
+      <text macro="title-volume"/>
+    </group>
+  </macro>
   <macro name="title-monographic">
     <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
     <choose>
@@ -684,37 +715,6 @@
         <text font-style="italic" macro="title-and-part-filter-review"/>
       </else>
     </choose>
-  </macro>
-  <macro name="title-and-part-filter-review">
-    <choose>
-      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-        <!-- If a review has no `reviewed-genre` or `reviewed-title`, assume that `title` contains
-             the title of the reviewed work; the description provides it. -->
-        <choose>
-          <if variable="reviewed-genre title">
-            <text macro="title-and-part-title"/>
-          </if>
-          <else-if variable="reviewed-title title">
-            <text macro="title-and-part-title"/>
-          </else-if>
-        </choose>
-      </if>
-      <else>
-        <text macro="title-and-part-title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="title-and-part-title">
-    <group delimiter=": ">
-      <text variable="title"/>
-      <text macro="title-part"/>
-    </group>
-  </macro>
-  <macro name="title-and-volume-title">
-    <group delimiter=": ">
-      <text variable="title"/>
-      <text macro="title-volume"/>
-    </group>
   </macro>
   <macro name="title-volume">
     <group delimiter=": ">
@@ -807,29 +807,6 @@
     </group>
   </macro>
   <!-- Identifier elements -->
-  <macro name="identifier-monographic">
-    <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper broadcast event patent performance periodical post post-weblog review review-book speech webpage"/>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <group delimiter=", ">
-              <text macro="label-version-capitalized"/>
-              <text macro="label-edition"/>
-              <text macro="identifier-volume"/>
-            </group>
-          </if>
-        </choose>
-      </else-if>
-      <else>
-        <group delimiter=", ">
-          <text macro="label-version-capitalized"/>
-          <text macro="label-edition"/>
-          <text macro="identifier-volume"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
   <macro name="identifier-contributors">
     <choose>
       <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
@@ -954,6 +931,29 @@
       <else-if variable="chapter-number">
         <text macro="label-chapter-number"/>
       </else-if>
+    </choose>
+  </macro>
+  <macro name="identifier-monographic">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper broadcast event patent performance periodical post post-weblog review review-book speech webpage"/>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <group delimiter=", ">
+              <text macro="label-version-capitalized"/>
+              <text macro="label-edition"/>
+              <text macro="identifier-volume"/>
+            </group>
+          </if>
+        </choose>
+      </else-if>
+      <else>
+        <group delimiter=", ">
+          <text macro="label-version-capitalized"/>
+          <text macro="label-edition"/>
+          <text macro="identifier-volume"/>
+        </group>
+      </else>
     </choose>
   </macro>
   <macro name="identifier-number">
@@ -1247,31 +1247,6 @@
       </if>
     </choose>
   </macro>
-  <macro name="description-serial">
-    <group delimiter="; ">
-      <choose>
-        <if match="none" variable="title">
-          <text variable="section"/>
-        </if>
-      </choose>
-      <choose>
-        <if variable="volume-title">
-          <choose>
-            <if type="periodical">
-              <text macro="description-format"/>
-            </if>
-            <else>
-              <!-- Assume `genre` (special issue or similar) applies to volume, not individual article -->
-              <text text-case="capitalize-first" variable="medium"/>
-            </else>
-          </choose>
-        </if>
-        <else>
-          <text macro="description-format"/>
-        </else>
-      </choose>
-    </group>
-  </macro>
   <macro name="description-review">
     <group delimiter="; ">
       <group delimiter=", ">
@@ -1330,6 +1305,31 @@
         <text font-style="italic" variable="title"/>
       </else>
     </choose>
+  </macro>
+  <macro name="description-serial">
+    <group delimiter="; ">
+      <choose>
+        <if match="none" variable="title">
+          <text variable="section"/>
+        </if>
+      </choose>
+      <choose>
+        <if variable="volume-title">
+          <choose>
+            <if type="periodical">
+              <text macro="description-format"/>
+            </if>
+            <else>
+              <!-- Assume `genre` (special issue or similar) applies to volume, not individual article -->
+              <text text-case="capitalize-first" variable="medium"/>
+            </else>
+          </choose>
+        </if>
+        <else>
+          <text macro="description-format"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="description-song">
     <!-- Performer of classical music works -->
