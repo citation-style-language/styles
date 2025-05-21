@@ -16,7 +16,7 @@
     <category citation-format="author-date"/>
     <category field="sociology"/>
     <summary>The ASA style following the 6th/7th edition of the Style Guide (reference formatting is the same for both editions).</summary>
-    <updated>2023-07-16T21:48:56+00:00</updated>
+    <updated>2025-05-20T11:36:01+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -30,9 +30,6 @@
       <name and="text" delimiter=", " initialize-with=". "/>
     </names>
   </macro>
-  <macro name="anon">
-    <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
-  </macro>
   <macro name="author">
     <names variable="author">
       <name and="text" name-as-sort-order="first" sort-separator=", " delimiter=", " delimiter-precedes-last="always" initialize="false" initialize-with=". "/>
@@ -44,7 +41,7 @@
             <text variable="publisher"/>
           </if>
         </choose>
-        <text macro="anon"/>
+        <text variable="title"/>
       </substitute>
     </names>
   </macro>
@@ -58,7 +55,7 @@
             <text variable="publisher"/>
           </if>
         </choose>
-        <text macro="anon"/>
+        <text variable="title"/>
       </substitute>
     </names>
   </macro>
@@ -66,14 +63,10 @@
     <group>
       <choose>
         <if type="webpage post-weblog post" match="any">
-          <group delimiter=" ">
-            <text term="retrieved" text-case="capitalize-first"/>
-            <date variable="accessed" form="text"/>
-            <text prefix="(" suffix=")" variable="URL"/>
-          </group>
+          <text variable="URL"/>
         </if>
-        <else-if type="article-journal report" match="any">
-          <text variable="DOI" prefix="doi: "/>
+        <else-if type="article-journal report dataset" match="any">
+          <text variable="DOI" prefix="doi:"/>
         </else-if>
       </choose>
     </group>
@@ -83,9 +76,7 @@
       <if type="thesis">
         <text variable="title" text-case="title"/>
       </if>
-      <!-- Software Hack -->
-      <else-if type="book" variable="version" match="all">
-        <!-- Allow lower-case initial letters, e.g., iPhone, ggplot2 -->
+      <else-if type="book dataset" variable="version" match="all">
         <text variable="title" font-style="italic"/>
       </else-if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song" match="any">
@@ -249,6 +240,25 @@
             <text variable="genre"/>
           </group>
         </else-if>
+        <else-if type="dataset">
+          <group delimiter=". " prefix=" ">
+            <group delimiter=" ">
+              <group delimiter=": ">
+                <text macro="title"/>
+                <group delimiter=" ">
+                  <label variable="version" suffix=" "/>
+                  <text variable="version"/>
+                </group>
+              </group>
+              <text variable="genre" prefix="[" suffix="]"/>
+            </group>
+            <group prefix=" " delimiter=", ">
+              <text macro="edition"/>
+              <text macro="editor" suffix="."/>
+              <text macro="publisher"/>
+            </group>
+          </group>
+        </else-if>
         <else-if type="thesis">
           <text macro="title" prefix=" " suffix="." quotes="true"/>
           <group prefix=" " delimiter=", ">
@@ -258,11 +268,9 @@
             <text macro="publisher"/>
           </group>
         </else-if>
-        <!--Software hack-->
         <else-if type="book" variable="version" match="all">
           <group prefix=" " delimiter=". ">
             <group>
-              <!-- To Do: localize once we have a proper term -->
               <text macro="title" suffix=" [computer program]"/>
             </group>
             <group delimiter=" ">
@@ -311,6 +319,12 @@
             </group>
             <text macro="day-month"/>
             <text variable="event-place"/>
+          </group>
+        </else-if>
+        <else-if type="webpage post post-weblog" match="any">
+          <group delimiter=". ">
+            <text macro="title"/>
+            <text macro="publisher"/>
           </group>
         </else-if>
         <else>
