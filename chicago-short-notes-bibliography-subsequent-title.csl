@@ -40,6 +40,7 @@
       <term form="verb" name="editorial-director">editorial direction by</term>
       <term form="verb-short" name="editorial-director">ed. dir.</term>
       <term form="verb-short" name="illustrator">ill.</term>
+      <term form="short" name="legislation">Pub. L.</term>
       <term name="original-work-published">originally published</term>
       <term form="short" name="paper-conference">paper</term>
       <term form="short" name="personal-communication">pers. comm.</term>
@@ -202,7 +203,7 @@
   <macro name="label-number">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number">
+        <if is-numeric="number" match="any" type="legislation regulation">
           <label form="short" variable="number"/>
         </if>
       </choose>
@@ -212,7 +213,7 @@
   <macro name="label-number-capitalized">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number">
+        <if is-numeric="number" match="any" type="legislation regulation">
           <label form="short" text-case="capitalize-first" variable="number"/>
         </if>
       </choose>
@@ -3327,25 +3328,23 @@
           <text text-case="title" variable="container-title"/>
         </if>
       </choose>
-      <group delimiter=". ">
-        <choose>
-          <if type="broadcast">
-            <!-- a podcast publisher appears before the date, whereas the network of an aired show appears after (CMOS 14.165); unfortunately CSL stores both in `publisher` -->
-            <choose>
-              <if match="none" variable="URL">
-                <!-- TODO: `URL` is the only way to distinguish radio/TV from podcasts, but it is obviously imprecise; modify if CSL provides better detection -->
-                <text macro="source-publication-history-bib"/>
-              </if>
-            </choose>
-          </if>
-          <else>
-            <text macro="source-publication-history-bib"/>
-          </else>
-        </choose>
-        <group delimiter=" ">
-          <text macro="source-date-status-bib"/>
-          <text macro="source-date"/>
-        </group>
+      <choose>
+        <if type="broadcast">
+          <!-- a podcast publisher appears before the date, whereas the network of an aired show appears after (CMOS 14.165); unfortunately CSL stores both in `publisher` -->
+          <choose>
+            <if match="none" variable="URL">
+              <!-- TODO: `URL` is the only way to distinguish radio/TV from podcasts, but it is obviously imprecise; modify if CSL provides better detection -->
+              <text macro="source-publication-history-bib"/>
+            </if>
+          </choose>
+        </if>
+        <else>
+          <text macro="source-publication-history-bib"/>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <text macro="source-date-status-bib"/>
+        <text macro="source-date"/>
       </group>
       <choose>
         <if type="broadcast">
@@ -3607,10 +3606,10 @@
     <choose>
       <!-- With `archive_collection` or `archive-place`: physical archives. Without: digital archives (database and identifier) -->
       <if type="graphic">
-        <text macro="source-archive-location-first"/>
+        <text macro="source-archive-place-first"/>
       </if>
       <else-if match="any" variable="archive_collection archive-place">
-        <text macro="source-archive-shelfmark-first-bib"/>
+        <text macro="source-archive-location-first-bib"/>
       </else-if>
       <else>
         <text macro="source-archive-identifier"/>
@@ -3618,7 +3617,7 @@
     </choose>
   </macro>
   <!-- Archival elements -->
-  <macro name="source-archive-location-first">
+  <macro name="source-archive-place-first">
     <!-- Museum format for art (CMOS 14.133); also specified for citations of archives and manuscripts in collections outside North America, but there is no obvious way to implement this (CMOS 14.205) -->
     <group delimiter=", ">
       <text variable="archive"/>
@@ -3627,7 +3626,7 @@
       <text variable="archive_location"/>
     </group>
   </macro>
-  <macro name="source-archive-shelfmark-first-bib">
+  <macro name="source-archive-location-first-bib">
     <!-- Order of elements begins with the most specific (CMOS 14.119, 14.127) -->
     <!-- In note styles, the bibliography generally provide entries for a `collection` rather than individual items (CMOS 14.120, 14.128) -->
     <group delimiter=". ">
@@ -3668,12 +3667,17 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="source-DOI-URL">
+    <!-- Alias to avoid modifying legal references block shared with APA -->
+    <text macro="source-DOI-URL-bib"/>
+  </macro>
   <!-- 5. Notes -->
   <macro name="notes">
     <!-- Notes on source element: original publication, reprint info, retraction info -->
     <text variable="references"/>
   </macro>
-  <!-- 6. Legal references (Bluebook) -->
+  <!-- 6. Legal references -->
+  <!-- Bluebook style: shared with APA -->
   <macro name="legal-reference">
     <!-- Type usage:
 
@@ -3699,12 +3703,18 @@
       <choose>
         <if type="treaty">
           <group delimiter=", " suffix=".">
-            <!-- APA generally defers to Bluebook for legal citations, but diverges without explanation for treaty items. We follow the Bluebook format that was used in APA 6th ed. -->
-            <!-- APA manual omits treaty parties/authors, but per Bluebook they should be included at least for bilateral treaties. -->
+            <!-- APA generally defers to Bluebook for legal citations,
+                 but diverges without explanation for treaty items.
+                 We follow the Bluebook format that was used in APA 6th ed. -->
+            <!-- APA manual omits treaty parties/authors, but per Bluebook
+                 they should be included at least for bilateral treaties. -->
             <text macro="legal-title"/>
             <text macro="legal-author"/>
             <text macro="legal-date"/>
-            <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. Both are included here, following the APA style used for all other item types to end the reference with a period, then give the URL afterward. -->
+            <!-- APA manual omits treaty source/report called for by Bluebook
+                 in favor of just URL. Both are included here, following
+                 the APA style used for all other item types to end the
+                 reference with a period, then give the URL afterward. -->
             <text macro="legal-source"/>
           </group>
         </if>
@@ -3720,7 +3730,7 @@
         </else>
       </choose>
       <text variable="references"/>
-      <text macro="source-DOI-URL-bib"/>
+      <text macro="source-DOI-URL"/>
     </group>
   </macro>
   <!-- 6.1. Legal author -->
@@ -3746,12 +3756,14 @@
           </group>
           <choose>
             <if variable="issued">
-              <!-- APA manual includes "rev." before the revision year, but this isn't part of the Bluebook rules. -->
+              <!-- APA manual includes "rev." before the revision year,
+                   but this isn't part of the Bluebook rules. -->
               <text macro="date-issued-year"/>
             </if>
             <else>
-              <!-- Show proposal date for uncodified regulations. Assume date is entered literally ala "proposed May 23, 2016". -->
-              <!-- TODO: Add `proposed` date here if that becomes available -->
+              <!-- Show proposal date for uncodified regulations.
+                   Assume date is entered literally ala "proposed May 23, 2016".
+                   TODO: Add `proposed` date here if that becomes available -->
               <date form="text" variable="submitted"/>
             </else>
           </choose>
@@ -3764,11 +3776,12 @@
       <text variable="authority"/>
       <choose>
         <if variable="container-title">
-          <!-- Print only year for cases published in reporters -->
+          <!-- Print only year for cases published in reporters-->
           <text macro="date-issued-year"/>
         </if>
         <else>
-          <!-- APA manual doesn't include examples of cases not yet published in a reporter, but this is Bluebook style. -->
+          <!-- APA manual doesn't include examples of cases not yet
+               published in a reporter, but this is Bluebook style. -->
           <text macro="date-issued-full"/>
         </else>
       </choose>
@@ -3917,8 +3930,15 @@
         <!-- There's a public law number. -->
         <group delimiter=", ">
           <group delimiter=" ">
-            <text value="Pub. L. No."/>
-            <text variable="number"/>
+            <choose>
+              <if variable="genre">
+                <text text-case="capitalize-first" variable="genre"/>
+              </if>
+              <else>
+                <text form="short" term="legislation" text-case="capitalize-first"/>
+              </else>
+            </choose>
+            <text macro="label-number-capitalized"/>
           </group>
           <group delimiter=" ">
             <text variable="volume"/>
@@ -3978,23 +3998,7 @@
     </group>
   </macro>
   <!-- Citation -->
-  <macro name="citation-notes-only-title">
-    <choose>
-      <if match="any" type="classic legal_case">
-        <group delimiter=" ">
-          <text macro="title-and-descriptions-short"/>
-          <text macro="source-locator"/>
-        </group>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <text macro="title-and-descriptions-short"/>
-          <text macro="source-locator"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
-  <macro name="citation-notes-shortened">
+  <macro name="citation-notes-shortened-author-title">
     <choose>
       <if match="any" type="classic legal_case">
         <group delimiter=" ">
@@ -4014,19 +4018,35 @@
       </else>
     </choose>
   </macro>
-  <macro name="citation-notes-shortened-subsequent-title">
+  <macro name="citation-notes-shortened-title-only">
     <choose>
-      <if match="any" position="ibid ibid-with-locator">
-        <text macro="citation-notes-only-title"/>
+      <if match="any" type="classic legal_case">
+        <group delimiter=" ">
+          <text macro="title-and-descriptions-short"/>
+          <text macro="source-locator"/>
+        </group>
       </if>
       <else>
-        <text macro="citation-notes-shortened"/>
+        <group delimiter=", ">
+          <text macro="title-and-descriptions-short"/>
+          <text macro="source-locator"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="citation-notes-shortened-subsequent-title-only">
+    <choose>
+      <if match="any" position="ibid ibid-with-locator">
+        <text macro="citation-notes-shortened-title-only"/>
+      </if>
+      <else>
+        <text macro="citation-notes-shortened-author-title"/>
       </else>
     </choose>
   </macro>
   <citation disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " suffix=".">
-      <text macro="citation-notes-shortened-subsequent-title"/>
+      <text macro="citation-notes-shortened-subsequent-title-only"/>
     </layout>
   </citation>
   <!-- Bibliography -->

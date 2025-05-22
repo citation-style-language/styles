@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" and="text" class="note" demote-non-dropping-particle="display-and-sort" names-delimiter=", " page-range-format="chicago" version="1.0">
   <info>
-    <title>Chicago Manual of Style 18th edition (notes without bibliography, place of publication substituted for publisher, with location-first archival references, without URLs)</title>
+    <title>Chicago Manual of Style 18th edition (notes without bibliography, place of publication substituted for publisher, archival references with place first)</title>
     <title-short>CMOS</title-short>
-    <id>http://www.zotero.org/styles/chicago-notes-publisher-place-archive-location-first-no-url</id>
-    <link href="http://www.zotero.org/styles/chicago-notes-publisher-place-archive-location-first-no-url" rel="self"/>
+    <id>http://www.zotero.org/styles/chicago-notes-publisher-place-archive-place-first</id>
+    <link href="http://www.zotero.org/styles/chicago-notes-publisher-place-archive-place-first" rel="self"/>
     <link href="http://www.zotero.org/styles/chicago-notes-bibliography" rel="template"/>
     <link href="http://www.chicagomanualofstyle.org/tools_citationguide.html" rel="documentation"/>
     <author>
@@ -19,7 +19,7 @@
     <category field="literature"/>
     <category field="philosophy"/>
     <category field="theology"/>
-    <summary>Chicago-style source citations, notes system without bibliography, listing up to six authors in a full citation (CMOS 13.23), substituting place of publication for publisher name (CMOS 14.31), with location-first archival references (CMOS 14.205), without URLs (CMOS 13.6)</summary>
+    <summary>Chicago-style source citations, notes system without bibliography, listing up to six authors in a full citation (CMOS 13.23), substituting place of publication for publisher name (CMOS 14.31), archival references with place first (CMOS 14.205)</summary>
     <updated>2025-05-19T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
@@ -40,6 +40,7 @@
       <term form="verb" name="editorial-director">editorial direction by</term>
       <term form="verb-short" name="editorial-director">ed. dir.</term>
       <term form="verb-short" name="illustrator">ill.</term>
+      <term form="short" name="legislation">Pub. L.</term>
       <term name="original-work-published">originally published</term>
       <term form="short" name="paper-conference">paper</term>
       <term form="short" name="personal-communication">pers. comm.</term>
@@ -181,7 +182,7 @@
   <macro name="label-number">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number">
+        <if is-numeric="number" match="any" type="legislation regulation">
           <label form="short" variable="number"/>
         </if>
       </choose>
@@ -191,7 +192,7 @@
   <macro name="label-number-capitalized">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number">
+        <if is-numeric="number" match="any" type="legislation regulation">
           <label form="short" text-case="capitalize-first" variable="number"/>
         </if>
       </choose>
@@ -227,6 +228,12 @@
         </if>
       </choose>
       <text text-case="title" variable="section"/>
+    </group>
+  </macro>
+  <macro name="label-section-symbol">
+    <group delimiter=" ">
+      <label form="symbol" variable="section"/>
+      <text variable="section"/>
     </group>
   </macro>
   <macro name="label-supplement-number">
@@ -534,6 +541,16 @@
       </else>
     </choose>
   </macro>
+  <macro name="date-original-year">
+    <choose>
+      <if is-uncertain-date="original-date">
+        <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="original-date"/>
+      </if>
+      <else>
+        <date date-parts="year" form="numeric" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
   <!-- 3. Title and descriptions (CMOS 13.87–101) -->
   <macro name="title-and-descriptions-note">
     <group delimiter=", ">
@@ -594,7 +611,7 @@
               <text macro="source-publication-note"/>
               <text macro="source-medium-note"/>
               <text macro="source-archive-note"/>
-              <!-- <text macro="source-DOI-URL-note"/> -->
+              <text macro="source-DOI-URL-note"/>
             </if>
             <else-if match="none" variable="title">
               <choose>
@@ -636,7 +653,7 @@
         </if>
       </choose>
       <text macro="source-archive-note"/>
-      <!-- <text macro="source-DOI-URL-note"/> -->
+      <text macro="source-DOI-URL-note"/>
     </group>
   </macro>
   <!-- 3.1. Title -->
@@ -2262,25 +2279,23 @@
           <text text-case="title" variable="container-title"/>
         </if>
       </choose>
-      <group delimiter=", ">
-        <choose>
-          <if type="broadcast">
-            <!-- a podcast publisher appears before the date, whereas the network of an aired show appears after (CMOS 14.165); unfortunately CSL stores both in `publisher` -->
-            <choose>
-              <if match="none" variable="URL">
-                <!-- TODO: `URL` is the only way to distinguish radio/TV from podcasts, but it is obviously imprecise; modify if CSL provides better detection -->
-                <text macro="source-publication-history-note"/>
-              </if>
-            </choose>
-          </if>
-          <else>
-            <text macro="source-publication-history-note"/>
-          </else>
-        </choose>
-        <group delimiter=" ">
-          <text macro="source-date-status-note"/>
-          <text macro="source-date"/>
-        </group>
+      <choose>
+        <if type="broadcast">
+          <!-- a podcast publisher appears before the date, whereas the network of an aired show appears after (CMOS 14.165); unfortunately CSL stores both in `publisher` -->
+          <choose>
+            <if match="none" variable="URL">
+              <!-- TODO: `URL` is the only way to distinguish radio/TV from podcasts, but it is obviously imprecise; modify if CSL provides better detection -->
+              <text macro="source-publication-history-note"/>
+            </if>
+          </choose>
+        </if>
+        <else>
+          <text macro="source-publication-history-note"/>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <text macro="source-date-status-note"/>
+        <text macro="source-date"/>
       </group>
       <choose>
         <if type="broadcast">
@@ -2542,10 +2557,10 @@
     <choose>
       <!-- With `archive_collection` or `archive-place`: physical archives. Without: digital archives (database and identifier) -->
       <if type="graphic">
-        <text macro="source-archive-location-first"/>
+        <text macro="source-archive-place-first"/>
       </if>
       <else-if match="any" variable="archive_collection archive-place">
-        <text macro="source-archive-location-first"/>
+        <text macro="source-archive-place-first"/>
       </else-if>
       <else>
         <text macro="source-archive-identifier"/>
@@ -2553,7 +2568,7 @@
     </choose>
   </macro>
   <!-- Archival elements -->
-  <macro name="source-archive-location-first">
+  <macro name="source-archive-place-first">
     <!-- Museum format for art (CMOS 14.133); also specified for citations of archives and manuscripts in collections outside North America, but there is no obvious way to implement this (CMOS 14.205) -->
     <group delimiter=", ">
       <text variable="archive"/>
@@ -2569,12 +2584,212 @@
     </group>
   </macro>
   <!-- 4.10. URL or persistent identifier -->
+  <macro name="source-DOI-URL-bib">
+    <choose>
+      <if variable="DOI">
+        <text prefix="https://doi.org/" variable="DOI"/>
+      </if>
+      <else-if variable="URL">
+        <group delimiter=". ">
+          <choose>
+            <if match="none" variable="issued status">
+              <group delimiter=" ">
+                <text term="accessed" text-case="capitalize-first"/>
+                <date form="text" variable="accessed"/>
+              </group>
+            </if>
+          </choose>
+          <text variable="URL"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="source-DOI-URL-note">
+    <choose>
+      <if variable="DOI">
+        <text prefix="https://doi.org/" variable="DOI"/>
+      </if>
+      <else-if variable="URL">
+        <group delimiter=", ">
+          <choose>
+            <if match="none" variable="issued status">
+              <group delimiter=" ">
+                <text term="accessed"/>
+                <date form="text" variable="accessed"/>
+              </group>
+            </if>
+          </choose>
+          <text variable="URL"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="source-DOI-URL">
+    <!-- Alias to avoid modifying legal references block shared with APA -->
+    <text macro="source-DOI-URL-bib"/>
+  </macro>
   <!-- 5. Notes -->
-  <!-- 6. Legal references (Bluebook) -->
+  <!-- 6. Legal references -->
+  <!-- Bluebook style: shared with APA -->
+  <macro name="legal-reference">
+    <!-- Type usage:
+
+         `bill`
+         : bills, resolutions, federal reports
+
+         `legal_case`
+         : all legal and court cases
+
+         `hearing`
+         : hearings and testimony
+
+         `legislation`
+         : statutes, constitutional items, and charters
+
+         `regulation`
+         : codified regulations, uncodified regulations, executive orders
+
+         `treaty`
+         : treaties
+    -->
+    <group delimiter=" ">
+      <choose>
+        <if type="treaty">
+          <group delimiter=", " suffix=".">
+            <!-- APA generally defers to Bluebook for legal citations,
+                 but diverges without explanation for treaty items.
+                 We follow the Bluebook format that was used in APA 6th ed. -->
+            <!-- APA manual omits treaty parties/authors, but per Bluebook
+                 they should be included at least for bilateral treaties. -->
+            <text macro="legal-title"/>
+            <text macro="legal-author"/>
+            <text macro="legal-date"/>
+            <!-- APA manual omits treaty source/report called for by Bluebook
+                 in favor of just URL. Both are included here, following
+                 the APA style used for all other item types to end the
+                 reference with a period, then give the URL afterward. -->
+            <text macro="legal-source"/>
+          </group>
+        </if>
+        <else>
+          <group delimiter=" " suffix=".">
+            <group delimiter=", ">
+              <text macro="legal-title"/>
+              <text macro="legal-source"/>
+            </group>
+            <text macro="legal-date"/>
+            <text macro="legal-identifier"/>
+          </group>
+        </else>
+      </choose>
+      <text variable="references"/>
+      <text macro="source-DOI-URL"/>
+    </group>
+  </macro>
   <!-- 6.1. Legal author -->
+  <macro name="legal-author">
+    <names variable="author">
+      <name delimiter="-" form="short"/>
+    </names>
+  </macro>
   <!-- 6.2. Legal date -->
+  <macro name="legal-date">
+    <choose>
+      <if type="treaty">
+        <text macro="date-issued-full"/>
+      </if>
+      <else-if type="legal_case">
+        <text macro="legal-date-case"/>
+      </else-if>
+      <else-if match="any" type="bill hearing legislation regulation">
+        <group delimiter=" " prefix="(" suffix=")">
+          <group delimiter=" ">
+            <text macro="date-original-year"/>
+            <text form="symbol" term="and"/>
+          </group>
+          <choose>
+            <if variable="issued">
+              <!-- APA manual includes "rev." before the revision year,
+                   but this isn't part of the Bluebook rules. -->
+              <text macro="date-issued-year"/>
+            </if>
+            <else>
+              <!-- Show proposal date for uncodified regulations.
+                   Assume date is entered literally ala "proposed May 23, 2016".
+                   TODO: Add `proposed` date here if that becomes available -->
+              <date form="text" variable="submitted"/>
+            </else>
+          </choose>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="legal-date-case">
+    <group delimiter=" " prefix="(" suffix=")">
+      <text variable="authority"/>
+      <choose>
+        <if variable="container-title">
+          <!-- Print only year for cases published in reporters-->
+          <text macro="date-issued-year"/>
+        </if>
+        <else>
+          <!-- APA manual doesn't include examples of cases not yet
+               published in a reporter, but this is Bluebook style. -->
+          <text macro="date-issued-full"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
   <!-- 6.3.1. Legal title -->
+  <macro name="legal-title">
+    <choose>
+      <if match="any" type="bill legal_case legislation regulation treaty">
+        <text text-case="title" variable="title"/>
+      </if>
+      <else-if type="hearing">
+        <!-- APA uses a comma delimiter and omits "hearing before the" for hearings with testimony,
+             but follows Bluebook rules (colon delimiter, prefix before the committee name) for
+             references to the whole hearing. We simply follow the Bluebook rules for both, but
+             use APA style capitalization (not capitalizing "Before" or the title of the hearing). -->
+        <group delimiter=": " font-style="italic">
+          <text text-case="capitalize-first" variable="title"/>
+          <group delimiter=" ">
+            <text term="hearing" text-case="capitalize-first"/>
+            <group delimiter=" ">
+              <group delimiter=" ">
+                <!-- APA manual omits the bill number, but it should be included per Bluebook if relevant -->
+                <text term="on"/>
+                <text variable="number"/>
+              </group>
+              <group delimiter=" ">
+                <!-- Use the `at` term to hold "before the" -->
+                <text term="at"/>
+                <text variable="section"/>
+              </group>
+            </group>
+          </group>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
   <!-- 6.3.2. Legal identifier -->
+  <macro name="legal-identifier">
+    <choose>
+      <if type="hearing">
+        <group delimiter=" " prefix="(" suffix=")">
+          <!-- Use the 'verb' form of the hearing term to hold 'testimony of' -->
+          <text form="verb" term="hearing"/>
+          <names variable="author">
+            <name initialize="false"/>
+          </names>
+        </group>
+      </if>
+      <else-if match="any" type="bill legislation regulation">
+        <!-- For uncodified regulations, assume future code section is in `status`. -->
+        <text prefix="(" suffix=")" variable="status"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="legal-identifier-bill-report">
     <group delimiter=" ">
       <text variable="genre"/>
@@ -2592,25 +2807,175 @@
     </group>
   </macro>
   <!-- 6.4. Legal source -->
+  <macro name="legal-source">
+    <!-- Expect legal item `container-title` to be stored in short form -->
+    <choose>
+      <if type="bill">
+        <text macro="legal-source-bill"/>
+      </if>
+      <else-if type="hearing">
+        <text macro="legal-source-hearing"/>
+      </else-if>
+      <else-if type="legal_case">
+        <text macro="legal-source-case"/>
+      </else-if>
+      <else-if type="legislation">
+        <text macro="legal-source-legislation"/>
+      </else-if>
+      <else-if type="regulation">
+        <text macro="legal-source-regulation"/>
+      </else-if>
+      <else-if type="treaty">
+        <text macro="legal-source-treaty"/>
+      </else-if>
+    </choose>
+  </macro>
   <!-- Legal source types -->
+  <macro name="legal-source-bill">
+    <group delimiter=", ">
+      <text macro="legal-identifier-bill-report"/>
+      <group delimiter=" ">
+        <text variable="authority"/>
+        <!-- 'session' is `chapter-number` -->
+        <text variable="chapter-number"/>
+      </group>
+      <group delimiter=" ">
+        <text variable="volume"/>
+        <text variable="container-title"/>
+        <text variable="page-first"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="legal-source-case">
+    <group delimiter=" ">
+      <choose>
+        <if variable="container-title">
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text variable="container-title"/>
+            <text macro="label-section-symbol"/>
+            <choose>
+              <if match="any" variable="page page-first">
+                <text variable="page-first"/>
+              </if>
+              <else>
+                <text value="___"/>
+              </else>
+            </choose>
+          </group>
+        </if>
+        <else>
+          <text macro="label-number-capitalized"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="legal-source-hearing">
+    <group delimiter=" ">
+      <text variable="authority"/>
+      <!-- 'session' is `chapter-number` -->
+      <text variable="chapter-number"/>
+    </group>
+  </macro>
+  <macro name="legal-source-legislation">
+    <choose>
+      <if variable="number">
+        <!-- There's a public law number. -->
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <choose>
+              <if variable="genre">
+                <text text-case="capitalize-first" variable="genre"/>
+              </if>
+              <else>
+                <text form="short" term="legislation" text-case="capitalize-first"/>
+              </else>
+            </choose>
+            <text macro="label-number-capitalized"/>
+          </group>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text variable="container-title"/>
+            <text variable="page-first"/>
+          </group>
+        </group>
+      </if>
+      <else>
+        <group delimiter=" ">
+          <text variable="volume"/>
+          <text variable="container-title"/>
+          <choose>
+            <if variable="section">
+              <text macro="label-section-symbol"/>
+            </if>
+            <else>
+              <text variable="page-first"/>
+            </else>
+          </choose>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="legal-source-regulation">
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <text variable="genre"/>
+        <text macro="label-number-capitalized"/>
+      </group>
+      <group delimiter=" ">
+        <text variable="volume"/>
+        <text variable="container-title"/>
+        <choose>
+          <if variable="section">
+            <text macro="label-section-symbol"/>
+          </if>
+          <else>
+            <text variable="page-first"/>
+          </else>
+        </choose>
+      </group>
+    </group>
+  </macro>
+  <macro name="legal-source-treaty">
+    <group delimiter=" ">
+      <number variable="volume"/>
+      <text variable="container-title"/>
+      <choose>
+        <if match="any" variable="page page-first">
+          <text variable="page-first"/>
+        </if>
+        <else>
+          <text macro="label-number-capitalized"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
   <!-- Citation -->
-  <macro name="citation-notes">
+  <macro name="citation-notes-full">
+    <choose>
+      <if match="any" type="bill hearing legal_case legislation regulation treaty">
+        <!-- Legal items have different orders and delimiters -->
+        <text macro="legal-reference"/>
+      </if>
+      <else>
+        <group delimiter=", ">
+          <text macro="author-note"/>
+          <text macro="title-and-source-note"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="citation-notes-full-subsequent-author-title">
     <choose>
       <if position="subsequent">
-        <text macro="citation-notes-shortened"/>
+        <text macro="citation-notes-shortened-author-title"/>
       </if>
       <else>
         <text macro="citation-notes-full"/>
       </else>
     </choose>
   </macro>
-  <macro name="citation-notes-full">
-    <group delimiter=", ">
-      <text macro="author-note"/>
-      <text macro="title-and-source-note"/>
-    </group>
-  </macro>
-  <macro name="citation-notes-shortened">
+  <macro name="citation-notes-shortened-author-title">
     <choose>
       <if match="any" type="classic legal_case">
         <group delimiter=" ">
@@ -2632,7 +2997,7 @@
   </macro>
   <citation disambiguate-add-names="true" et-al-min="7" et-al-subsequent-min="3" et-al-subsequent-use-first="1" et-al-use-first="3">
     <layout delimiter="; " suffix=".">
-      <text macro="citation-notes"/>
+      <text macro="citation-notes-full-subsequent-author-title"/>
     </layout>
   </citation>
   <!-- Bibliography -->
