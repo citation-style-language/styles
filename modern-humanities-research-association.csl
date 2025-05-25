@@ -94,146 +94,90 @@
       </else>
     </choose>
   </macro>
+  <macro name="title-sort-substitute">
+    <choose>
+      <if match="any" type="bill book classic graphic legal_case legislation motion_picture pamphlet report song">
+        <text font-style="italic" form="short" text-case="title" variable="title"/>
+      </if>
+      <else>
+        <text form="short" quotes="true" text-case="title" variable="title"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="recipient">
     <names variable="recipient">
       <label form="verb" suffix=" "/>
       <name/>
     </names>
   </macro>
-  <macro name="personal-communication-issued">
-    <group delimiter=", ">
+  <macro name="recipient-short">
+    <names variable="recipient">
+      <label form="verb" suffix=" "/>
+      <name form="short"/>
+    </names>
+  </macro>
+  <macro name="recipient">
+    <names variable="recipient">
+      <label form="verb" suffix=" "/>
+      <name/>
+    </names>
+  </macro>
+  <macro name="communication-recipient">
+    <group delimiter=" ">
       <choose>
-        <if match="any" variable="archive container-title DOI publisher URL">
-          <text variable="genre"/>
+        <if type="personal_communication">
+          <choose>
+            <if variable="genre">
+              <text text-case="capitalize-first" variable="genre"/>
+            </if>
+            <else>
+              <text term="letter" text-case="capitalize-first"/>
+            </else>
+          </choose>
         </if>
       </choose>
-      <text variable="event-place"/>
-      <date form="text" variable="event-date"/>
+      <text macro="recipient"/>
     </group>
   </macro>
-  <macro name="personal-communication">
-    <choose>
-      <if type="personal_communication">
-        <group delimiter=", ">
-          <group delimiter=" ">
-            <choose>
-              <if match="none" variable="archive container-title DOI publisher URL">
-                <choose>
-                  <if variable="genre">
-                    <text variable="genre"/>
-                  </if>
-                  <else>
-                    <text form="short" term="personal-communication"/>
-                  </else>
-                </choose>
-              </if>
-            </choose>
-            <text macro="recipient"/>
-          </group>
-          <text macro="personal-communication-issued"/>
-        </group>
-      </if>
-    </choose>
+  <macro name="author-bib">
+    <group delimiter=". ">
+      <names variable="author">
+        <name delimiter-precedes-last="always" name-as-sort-order="first"/>
+        <label form="short" prefix=" (" suffix=")"/>
+        <substitute>
+          <names variable="editor"/>
+          <names variable="translator"/>
+          <text macro="title"/>
+        </substitute>
+      </names>
+      <text macro="communication-recipient"/>
+    </group>
   </macro>
-  <macro name="container-title-substitute">
-    <choose>
-      <if match="any" type="article-magazine article-newspaper entry-dictionary entry-encyclopedia review review-book post-weblog webpage">
-        <text macro="container-title-short"/>
-      </if>
-    </choose>
+  <macro name="author-note">
+    <group delimiter=" ">
+      <names variable="author">
+        <label form="short" prefix=", "/>
+        <substitute>
+          <text macro="title"/>
+        </substitute>
+      </names>
+      <text macro="recipient"/>
+    </group>
   </macro>
   <macro name="author-short">
     <group delimiter=" ">
-      <names variable="composer">
+      <names variable="author">
         <name form="short"/>
         <!-- for author-date:
         <name form="short" initialize-with=". "/>
         -->
         <substitute>
-          <names variable="author"/>
-          <choose>
-            <if match="none" type="classic">
-              <names variable="editor-translator"/>
-              <names variable="editor"/>
-              <names variable="translator"/>
-              <names variable="compiler"/>
-              <names variable="collection-editor"/>
-              <names variable="director"/>
-              <names variable="host"/>
-              <names variable="interviewer"/>
-            </if>
-          </choose>
-          <text macro="container-title-substitute"/>
-          <text macro="title-short"/>
+          <names variable="editor"/>
+          <names variable="translator"/>
+          <text macro="title-sort-substitute"/>
         </substitute>
       </names>
-      <choose>
-        <if type="personal_communication" variable="author recipient">
-          <names variable="recipient">
-            <label form="verb-short" suffix=" "/>
-            <name form="short"/>
-          </names>
-        </if>
-        <else-if type="personal_communication">
-          <text macro="personal-communication"/>
-        </else-if>
-      </choose>
-    </group>
-  </macro>
-  <macro name="author-note">
-    <group delimiter=" ">
-      <names variable="composer">
-        <label form="short" prefix=", "/>
-        <substitute>
-          <names variable="author"/>
-          <choose>
-            <if match="none" type="classic">
-              <names variable="editor-translator"/>
-              <names variable="editor"/>
-              <names variable="translator"/>
-              <names variable="compiler"/>
-              <names variable="collection-editor"/>
-              <names variable="director"/>
-              <names variable="host"/>
-              <names variable="interviewer"/>
-            </if>
-          </choose>
-          <text macro="container-title-substitute"/>
-          <text macro="title-short"/>
-        </substitute>
-      </names>
-      <text macro="personal-communication"/>
-    </group>
-  </macro>
-  <macro name="author-bib">
-    <group delimiter=" ">
-      <names variable="composer">
-        <name delimiter-precedes-last="always" name-as-sort-order="first"/>
-        <label form="short" prefix=" (" suffix=")"/>
-        <substitute>
-          <names variable="author"/>
-          <choose>
-            <if match="none" type="classic">
-              <names variable="editor-translator"/>
-              <names variable="editor"/>
-              <names variable="translator"/>
-              <names variable="compiler"/>
-              <names variable="collection-editor"/>
-              <names variable="director"/>
-              <names variable="host"/>
-              <names variable="interviewer"/>
-            </if>
-          </choose>
-          <choose>
-            <if type="software">
-              <text variable="publisher"/>
-            </if>
-          </choose>
-          <text macro="container-title-substitute"/>
-          <text macro="title"/>
-        </substitute>
-      </names>
-      <text macro="personal-communication"/>
+      <text macro="recipient-short"/>
     </group>
   </macro>
   <macro name="title-short">
@@ -303,19 +247,6 @@
       <if match="none" type="chapter entry-dictionary entry-encyclopedia paper-conference">
         <text macro="editor-translator"/>
       </if>
-    </choose>
-  </macro>
-  <macro name="container-title-short">
-    <choose>
-      <if match="any" type="post webpage">
-        <text form="short" text-case="title" variable="container-title"/>
-      </if>
-      <else-if type="post-weblog">
-        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
-      </else-if>
-      <else-if match="none" type="bill broadcast hearing legal_case legislation regulation treaty">
-        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
-      </else-if>
     </choose>
   </macro>
   <macro name="container-title">
