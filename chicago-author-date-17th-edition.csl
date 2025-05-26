@@ -45,6 +45,7 @@
       <term form="verb-short" name="editorial-director">ed. dir.</term>
       <term form="verb-short" name="illustrator">ill.</term>
       <term form="short" name="legislation">Pub. L.</term>
+      <term name="manuscript">unpublished manuscript</term>
       <term name="original-work-published">originally published</term>
       <term form="short" name="paper-conference">paper</term>
       <term form="short" name="personal-communication">pers. comm.</term>
@@ -1305,16 +1306,56 @@
   <!-- Description elements -->
   <macro name="description-format-bib">
     <choose>
-      <if match="none" variable="number">
-        <text text-case="capitalize-first" variable="genre"/>
+      <if variable="genre">
+        <choose>
+          <if match="none" variable="number">
+            <text text-case="capitalize-first" variable="genre"/>
+          </if>
+        </choose>
       </if>
+      <else-if type="manuscript">
+        <!-- 'unpublished manuscript' if no `genre` (CMOS 14.114) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text term="manuscript" text-case="capitalize-first"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if type="personal_communication">
+        <!-- 'personal communication' if no `genre` (CMOS 14.111) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text term="personal-communication" text-case="capitalize-first"/>
+          </if>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="description-format-note">
     <choose>
-      <if match="none" variable="number">
-        <text variable="genre"/>
+      <if variable="genre">
+        <choose>
+          <if match="none" variable="number">
+            <text variable="genre"/>
+          </if>
+        </choose>
       </if>
+      <else-if type="manuscript">
+        <!-- 'unpublished manuscript' if no `genre` (CMOS 14.114) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text term="manuscript"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if type="personal_communication">
+        <!-- 'personal communication' if no `genre` (CMOS 14.111) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text term="personal-communication"/>
+          </if>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="description-format-short">
@@ -1324,6 +1365,22 @@
       </if>
       <else-if variable="medium">
         <text variable="medium"/>
+      </else-if>
+      <else-if type="manuscript">
+        <!-- 'unpublished manuscript' if no `genre` (CMOS 14.114) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text term="manuscript"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if type="personal_communication">
+        <!-- 'pers. comm.' if no `genre` (CMOS 14.111) -->
+        <choose>
+          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <text form="short" term="personal-communication"/>
+          </if>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -1499,18 +1556,7 @@
         </group>
       </if>
       <else>
-        <choose>
-          <if variable="genre">
-            <text macro="description-format-bib"/>
-          </if>
-          <else>
-            <choose>
-              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <text term="personal-communication" text-case="capitalize-first"/>
-              </if>
-            </choose>
-          </else>
-        </choose>
+        <text macro="description-format-bib"/>
       </else>
     </choose>
   </macro>
@@ -1551,18 +1597,7 @@
         </group>
       </if>
       <else>
-        <choose>
-          <if variable="genre">
-            <text macro="description-format-note"/>
-          </if>
-          <else>
-            <choose>
-              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <text term="personal-communication"/>
-              </if>
-            </choose>
-          </else>
-        </choose>
+        <text macro="description-format-note"/>
       </else>
     </choose>
   </macro>
@@ -1578,18 +1613,7 @@
         </group>
       </if>
       <else>
-        <choose>
-          <if match="any" variable="genre medium">
-            <text macro="description-format-short"/>
-          </if>
-          <else>
-            <choose>
-              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <text form="short" term="personal-communication"/>
-              </if>
-            </choose>
-          </else>
-        </choose>
+        <text macro="description-format-short"/>
       </else>
     </choose>
   </macro>
@@ -3674,9 +3698,16 @@
       <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software song speech standard webpage">
         <text macro="date-issued-full"/>
       </else-if>
-      <else>
+      <else-if variable="issued">
         <text macro="date-issued-year"/>
-      </else>
+      </else-if>
+      <else-if variable="status">
+        <text variable="status"/>
+      </else-if>
+      <else-if match="any" type="book chapter report pamphlet">
+        <!-- n.d. used for printed works without a publication date (CMOS 14.44) -->
+        <text form="short" term="no date"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="source-date-original">
@@ -3744,7 +3775,14 @@
       <!-- if there is an `event-title`, `status` appears with `event-date` as part of `source-event` -->
       <else-if variable="issued status">
         <!-- `status` specifies date type, e.g. 'effective', 'last modified', 'approved' (CMOS 14.104 for `webpage`; CMOS 14.159 for `standard`) -->
-        <text text-case="capitalize-first" variable="status"/>
+        <choose>
+          <if match="any" variable="original-date original-publisher original-publisher-place original-title">
+            <text variable="status"/>
+          </if>
+          <else>
+            <text text-case="capitalize-first" variable="status"/>
+          </else>
+        </choose>
       </else-if>
       <else-if type="broadcast" variable="issued">
         <choose>
