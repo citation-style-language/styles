@@ -432,12 +432,15 @@
                 <text macro="title-and-descriptions-short"/>
               </substitute>
             </names>
-            <text macro="description-format-short"/>
           </group>
-          <names variable="recipient">
-            <label form="verb-short" suffix=" "/>
-            <name/>
-          </names>
+          <choose>
+            <if match="none" variable="genre">
+              <names variable="recipient">
+                <label form="verb-short" suffix=" "/>
+                <name/>
+              </names>
+            </if>
+          </choose>
         </if>
         <else-if variable="author recipient">
           <names variable="author">
@@ -1067,7 +1070,7 @@
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset interview manuscript paper-conference speech thesis webpage">
+      <else-if match="any" type="article dataset interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
@@ -1105,7 +1108,7 @@
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset interview manuscript paper-conference speech thesis webpage">
+      <else-if match="any" type="article dataset interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
@@ -1365,11 +1368,22 @@
           <group delimiter=" ">
             <choose>
               <if variable="genre">
-                <text macro="description-format-bib"/>
-                <names variable="recipient">
-                  <label form="verb" suffix=" "/>
-                  <name/>
-                </names>
+                <choose>
+                  <if variable="number">
+                    <!-- `genre` appears with `number` -->
+                    <names variable="recipient">
+                      <label form="verb" suffix=" " text-case="capitalize-first"/>
+                      <name/>
+                    </names>
+                  </if>
+                  <else>
+                    <text macro="description-format-bib"/>
+                    <names variable="recipient">
+                      <label form="verb" suffix=" "/>
+                      <name/>
+                    </names>
+                  </else>
+                </choose>
               </if>
               <else>
                 <names variable="recipient">
@@ -1406,15 +1420,26 @@
           <group delimiter=" ">
             <choose>
               <if variable="genre">
-                <text macro="description-format-note"/>
-                <names variable="recipient">
-                  <label form="verb" suffix=" "/>
-                  <name/>
-                </names>
+                <choose>
+                  <if variable="number">
+                    <!-- `genre` appears with `number` -->
+                    <names variable="recipient">
+                      <label form="verb" suffix=" "/>
+                      <name/>
+                    </names>
+                  </if>
+                  <else>
+                    <text macro="description-format-note"/>
+                    <names variable="recipient">
+                      <label form="verb" suffix=" "/>
+                      <name/>
+                    </names>
+                  </else>
+                </choose>
               </if>
               <else>
                 <names variable="recipient">
-                  <label form="verb-short" suffix=" "/>
+                  <label form="verb" suffix=" "/>
                   <name/>
                 </names>
               </else>
@@ -1469,30 +1494,37 @@
   </macro>
   <macro name="description-serial-bib">
     <group delimiter=". ">
-      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
-      <text macro="label-section-capitalized"/>
       <choose>
         <if match="none" type="periodical" variable="volume-title">
           <text macro="description-format-bib"/>
         </if>
       </choose>
+      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
+      <text macro="label-section-capitalized"/>
     </group>
   </macro>
   <macro name="description-serial-note">
     <group delimiter=", ">
-      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
-      <text macro="label-section"/>
       <choose>
         <if match="none" type="periodical" variable="volume-title">
           <text macro="description-format-note"/>
         </if>
       </choose>
+      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
+      <text macro="label-section"/>
     </group>
   </macro>
   <macro name="description-serial-short">
     <choose>
       <if match="none" variable="title">
-        <text variable="section"/>
+        <choose>
+          <if variable="genre">
+            <text macro="description-format-short"/>
+          </if>
+          <else>
+            <text variable="section"/>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -1534,7 +1566,7 @@
   </macro>
   <macro name="description-review-note">
     <!-- Reviewed item -->
-    <group delimiter=". ">
+    <group delimiter=", ">
       <group delimiter=", ">
         <group delimiter=" ">
           <text macro="description-review-genre-note"/>
@@ -3628,7 +3660,11 @@
   <macro name="source-locator-subsequent-monographic">
     <group delimiter=", ">
       <choose>
-        <if is-numeric="volume" locator="page">
+        <if variable="container-title">
+          <!-- Do not provide `volume` or `part-number` for a `chapter` -->
+          <text macro="label-locator"/>
+        </if>
+        <else-if is-numeric="volume" locator="page">
           <choose>
             <if match="none" variable="part-number">
               <group delimiter=":">
@@ -3642,7 +3678,7 @@
               <text macro="label-locator"/>
             </else>
           </choose>
-        </if>
+        </else-if>
         <else>
           <text macro="label-volume"/>
           <text macro="label-part-number"/>
@@ -4110,7 +4146,8 @@
       </else>
     </choose>
   </macro>
-  <macro name="bibliography-filtered-notes">
+  <macro name="bibliography-filtered-notes-shortened">
+    <!-- logic identical to `bibliography-filtered-author-date` -->
     <choose>
       <if type="classic">
         <choose>
@@ -4132,17 +4169,9 @@
         </choose>
       </else-if>
       <else-if match="any" type="interview personal_communication">
-        <!-- CMOS 14.13, 14.111: Personal communications only appear in the bibliography if the reader can retrieve them -->
         <choose>
           <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <text macro="bibliography-notes"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if match="any" type="document manuscript paper-conference">
-        <!-- In note styles, the bibliography also omits inaccessible manuscripts (CMOS 14.114), conference papers (CMOS 14.115), and private documents (CMOS 14.118) -->
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- CMOS 14.13, 14.111: Personal communications only appear in the bibliography if the reader can retrieve them -->
             <text macro="bibliography-notes"/>
           </if>
         </choose>
@@ -4161,7 +4190,7 @@
       <key variable="status"/>
     </sort>
     <layout suffix=".">
-      <text macro="bibliography-filtered-notes"/>
+      <text macro="bibliography-filtered-notes-shortened"/>
     </layout>
   </bibliography>
 </style>
