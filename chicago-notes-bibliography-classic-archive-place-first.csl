@@ -393,6 +393,7 @@
         <names variable="editor-translator"/>
         <names variable="editor"/>
         <names variable="translator"/>
+        <names variable="collection-editor"/>
         <names variable="editorial-director"/>
         <names variable="compiler"/>
         <choose>
@@ -402,7 +403,6 @@
           </if>
         </choose>
         <names variable="curator"/>
-        <names variable="collection-editor"/>
         <choose>
           <if type="software">
             <!-- `software` listed under the name of the publisher or developer (CMOS 14.169) -->
@@ -449,9 +449,15 @@
             </choose>
           </else>
         </choose>
-        <names variable="editor-translator"/>
-        <names variable="editor"/>
-        <names variable="translator"/>
+        <choose>
+          <if match="none" variable="part-title volume-title">
+            <!-- In multivolume works, notes list editors after the title of the part for which they are responsible (CMOS 14.20–24) -->
+            <names variable="editor-translator"/>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <names variable="collection-editor"/>
+          </if>
+        </choose>
         <names variable="editorial-director"/>
         <names variable="compiler"/>
         <choose>
@@ -461,7 +467,6 @@
           </if>
         </choose>
         <names variable="curator"/>
-        <names variable="collection-editor"/>
         <!-- `software` does not substitute publisher name in notes (CMOS 14.169) -->
         <choose>
           <!-- notes substitute `container-title` in a narrower set of circumstances than bibliography -->
@@ -484,7 +489,64 @@
         <text macro="author-short-and-recipient"/>
       </else-if>
       <else>
-        <text macro="author-substitute-short"/>
+        <names variable="composer">
+          <name form="short"/>
+          <substitute>
+            <names variable="author"/>
+            <choose>
+              <if type="classic">
+                <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
+                <text macro="author-title-substitute-note"/>
+              </if>
+              <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+                <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
+                <text macro="author-title-substitute-container"/>
+              </else-if>
+            </choose>
+            <names variable="illustrator"/>
+            <names variable="guest host"/>
+            <choose>
+              <if type="broadcast" variable="container-title number title"/>
+              <else>
+                <names variable="director"/>
+                <names variable="producer"/>
+                <names variable="executive-producer"/>
+                <names variable="series-creator"/>
+                <choose>
+                  <if type="broadcast">
+                    <names variable="contributor"/>
+                  </if>
+                </choose>
+              </else>
+            </choose>
+            <choose>
+              <!-- In multivolume works, notes list editors after the title of the part for which they are responsible (CMOS 14.20–24) -->
+              <if match="none" variable="part-title volume-title">
+                <names variable="editor-translator"/>
+                <names variable="editor"/>
+                <names variable="translator"/>
+                <names variable="collection-editor"/>
+              </if>
+            </choose>
+            <names variable="editorial-director"/>
+            <names variable="compiler"/>
+            <choose>
+              <if match="any" type="event performance speech">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
+            <names variable="curator"/>
+            <choose>
+              <if type="software">
+                <!-- `software` listed under the name of the publisher or developer (CMOS 14.169) -->
+                <text variable="publisher"/>
+              </if>
+            </choose>
+            <text macro="author-title-substitute-container-short"/>
+            <text macro="title-and-descriptions-short"/>
+          </substitute>
+        </names>
       </else>
     </choose>
   </macro>
@@ -526,10 +588,14 @@
             <label/>
             <name form="short"/>
           </names>
-          <names variable="recipient">
-            <label form="verb" suffix=" "/>
-            <name form="short"/>
-          </names>
+          <choose>
+            <if match="none" variable="genre">
+              <names variable="recipient">
+                <label form="verb" suffix=" "/>
+                <name form="short"/>
+              </names>
+            </if>
+          </choose>
         </else-if>
         <else>
           <names variable="author">
@@ -541,63 +607,6 @@
         </else>
       </choose>
     </group>
-  </macro>
-  <macro name="author-substitute-short">
-    <names variable="composer">
-      <name form="short"/>
-      <!-- for author-date:
-      <name form="short" initialize-with=". "/> -->
-      <substitute>
-        <names variable="author"/>
-        <choose>
-          <if type="classic">
-            <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
-            <text macro="author-title-substitute-note"/>
-          </if>
-          <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-            <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
-            <text macro="author-title-substitute-container"/>
-          </else-if>
-        </choose>
-        <names variable="illustrator"/>
-        <names variable="guest host"/>
-        <choose>
-          <if type="broadcast" variable="container-title number title"/>
-          <else>
-            <names variable="director"/>
-            <names variable="producer"/>
-            <names variable="executive-producer"/>
-            <names variable="series-creator"/>
-            <choose>
-              <if type="broadcast">
-                <names variable="contributor"/>
-              </if>
-            </choose>
-          </else>
-        </choose>
-        <names variable="editor-translator"/>
-        <names variable="editor"/>
-        <names variable="translator"/>
-        <names variable="editorial-director"/>
-        <names variable="compiler"/>
-        <choose>
-          <if match="any" type="event performance speech">
-            <names variable="chair"/>
-            <names variable="organizer"/>
-          </if>
-        </choose>
-        <names variable="curator"/>
-        <names variable="collection-editor"/>
-        <choose>
-          <if type="software">
-            <!-- `software` listed under the name of the publisher or developer (CMOS 14.169) -->
-            <text variable="publisher"/>
-          </if>
-        </choose>
-        <text macro="author-title-substitute-container-short"/>
-        <text macro="title-and-descriptions-short"/>
-      </substitute>
-    </names>
   </macro>
   <macro name="author-title-substitute-bib">
     <choose>
@@ -1093,8 +1102,8 @@
         <!-- Locator for monographic types -->
         <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
         <else-if match="any" type="interview paper-conference">
-          <!-- Determine whether serial or monographic -->
           <choose>
+            <!-- Treat as monographic with an editor; otherwise as serial -->
             <if match="any" variable="collection-editor container-author editor editorial-director">
               <text macro="source-monographic-locator-note"/>
             </if>
@@ -1124,8 +1133,8 @@
         <text macro="title-serial-bib"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
-        <!-- Treat as monographic with an editor, otherwise as serial -->
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="title-monographic-bib"/>
           </if>
@@ -1149,8 +1158,8 @@
         <text macro="title-serial-note"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
-        <!-- Treat as monographic with an editor, otherwise as serial -->
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="title-monographic-note"/>
           </if>
@@ -1549,6 +1558,7 @@
     <choose>
       <if match="any" type="event paper-conference performance speech">
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
             <text macro="description-format-bib"/>
           </if>
@@ -1564,6 +1574,7 @@
     <choose>
       <if match="any" type="event paper-conference performance speech">
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
             <text macro="description-format-note"/>
           </if>
@@ -2098,33 +2109,23 @@
             </if>
           </choose>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title container-title part-title volume-title">
-                  <names variable="collection-editor">
-                    <label form="verb" suffix=" " text-case="capitalize-first"/>
-                    <name/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="identifier-contributors-bib"/>
-                </else>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: volume title first in bibliography (CMOS 14.21) -->
+              <text macro="identifier-contributors-bib"/>
             </if>
+            <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <text macro="identifier-contributors-bib"/>
+              <names variable="collection-editor">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name/>
+              </names>
+            </else-if>
             <else>
               <text macro="identifier-contributors-bib"/>
+              <!-- `collection-editor` belongs with `collection-title` if item is not multivolume -->
             </else>
           </choose>
           <text macro="identifier-volume-monographic-bib"/>
-          <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title container-title part-title volume-title">
-                  <text macro="identifier-contributors-bib"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
         </else>
       </choose>
     </group>
@@ -2172,31 +2173,30 @@
             </if>
           </choose>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title container-title part-title volume-title">
-                  <names variable="collection-editor">
-                    <label form="verb-short" suffix=" "/>
-                    <name/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="identifier-contributors-note"/>
-                </else>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: series title first in notes (CMOS 14.20) -->
+              <names variable="collection-editor">
+                <label form="verb-short" suffix=" "/>
+                <name/>
+              </names>
             </if>
+            <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <text macro="identifier-contributors-note"/>
+              <names variable="collection-editor">
+                <label form="verb-short" suffix=" "/>
+                <name/>
+              </names>
+            </else-if>
             <else>
               <text macro="identifier-contributors-note"/>
+              <!-- no `collection-editor`: it belongs with `collection-title` if item is not multivolume -->
             </else>
           </choose>
           <text macro="identifier-volume-monographic-note"/>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title container-title part-title volume-title">
-                  <text macro="identifier-contributors-note"/>
-                </if>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: series title first in notes (CMOS 14.20) -->
+              <text macro="identifier-contributors-note"/>
             </if>
           </choose>
         </else>
@@ -2231,6 +2231,7 @@
       </if>
       <else-if match="any" type="interview paper-conference">
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="identifier-contributors-monographic-note"/>
           </if>
@@ -2405,7 +2406,7 @@
       <choose>
         <if match="none" type="post webpage">
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
-          <group delimiter=". ">
+          <group delimiter=", ">
             <choose>
               <if match="none" variable="container-title">
                 <names variable="container-author">
@@ -2482,7 +2483,7 @@
           </group>
         </if>
         <else>
-          <group delimiter=". ">
+          <group delimiter=", ">
             <names variable="container-author">
               <label form="verb-short" suffix=" "/>
               <name/>
@@ -2719,7 +2720,7 @@
     </group>
   </macro>
   <macro name="identifier-volume-bib">
-    <!-- List the individual volume first in the bibliography (CMOS 14.21) -->
+    <!-- In notes styles, bibliography entries may be listed either under an individual volume title or its series, but the former approach is required for author-date, which is the form that this macro implements (CMOS 14.21) -->
     <group delimiter=", ">
       <choose>
         <if variable="part-number part-title volume volume-title">
@@ -2794,10 +2795,6 @@
     <choose>
       <if match="any" variable="part-number part-title volume-title">
         <group delimiter=", ">
-          <names variable="collection-editor">
-            <label form="verb-short" suffix=" "/>
-            <name/>
-          </names>
           <text macro="label-volume"/>
           <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="label-part-number"/>
@@ -2805,17 +2802,17 @@
         </group>
       </if>
       <else-if is-numeric="volume" locator="page">
-        <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` -->
+        <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` (CMOS 14.20) -->
         <choose>
           <!-- check for variables that might come between the volume and page number -->
-          <if match="any" variable="collection-editor part-number part-title volume-title">
+          <if match="any" variable="part-number part-title volume-title">
             <text macro="label-volume"/>
           </if>
         </choose>
       </else-if>
       <else-if is-numeric="volume" variable="page">
         <choose>
-          <if match="any" variable="collection-editor part-number part-title volume-title">
+          <if match="any" variable="part-number part-title volume-title">
             <text macro="label-volume"/>
           </if>
         </choose>
@@ -2833,6 +2830,7 @@
       <if match="any" type="article-journal article-magazine article-newspaper broadcast event interview patent performance periodical post post-weblog review review-book speech webpage"/>
       <else-if match="any" type="interview paper-conference">
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="identifier-volume-bib"/>
           </if>
@@ -2848,6 +2846,7 @@
       <if match="any" type="article-journal article-magazine article-newspaper broadcast event interview patent performance periodical post post-weblog review review-book speech webpage"/>
       <else-if match="any" type="interview paper-conference">
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="identifier-volume-note"/>
           </if>
@@ -2867,8 +2866,8 @@
           <text macro="source-serial-bib"/>
         </if>
         <else-if match="any" type="interview paper-conference">
-          <!-- Determine whether serial or monographic -->
           <choose>
+            <!-- Treat as monographic with an editor; otherwise as serial -->
             <if match="any" variable="collection-editor container-author editor editorial-director">
               <text macro="source-monographic-bib"/>
             </if>
@@ -2891,8 +2890,8 @@
           <text macro="source-serial-note"/>
         </if>
         <else-if match="any" type="interview paper-conference">
-          <!-- Determine whether serial or monographic -->
           <choose>
+            <!-- Treat as monographic with an editor; otherwise as serial -->
             <if match="any" variable="collection-editor container-author editor editorial-director">
               <text macro="source-monographic-note"/>
             </if>
@@ -3119,7 +3118,7 @@
             <text macro="label-issue"/>
             <text macro="label-supplement-number"/>
           </group>
-          <text macro="source-date" prefix="(" suffix=")"/>
+          <text macro="source-date-bib" prefix="(" suffix=")"/>
         </group>
       </if>
       <else>
@@ -3148,7 +3147,7 @@
             <text macro="label-issue"/>
             <text macro="label-supplement-number"/>
           </group>
-          <text macro="source-date" prefix="(" suffix=")"/>
+          <text macro="source-date-note" prefix="(" suffix=")"/>
         </group>
       </if>
       <else>
@@ -3168,7 +3167,7 @@
           <text text-case="lowercase" variable="status"/>
         </if>
       </choose>
-      <text macro="source-date"/>
+      <text macro="source-date-bib"/>
     </group>
   </macro>
   <!-- Serial source locator -->
@@ -3329,6 +3328,7 @@
       <if match="any" type="event paper-conference performance speech">
         <!-- Conference presentations should describe the session unless published in a proceedings -->
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
             <text macro="description-format-bib"/>
           </if>
@@ -3349,6 +3349,7 @@
       <if match="any" type="event paper-conference performance speech">
         <!-- Conference presentations should describe the session unless published in a proceedings -->
         <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
             <text macro="description-format-note"/>
           </if>
@@ -3366,6 +3367,7 @@
   </macro>
   <!-- Monographic source identifier -->
   <macro name="source-monographic-identifier-bib">
+    <!-- Based on `identifier-bib` -->
     <choose>
       <if variable="container-title">
         <group delimiter=", ">
@@ -3378,38 +3380,29 @@
           <text macro="label-version"/>
           <text macro="label-edition"/>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title part-title volume-title">
-                  <names variable="collection-editor">
-                    <label form="verb" suffix=" "/>
-                    <name/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="source-monographic-identifier-contributors-bib"/>
-                </else>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: volume title first in bibliography (CMOS 14.21) -->
+              <text macro="source-monographic-identifier-contributors-bib"/>
             </if>
+            <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <text macro="source-monographic-identifier-contributors-bib"/>
+              <names variable="collection-editor">
+                <label form="verb" suffix=" "/>
+                <name/>
+              </names>
+            </else-if>
             <else>
               <text macro="source-monographic-identifier-contributors-bib"/>
+              <!-- `collection-editor` belongs with `collection-title` if item is not multivolume -->
             </else>
           </choose>
           <text macro="source-monographic-identifier-volume-bib"/>
-          <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title part-title volume-title">
-                  <text macro="source-monographic-identifier-contributors-bib"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
         </group>
       </if>
     </choose>
   </macro>
   <macro name="source-monographic-identifier-note">
+    <!-- Based on `identifier-note` -->
     <choose>
       <if variable="container-title">
         <group delimiter=", ">
@@ -3422,31 +3415,30 @@
           <text macro="label-version"/>
           <text macro="label-edition"/>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title part-title volume-title">
-                  <names variable="collection-editor">
-                    <label form="verb-short" suffix=" "/>
-                    <name/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="source-monographic-identifier-contributors-note"/>
-                </else>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: series title first in notes (CMOS 14.20) -->
+              <names variable="collection-editor">
+                <label form="verb-short" suffix=" "/>
+                <name/>
+              </names>
             </if>
+            <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <text macro="source-monographic-identifier-contributors-note"/>
+              <names variable="collection-editor">
+                <label form="verb-short" suffix=" "/>
+                <name/>
+              </names>
+            </else-if>
             <else>
               <text macro="source-monographic-identifier-contributors-note"/>
+              <!-- no `collection-editor`: it belongs with `collection-title` if item is not multivolume -->
             </else>
           </choose>
           <text macro="source-monographic-identifier-volume-note"/>
           <choose>
-            <if variable="collection-editor">
-              <choose>
-                <if match="none" variable="collection-title part-title volume-title">
-                  <text macro="source-monographic-identifier-contributors-note"/>
-                </if>
-              </choose>
+            <if match="any" variable="part-title volume-title">
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: series title first in notes (CMOS 14.20) -->
+              <text macro="source-monographic-identifier-contributors-note"/>
             </if>
           </choose>
         </group>
@@ -3634,7 +3626,7 @@
             <else-if is-numeric="volume" variable="page">
               <choose>
                 <!-- check for variables that might come between the volume and page number -->
-                <if match="any" variable="collection-editor part-number part-title volume-title">
+                <if match="any" variable="part-number part-title volume-title">
                   <text macro="label-volume"/>
                 </if>
               </choose>
@@ -3658,18 +3650,19 @@
   <!-- Monographic source locator -->
   <macro name="source-monographic-locator-bib">
     <choose>
-      <if is-numeric="volume" variable="page">
+      <if match="none" variable="page"/>
+      <else-if is-numeric="volume" variable="page">
         <!-- collapse the volume and page number if adjacent -->
         <group delimiter=":">
           <choose>
             <!-- check for variables that might come between the volume and page number -->
-            <if match="none" variable="collection-editor part-number part-title volume-title">
+            <if match="none" variable="part-number part-title volume-title">
               <text variable="volume"/>
             </if>
           </choose>
           <text variable="page"/>
         </group>
-      </if>
+      </else-if>
       <else>
         <text variable="page"/>
       </else>
@@ -3678,20 +3671,24 @@
   <macro name="source-monographic-locator-note">
     <choose>
       <if match="none" variable="locator">
-        <group delimiter=":">
-          <choose>
-            <!-- check for variables that might come between the volume and page number -->
-            <if match="none" variable="collection-editor part-number part-title volume-title">
-              <text variable="volume"/>
-            </if>
-          </choose>
-          <text variable="page"/>
-        </group>
+        <choose>
+          <if variable="page">
+            <group delimiter=":">
+              <choose>
+                <!-- check for variables that might come between the volume and page number -->
+                <if match="none" variable="part-number part-title volume-title">
+                  <text variable="volume"/>
+                </if>
+              </choose>
+              <text variable="page"/>
+            </group>
+          </if>
+        </choose>
       </if>
       <else-if is-numeric="volume" locator="page">
         <group delimiter=":">
           <choose>
-            <if match="none" variable="collection-editor part-number part-title volume-title">
+            <if match="none" variable="part-number part-title volume-title">
               <text variable="volume"/>
             </if>
           </choose>
@@ -4026,7 +4023,7 @@
       </choose>
       <group delimiter=" ">
         <text macro="source-date-status-bib"/>
-        <text macro="source-date"/>
+        <text macro="source-date-bib"/>
       </group>
       <choose>
         <if type="broadcast">
@@ -4066,7 +4063,7 @@
       </choose>
       <group delimiter=" ">
         <text macro="source-date-status-note"/>
-        <text macro="source-date"/>
+        <text macro="source-date-note"/>
       </group>
       <choose>
         <if type="broadcast">
@@ -4260,12 +4257,15 @@
     </choose>
   </macro>
   <!-- 4.6. Date -->
-  <macro name="source-date">
+  <macro name="source-date-bib">
     <choose>
-      <if variable="available-date">
-        <!-- TODO: Better variable for container date (CMOS 14.21)? -->
+      <if variable="available-date volume-title">
+        <!-- TODO: Is there a better CSL variable for a date of a multivolume work (CMOS 14.21)? -->
         <date date-parts="year" form="text" variable="available-date"/>
       </if>
+      <else-if variable="available-date part-title">
+        <date date-parts="year" form="text" variable="available-date"/>
+      </else-if>
       <else>
         <text macro="source-date-issued-or-status"/>
         <!-- author-date form up to 17th edition: -->
@@ -4274,6 +4274,10 @@
         <!-- <text macro="source-date-issued-month-day"/> -->
       </else>
     </choose>
+  </macro>
+  <macro name="source-date-note">
+    <!-- date of a multivolume work is not used in note form, since the date represents the last-mentioned title (CMOS 14.21) -->
+    <text macro="source-date-issued-or-status"/>
   </macro>
   <!-- Date elements -->
   <macro name="source-date-issued-full">
