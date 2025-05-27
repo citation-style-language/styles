@@ -281,9 +281,9 @@
   <macro name="label-supplement-number">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="supplement-number">
+        <if variable="supplement-number">
           <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
-          <text form="short" term="supplement"/>
+          <text form="short" term="issue"/>
         </if>
       </choose>
       <text variable="supplement-number"/>
@@ -1576,6 +1576,7 @@
     <group delimiter=". ">
       <choose>
         <if match="none" type="periodical" variable="volume-title">
+          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
           <text macro="description-format-bib"/>
         </if>
       </choose>
@@ -1587,6 +1588,7 @@
     <group delimiter=", ">
       <choose>
         <if match="none" type="periodical" variable="volume-title">
+          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
           <text macro="description-format-note"/>
         </if>
       </choose>
@@ -2330,11 +2332,7 @@
           </names>
         </if>
       </choose>
-      <names variable="translator">
-        <label form="verb" suffix=" " text-case="capitalize-first"/>
-        <name/>
-      </names>
-      <names variable="narrator">
+      <names delimiter=". " variable="translator narrator">
         <label form="verb" suffix=" " text-case="capitalize-first"/>
         <name/>
       </names>
@@ -2350,11 +2348,7 @@
           </names>
         </if>
       </choose>
-      <names variable="translator">
-        <label form="verb-short" suffix=" "/>
-        <name/>
-      </names>
-      <names variable="narrator">
+      <names delimiter=", " variable="translator narrator">
         <label form="verb-short" suffix=" "/>
         <name/>
       </names>
@@ -2710,28 +2704,27 @@
   <macro name="source-serial-title-note">
     <group delimiter=", ">
       <choose>
-        <if match="any" type="periodical" variable="volume-title">
-          <!-- `genre` is used for a special issue or similar within a standard journal run -->
+        <!-- Journal special issues (CMOS 14.77) and supplements (CMOS 14.78) -->
+        <if variable="supplement-number">
           <choose>
-            <if variable="genre">
-              <text variable="genre"/>
-            </if>
-            <else-if is-numeric="supplement-number" match="none" variable="collection-title">
-              <!-- `supplement-number` will not have a label if non-numeric -->
+            <if match="none" variable="collection-title">
               <text term="supplement"/>
-            </else-if>
+            </if>
           </choose>
         </if>
+        <else-if match="any" type="periodical" variable="volume-title">
+          <text variable="genre"/>
+        </else-if>
       </choose>
       <text macro="source-serial-name"/>
-      <!-- `collection-title` is for any serial with multiple series (e.g. 'second series') or separately numbered supplements (e.g. Sonderband or subsidia) -->
+      <!-- `collection-title` is for any serial with multiple series (e.g. 'second series') -->
       <text variable="collection-title"/>
     </group>
   </macro>
   <macro name="source-serial-title-volume-note">
     <choose>
       <if variable="volume-title">
-        <!-- CMOS 14.77–78: Journal special issues and supplements -->
+        <!-- Journal special issues (CMOS 14.77) and supplements (CMOS 14.78) -->
         <group delimiter=", ">
           <group delimiter=" ">
             <text macro="source-monographic-preposition-note"/>
@@ -2762,9 +2755,6 @@
         </group>
       </else>
     </choose>
-    <!-- TODO: If CSL adds `date-part` detection, add conditions to address CMOS 14.74:
-         - delimiting with ":" if there is a `volume` and no month or `issue` or `supplement number`
-         - delimiting with ", " or there is an `issue` or `supplement number` and no month -->
   </macro>
   <macro name="source-serial-identifier-volume-note">
     <choose>
