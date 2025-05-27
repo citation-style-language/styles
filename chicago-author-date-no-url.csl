@@ -46,7 +46,7 @@
       <term form="verb-short" name="illustrator">ill.</term>
       <term form="short" name="legislation">Pub. L.</term>
       <term name="manuscript">unpublished manuscript</term>
-      <term name="original-work-published">originally published</term>
+      <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
       <term form="short" name="personal-communication">pers. comm.</term>
       <term name="podcast-episode">episode</term>
@@ -1928,6 +1928,9 @@
             <if match="none" variable="original-date">
               <text macro="label-edition-capitalized"/>
             </if>
+            <else-if variable="original-title">
+              <text macro="label-edition-capitalized"/>
+            </else-if>
           </choose>
           <text macro="identifier-contributors-bib"/>
           <text macro="identifier-volume-monographic-bib"/>
@@ -1952,6 +1955,9 @@
             <if match="none" variable="original-date">
               <text macro="label-edition-capitalized"/>
             </if>
+            <else-if variable="original-title">
+              <text macro="label-edition-capitalized"/>
+            </else-if>
           </choose>
           <choose>
             <if match="any" variable="part-title volume-title">
@@ -2008,6 +2014,9 @@
             <if match="none" variable="original-date">
               <text macro="label-edition"/>
             </if>
+            <else-if variable="original-title">
+              <text macro="label-edition"/>
+            </else-if>
           </choose>
           <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
@@ -2032,6 +2041,9 @@
             <if match="none" variable="original-date">
               <text macro="label-edition"/>
             </if>
+            <else-if variable="original-title">
+              <text macro="label-edition"/>
+            </else-if>
           </choose>
           <choose>
             <if match="any" variable="part-title volume-title">
@@ -2159,7 +2171,11 @@
                 </names>
               </if>
             </choose>
-            <names delimiter=". " variable="illustrator narrator">
+            <names variable="illustrator">
+              <label form="verb" suffix=" " text-case="capitalize-first"/>
+              <name/>
+            </names>
+            <names variable="narrator">
               <label form="verb" suffix=" " text-case="capitalize-first"/>
               <name/>
             </names>
@@ -2232,7 +2248,11 @@
               <label form="verb" suffix=" " text-case="capitalize-first"/>
               <name/>
             </names>
-            <names delimiter=". " variable="illustrator narrator">
+            <names variable="illustrator">
+              <label form="verb" suffix=" " text-case="capitalize-first"/>
+              <name/>
+            </names>
+            <names variable="narrator">
               <label form="verb" suffix=" " text-case="capitalize-first"/>
               <name/>
             </names>
@@ -2307,8 +2327,13 @@
                 </names>
               </if>
             </choose>
-            <names delimiter=", " variable="illustrator narrator">
+            <names delimiter=", " variable="illustrator">
               <label form="verb-short" suffix=" "/>
+              <name/>
+            </names>
+            <names delimiter=", " variable="narrator">
+              <!-- narrator is not abbreviated (CMOS 14.58) -->
+              <label form="verb" suffix=" "/>
               <name/>
             </names>
             <choose>
@@ -3508,23 +3533,26 @@
   </macro>
   <!-- 4.5. Facts of publication -->
   <macro name="source-monographic-publication-bib">
-    <choose>
-      <!-- Provide only for monographic types -->
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
-      <!-- `patent` date in identification (CMOS 14.158) -->
-      <else-if type="patent"/>
-      <else-if match="any" type="interview paper-conference">
-        <!-- Determine whether serial or monographic -->
-        <choose>
-          <if match="any" variable="collection-editor container-author editor editorial-director">
-            <text macro="source-publication-and-date-bib"/>
-          </if>
-        </choose>
-      </else-if>
-      <else>
-        <text macro="source-publication-and-date-bib"/>
-      </else>
-    </choose>
+    <group delimiter=". ">
+      <choose>
+        <!-- Provide only for monographic types -->
+        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+        <!-- `patent` date in identification (CMOS 14.158) -->
+        <else-if type="patent"/>
+        <else-if match="any" type="interview paper-conference">
+          <!-- Determine whether serial or monographic -->
+          <choose>
+            <if match="any" variable="collection-editor container-author editor editorial-director">
+              <text macro="source-publication-and-date-bib"/>
+            </if>
+          </choose>
+        </else-if>
+        <else>
+          <text macro="source-publication-and-date-bib"/>
+        </else>
+      </choose>
+      <text macro="source-publication-original-title-bib"/>
+    </group>
   </macro>
   <macro name="source-publication-and-date-bib">
     <group delimiter=", ">
@@ -3567,44 +3595,6 @@
     </group>
   </macro>
   <!-- Facts of publication elements -->
-  <macro name="source-publication-history-bib">
-    <group delimiter=". ">
-      <!-- Original title of a translated work (CMOS 13.101) -->
-      <choose>
-        <if variable="original-title">
-          <group delimiter=" ">
-            <text term="original-work-published" text-case="capitalize-first"/>
-            <text value="as"/>
-            <text macro="source-publication-original-title"/>
-          </group>
-        </if>
-      </choose>
-      <group delimiter=". ">
-        <group delimiter=", ">
-          <text macro="source-publication-publisher-original-bib"/>
-          <text macro="source-date-original"/>
-        </group>
-        <group delimiter=". ">
-          <text macro="source-publication-history-edition-bib"/>
-          <group delimiter=", ">
-            <text macro="source-publication-description-bib"/>
-            <text macro="source-publication-publisher-bib"/>
-          </group>
-        </group>
-      </group>
-    </group>
-  </macro>
-  <macro name="source-publication-history-edition-bib">
-    <choose>
-      <if variable="issued original-date">
-        <choose>
-          <if variable="edition">
-            <text macro="label-edition-capitalized"/>
-          </if>
-        </choose>
-      </if>
-    </choose>
-  </macro>
   <macro name="source-publication-description-bib">
     <choose>
       <if type="article">
@@ -3623,7 +3613,7 @@
         <choose>
           <if variable="issued original-date">
             <choose>
-              <if match="none" variable="edition medium">
+              <if match="none" variable="edition medium original-title">
                 <!-- describe as a reprint if not electronic and no edition (CMOS 14.16) -->
                 <text text-case="capitalize-first" value="reprint"/>
               </if>
@@ -3631,6 +3621,40 @@
           </if>
         </choose>
       </else-if>
+    </choose>
+  </macro>
+  <macro name="source-publication-history-bib">
+    <choose>
+      <if variable="original-title">
+        <!-- `original-title` is covered in `source-publication-original-title-bib` -->
+        <text macro="source-publication-publisher-bib"/>
+      </if>
+      <else>
+        <group delimiter=". ">
+          <group delimiter=", ">
+            <text macro="source-publication-publisher-original-bib"/>
+            <text macro="source-date-original"/>
+          </group>
+          <group delimiter=". ">
+            <text macro="source-publication-history-edition-bib"/>
+            <group delimiter=", ">
+              <text macro="source-publication-description-bib"/>
+              <text macro="source-publication-publisher-bib"/>
+            </group>
+          </group>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="source-publication-history-edition-bib">
+    <choose>
+      <if variable="issued original-date">
+        <choose>
+          <if variable="edition">
+            <text macro="label-edition-capitalized"/>
+          </if>
+        </choose>
+      </if>
     </choose>
   </macro>
   <macro name="source-publication-original-title">
@@ -3641,6 +3665,26 @@
       <else>
         <text font-style="italic" text-case="title" variable="original-title"/>
       </else>
+    </choose>
+  </macro>
+  <macro name="source-publication-original-title-bib">
+    <choose>
+      <if variable="original-title">
+        <!-- Original title of a translated work (CMOS 13.101) -->
+        <group delimiter=" ">
+          <group delimiter=" ">
+            <text term="original-work-published" text-case="capitalize-first"/>
+            <group delimiter=", ">
+              <names variable="original-author"/>
+              <text macro="source-publication-original-title"/>
+            </group>
+          </group>
+          <group delimiter=", " prefix="(" suffix=")">
+            <text macro="source-publication-publisher-original-bib"/>
+            <text macro="source-date-original"/>
+          </group>
+        </group>
+      </if>
     </choose>
   </macro>
   <macro name="source-publication-publisher-bib">
@@ -3790,7 +3834,7 @@
       <else-if variable="issued status">
         <!-- `status` specifies date type, e.g. 'effective', 'last modified', 'approved' (CMOS 14.104 for `webpage`; CMOS 14.159 for `standard`) -->
         <choose>
-          <if match="any" variable="original-date original-publisher original-publisher-place original-title">
+          <if match="any" variable="original-date original-publisher original-publisher-place original-title publisher publisher-place">
             <text variable="status"/>
           </if>
           <else>
