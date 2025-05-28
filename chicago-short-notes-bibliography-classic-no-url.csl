@@ -1884,14 +1884,7 @@
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <text macro="identifier-number-bib"/>
           <text macro="label-version-capitalized"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition-capitalized"/>
-            </if>
-            <else-if variable="original-title">
-              <text macro="label-edition-capitalized"/>
-            </else-if>
-          </choose>
+          <text macro="identifier-edition-bib"/>
           <text macro="identifier-contributors-bib"/>
           <text macro="identifier-volume-monographic-bib"/>
         </else-if>
@@ -1911,14 +1904,7 @@
             </if>
           </choose>
           <text macro="label-version-capitalized"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition-capitalized"/>
-            </if>
-            <else-if variable="original-title">
-              <text macro="label-edition-capitalized"/>
-            </else-if>
-          </choose>
+          <text macro="identifier-edition-bib"/>
           <choose>
             <if match="any" variable="part-title volume-title">
               <text macro="identifier-contributors-bib"/>
@@ -1970,14 +1956,7 @@
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <text macro="identifier-number-note"/>
           <text macro="label-version"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition"/>
-            </if>
-            <else-if variable="original-title">
-              <text macro="label-edition"/>
-            </else-if>
-          </choose>
+          <text macro="identifier-edition-note"/>
           <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
         </else-if>
@@ -1997,14 +1976,7 @@
             </if>
           </choose>
           <text macro="label-version"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition"/>
-            </if>
-            <else-if variable="original-title">
-              <text macro="label-edition"/>
-            </else-if>
-          </choose>
+          <text macro="identifier-edition-note"/>
           <choose>
             <if match="any" variable="part-title volume-title">
               <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS 14.20) -->
@@ -2430,6 +2402,26 @@
       </names>
     </group>
   </macro>
+  <macro name="identifier-edition-bib">
+    <choose>
+      <if match="none" variable="original-date">
+        <text macro="label-edition-capitalized"/>
+      </if>
+      <else-if variable="original-title">
+        <text macro="label-edition-capitalized"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="identifier-edition-note">
+    <choose>
+      <if match="none" variable="original-date">
+        <text macro="label-edition"/>
+      </if>
+      <else-if variable="original-title">
+        <text macro="label-edition"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="identifier-number-bib">
     <group delimiter=" ">
       <choose>
@@ -2510,11 +2502,7 @@
         <if match="none" variable="title">
           <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
           <text macro="label-version-capitalized"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition-capitalized"/>
-            </if>
-          </choose>
+          <text macro="identifier-edition-bib"/>
           <text macro="identifier-contributors-bib"/>
           <text macro="identifier-volume-monographic-bib"/>
         </if>
@@ -2525,11 +2513,7 @@
         <else>
           <text macro="identifier-number-bib"/>
           <text macro="label-version-capitalized"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition-capitalized"/>
-            </if>
-          </choose>
+          <text macro="identifier-edition-bib"/>
           <text macro="identifier-contributors-bib"/>
           <text macro="identifier-volume-monographic-bib"/>
         </else>
@@ -2542,11 +2526,7 @@
         <if match="none" variable="title">
           <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
           <text macro="label-version"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition"/>
-            </if>
-          </choose>
+          <text macro="identifier-edition-note"/>
           <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
         </if>
@@ -2557,11 +2537,7 @@
         <else>
           <text macro="identifier-number-note"/>
           <text macro="label-version"/>
-          <choose>
-            <if match="none" variable="original-date">
-              <text macro="label-edition"/>
-            </if>
-          </choose>
+          <text macro="identifier-edition-note"/>
           <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
         </else>
@@ -3568,7 +3544,11 @@
             <text macro="source-date-original"/>
           </group>
           <group delimiter=". ">
-            <text macro="source-publication-history-edition-bib"/>
+            <choose>
+              <if variable="issued original-date">
+                <text macro="label-edition-capitalized"/>
+              </if>
+            </choose>
             <group delimiter=", ">
               <text macro="source-publication-description-bib"/>
               <text macro="source-publication-publisher-bib"/>
@@ -3576,17 +3556,6 @@
           </group>
         </group>
       </else>
-    </choose>
-  </macro>
-  <macro name="source-publication-history-edition-bib">
-    <choose>
-      <if variable="issued original-date">
-        <choose>
-          <if variable="edition">
-            <text macro="label-edition-capitalized"/>
-          </if>
-        </choose>
-      </if>
     </choose>
   </macro>
   <macro name="source-publication-original-title">
@@ -3648,6 +3617,35 @@
       </choose>
     </group>
   </macro>
+  <macro name="source-publication-publisher-note">
+    <group delimiter=" ">
+      <choose>
+        <if type="thesis" variable="publisher">
+          <text variable="publisher"/>
+        </if>
+        <else-if variable="publisher">
+          <group delimiter=": ">
+            <text variable="publisher-place"/>
+            <text variable="publisher"/>
+          </group>
+        </else-if>
+        <else>
+          <choose>
+            <!-- TODO: remove conditional when Zotero fixes double-mapping of `event-place` -->
+            <if match="none" variable="event-date event-title">
+              <text variable="publisher-place"/>
+            </if>
+          </choose>
+        </else>
+      </choose>
+      <choose>
+        <if type="song">
+          <!-- Album catalogue number follows label name (CMOS 14.163–164) -->
+          <text variable="number"/>
+        </if>
+      </choose>
+    </group>
+  </macro>
   <macro name="source-publication-publisher-original-bib">
     <choose>
       <if variable="original-publisher">
@@ -3679,6 +3677,10 @@
         <!-- <text macro="source-date-issued-month-day"/> -->
       </else>
     </choose>
+  </macro>
+  <macro name="source-date-note">
+    <!-- date of a multivolume work is not used in note form, since the date represents the last-mentioned title (CMOS 14.21) -->
+    <text macro="source-date-issued-or-status"/>
   </macro>
   <!-- Date elements -->
   <macro name="source-date-issued-full">
@@ -4312,34 +4314,138 @@
   </macro>
   <!-- Citation -->
   <macro name="citation-notes-shortened-author-title">
+    <!-- TODO: the shortened note styles mirror author-date in omissions of unpublished `manuscript` etc. but does this need refinement? -->
     <choose>
-      <if match="any" type="classic legal_case">
-        <group delimiter=" ">
-          <group delimiter=", ">
-            <text macro="author-short"/>
-            <text macro="title-and-descriptions-short"/>
-          </group>
-          <text macro="source-locator-subsequent"/>
-        </group>
+      <if type="classic">
+        <choose>
+          <if match="any" variable="part-number volume">
+            <!-- comma needed with volume/part label  -->
+            <group delimiter=", ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </else>
+        </choose>
       </if>
       <else>
         <group delimiter=", ">
-          <text macro="author-short"/>
-          <text macro="title-and-descriptions-short"/>
-          <!-- TODO: the shortened note styles mirror author-date in omissions of unpublished `manuscript` etc. but does this need refinement? -->
-          <choose>
-            <if match="any" type="interview personal_communication">
-              <choose>
-                <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                  <!-- unpublished `interview` or `personal_communication` use inline format (CMOS 14.111) -->
-                  <text macro="date-short"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
+          <text macro="citation-notes-shortened-author-title-item"/>
           <text macro="source-locator-subsequent"/>
         </group>
       </else>
+    </choose>
+  </macro>
+  <macro name="citation-notes-shortened-author-title-item">
+    <group delimiter=" ">
+      <group delimiter=", ">
+        <text macro="author-short"/>
+        <text macro="title-and-descriptions-short"/>
+        <text macro="citation-notes-shortened-author-title-disambiguate"/>
+        <choose>
+          <if match="any" type="interview personal_communication">
+            <choose>
+              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+                <!-- unpublished `interview` or `personal_communication` use inline format (CMOS 14.111) -->
+                <text macro="date-short"/>
+              </if>
+            </choose>
+          </if>
+        </choose>
+        <text macro="citation-notes-shortened-author-title-disambiguate-publisher"/>
+      </group>
+      <text macro="citation-notes-shortened-author-title-disambiguate-publisher-bracketed"/>
+    </group>
+  </macro>
+  <macro name="citation-notes-shortened-author-title-disambiguate">
+    <!-- CMOS gives examples of added dates (CMOS 14.13) and editors/translators, publisher, date (CMOS 14.146) -->
+    <group delimiter=", ">
+      <choose>
+        <if disambiguate="true">
+          <choose>
+            <if disambiguate="true">
+              <text macro="label-version"/>
+              <text macro="label-edition"/>
+            </if>
+          </choose>
+          <names variable="editor-translator">
+            <label form="verb-short" suffix=" "/>
+            <name form="short"/>
+            <substitute>
+              <names variable="editor"/>
+              <names variable="translator"/>
+            </substitute>
+          </names>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="citation-notes-shortened-author-title-disambiguate-publisher">
+    <choose>
+      <if disambiguate="true">
+        <choose>
+          <!-- Facts of publication without brackets -->
+          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+          <else-if type="motion_picture">
+            <choose>
+              <if match="none" variable="publisher">
+                <text macro="source-date-note"/>
+              </if>
+            </choose>
+          </else-if>
+          <else-if type="personal_communication">
+            <choose>
+              <if match="none" variable="collection-editor compiler editor editorial-director">
+                <text macro="source-date-note"/>
+              </if>
+            </choose>
+          </else-if>
+          <else>
+            <text macro="source-date-note"/>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <macro name="citation-notes-shortened-author-title-disambiguate-publisher-bracketed">
+    <choose>
+      <if disambiguate="true">
+        <group prefix="(" suffix=")">
+          <group delimiter=", ">
+            <choose>
+              <!-- Facts of publication with brackets for print monographic formats -->
+              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+                <choose>
+                  <if disambiguate="true">
+                    <text macro="source-publication-publisher-note"/>
+                  </if>
+                </choose>
+                <text macro="source-date-note"/>
+              </if>
+              <else-if type="motion_picture" variable="publisher">
+                <choose>
+                  <if disambiguate="true">
+                    <text macro="source-publication-publisher-note"/>
+                  </if>
+                </choose>
+                <text macro="source-date-note"/>
+              </else-if>
+              <else-if type="personal_communication">
+                <choose>
+                  <if match="any" variable="collection-editor compiler editor editorial-director">
+                    <text macro="source-date-note"/>
+                  </if>
+                </choose>
+              </else-if>
+            </choose>
+          </group>
+        </group>
+      </if>
     </choose>
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
