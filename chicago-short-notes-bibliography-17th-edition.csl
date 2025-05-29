@@ -650,7 +650,7 @@
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="none" variable="collection-editor compiler editor editorial-director">
             <!-- serial usage -->
             <choose>
               <if match="any" variable="issue supplement-number volume">
@@ -1146,6 +1146,9 @@
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="description-serial-bib"/>
       </else-if>
+      <else-if type="paper-conference">
+        <text macro="description-paper-conference-bib"/>
+      </else-if>
       <else-if type="map">
         <text macro="description-map-bib"/>
       </else-if>
@@ -1158,9 +1161,9 @@
         <!-- Other description -->
         <text macro="description-format-bib"/>
       </else-if>
-      <else-if match="none" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+      <else>
         <text macro="description-generic-bib"/>
-      </else-if>
+      </else>
     </choose>
   </macro>
   <macro name="description-note">
@@ -1177,6 +1180,9 @@
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="description-serial-note"/>
       </else-if>
+      <else-if type="paper-conference">
+        <text macro="description-paper-conference-note"/>
+      </else-if>
       <else-if type="map">
         <text macro="description-map-note"/>
       </else-if>
@@ -1189,9 +1195,9 @@
         <!-- Other description -->
         <text macro="description-format-note"/>
       </else-if>
-      <else-if match="none" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+      <else>
         <text macro="description-generic-note"/>
-      </else-if>
+      </else>
     </choose>
   </macro>
   <macro name="description-short">
@@ -1207,6 +1213,17 @@
       </else-if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="description-serial-short"/>
+      </else-if>
+      <else-if type="paper-conference">
+        <choose>
+          <!-- Treat as monographic with an editor; otherwise as serial -->
+          <if match="any" variable="collection-editor container-author editor editorial-director">
+            <text macro="description-format-short"/>
+          </if>
+          <else>
+            <text macro="description-serial-short"/>
+          </else>
+        </choose>
       </else-if>
       <else>
         <text macro="description-format-short"/>
@@ -1300,7 +1317,7 @@
       <if match="any" type="event paper-conference performance speech">
         <choose>
           <!-- Treat as monographic with an editor; otherwise as serial -->
-          <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="description-format-bib"/>
           </if>
         </choose>
@@ -1316,7 +1333,7 @@
       <if match="any" type="event paper-conference performance speech">
         <choose>
           <!-- Treat as monographic with an editor; otherwise as serial -->
-          <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="any" variable="collection-editor compiler editor editorial-director">
             <text macro="description-format-note"/>
           </if>
         </choose>
@@ -1325,36 +1342,6 @@
         <text macro="description-format-note"/>
       </else-if>
     </choose>
-  </macro>
-  <macro name="description-map-bib">
-    <group delimiter=", ">
-      <choose>
-        <if variable="genre">
-          <text macro="description-format-bib"/>
-          <text variable="medium"/>
-        </if>
-        <else>
-          <text text-case="capitalize-first" variable="medium"/>
-        </else>
-      </choose>
-      <text variable="scale"/>
-      <text variable="dimensions"/>
-    </group>
-  </macro>
-  <macro name="description-map-note">
-    <group delimiter=", ">
-      <choose>
-        <if variable="genre">
-          <text macro="description-format-note"/>
-          <text variable="medium"/>
-        </if>
-        <else>
-          <text variable="medium"/>
-        </else>
-      </choose>
-      <text variable="scale"/>
-      <text variable="dimensions"/>
-    </group>
   </macro>
   <macro name="description-interview-bib">
     <group delimiter=", ">
@@ -1553,42 +1540,62 @@
       <date form="text" variable="event-date"/>
     </group>
   </macro>
-  <macro name="description-serial-bib">
-    <group delimiter=". ">
-      <choose>
-        <if match="none" type="periodical" variable="volume-title">
-          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
-          <text macro="description-format-bib"/>
-        </if>
-      </choose>
-      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
-      <text macro="label-section-capitalized"/>
-    </group>
-  </macro>
-  <macro name="description-serial-note">
+  <macro name="description-map-bib">
     <group delimiter=", ">
       <choose>
-        <if match="none" type="periodical" variable="volume-title">
-          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
-          <text macro="description-format-note"/>
+        <if variable="genre">
+          <text macro="description-format-bib"/>
+          <text variable="medium"/>
         </if>
+        <else>
+          <text text-case="capitalize-first" variable="medium"/>
+        </else>
       </choose>
-      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
-      <text macro="label-section"/>
+      <text variable="scale"/>
+      <text variable="dimensions"/>
     </group>
   </macro>
-  <macro name="description-serial-short">
+  <macro name="description-map-note">
+    <group delimiter=", ">
+      <choose>
+        <if variable="genre">
+          <text macro="description-format-note"/>
+          <text variable="medium"/>
+        </if>
+        <else>
+          <text variable="medium"/>
+        </else>
+      </choose>
+      <text variable="scale"/>
+      <text variable="dimensions"/>
+    </group>
+  </macro>
+  <macro name="description-paper-conference-bib">
     <choose>
-      <if match="none" variable="title">
-        <choose>
-          <if variable="genre">
-            <text macro="description-format-short"/>
-          </if>
-          <else>
-            <text variable="section"/>
-          </else>
-        </choose>
+      <!-- Treat as monographic with an editor; otherwise as serial -->
+      <if match="any" variable="collection-editor container-author editor editorial-director">
+        <text macro="description-generic-bib"/>
       </if>
+      <else>
+        <group delimiter=". ">
+          <text macro="description-serial-bib"/>
+          <text macro="source-event-bib"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="description-paper-conference-note">
+    <choose>
+      <!-- Treat as monographic with an editor; otherwise as serial -->
+      <if match="any" variable="collection-editor container-author editor editorial-director">
+        <text macro="description-generic-note"/>
+      </if>
+      <else>
+        <group delimiter=", ">
+          <text macro="description-serial-note"/>
+          <text macro="source-event-note"/>
+        </group>
+      </else>
     </choose>
   </macro>
   <macro name="description-review-bib">
@@ -1785,6 +1792,44 @@
         <!-- Assume title is title of reviewed work -->
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
+    </choose>
+  </macro>
+  <macro name="description-serial-bib">
+    <group delimiter=". ">
+      <choose>
+        <if match="none" type="periodical" variable="volume-title">
+          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
+          <text macro="description-format-bib"/>
+        </if>
+      </choose>
+      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
+      <text macro="label-section-capitalized"/>
+    </group>
+  </macro>
+  <macro name="description-serial-note">
+    <group delimiter=", ">
+      <choose>
+        <if match="none" type="periodical" variable="volume-title">
+          <!-- move `genre` with special issue (CMOS 14.77) or supplement (CMOS 14.78) -->
+          <text macro="description-format-note"/>
+        </if>
+      </choose>
+      <!-- `section` provides magazine departments (CMOS 14.88) and newspaper column names (CMOS 14.93) -->
+      <text macro="label-section"/>
+    </group>
+  </macro>
+  <macro name="description-serial-short">
+    <choose>
+      <if match="none" variable="title">
+        <choose>
+          <if variable="genre">
+            <text macro="description-format-short"/>
+          </if>
+          <else>
+            <text variable="section"/>
+          </else>
+        </choose>
+      </if>
     </choose>
   </macro>
   <macro name="description-song-bib">
@@ -2927,7 +2972,7 @@
         <!-- Conference presentations should describe the session unless published in a proceedings -->
         <choose>
           <!-- Treat as monographic with an editor; otherwise as serial -->
-          <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="none" variable="collection-editor compiler editor editorial-director">
             <text macro="description-format-bib"/>
           </if>
         </choose>
@@ -3205,18 +3250,19 @@
       <choose>
         <if match="any" variable="event event-title">
           <!-- TODO: To prevent Zotero from printing `event-place`, due to its double-mapping of `publisher-place` and `event-place`. Remove this when that is changed. -->
-          <text macro="source-event-status-bib"/>
           <choose>
             <if type="paper-conference">
               <choose>
                 <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
                   <!-- Don't print event info for conference papers published in proceedings -->
+                  <text macro="source-event-status-bib"/>
                   <text macro="source-event-description-bib"/>
                 </if>
               </choose>
             </if>
             <else>
               <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs). -->
+              <text macro="source-event-status-bib"/>
               <text macro="source-event-description-bib"/>
             </else>
           </choose>
@@ -3229,18 +3275,19 @@
       <choose>
         <if match="any" variable="event event-title">
           <!-- TODO: To prevent Zotero from printing `event-place`, due to its double-mapping of `publisher-place` and `event-place`. Remove this when that is changed. -->
-          <text macro="source-event-status-note"/>
           <choose>
             <if type="paper-conference">
               <choose>
                 <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
                   <!-- Don't print event info for conference papers published in proceedings -->
+                  <text macro="source-event-status-note"/>
                   <text macro="source-event-description-note"/>
                 </if>
               </choose>
             </if>
             <else>
               <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs). -->
+              <text macro="source-event-status-note"/>
               <text macro="source-event-description-note"/>
             </else>
           </choose>
@@ -3255,32 +3302,20 @@
           <!-- 'aired', 'performed', etc. (CMOS 14.165) -->
           <text text-case="capitalize-first" variable="status"/>
         </if>
-        <else-if match="any" type="paper-conference speech">
+        <else-if type="paper-conference">
           <choose>
             <if variable="genre">
               <text text-case="capitalize-first" value="presented"/>
-              <choose>
-                <if variable="event-title">
-                  <text term="at"/>
-                </if>
-              </choose>
             </if>
             <else>
-              <choose>
-                <if type="paper-conference">
-                  <text form="short" term="paper-conference" text-case="capitalize-first"/>
-                  <text value="presented"/>
-                </if>
-                <else>
-                  <text text-case="capitalize-first" value="presented"/>
-                </else>
-              </choose>
-              <choose>
-                <if variable="event-title">
-                  <text term="at"/>
-                </if>
-              </choose>
+              <text form="short" term="paper-conference" text-case="capitalize-first"/>
+              <text value="presented"/>
             </else>
+          </choose>
+          <choose>
+            <if match="any" variable="event event-title">
+              <text term="at"/>
+            </if>
           </choose>
         </else-if>
         <else-if type="song">
@@ -3301,32 +3336,20 @@
           <!-- 'aired', 'performed', etc. (CMOS 14.165) -->
           <text variable="status"/>
         </if>
-        <else-if match="any" type="paper-conference speech">
+        <else-if type="paper-conference">
           <choose>
             <if variable="genre">
               <text value="presented"/>
-              <choose>
-                <if variable="event-title">
-                  <text term="at"/>
-                </if>
-              </choose>
             </if>
             <else>
-              <choose>
-                <if type="paper-conference">
-                  <text form="short" term="paper-conference"/>
-                  <text value="presented"/>
-                </if>
-                <else>
-                  <text value="presented"/>
-                </else>
-              </choose>
-              <choose>
-                <if variable="event-title">
-                  <text term="at"/>
-                </if>
-              </choose>
+              <text form="short" term="paper-conference"/>
+              <text value="presented"/>
             </else>
+          </choose>
+          <choose>
+            <if match="any" variable="event event-title">
+              <text term="at"/>
+            </if>
           </choose>
         </else-if>
         <else-if type="song">
@@ -3634,7 +3657,7 @@
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="none" variable="collection-editor compiler editor editorial-director">
             <!-- serial usage -->
             <text macro="source-date-issued-full-serial"/>
           </if>
@@ -3717,7 +3740,7 @@
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="none" variable="collection-editor compiler editor editorial-director">
             <!-- serial usage -->
             <text macro="source-date-original-full-serial"/>
           </if>
