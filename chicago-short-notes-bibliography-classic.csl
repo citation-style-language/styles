@@ -1448,8 +1448,8 @@
       </choose>
       <choose>
         <if match="none" variable="event event-title">
-          <date form="text" variable="event-date"/>
           <text variable="event-place"/>
+          <date form="text" variable="event-date"/>
         </if>
       </choose>
     </group>
@@ -1481,8 +1481,8 @@
       </choose>
       <choose>
         <if match="none" variable="event event-title">
-          <date form="text" variable="event-date"/>
           <text variable="event-place"/>
+          <date form="text" variable="event-date"/>
         </if>
       </choose>
     </group>
@@ -1499,7 +1499,15 @@
         </names>
       </if>
       <else-if match="any" variable="genre medium">
-        <text macro="description-format-short"/>
+        <choose>
+          <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+            <!-- capitalize if no author or title -->
+            <text macro="description-format-bib"/>
+          </if>
+          <else>
+            <text macro="description-format-short"/>
+          </else>
+        </choose>
       </else-if>
       <else>
         <!-- generic description for an unpublished interview (CMOS 14.108) -->
@@ -2860,14 +2868,15 @@
           </group>
         </if>
         <else>
+          <text variable="collection-title"/>
           <!-- publisher possible with `interview` (CMOS 14.110) -->
           <text variable="publisher"/>
-          <text macro="source-serial-volume-status"/>
+          <text macro="source-serial-volume-status-bib"/>
         </else>
       </choose>
     </group>
   </macro>
-  <macro name="source-serial-volume-status">
+  <macro name="source-serial-volume-status-bib">
     <group delimiter=", ">
       <choose>
         <if match="none" variable="issue number page supplement-number volume">
@@ -2877,11 +2886,12 @@
             <text value="accepted"/>
             <date form="text" variable="available-date"/>
           </group>
-          <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
-          <text text-case="lowercase" variable="status"/>
         </if>
       </choose>
-      <text macro="source-date-bib"/>
+      <group delimiter=" ">
+        <text macro="source-date-status-bib"/>
+        <text macro="source-date-bib"/>
+      </group>
     </group>
   </macro>
   <!-- Serial source locator -->
@@ -3779,7 +3789,7 @@
   </macro>
   <macro name="source-date-issued-or-status">
     <choose>
-      <if match="any" variable="available-date event-date issued">
+      <if match="any" variable="event-date issued">
         <text macro="source-date-issued-full"/>
       </if>
       <else-if variable="status">
