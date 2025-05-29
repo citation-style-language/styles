@@ -828,6 +828,17 @@
       <date-part form="numeric-leading-zeros" name="month"/>
     </date>
   </macro>
+  <macro name="date-issued-month">
+    <date variable="issued">
+      <date-part name="month"/>
+    </date>
+  </macro>
+  <macro name="date-issued-month-day">
+    <date variable="issued">
+      <date-part name="month"/>
+      <date-part name="day" prefix=" "/>
+    </date>
+  </macro>
   <macro name="date-issued-year">
     <choose>
       <if is-uncertain-date="issued">
@@ -2866,7 +2877,7 @@
                 <text macro="label-supplement-number"/>
               </if>
               <else>
-                <text macro="source-date-bib"/>
+                <text macro="source-date-issued-month-day"/>
               </else>
             </choose>
           </group>
@@ -2876,7 +2887,7 @@
             <choose>
               <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                 <!-- CMOS 14.102: date appears first if the serial title has been substituted for a missing author -->
-                <text macro="source-date-bib"/>
+                <text macro="source-date-issued-month-day"/>
               </if>
             </choose>
             <group delimiter=" ">
@@ -2886,7 +2897,7 @@
               </group>
               <choose>
                 <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                  <text macro="source-date-bib" prefix="(" suffix=")"/>
+                  <text macro="source-date-issued-month-day" prefix="(" suffix=")"/>
                 </if>
               </choose>
             </group>
@@ -3768,6 +3779,49 @@
       </else-if>
       <else>
         <text macro="date-issued-full"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="source-date-issued-month-day">
+    <!-- Variant for author-date styles -->
+    <!-- Give full date for more ephemeral types; reflected in `date-sort` -->
+    <!-- NB: any changes must also be applied to `date-sort` and `source-date-original-month-day` -->
+    <choose>
+      <if type="personal_communication" variable="event-date issued">
+        <!-- Provide issue date for letters listed under event-date -->
+        <text macro="date-issued-year"/>
+      </if>
+      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <text macro="source-date-issued-month-day-serial"/>
+      </else-if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+            <!-- serial usage -->
+            <text macro="source-date-issued-month-day-serial"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="any" variable="DOI URL">
+            <!-- Online reference works use full dates (CMOS 14.131) -->
+            <text macro="date-issued-month-day"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software song speech standard webpage">
+        <text macro="date-issued-month-day"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="source-date-issued-month-day-serial">
+    <choose>
+      <if match="any" variable="issue supplement-number volume">
+        <text macro="date-issued-month"/>
+      </if>
+      <else>
+        <text macro="date-issued-month-day"/>
       </else>
     </choose>
   </macro>
