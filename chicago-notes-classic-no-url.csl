@@ -811,45 +811,9 @@
               <text macro="source-note"/>
             </else>
           </choose>
-          <choose>
-            <!-- Facts of publication without brackets -->
-            <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
-            <else-if type="article" variable="genre publisher"/>
-            <else-if type="motion_picture" variable="publisher"/>
-            <else-if type="personal_communication">
-              <choose>
-                <if match="none" variable="collection-editor compiler editor editorial-director">
-                  <text macro="source-monographic-publication-note"/>
-                </if>
-              </choose>
-            </else-if>
-            <else>
-              <text macro="source-monographic-publication-note"/>
-            </else>
-          </choose>
+          <text macro="source-monographic-publication-note-unbracketed"/>
         </group>
-        <group prefix="(" suffix=")">
-          <choose>
-            <!-- Facts of publication with brackets for print monographic formats -->
-            <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
-              <text macro="source-monographic-publication-note"/>
-            </if>
-            <else-if type="article" variable="genre publisher">
-              <!-- without brackets for a preprint in a repository (CMOS 14.76), with brackets for a working paper (CMOS 14.116) -->
-              <text macro="source-monographic-publication-note"/>
-            </else-if>
-            <else-if type="motion_picture" variable="publisher">
-              <text macro="source-monographic-publication-note"/>
-            </else-if>
-            <else-if type="personal_communication">
-              <choose>
-                <if match="any" variable="collection-editor compiler editor editorial-director">
-                  <text macro="source-monographic-publication-note"/>
-                </if>
-              </choose>
-            </else-if>
-          </choose>
-        </group>
+        <text macro="source-monographic-publication-note-bracketed"/>
       </group>
       <choose>
         <!-- Locator for monographic types -->
@@ -1069,7 +1033,7 @@
   </macro>
   <macro name="title-primary">
     <choose>
-      <if match="any" type="document patent">
+      <if type="patent">
         <!-- No italics or quotes, sentence case -->
         <text form="short" text-case="capitalize-first" variable="title"/>
       </if>
@@ -1094,7 +1058,7 @@
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset interview manuscript paper-conference personal_communication speech thesis webpage">
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
@@ -1107,7 +1071,7 @@
   </macro>
   <macro name="title-primary-short">
     <choose>
-      <if match="any" type="document patent">
+      <if type="patent">
         <!-- No italics or quotes, sentence case -->
         <text form="short" text-case="capitalize-first" variable="title"/>
       </if>
@@ -1132,7 +1096,7 @@
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset interview manuscript paper-conference personal_communication speech thesis webpage">
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
@@ -3442,6 +3406,125 @@
       <text macro="source-publication-original-title-note"/>
     </group>
   </macro>
+  <macro name="source-monographic-publication-note-bracketed">
+    <!-- Facts of publication with brackets for print monographic formats -->
+    <choose>
+      <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+        <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+      </if>
+      <else-if type="article" variable="genre publisher">
+        <!-- without brackets for a preprint in a repository (CMOS 14.76), with brackets for a working paper (CMOS 14.116) -->
+        <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+      </else-if>
+      <else-if type="motion_picture" variable="publisher">
+        <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+      </else-if>
+      <else-if type="personal_communication">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if is-uncertain-date="issued">
+        <!-- space before bracketed uncertain date (CMOS 14.127)  -->
+        <text macro="source-monographic-publication-note"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="source-monographic-publication-note-unbracketed">
+    <!-- Facts of publication without brackets -->
+    <choose>
+      <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+      <else-if type="article" variable="genre publisher"/>
+      <else-if type="motion_picture" variable="publisher"/>
+      <else-if type="personal_communication">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director">
+            <text macro="source-monographic-publication-note"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if is-uncertain-date="issued"/>
+      <else>
+        <text macro="source-monographic-publication-note"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="source-monographic-publication-short-bracketed">
+    <!-- mirrors `source-monographic-publication-note-bracketed` -->
+    <choose>
+      <if disambiguate="true">
+        <group prefix="(" suffix=")">
+          <group delimiter=", ">
+            <choose>
+              <!-- Facts of publication with brackets for print monographic formats -->
+              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+                <choose>
+                  <if disambiguate="true">
+                    <text macro="source-publication-publisher-note"/>
+                  </if>
+                </choose>
+                <text macro="source-date-note"/>
+              </if>
+              <else-if type="article" variable="genre publisher">
+                <!-- without brackets for a preprint in a repository (CMOS 14.76), with brackets for a working paper (CMOS 14.116) -->
+                <choose>
+                  <if disambiguate="true">
+                    <text macro="source-publication-publisher-note"/>
+                  </if>
+                </choose>
+                <text macro="source-date-note"/>
+              </else-if>
+              <else-if type="motion_picture" variable="publisher">
+                <choose>
+                  <if disambiguate="true">
+                    <text macro="source-publication-publisher-note"/>
+                  </if>
+                </choose>
+                <text macro="source-date-note"/>
+              </else-if>
+              <else-if type="personal_communication">
+                <choose>
+                  <if match="any" variable="collection-editor compiler editor editorial-director">
+                    <text macro="source-date-note"/>
+                  </if>
+                </choose>
+              </else-if>
+              <else-if is-uncertain-date="issued">
+                <!-- space before bracketed uncertain date (CMOS 14.127)  -->
+                <text macro="source-date-note"/>
+              </else-if>
+            </choose>
+          </group>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="source-monographic-publication-short-unbracketed">
+    <!-- mirrors `source-monographic-publication-note-unbracketed` -->
+    <choose>
+      <if disambiguate="true">
+        <choose>
+          <!-- Facts of publication without brackets -->
+          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+          <else-if type="article" variable="genre publisher"/>
+          <else-if type="motion_picture" variable="publisher"/>
+          <else-if type="personal_communication">
+            <choose>
+              <if match="none" variable="collection-editor compiler editor editorial-director">
+                <text macro="source-date-note"/>
+              </if>
+            </choose>
+          </else-if>
+          <else-if is-uncertain-date="issued"/>
+          <else>
+            <text macro="source-date-note"/>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <macro name="source-publication-and-date-note">
     <group delimiter=", ">
       <choose>
@@ -4317,9 +4400,9 @@
             </choose>
           </if>
         </choose>
-        <text macro="citation-notes-shortened-author-title-disambiguate-publisher"/>
+        <text macro="source-monographic-publication-short-unbracketed"/>
       </group>
-      <text macro="citation-notes-shortened-author-title-disambiguate-publisher-bracketed"/>
+      <text macro="source-monographic-publication-short-bracketed"/>
     </group>
   </macro>
   <macro name="citation-notes-shortened-author-title-disambiguate">
@@ -4344,73 +4427,6 @@
         </if>
       </choose>
     </group>
-  </macro>
-  <macro name="citation-notes-shortened-author-title-disambiguate-publisher">
-    <choose>
-      <if disambiguate="true">
-        <choose>
-          <!-- Facts of publication without brackets -->
-          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
-          <else-if type="article" variable="genre publisher"/>
-          <else-if type="motion_picture" variable="publisher"/>
-          <else-if type="personal_communication">
-            <choose>
-              <if match="none" variable="collection-editor compiler editor editorial-director">
-                <text macro="source-date-note"/>
-              </if>
-            </choose>
-          </else-if>
-          <else>
-            <text macro="source-date-note"/>
-          </else>
-        </choose>
-      </if>
-    </choose>
-  </macro>
-  <macro name="citation-notes-shortened-author-title-disambiguate-publisher-bracketed">
-    <choose>
-      <if disambiguate="true">
-        <group prefix="(" suffix=")">
-          <group delimiter=", ">
-            <choose>
-              <!-- Facts of publication with brackets for print monographic formats -->
-              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher-note"/>
-                  </if>
-                </choose>
-                <text macro="source-date-note"/>
-              </if>
-              <else-if type="article" variable="genre publisher">
-                <!-- without brackets for a preprint in a repository (CMOS 14.76), with brackets for a working paper (CMOS 14.116) -->
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher-note"/>
-                  </if>
-                </choose>
-                <text macro="source-date-note"/>
-              </else-if>
-              <else-if type="motion_picture" variable="publisher">
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher-note"/>
-                  </if>
-                </choose>
-                <text macro="source-date-note"/>
-              </else-if>
-              <else-if type="personal_communication">
-                <choose>
-                  <if match="any" variable="collection-editor compiler editor editorial-director">
-                    <text macro="source-date-note"/>
-                  </if>
-                </choose>
-              </else-if>
-            </choose>
-          </group>
-        </group>
-      </if>
-    </choose>
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="7" et-al-subsequent-min="3" et-al-subsequent-use-first="1" et-al-use-first="3">
     <layout delimiter="; " suffix=".">
