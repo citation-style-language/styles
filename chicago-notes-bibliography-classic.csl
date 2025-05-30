@@ -439,8 +439,7 @@
             <text macro="author-title-substitute-note"/>
           </if>
           <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-            <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
-            <text macro="author-title-substitute-container"/>
+            <text macro="author-title-substitute-reference-note"/>
           </else-if>
         </choose>
         <names variable="illustrator"/>
@@ -721,6 +720,27 @@
       </if>
     </choose>
   </macro>
+  <macro name="author-title-substitute-reference-note">
+    <!-- unsigned reference entries treat `title` as a locator (CMOS 14.130) -->
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <group delimiter=", ">
+          <text macro="author-title-substitute-container"/>
+          <text macro="source-note"/>
+        </group>
+        <text macro="source-monographic-publication-note-bracketed"/>
+      </group>
+      <group delimiter=" ">
+        <choose>
+          <if match="none" variable="DOI URL">
+            <!-- Only print reference entries use `sub-verbo` (CMOS 14.131) -->
+            <text form="short" term="sub-verbo"/>
+          </if>
+        </choose>
+        <text macro="title-primary"/>
+      </group>
+    </group>
+  </macro>
   <!-- 2. Date (CMOS 13.102) -->
   <macro name="date-short">
     <choose>
@@ -769,10 +789,10 @@
       </else-if>
       <else>
         <choose>
-          <if type="personal_communication">
+          <if match="any" type="interview personal_communication">
             <choose>
               <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- do not give n.d. for short unpublished personal communication (CMOS 14.111)-->
+                <!-- only give n.d. for accessible personal communication (CMOS 14.111)-->
                 <text form="short" term="no date"/>
               </if>
             </choose>
@@ -780,8 +800,8 @@
           </if>
           <else>
             <choose>
-              <if match="none" type="classic collection">
-                <!-- do not give n.d. for archival collections (CMOS 14.128) or, presumably, `classic` (CMOS 14.143) -->
+              <if match="none" type="classic collection entry entry-dictionary entry-encyclopedia">
+                <!-- do not give n.d. for archival collections (CMOS 14.128), `classic` (CMOS 14.143), or reference entries (CMOS 14.131) -->
                 <text form="short" term="no date"/>
               </if>
             </choose>
@@ -4707,8 +4727,16 @@
       <else-if variable="status">
         <text text-case="lowercase" variable="status"/>
       </else-if>
-      <else-if match="any" type="book chapter report pamphlet">
-        <!-- n.d. used for printed works without a publication date (CMOS 14.44) -->
+      <else-if match="any" type="interview personal_communication">
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- only give n.d. for accessible personal communication (CMOS 14.111)-->
+            <text form="short" term="no date"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if match="none" type="classic collection entry entry-dictionary entry-encyclopedia webpage">
+        <!-- types with unusual reference  CMOS 14.44, 14.127 -->
         <text form="short" term="no date"/>
       </else-if>
     </choose>
@@ -5523,10 +5551,6 @@
             <!-- Signed reference entries appear in the bibliography (CMOS 14.132) -->
             <text macro="bibliography-notes"/>
           </if>
-          <else-if match="any" variable="DOI URL">
-            <!-- Provide a bibliography if necessary identifying information is not in text -->
-            <text macro="bibliography-notes"/>
-          </else-if>
         </choose>
       </else-if>
       <else-if match="any" type="interview personal_communication">
