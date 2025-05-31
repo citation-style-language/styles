@@ -41,6 +41,10 @@
       <term form="verb-short" name="editorial-director">ed. dir.</term>
       <term form="verb-short" name="illustrator">ill.</term>
       <term form="short" name="legislation">Pub. L.</term>
+      <term form="short" name="line">
+        <single>line</single>
+        <multiple>lines</multiple>
+      </term>
       <term name="manuscript">unpublished manuscript</term>
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
@@ -515,7 +519,7 @@
             <choose>
               <if type="classic">
                 <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
-                <text macro="author-title-substitute-note"/>
+                <text macro="author-title-substitute-short"/>
               </if>
               <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
                 <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
@@ -558,7 +562,7 @@
             </choose>
             <names variable="curator"/>
             <text macro="author-title-substitute-container-short"/>
-            <text macro="title-and-descriptions-short"/>
+            <text macro="author-title-substitute-short"/>
           </substitute>
         </names>
       </else>
@@ -665,6 +669,31 @@
       </if>
       <else-if variable="title">
         <text macro="title-note"/>
+      </else-if>
+      <else>
+        <!-- If an item has no `title`, substitute with descriptions and capitalize -->
+        <text macro="title-and-descriptions-bib"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="author-title-substitute-short">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-genre` or `reviewed-title`, assume that `title` contains the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-genre title">
+            <text macro="title-short"/>
+          </if>
+          <else-if variable="reviewed-genre reviewed-title title">
+            <text macro="title-short"/>
+          </else-if>
+          <else>
+            <text macro="title-and-descriptions-short"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="title">
+        <text macro="title-short"/>
       </else-if>
       <else>
         <!-- If an item has no `title`, substitute with descriptions and capitalize -->
@@ -5424,13 +5453,19 @@
     <choose>
       <if type="classic">
         <choose>
-          <if match="any" variable="part-number volume">
-            <!-- comma needed with volume/part label  -->
+          <if locator="page" match="none">
             <group delimiter=", ">
               <text macro="citation-notes-shortened-author-title-item"/>
               <text macro="source-locator-subsequent"/>
             </group>
           </if>
+          <else-if match="any" variable="part-number volume">
+            <!-- comma needed with volume/part label  -->
+            <group delimiter=", ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </else-if>
           <else>
             <group delimiter=" ">
               <text macro="citation-notes-shortened-author-title-item"/>
