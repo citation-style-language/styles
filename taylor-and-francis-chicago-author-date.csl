@@ -148,6 +148,19 @@
           <text variable="edition"/>
           <label variable="edition"/>
         </else-if>
+        <else-if match="any" type="interview paper-conference">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director">
+              <!-- monographic usage -->
+              <text variable="edition"/>
+            </if>
+            <else>
+              <!-- serial usage -->
+              <text variable="edition"/>
+              <label variable="edition"/>
+            </else>
+          </choose>
+        </else-if>
         <else>
           <text variable="edition"/>
         </else>
@@ -165,6 +178,19 @@
           <!-- full label for serial edition (CMOS 14.89) -->
           <text text-case="title" variable="edition"/>
           <label text-case="capitalize-first" variable="edition"/>
+        </else-if>
+        <else-if match="any" type="interview paper-conference">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director">
+              <!-- monographic usage -->
+              <text text-case="capitalize-first" variable="edition"/>
+            </if>
+            <else>
+              <!-- serial usage -->
+              <text text-case="title" variable="edition"/>
+              <label text-case="capitalize-first" variable="edition"/>
+            </else>
+          </choose>
         </else-if>
         <else>
           <text text-case="capitalize-first" variable="edition"/>
@@ -326,8 +352,11 @@
             <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
             <text macro="author-title-substitute-bib"/>
           </if>
-          <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-            <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
+          <else-if type="entry-dictionary" variable="container-title">
+            <!-- contributors fall after the title of unsigned reference entries (CMOS 14.130) -->
+            <text macro="author-title-substitute-container"/>
+          </else-if>
+          <else-if type="entry-encyclopedia" variable="container-title">
             <text macro="author-title-substitute-container"/>
           </else-if>
         </choose>
@@ -404,8 +433,11 @@
                 <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
                 <text macro="author-title-substitute-short"/>
               </if>
-              <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-                <!-- contributors fall after the title of reference entries (CMOS 14.130) -->
+              <else-if type="entry-dictionary" variable="container-title">
+                <!-- contributors fall after the title of unsigned reference entries (CMOS 14.130) -->
+                <text macro="author-title-substitute-container"/>
+              </else-if>
+              <else-if type="entry-encyclopedia" variable="container-title">
                 <text macro="author-title-substitute-container"/>
               </else-if>
             </choose>
@@ -573,6 +605,14 @@
         <!-- Anonymous serials substitute name of publication (CMOS 14.87, 14.97, 14.102) -->
         <text macro="source-serial-name"/>
       </else-if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director">
+            <!-- serial usage -->
+            <text macro="source-serial-name"/>
+          </if>
+        </choose>
+      </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <!-- Anonymous entries in reference works (CMOS 14.130) -->
         <text font-style="italic" text-case="title" variable="container-title"/>
@@ -593,6 +633,14 @@
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <!-- Anonymous works in serials substitute name of publication (CMOS 14.87, 14.97, 14.102) -->
         <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+      </else-if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director">
+            <!-- serial usage -->
+            <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+          </if>
+        </choose>
       </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <!-- Anonymous entries in reference works (CMOS 14.130) -->
@@ -700,7 +748,7 @@
             </choose>
             <text prefix="-" variable="year-suffix"/>
           </if>
-          <else-if type="classic collection entry entry-dictionary entry-encyclopedia">
+          <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
             <!-- do not give n.d. for archival collections (CMOS 14.128), `classic` (CMOS 14.143), or reference entries (CMOS 14.131) -->
             <text prefix="-" variable="year-suffix"/>
           </else-if>
@@ -928,6 +976,7 @@
           <else-if match="any" type="interview paper-conference">
             <choose>
               <if match="any" variable="collection-editor container-author editor editorial-director">
+                <!-- monographic usage -->
                 <text macro="source-event-bib"/>
               </if>
             </choose>
@@ -955,11 +1004,12 @@
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
-          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
             <text macro="title-monographic-bib"/>
           </if>
           <else>
+            <!-- serial usage -->
             <text macro="title-serial-bib"/>
           </else>
         </choose>
@@ -1011,7 +1061,10 @@
   <macro name="title-and-part-title-bib">
     <group delimiter=". ">
       <text macro="title-primary"/>
-      <text macro="title-part-bib"/>
+      <group delimiter=", ">
+        <text macro="label-part-number-capitalized"/>
+        <text macro="title-part"/>
+      </group>
     </group>
   </macro>
   <macro name="title-monographic-bib">
@@ -1032,18 +1085,27 @@
       </else>
     </choose>
   </macro>
-  <macro name="title-part-bib">
-    <group delimiter=", ">
-      <text macro="label-part-number-capitalized"/>
-      <choose>
-        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-          <text quotes="true" text-case="title" variable="part-title"/>
-        </if>
-        <else>
-          <text font-style="italic" text-case="title" variable="part-title"/>
-        </else>
-      </choose>
-    </group>
+  <macro name="title-part">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
+            <text font-style="italic" text-case="title" variable="part-title"/>
+          </if>
+          <else>
+            <!-- serial usage -->
+            <text quotes="true" text-case="title" variable="part-title"/>
+          </else>
+        </choose>
+      </else-if>
+      <else>
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else>
+    </choose>
   </macro>
   <macro name="title-serial-bib">
     <!-- For serials, assume that `part-number` and `part-title` refer to the article and append to `title` -->
@@ -1075,7 +1137,19 @@
         <!-- Italicized, title case (regardless of `container-title`) -->
         <text font-style="italic" text-case="title" variable="title"/>
       </else-if>
-      <else-if type="entry-dictionary post">
+      <else-if type="entry-encyclopedia" variable="author container-title">
+        <!-- Signed encyclopedia entry in quotes, title case (CMOS 14.132) -->
+        <text quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else-if type="entry-dictionary" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="title"/>
+      </else-if>
+      <else-if type="post">
         <!-- Quotes, sentence case -->
         <text quotes="true" variable="title"/>
       </else-if>
@@ -1113,7 +1187,19 @@
         <!-- Italicized, title case (regardless of `container-title`) -->
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else-if>
-      <else-if type="entry-dictionary post">
+      <else-if type="entry-encyclopedia" variable="author container-title">
+        <!-- Signed encyclopedia entry in quotes, title case (CMOS 14.132) -->
+        <text form="short" quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else-if type="entry-dictionary" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text form="short" quotes="true" variable="title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text form="short" quotes="true" variable="title"/>
+      </else-if>
+      <else-if type="post">
         <!-- Quotes, sentence case -->
         <text form="short" quotes="true" variable="title"/>
       </else-if>
@@ -1181,11 +1267,12 @@
       </else-if>
       <else-if type="paper-conference">
         <choose>
-          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor container-author editor editorial-director">
+            <!-- monographic usage -->
             <text macro="description-format-short"/>
           </if>
           <else>
+            <!-- serial usage -->
             <text macro="description-serial-short"/>
           </else>
         </choose>
@@ -1251,8 +1338,8 @@
     <choose>
       <if match="any" type="event paper-conference performance speech">
         <choose>
-          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
             <text macro="description-format-bib"/>
           </if>
         </choose>
@@ -1624,9 +1711,11 @@
       <else-if match="any" type="interview paper-conference">
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
             <text macro="identifier-contributors-monographic-bib"/>
           </if>
           <else>
+            <!-- serial usage -->
             <text macro="identifier-contributors-serial-bib"/>
           </else>
         </choose>
@@ -1992,8 +2081,8 @@
       <if match="any" type="article-journal article-magazine article-newspaper broadcast event interview patent performance periodical post post-weblog review review-book speech webpage"/>
       <else-if match="any" type="interview paper-conference">
         <choose>
-          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
             <text macro="identifier-volume-bib"/>
           </if>
         </choose>
@@ -2013,11 +2102,12 @@
         </if>
         <else-if match="any" type="interview paper-conference">
           <choose>
-            <!-- Treat as monographic with an editor; otherwise as serial -->
             <if match="any" variable="collection-editor container-author editor editorial-director">
+              <!-- monographic usage -->
               <text macro="source-monographic-bib"/>
             </if>
             <else>
+              <!-- serial usage -->
               <text macro="source-serial-bib"/>
             </else>
           </choose>
@@ -2312,8 +2402,8 @@
       <if match="any" type="event paper-conference performance speech">
         <!-- Conference presentations should describe the session unless published in a proceedings -->
         <choose>
-          <!-- Treat as monographic with an editor; otherwise as serial -->
           <if match="none" variable="collection-editor compiler editor editorial-director">
+            <!-- serial usage -->
             <text macro="description-format-bib"/>
           </if>
         </choose>
@@ -2733,16 +2823,16 @@
       <choose>
         <!-- Provide only for monographic types -->
         <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
-        <!-- `patent` date in identification (CMOS 14.158) -->
-        <else-if type="patent"/>
         <else-if match="any" type="interview paper-conference">
-          <!-- Determine whether serial or monographic -->
           <choose>
             <if match="any" variable="collection-editor container-author editor editorial-director">
+              <!-- monographic usage -->
               <text macro="source-publication-and-date-bib"/>
             </if>
           </choose>
         </else-if>
+        <!-- `patent` date in identification (CMOS 14.158) -->
+        <else-if type="patent"/>
         <else>
           <text macro="source-publication-and-date-bib"/>
         </else>
@@ -3145,18 +3235,18 @@
           <if match="any" variable="author locator">
             <text macro="label-locator"/>
           </if>
-          <else>
+          <else-if variable="container-title title">
             <!-- unsigned reference entry title appears in the locator (CMOS 13.130) -->
             <group delimiter=" ">
               <choose>
-                <if match="none" variable="DOI medium URL">
+                <if match="none" variable="DOI URL">
                   <!-- Only print reference entries use `sub-verbo` (CMOS 14.131) -->
                   <text form="short" term="sub-verbo"/>
                 </if>
               </choose>
               <text form="short" quotes="true" variable="title"/>
             </group>
-          </else>
+          </else-if>
         </choose>
       </if>
       <else>
