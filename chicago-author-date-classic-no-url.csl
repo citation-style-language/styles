@@ -36,7 +36,6 @@
       <term form="short" name="collection-number">vol.</term>
       <term form="verb-short" name="compiler">comp.</term>
       <term form="verb-short" name="contributor">with</term>
-      <term form="verb-short" name="director">dir.</term>
       <term form="verb-short" name="editor">ed.</term>
       <term form="short" name="editor-translator">ed. and trans.</term>
       <term form="verb" name="editor-translator">edited and translated by</term>
@@ -325,6 +324,14 @@
       <label form="short" prefix=", "/>
       <substitute>
         <names variable="author"/>
+        <!-- cf. `interview` model (CMOS 14.110); use `contributor` if `host` should be prioritized -->
+        <names variable="guest"/>
+        <names variable="host"/>
+        <choose>
+          <if type="song">
+            <names variable="performer"/>
+          </if>
+        </choose>
         <choose>
           <if type="classic">
             <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
@@ -336,9 +343,14 @@
           </else-if>
         </choose>
         <names variable="illustrator"/>
-        <!-- cf. `interview` model (CMOS 14.110); use `contributor` if `host` should be prioritized -->
-        <names variable="guest"/>
-        <names variable="host"/>
+        <choose>
+          <if match="none" type="standard">
+            <names variable="editor-translator"/>
+            <names variable="editor"/>
+            <names variable="translator"/>
+            <names variable="collection-editor"/>
+          </if>
+        </choose>
         <names variable="director"/>
         <choose>
           <!-- serial `broadcast` prioritizes title (CMOS 14.165, 14.168) -->
@@ -353,14 +365,6 @@
               </if>
             </choose>
           </else>
-        </choose>
-        <choose>
-          <if match="none" type="standard">
-            <names variable="editor-translator"/>
-            <names variable="editor"/>
-            <names variable="translator"/>
-            <names variable="collection-editor"/>
-          </if>
         </choose>
         <names variable="editorial-director"/>
         <names variable="compiler"/>
@@ -399,6 +403,13 @@
           <name form="short" initialize-with=". "/>
           <substitute>
             <names variable="author"/>
+            <names variable="guest"/>
+            <names variable="host"/>
+            <choose>
+              <if type="song">
+                <names variable="performer"/>
+              </if>
+            </choose>
             <choose>
               <if type="classic">
                 <!-- contributors fall after the title of `classic` (CMOS 14.147) -->
@@ -410,8 +421,14 @@
               </else-if>
             </choose>
             <names variable="illustrator"/>
-            <names variable="guest"/>
-            <names variable="host"/>
+            <choose>
+              <if match="none" type="standard">
+                <names variable="editor-translator"/>
+                <names variable="editor"/>
+                <names variable="translator"/>
+                <names variable="collection-editor"/>
+              </if>
+            </choose>
             <choose>
               <if type="broadcast" variable="container-title number title"/>
               <else>
@@ -425,14 +442,6 @@
                   </if>
                 </choose>
               </else>
-            </choose>
-            <choose>
-              <if match="none" type="standard">
-                <names variable="editor-translator"/>
-                <names variable="editor"/>
-                <names variable="translator"/>
-                <names variable="collection-editor"/>
-              </if>
             </choose>
             <names variable="editorial-director"/>
             <names variable="compiler"/>
@@ -903,7 +912,12 @@
             <text macro="source-monographic-identifier-contributors-bib"/>
           </group>
           <text macro="source-series-bib"/>
-          <text macro="source-event-bib"/>
+          <choose>
+            <!-- show event information here only if not collapsed with `issued` (CMOS 14.167) -->
+            <if match="any" variable="event-date original-date original-publisher original-publisher-place publisher status">
+              <text macro="source-event-bib"/>
+            </if>
+          </choose>
         </if>
         <else-if type="chapter" variable="container-title genre">
           <!-- 'Introduction to' etc. (CMOS 14.12, 14.14) -->
@@ -917,7 +931,25 @@
           <text macro="source-bib"/>
         </else>
       </choose>
-      <text macro="source-monographic-publication-bib"/>
+      <group delimiter=", ">
+        <choose>
+          <!-- show event information here only if collapsed with `issued` (CMOS 14.167) -->
+          <if match="any" variable="event-date original-date original-publisher original-publisher-place publisher status"/>
+          <!-- monographic usage only -->
+          <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+          <else-if match="any" type="interview paper-conference">
+            <choose>
+              <if match="any" variable="collection-editor container-author editor editorial-director">
+                <text macro="source-event-bib"/>
+              </if>
+            </choose>
+          </else-if>
+          <else>
+            <text macro="source-event-bib"/>
+          </else>
+        </choose>
+        <text macro="source-monographic-publication-bib"/>
+      </group>
       <text macro="source-medium-bib"/>
       <text macro="source-archive-bib"/>
       <!-- <text macro="source-DOI-URL-bib"/> -->
@@ -1246,8 +1278,12 @@
   <macro name="description-interview-bib">
     <group delimiter=", ">
       <choose>
-        <if variable="title">
-          <text macro="description-format-bib"/>
+        <if variable="genre number">
+          <!-- `genre` printed with `number` -->
+          <names variable="interviewer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
         </if>
         <else-if variable="genre">
           <group delimiter=" ">
@@ -1268,12 +1304,7 @@
           <text macro="description-format-bib"/>
         </else>
       </choose>
-      <choose>
-        <if match="none" variable="event event-title">
-          <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
-        </if>
-      </choose>
+      <text macro="source-event-place-first"/>
     </group>
   </macro>
   <macro name="description-interview-short">
@@ -1364,11 +1395,12 @@
   </macro>
   <macro name="description-paper-conference-bib">
     <choose>
-      <!-- Treat as monographic with an editor; otherwise as serial -->
       <if match="any" variable="collection-editor container-author editor editorial-director">
+        <!-- monographic usage -->
         <text macro="description-generic-bib"/>
       </if>
       <else>
+        <!-- serial usage -->
         <group delimiter=". ">
           <text macro="description-serial-bib"/>
           <text macro="source-event-bib"/>
@@ -1399,16 +1431,7 @@
             </names>
           </else>
         </choose>
-        <choose>
-          <!-- TODO: simplify this when Zotero stops double-mapping `event-place` -->
-          <if match="none" variable="event event-title">
-            <text variable="event-place"/>
-            <date form="text" variable="event-date"/>
-          </if>
-          <else>
-            <text macro="source-event-bib"/>
-          </else>
-        </choose>
+        <text macro="source-event-place-first"/>
       </group>
       <text macro="label-section-capitalized"/>
     </group>
@@ -1512,6 +1535,7 @@
   </macro>
   <macro name="description-song-bib">
     <!-- Performer of classical music works -->
+    <!-- TODO: remove when Zotero fixes mapping of performer to `author` -->
     <group delimiter=" ">
       <!-- Based on `description-format` macro -->
       <choose>
@@ -1519,6 +1543,7 @@
           <text text-case="capitalize-first" variable="genre"/>
           <text form="verb" term="performer"/>
         </if>
+        <!-- providing 'performed by' label for recorded readings (CMOS 14.164), but it should be omitted for classical music (CMOS 14.163) -->
         <else>
           <text form="verb" term="performer" text-case="capitalize-first"/>
         </else>
@@ -1627,14 +1652,6 @@
   <macro name="identifier-contributors-monographic-bib">
     <group delimiter=". ">
       <choose>
-        <if variable="title">
-          <names variable="interviewer">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
-        </if>
-      </choose>
-      <choose>
         <if match="any" type="post webpage">
           <group delimiter=". ">
             <names variable="container-author">
@@ -1686,7 +1703,7 @@
               <name/>
             </names>
             <choose>
-              <if type="broadcast">
+              <if match="any" type="broadcast performance">
                 <names variable="script-writer">
                   <label form="verb" suffix=" " text-case="capitalize-first"/>
                   <name/>
@@ -1761,7 +1778,7 @@
                   <name/>
                 </names>
                 <choose>
-                  <if type="broadcast">
+                  <if match="any" type="broadcast performance">
                     <names variable="script-writer">
                       <label form="verb" suffix=" " text-case="capitalize-first"/>
                       <name/>
@@ -1798,15 +1815,31 @@
   </macro>
   <macro name="identifier-contributors-serial-bib">
     <group delimiter=". ">
-      <choose>
-        <if variable="title">
-          <names variable="interviewer">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
-        </if>
-      </choose>
       <names delimiter=". " variable="translator narrator">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names delimiter=", " variable="compiler chair organizer curator">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names delimiter=", " variable="series-creator executive-producer">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names variable="producer">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names variable="director">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names variable="script-writer">
+        <label form="verb" suffix=" " text-case="capitalize-first"/>
+        <name/>
+      </names>
+      <names variable="performer">
         <label form="verb" suffix=" " text-case="capitalize-first"/>
         <name/>
       </names>
@@ -2037,7 +2070,7 @@
       <text font-style="italic" text-case="title" variable="container-title"/>
       <choose>
         <!-- TODO: remove conditional when Zotero stops double-mapping `event-place` and `publisher-place` -->
-        <if match="none" variable="event-date event-title reviewed-genre">
+        <if match="none" variable="event-date event-title">
           <text prefix="(" suffix=")" variable="publisher-place"/>
         </if>
       </choose>
@@ -2232,7 +2265,12 @@
         </if>
       </choose>
       <text macro="source-series-bib"/>
-      <text macro="source-event-bib"/>
+      <choose>
+        <!-- show event information here only if not collapsed with `issued` (CMOS 14.167) -->
+        <if match="any" variable="event-date original-date original-publisher original-publisher-place publisher status">
+          <text macro="source-event-bib"/>
+        </if>
+      </choose>
     </group>
   </macro>
   <!-- Monographic source title -->
@@ -2400,7 +2438,7 @@
         <name/>
       </names>
       <choose>
-        <if type="broadcast">
+        <if match="any" type="broadcast performance">
           <names variable="script-writer">
             <label form="verb" suffix=" "/>
             <name/>
@@ -2586,7 +2624,11 @@
   <macro name="source-event-bib">
     <group delimiter=" ">
       <choose>
-        <if match="any" variable="event event-title">
+        <!-- omit types that provide event information in description  -->
+        <if match="any" type="interview" variable="interviewer"/>
+        <else-if type="personal_communication" variable="recipient"/>
+        <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title"/>
+        <else-if match="any" variable="event event-date event-title">
           <!-- TODO: To prevent Zotero from printing `event-place`, due to its double-mapping of `publisher-place` and `event-place`. Remove this when that is changed. -->
           <choose>
             <if type="paper-conference">
@@ -2604,14 +2646,26 @@
               <text macro="source-event-description-bib"/>
             </else>
           </choose>
-        </if>
+        </else-if>
       </choose>
     </group>
+  </macro>
+  <macro name="source-event-place-first">
+    <!-- for descriptive elements for interviews, reviews, letters -->
+    <choose>
+      <if match="any" variable="event event-date event-title">
+        <group delimiter=", ">
+          <text variable="event-title"/>
+          <text variable="event-place"/>
+          <date form="text" variable="event-date"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="source-event-status-bib">
     <group delimiter=" ">
       <choose>
-        <if variable="status">
+        <if type="broadcast" variable="status">
           <!-- 'aired', 'performed', etc. (CMOS 14.165) -->
           <text text-case="capitalize-first" variable="status"/>
         </if>
@@ -2638,6 +2692,10 @@
               <text term="at"/>
             </if>
           </choose>
+        </else-if>
+        <else-if variable="event-date issued"/>
+        <else-if match="none" variable="issued">
+          <text text-case="capitalize-first" variable="status"/>
         </else-if>
       </choose>
     </group>
@@ -2975,12 +3033,12 @@
   </macro>
   <macro name="source-date-status-bib">
     <choose>
-      <if variable="event-title issued status"/>
-      <!-- if there is an `event-title`, `status` appears with `event-date` as part of `source-event` -->
+      <if type="broadcast" variable="event-title issued status"/>
+      <!-- on a `broadcast`, if there is an `event-title`, `status` appears with `event-date` as part of `source-event` (CMOS 14.165) -->
       <else-if variable="issued status">
         <!-- `status` specifies date type, e.g. 'effective', 'last modified', 'approved' (CMOS 14.104 for `webpage`; CMOS 14.159 for `standard`) -->
         <choose>
-          <if match="any" variable="original-date original-publisher original-publisher-place original-title publisher publisher-place">
+          <if match="any" variable="original-date original-publisher original-publisher-place original-title publisher">
             <text variable="status"/>
           </if>
           <else>
@@ -3453,7 +3511,7 @@
             </if>
           </choose>
         </if>
-        <else-if variable="issued">
+        <else-if match="any" variable="event-date issued">
           <choose>
             <if match="any" type="interview personal_communication">
               <choose>
