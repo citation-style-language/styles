@@ -448,6 +448,7 @@
         </choose>
         <text macro="author-title-substitute-container"/>
         <text macro="author-title-substitute-bib"/>
+        <text macro="source-archive-bib"/>
       </substitute>
     </names>
   </macro>
@@ -552,6 +553,7 @@
             <text macro="author-title-substitute-note"/>
           </if>
         </choose>
+        <text macro="source-archive-note"/>
       </substitute>
     </names>
   </macro>
@@ -629,6 +631,7 @@
             <names variable="curator"/>
             <text macro="author-title-substitute-container-short"/>
             <text macro="author-title-substitute-short"/>
+            <text macro="source-archive-note"/>
           </substitute>
         </names>
       </else>
@@ -912,6 +915,15 @@
             <!-- do not give n.d. for archival collections (CMOS 14.128), `classic` (CMOS 14.143), or reference entries (CMOS 14.131) -->
             <text prefix="-" variable="year-suffix"/>
           </else-if>
+          <else-if type="manuscript">
+            <!-- do not give n.d. with a bare shelfmark -->
+            <choose>
+              <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+                <text form="short" term="no date"/>
+                <text prefix="-" variable="year-suffix"/>
+              </if>
+            </choose>
+          </else-if>
           <else>
             <text form="short" term="no date"/>
             <text prefix="-" variable="year-suffix"/>
@@ -969,25 +981,6 @@
       </else-if>
       <else>
         <date date-parts="year" form="numeric" variable="issued"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="date-sort-group">
-    <!-- Sort items with and without dates (CMOS 14.44):
-
-          1. items with dates (= 0)
-          2. `no date` items (= 1)
-          3. items with `status` (forthcoming, in press, etc.) (= 2) -->
-    <choose>
-      <if variable="issued">
-        <text value="0"/>
-      </if>
-      <else-if variable="status">
-        <text value="2"/>
-      </else-if>
-      <else>
-        <!-- n.d. -->
-        <text value="1"/>
       </else>
     </choose>
   </macro>
@@ -4872,6 +4865,14 @@
       </else-if>
       <!-- types with unusual reference (CMOS 14.44, 14.127) -->
       <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia webpage"/>
+      <else-if type="manuscript">
+        <!-- do not give n.d. with a bare shelfmark -->
+        <choose>
+          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+            <text form="short" term="no date"/>
+          </if>
+        </choose>
+      </else-if>
       <else>
         <text form="short" term="no date"/>
       </else>
@@ -5724,9 +5725,9 @@
       <key macro="title-bib"/>
       <key variable="part-number"/>
       <key variable="volume"/>
-      <key macro="date-sort-group"/>
       <key macro="date-sort"/>
       <key variable="status"/>
+      <key macro="source-archive-bib"/>
     </sort>
     <layout suffix=".">
       <text macro="bibliography-filtered-notes"/>

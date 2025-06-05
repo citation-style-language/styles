@@ -419,6 +419,7 @@
         </choose>
         <text macro="author-title-substitute-container"/>
         <text macro="author-title-substitute-bib"/>
+        <text macro="source-archive-bib"/>
       </substitute>
     </names>
   </macro>
@@ -499,6 +500,7 @@
             </choose>
             <text macro="author-title-substitute-container-short"/>
             <text macro="author-title-substitute-short"/>
+            <text macro="source-archive-note"/>
           </substitute>
         </names>
       </else>
@@ -700,6 +702,15 @@
         <!-- do not give n.d. for archival collections (CMOS 14.128) -->
         <text prefix="-" variable="year-suffix"/>
       </else-if>
+      <else-if type="manuscript">
+        <!-- do not give n.d. with a bare shelfmark -->
+        <choose>
+          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+            <text form="short" term="no date"/>
+            <text prefix="-" variable="year-suffix"/>
+          </if>
+        </choose>
+      </else-if>
       <else>
         <text form="short" term="no date"/>
         <text prefix="-" variable="year-suffix"/>
@@ -765,6 +776,15 @@
           <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
             <!-- do not give n.d. for archival collections (CMOS 14.128), `classic` (CMOS 14.143), or reference entries (CMOS 14.131) -->
             <text prefix="-" variable="year-suffix"/>
+          </else-if>
+          <else-if type="manuscript">
+            <!-- do not give n.d. with a bare shelfmark -->
+            <choose>
+              <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+                <text form="short" term="no date"/>
+                <text prefix="-" variable="year-suffix"/>
+              </if>
+            </choose>
           </else-if>
           <else>
             <text form="short" term="no date"/>
@@ -3291,6 +3311,21 @@
       </else>
     </choose>
   </macro>
+  <macro name="source-archive-note">
+    <choose>
+      <!-- With `archive_collection` or `archive-place`: physical archives -->
+      <if type="graphic">
+        <text macro="source-archive-name-first"/>
+      </if>
+      <else-if match="any" type="collection document manuscript" variable="archive_collection archive-place">
+        <text macro="source-archive-location-first-note"/>
+      </else-if>
+      <!-- Without `archive_collection` or `archive-place`: digital archives (database and identifier) -->
+      <else>
+        <text macro="source-archive-identifier"/>
+      </else>
+    </choose>
+  </macro>
   <!-- Archival elements -->
   <macro name="source-archive-identifier">
     <choose>
@@ -3315,6 +3350,20 @@
     <group delimiter=". ">
       <group delimiter=", ">
         <text text-case="capitalize-first" variable="archive_location"/>
+        <text variable="archive_collection"/>
+      </group>
+      <group delimiter=", ">
+        <text variable="archive"/>
+        <text variable="archive-place"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="source-archive-location-first-note">
+    <!-- Order of elements begins with the most specific (CMOS 14.119, 14.127) -->
+    <!-- In note styles, the bibliography generally provide entries for a `collection` rather than individual items (CMOS 14.120, 14.128) -->
+    <group delimiter=", ">
+      <group delimiter=", ">
+        <text variable="archive_location"/>
         <text variable="archive_collection"/>
       </group>
       <group delimiter=", ">
