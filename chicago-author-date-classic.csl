@@ -30,6 +30,7 @@
   <locale xml:lang="en">
     <terms>
       <term name="ad"> AD</term>
+      <term name="advance-online-publication">ahead of print</term>
       <term name="anonymous">unsigned</term>
       <term name="bc"> BC</term>
       <term form="verb-short" name="collection-editor">ed.</term>
@@ -727,6 +728,21 @@
           </if>
         </choose>
       </else-if>
+      <else-if type="article-journal">
+        <choose>
+          <if match="any" variable="number page">
+            <text form="short" term="no date"/>
+          </if>
+          <else-if match="any" variable="available-date collection-title issue supplement-number volume">
+            <!-- journal articles should be forthcoming with an issue/volume but no date or locator (CMOS 14.75) -->
+            <text term="forthcoming"/>
+          </else-if>
+          <else>
+            <text form="short" term="no date"/>
+          </else>
+        </choose>
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
       <else>
         <text form="short" term="no date"/>
         <text prefix="-" variable="year-suffix"/>
@@ -801,6 +817,21 @@
                 <text prefix="-" variable="year-suffix"/>
               </if>
             </choose>
+          </else-if>
+          <else-if type="article-journal">
+            <choose>
+              <if match="any" variable="number page">
+                <text form="short" term="no date"/>
+              </if>
+              <else-if match="any" variable="available-date collection-title issue supplement-number volume">
+                <!-- journal articles should be forthcoming with an issue/volume but no date or locator (CMOS 14.75) -->
+                <text term="forthcoming"/>
+              </else-if>
+              <else>
+                <text form="short" term="no date"/>
+              </else>
+            </choose>
+            <text prefix="-" variable="year-suffix"/>
           </else-if>
           <else>
             <text form="short" term="no date"/>
@@ -2230,6 +2261,13 @@
         </else-if>
       </choose>
       <text macro="source-serial-name"/>
+      <choose>
+        <!-- 'ahead of print' is placed akin to a series (CMOS 14.75) -->
+        <if match="any" variable="available-date collection-title issue number page status supplement-number volume"/>
+        <else-if type="article-journal" variable="DOI issued">
+          <text term="advance-online-publication"/>
+        </else-if>
+      </choose>
     </group>
   </macro>
   <macro name="source-serial-title-volume-bib">
@@ -2359,7 +2397,7 @@
   <macro name="source-serial-volume-status-bib">
     <group delimiter=", ">
       <choose>
-        <if match="none" variable="issue number page supplement-number volume">
+        <if match="none" variable="collection-title issue number page supplement-number volume">
           <group delimiter=" ">
             <!-- article accepted for publication and available on publisher website (CMOS 14.75) -->
             <!-- TODO: use CSL term for `available-date` when available -->
