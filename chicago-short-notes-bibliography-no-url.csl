@@ -271,7 +271,7 @@
     <group delimiter=" ">
       <choose>
         <if is-numeric="section">
-          <label text-case="capitalize-first" variable="section"/>
+          <label form="short" text-case="capitalize-first" variable="section"/>
         </if>
       </choose>
       <text text-case="title" variable="section"/>
@@ -767,9 +767,12 @@
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <choose>
-          <if match="any" variable="issue supplement-number volume">
-            <text macro="date-issued-leading-zeros-year-month"/>
+          <if type="article-newspaper">
+            <text macro="date-issued-leading-zeros-full"/>
           </if>
+          <else-if match="any" variable="issue supplement-number volume">
+            <text macro="date-issued-leading-zeros-year-month"/>
+          </else-if>
           <else>
             <text macro="date-issued-leading-zeros-full"/>
           </else>
@@ -2093,12 +2096,18 @@
     <group delimiter=". ">
       <text macro="source-serial-title-volume-bib"/>
       <choose>
-        <if variable="collection-title volume">
+        <if type="article-newspaper">
           <group delimiter=", ">
             <text macro="source-serial-title-bib"/>
             <text macro="source-serial-identifier-bib"/>
           </group>
         </if>
+        <else-if variable="collection-title volume">
+          <group delimiter=", ">
+            <text macro="source-serial-title-bib"/>
+            <text macro="source-serial-identifier-bib"/>
+          </group>
+        </else-if>
         <else-if variable="volume">
           <group delimiter=" ">
             <text macro="source-serial-title-bib"/>
@@ -2180,7 +2189,12 @@
   <macro name="source-serial-identifier-volume-bib">
     <group delimiter=", ">
       <choose>
-        <if match="any" variable="issue supplement-number volume">
+        <if type="article-newspaper">
+          <!-- newspapers provide the full date in place of volume/issue numbers (CMOS 14.89) -->
+          <text variable="collection-title"/>
+          <text macro="source-serial-volume-status-bib"/>
+        </if>
+        <else-if match="any" variable="issue supplement-number volume">
           <choose>
             <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
               <!-- date appears first if the serial title has been substituted for a missing author (CMOS 14.102) -->
@@ -2214,7 +2228,7 @@
               </if>
             </choose>
           </group>
-        </if>
+        </else-if>
         <else>
           <text variable="collection-title"/>
           <!-- publisher possible with `interview` (CMOS 14.110) -->
@@ -2255,6 +2269,8 @@
       <else-if variable="number">
         <text variable="number"/>
       </else-if>
+      <!-- do not give pages for newspapers (CMOS 14.89) -->
+      <else-if type="article-newspaper"/>
       <else>
         <text variable="page"/>
       </else>
@@ -3125,11 +3141,14 @@
   </macro>
   <macro name="source-date-issued-full-serial">
     <choose>
-      <if variable="issue volume">
+      <if type="article-newspaper">
+        <text macro="date-issued-full"/>
+      </if>
+      <else-if variable="issue volume">
         <date date-parts="year" form="text" variable="issued"/>
         <!-- 17th edition: -->
         <!-- <date date-parts="year-month" form="text" variable="issued"/> -->
-      </if>
+      </else-if>
       <else-if variable="supplement-number volume">
         <date date-parts="year" form="text" variable="issued"/>
         <!-- 17th edition: -->
