@@ -46,6 +46,7 @@
       <term form="short" name="personal-communication">pers. comm.</term>
       <term name="podcast-episode">episode</term>
       <term name="review-of">review of the</term>
+      <term form="short" name="review-of">review of</term>
       <term name="sub-verbo">under</term>
       <term form="short" name="sub-verbo">under</term>
       <term form="short" name="translator">trans.</term>
@@ -835,7 +836,7 @@
     <!-- Sort items by issue date as printed by `source-date-issued-month-day` macro -->
     <choose>
       <if type="personal_communication" variable="event-date issued">
-        <date date-parts="year" form="numeric" variable="event-date"/>
+        <date date-parts="year" form="text" variable="event-date"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <choose>
@@ -864,7 +865,7 @@
             </choose>
           </if>
           <else>
-            <date date-parts="year" form="numeric" variable="issued"/>
+            <date date-parts="year" form="text" variable="issued"/>
           </else>
         </choose>
       </else-if>
@@ -874,7 +875,7 @@
             <text macro="date-issued-leading-zeros-full"/>
           </if>
           <else>
-            <date date-parts="year" form="numeric" variable="issued"/>
+            <date date-parts="year" form="text" variable="issued"/>
           </else>
         </choose>
       </else-if>
@@ -882,7 +883,7 @@
         <text macro="date-issued-leading-zeros-full"/>
       </else-if>
       <else>
-        <date date-parts="year" form="numeric" variable="issued"/>
+        <date date-parts="year" form="text" variable="issued"/>
       </else>
     </choose>
   </macro>
@@ -965,10 +966,10 @@
   <macro name="date-original-year">
     <choose>
       <if is-uncertain-date="original-date">
-        <date date-parts="year" form="numeric" prefix="[" suffix="?]" variable="original-date"/>
+        <date date-parts="year" form="text" prefix="[" suffix="?]" variable="original-date"/>
       </if>
       <else>
-        <date date-parts="year" form="numeric" variable="original-date"/>
+        <date date-parts="year" form="text" variable="original-date"/>
       </else>
     </choose>
   </macro>
@@ -1614,7 +1615,7 @@
   </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text term="review-of"/>
+      <text form="short" term="review-of"/>
       <text macro="description-review-title-short"/>
     </group>
   </macro>
@@ -1622,12 +1623,26 @@
     <!-- Anonymous reviews appear as 'unsigned' (CMOS 14.102) -->
     <choose>
       <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-        <text term="review-of" text-case="capitalize-first"/>
+        <choose>
+          <if variable="reviewed-genre">
+            <text term="review-of" text-case="capitalize-first"/>
+          </if>
+          <else>
+            <text form="short" term="review-of" text-case="capitalize-first"/>
+          </else>
+        </choose>
       </if>
       <else>
         <group delimiter=" ">
           <text term="anonymous" text-case="capitalize-first"/>
-          <text term="review-of"/>
+          <choose>
+            <if variable="reviewed-genre">
+              <text term="review-of"/>
+            </if>
+            <else>
+              <text form="short" term="review-of"/>
+            </else>
+          </choose>
         </group>
       </else>
     </choose>
@@ -2380,8 +2395,12 @@
         </else-if>
         <else>
           <text variable="collection-title"/>
-          <!-- publisher possible with `interview` (CMOS 14.110) -->
-          <text variable="publisher"/>
+          <choose>
+            <if match="any" type="interview" variable="interviewer">
+              <!-- publisher possible with `interview` (cf. CMOS 14.110) -->
+              <text variable="publisher"/>
+            </if>
+          </choose>
           <text macro="source-serial-volume-status-bib"/>
         </else>
       </choose>
@@ -2997,6 +3016,7 @@
         <choose>
           <!-- `edition` provides an alternative label to `reprint` (CMOS 14.16) -->
           <if match="any" variable="edition original-title"/>
+          <else-if match="none" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
           <else-if variable="issued original-date">
             <text text-case="capitalize-first" value="reprint"/>
           </else-if>
