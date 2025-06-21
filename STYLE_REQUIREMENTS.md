@@ -60,22 +60,22 @@ You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly
 ##### 5 - Style ID
 
 The style ID must be "http://www.zotero.org/styles/file-name", with "file-name" representing the style's file name without the ".csl" extension. 
-For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <id>http://www.zotero.org/styles/modern-humanities-research-association</id>
+     <id>http://www.zotero.org/styles/modern-humanities-research-association-notess</id>
    </info>
 ```
 
 ##### 6 - "self" Link
 
 The style's "self" link, which tells where the style will available online, must be "http://www.zotero.org/styles/file-name", with "**file-name**" representing the style's file name without the ".csl" extension. 
-For example, "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <link href="http://www.zotero.org/styles/modern-humanities-research-association" rel="self"/>
+     <link href="http://www.zotero.org/styles/modern-humanities-research-association-notes" rel="self"/>
    </info>
 ```
 
