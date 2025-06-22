@@ -2036,7 +2036,11 @@
       <!-- `collection-title` is for any serial with multiple series (e.g. 'second series') -->
       <text variable="collection-title"/>
       <choose>
-        <if match="any" variable="issue supplement-number volume">
+        <if type="article-newspaper">
+          <!-- newspapers cited by date (MHRA 7.6) -->
+          <text macro="source-serial-volume-status"/>
+        </if>
+        <else-if match="any" variable="issue supplement-number volume">
           <group delimiter=" ">
             <group delimiter=", ">
               <choose>
@@ -2055,7 +2059,7 @@
             </group>
             <text macro="source-date" prefix="(" suffix=")"/>
           </group>
-        </if>
+        </else-if>
         <else-if type="paper-conference">
           <!-- with an unpublished conference paper, event place and date are bracketed in `source-event` (MHRA 7.10.vi) -->
           <choose>
@@ -2705,7 +2709,10 @@
   </macro>
   <macro name="source-date-issued-day-month-serial">
     <choose>
-      <if match="any" variable="supplement-number volume"/>
+      <if type="article-newspaper">
+        <text macro="date-issued-day-month"/>
+      </if>
+      <else-if match="any" variable="supplement-number volume"/>
       <else-if variable="issue">
         <text macro="date-issued-month"/>
       </else-if>
@@ -2726,27 +2733,13 @@
         <text macro="date-original-year"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <choose>
-          <if variable="volume">
-            <text macro="date-original-month"/>
-          </if>
-          <else>
-            <text macro="date-original-day-month"/>
-          </else>
-        </choose>
+        <text macro="source-date-original-day-month-serial"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
           <if match="none" variable="collection-editor compiler editor editorial-director">
             <!-- serial usage -->
-            <choose>
-              <if variable="volume">
-                <text macro="date-original-month"/>
-              </if>
-              <else>
-                <text macro="date-original-day-month"/>
-              </else>
-            </choose>
+            <text macro="source-date-original-day-month-serial"/>
           </if>
         </choose>
       </else-if>
@@ -2761,6 +2754,20 @@
       <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software speech standard webpage">
         <text macro="date-original-day-month"/>
       </else-if>
+    </choose>
+  </macro>
+  <macro name="source-date-original-day-month-serial">
+    <choose>
+      <if type="article-newspaper">
+        <text macro="date-original-day-month"/>
+      </if>
+      <else-if match="any" variable="supplement-number volume"/>
+      <else-if variable="issue">
+        <text macro="date-original-month"/>
+      </else-if>
+      <else>
+        <text macro="date-original-day-month"/>
+      </else>
     </choose>
   </macro>
   <macro name="source-date-status">
