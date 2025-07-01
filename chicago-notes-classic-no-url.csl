@@ -59,7 +59,7 @@
         <multiple>lines</multiple>
       </term>
       <term name="manuscript">unpublished manuscript</term>
-      <term name="narrator" form="verb">read by</term>
+      <term form="verb" name="narrator">read by</term>
       <!-- both 'narrated by' (CMOS 14.58) and 'read by' (CMOS 14.164): taking the latter as it is in the section on recorded readings -->
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
@@ -227,8 +227,14 @@
   <macro name="label-locator">
     <group delimiter=" ">
       <choose>
-        <!-- with `classic`, a `section` locator provides a classical reference -->
-        <if locator="section" type="classic"/>
+        <if locator="book chapter part verse" match="any">
+          <!-- a composite canonical reference is identified by its formatting and does not need a label (CMOS 14.143-54) -->
+          <choose>
+            <if is-numeric="locator">
+              <label form="short" variable="locator"/>
+            </if>
+          </choose>
+        </if>
         <else-if locator="page"/>
         <else>
           <label form="short" variable="locator"/>
@@ -4656,12 +4662,32 @@
           <text macro="source-locator-subsequent"/>
         </group>
       </if>
-      <else-if locator="section" type="classic">
-        <!-- `section` is the closest CSL locator to a classical reference -->
-        <group delimiter=" ">
-          <text macro="citation-notes-shortened-author-title-item"/>
-          <text macro="source-locator-subsequent"/>
-        </group>
+      <else-if type="classic">
+        <!-- with `classic`, a composite canonical reference or identifying number is separated by a space rather than a comma (CMOS 14.145) -->
+        <choose>
+          <if locator="book chapter part verse" match="any">
+            <choose>
+              <if is-numeric="locator">
+                <group delimiter=", ">
+                  <text macro="citation-notes-shortened-author-title-item"/>
+                  <text macro="source-locator-subsequent"/>
+                </group>
+              </if>
+              <else>
+                <group delimiter=" ">
+                  <text macro="citation-notes-shortened-author-title-item"/>
+                  <text macro="source-locator-subsequent"/>
+                </group>
+              </else>
+            </choose>
+          </if>
+          <else>
+            <group delimiter=", ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </else>
+        </choose>
       </else-if>
       <else>
         <group delimiter=", ">
