@@ -227,15 +227,12 @@
   <macro name="label-locator">
     <group delimiter=" ">
       <choose>
-        <if locator="book chapter line verse" match="any">
-          <!-- a composite canonical reference is identified by its formatting and does not need a label (CMOS 14.143-54) -->
-          <choose>
-            <if is-numeric="locator">
-              <label form="short" variable="locator"/>
-            </if>
-          </choose>
-        </if>
-        <else-if locator="page"/>
+        <if locator="page"/>
+        <else-if is-numeric="locator">
+          <label form="short" variable="locator"/>
+        </else-if>
+        <else-if locator="book chapter line verse" match="any"/>
+        <!-- a non-numeric canonical reference is identified by its formatting and does not need a label (CMOS 14.143-54) -->
         <else>
           <label form="short" variable="locator"/>
         </else>
@@ -375,7 +372,7 @@
       <label form="short" prefix=", "/>
       <substitute>
         <names variable="author"/>
-        <!-- cf. `interview` model (CMOS 14.110); use `contributor` if `host` should be prioritized -->
+        <!-- cf. `interview` model (CMOS 14.110); if it is desired to prioritize `host` over `guest`, the latter could be encoded as a `contributor` -->
         <names variable="guest"/>
         <names variable="host"/>
         <choose>
@@ -3877,24 +3874,20 @@
         </group>
       </if>
       <else-if type="classic">
-        <!-- with `classic`, a composite canonical reference or identifying number is separated by a space rather than a comma (CMOS 14.145) -->
+        <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS 14.145) -->
         <choose>
-          <if locator="book chapter line verse" match="any">
-            <choose>
-              <if is-numeric="locator">
-                <group delimiter=", ">
-                  <text macro="citation-notes-shortened-author-title-item"/>
-                  <text macro="source-locator-subsequent"/>
-                </group>
-              </if>
-              <else>
-                <group delimiter=" ">
-                  <text macro="citation-notes-shortened-author-title-item"/>
-                  <text macro="source-locator-subsequent"/>
-                </group>
-              </else>
-            </choose>
+          <if is-numeric="locator">
+            <group delimiter=", ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
           </if>
+          <else-if locator="book chapter line verse" match="any">
+            <group delimiter=" ">
+              <text macro="citation-notes-shortened-author-title-item"/>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </else-if>
           <else>
             <group delimiter=", ">
               <text macro="citation-notes-shortened-author-title-item"/>
