@@ -67,6 +67,7 @@
       <term form="short" name="review-of">review of</term>
       <term name="sub-verbo">under</term>
       <term form="short" name="sub-verbo">under</term>
+      <term name="timestamp">at</term>
       <term form="verb-short" name="translator">trans.</term>
     </terms>
   </locale>
@@ -689,8 +690,12 @@
   <macro name="author-title-substitute-container">
     <choose>
       <if match="none" variable="container-title"/>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <!-- Anonymous serials substitute name of publication (CMOS18 14.87, 14.97, 14.102) -->
+      <else-if match="any" type="article-magazine article-newspaper">
+        <!-- Anonymous magazine and newspaper articles substitute name of publication (CMOS18 14.87, 14.97) -->
+        <text macro="source-serial-name"/>
+      </else-if>
+      <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text macro="source-serial-name"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
@@ -718,8 +723,12 @@
   <macro name="author-title-substitute-container-short">
     <choose>
       <if match="none" variable="container-title"/>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <!-- Anonymous works in serials substitute name of publication (CMOS18 14.87, 14.97, 14.102) -->
+      <else-if match="any" type="article-magazine article-newspaper">
+        <!-- Anonymous magazine/newspaper articles substitute name of publication (CMOS18 14.87, 14.97) -->
+        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+      </else-if>
+      <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text font-style="italic" form="short" text-case="title" variable="container-title"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
@@ -3045,16 +3054,20 @@
         </if>
         <else-if match="any" variable="issue supplement-number volume">
           <choose>
-            <!-- date appears first if the serial title has been substituted for a missing author (CMOS18 14.89) -->
-            <!-- the conditions below mirror substitution in `author-note` -->
-            <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator"/>
-            <else-if match="any" variable="reviewed-genre reviewed-title title"/>
-            <else-if match="none" variable="genre section"/>
-            <else>
-              <text macro="source-date-note"/>
-              <!-- for author-date 17th edition: -->
-              <!-- <text macro="source-date-issued-month-day"/> -->
-            </else>
+            <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+              <choose>
+                <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+                <!-- the conditions below mirror substitution in `author-note` -->
+                <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator"/>
+                <else-if match="any" variable="reviewed-genre reviewed-title title"/>
+                <else-if match="none" variable="genre section"/>
+                <else>
+                  <text macro="source-date-note"/>
+                  <!-- for author-date 17th edition: -->
+                  <!-- <text macro="source-date-issued-month-day"/> -->
+                </else>
+              </choose>
+            </if>
           </choose>
           <!-- `collection-title` is for any serial with multiple series (e.g. 'second series') -->
           <text variable="collection-title"/>
@@ -3066,18 +3079,25 @@
                 </if>
                 <else-if variable="volume">
                   <choose>
-                    <!-- date appears first if the serial title has been substituted for a missing author (CMOS18 14.89) -->
-                    <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                      <text variable="volume"/>
+                    <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                      <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+                      <choose>
+                        <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                          <text variable="volume"/>
+                        </if>
+                        <else-if match="any" variable="reviewed-genre reviewed-title title">
+                          <text variable="volume"/>
+                        </else-if>
+                        <else-if match="none" variable="genre section">
+                          <text variable="volume"/>
+                        </else-if>
+                        <else>
+                          <text macro="label-volume"/>
+                        </else>
+                      </choose>
                     </if>
-                    <else-if match="any" variable="reviewed-genre reviewed-title title">
-                      <text variable="volume"/>
-                    </else-if>
-                    <else-if match="none" variable="genre section">
-                      <text variable="volume"/>
-                    </else-if>
                     <else>
-                      <text macro="label-volume"/>
+                      <text variable="volume"/>
                     </else>
                   </choose>
                 </else-if>
@@ -3086,22 +3106,31 @@
               <text macro="label-supplement-number"/>
             </group>
             <choose>
-              <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                <!-- date appears first if the serial title has been substituted for a missing author (CMOS18 14.89) -->
-                <text macro="source-date-note" prefix="(" suffix=")"/>
-                <!-- for author-date 17th edition: -->
-                <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
+              <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+                <choose>
+                  <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                    <text macro="source-date-note" prefix="(" suffix=")"/>
+                    <!-- for author-date 17th edition: -->
+                    <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
+                  </if>
+                  <else-if match="any" variable="reviewed-genre reviewed-title title">
+                    <text macro="source-date-note" prefix="(" suffix=")"/>
+                    <!-- for author-date 17th edition: -->
+                    <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
+                  </else-if>
+                  <else-if match="none" variable="genre section">
+                    <text macro="source-date-note" prefix="(" suffix=")"/>
+                    <!-- for author-date 17th edition: -->
+                    <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
+                  </else-if>
+                </choose>
               </if>
-              <else-if match="any" variable="reviewed-genre reviewed-title title">
+              <else>
                 <text macro="source-date-note" prefix="(" suffix=")"/>
                 <!-- for author-date 17th edition: -->
                 <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
-              </else-if>
-              <else-if match="none" variable="genre section">
-                <text macro="source-date-note" prefix="(" suffix=")"/>
-                <!-- for author-date 17th edition: -->
-                <!-- <text macro="source-date-issued-month-day" prefix="(" suffix=")"/> -->
-              </else-if>
+              </else>
             </choose>
           </group>
         </else-if>

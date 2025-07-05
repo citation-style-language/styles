@@ -52,6 +52,7 @@
       <term form="short" name="review-of">review of</term>
       <term name="sub-verbo">under</term>
       <term form="short" name="sub-verbo">under</term>
+      <term name="timestamp">at</term>
       <term form="verb-short" name="translator">trans.</term>
     </terms>
   </locale>
@@ -637,8 +638,12 @@
   <macro name="author-title-substitute-container">
     <choose>
       <if match="none" variable="container-title"/>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <!-- Anonymous serials substitute name of publication (CMOS18 14.87, 14.97, 14.102) -->
+      <else-if match="any" type="article-magazine article-newspaper">
+        <!-- Anonymous magazine and newspaper articles substitute name of publication (CMOS18 14.87, 14.97) -->
+        <text macro="source-serial-name"/>
+      </else-if>
+      <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text macro="source-serial-name"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
@@ -666,8 +671,12 @@
   <macro name="author-title-substitute-container-short">
     <choose>
       <if match="none" variable="container-title"/>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <!-- Anonymous works in serials substitute name of publication (CMOS18 14.87, 14.97, 14.102) -->
+      <else-if match="any" type="article-magazine article-newspaper">
+        <!-- Anonymous magazine/newspaper articles substitute name of publication (CMOS18 14.87, 14.97) -->
+        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+      </else-if>
+      <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text font-style="italic" form="short" text-case="title" variable="container-title"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
@@ -2345,17 +2354,21 @@
         </if>
         <else-if match="any" variable="issue supplement-number volume">
           <choose>
-            <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-              <!-- date appears first if the serial title has been substituted for a missing author (CMOS18 14.102) -->
+            <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+              <!-- date appears first if the magazine or review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
               <choose>
-                <!-- no extra date details with a volume plus issue/supplement -->
-                <if variable="issue volume"/>
-                <else-if variable="supplement-number"/>
-                <!-- nothing to substitute if there is no issue/supplement/volume -->
-                <else-if match="none" variable="issue volume"/>
-                <else>
-                  <text macro="source-date-issued-month-day"/>
-                </else>
+                <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                  <choose>
+                    <!-- no extra date details with a volume plus issue/supplement -->
+                    <if variable="issue volume"/>
+                    <else-if variable="supplement-number"/>
+                    <!-- nothing to substitute if there is no issue/supplement/volume -->
+                    <else-if match="none" variable="issue volume"/>
+                    <else>
+                      <text macro="source-date-issued-month-day"/>
+                    </else>
+                  </choose>
+                </if>
               </choose>
             </if>
           </choose>
@@ -2368,16 +2381,20 @@
                   <if variable="collection-title">
                     <text macro="label-volume"/>
                   </if>
-                  <else-if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                    <text variable="volume"/>
+                  <else-if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                    <!-- provide label if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
+                    <choose>
+                      <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                        <text variable="volume"/>
+                      </if>
+                      <!-- TODO: when CSL provides date part detection, volume should be lowercase if there is a month, but otherwise capitalized -->
+                      <else>
+                        <text macro="label-volume-capitalized"/>
+                      </else>
+                    </choose>
                   </else-if>
-                  <!-- provide label if the serial title has been substituted for a missing author (CMOS18 14.102) -->
-                  <else-if match="any" variable="issue supplement-number">
-                    <text macro="label-volume-capitalized"/>
-                  </else-if>
-                  <!-- TODO: when CSL provides date part detection, volume should be lowercase if there is a month, but otherwise capitalized -->
                   <else>
-                    <text macro="label-volume-capitalized"/>
+                    <text variable="volume"/>
                   </else>
                 </choose>
                 <group delimiter=", " prefix="(" suffix=")">
@@ -2386,9 +2403,17 @@
                       <text variable="issue"/>
                       <text macro="label-supplement-number"/>
                     </if>
-                    <else-if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                      <text macro="source-date-issued-month-day"/>
+                    <else-if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                      <!-- date for anonymous magazine and review articles only appears here if it did not earlier (CMOS18 14.87, 14.102) -->
+                      <choose>
+                        <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                          <text macro="source-date-issued-month-day"/>
+                        </if>
+                      </choose>
                     </else-if>
+                    <else>
+                      <text macro="source-date-issued-month-day"/>
+                    </else>
                   </choose>
                 </group>
               </if>
@@ -3148,7 +3173,6 @@
         <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else>
-        <text macro="source-date-issued-or-status"/>
         <text macro="source-date-issued-full"/>
         <!-- for author-date 18th edition: -->
         <!-- <text macro="source-date-issued-month-day"/> -->
@@ -3268,52 +3292,6 @@
       </else-if>
       <else>
         <text macro="date-issued-month-day"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="source-date-issued-or-status">
-    <choose>
-      <if match="any" variable="event-date issued">
-        <text macro="source-date-issued-full"/>
-      </if>
-      <else-if variable="status">
-        <text text-case="lowercase" variable="status"/>
-      </else-if>
-      <else-if match="any" type="interview personal_communication">
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <!-- only give n.d. for accessible personal communication (CMOS18 14.111)-->
-            <text form="short" term="no date"/>
-          </if>
-        </choose>
-      </else-if>
-      <!-- types with unusual reference (CMOS18 14.44, 14.127) -->
-      <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia webpage"/>
-      <else-if type="manuscript">
-        <!-- do not give n.d. with a bare shelfmark -->
-        <choose>
-          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
-            <text form="short" term="no date"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if type="article-journal">
-        <choose>
-          <if match="any" variable="number page">
-            <text form="short" term="no date"/>
-          </if>
-          <else-if match="any" variable="available-date collection-title issue supplement-number volume">
-            <!-- journal articles should be forthcoming with an issue/volume but no date or locator (CMOS18 14.75) -->
-            <text term="forthcoming"/>
-          </else-if>
-          <else>
-            <text form="short" term="no date"/>
-          </else>
-        </choose>
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else>
-        <text form="short" term="no date"/>
       </else>
     </choose>
   </macro>
