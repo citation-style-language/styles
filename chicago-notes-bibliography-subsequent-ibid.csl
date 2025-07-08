@@ -513,7 +513,12 @@
             <text macro="author-title-substitute-note"/>
           </else-if>
           <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-            <text macro="author-title-substitute-reference-note"/>
+            <!-- unsigned reference articles consulted in physical formats list `title` in the manner of a `sub-verbo` locator (CMOS18 14.130) -->
+            <choose>
+              <if match="none" variable="DOI URL">
+                <text macro="author-title-substitute-reference-note"/>
+              </if>
+            </choose>
           </else-if>
         </choose>
         <names variable="illustrator"/>
@@ -632,7 +637,12 @@
                 <text macro="author-title-substitute-short"/>
               </else-if>
               <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-                <text macro="author-title-substitute-container"/>
+                <!-- unsigned reference articles consulted in physical formats list `title` in the manner of a `sub-verbo` locator (CMOS18 14.130) -->
+                <choose>
+                  <if match="none" variable="DOI URL">
+                    <text macro="author-title-substitute-container"/>
+                  </if>
+                </choose>
               </else-if>
             </choose>
             <names variable="illustrator"/>
@@ -886,7 +896,7 @@
     </choose>
   </macro>
   <macro name="author-title-substitute-reference-note">
-    <!-- unsigned reference entries treat `title` as a locator (CMOS18 14.130) -->
+    <!-- unsigned reference articles consulted in physical formats list `title` in the manner of a `sub-verbo` locator (CMOS18 14.130) -->
     <group delimiter=", ">
       <group delimiter=" ">
         <group delimiter=", ">
@@ -3753,7 +3763,7 @@
       </if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <choose>
-          <if match="any" variable="author composer">
+          <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
             <!-- Give preposition only if title has not been substituted -->
             <text term="in"/>
           </if>
@@ -4544,12 +4554,24 @@
   <macro name="source-monographic-publication-note-bracketed">
     <!-- Facts of publication with brackets for print monographic formats -->
     <choose>
-      <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+      <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis">
         <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
       </if>
       <else-if type="article" variable="genre publisher">
         <!-- without brackets for a preprint in a repository (CMOS18 14.76), with brackets for a working paper (CMOS18 14.116) -->
         <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+      </else-if>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="any" variable="publisher publisher-place">
+            <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+          </if>
+          <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+          <else-if match="any" variable="DOI URL"/>
+          <else>
+            <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
+          </else>
+        </choose>
       </else-if>
       <else-if type="motion_picture" variable="publisher">
         <text macro="source-monographic-publication-note" prefix="(" suffix=")"/>
@@ -4571,8 +4593,17 @@
   <macro name="source-monographic-publication-note-unbracketed">
     <!-- Facts of publication without brackets -->
     <choose>
-      <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+      <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis"/>
       <else-if type="article" variable="genre publisher"/>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="any" variable="publisher publisher-place"/>
+          <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+          <else-if match="any" variable="DOI URL">
+            <text macro="source-monographic-publication-note"/>
+          </else-if>
+        </choose>
+      </else-if>
       <else-if type="motion_picture" variable="publisher"/>
       <else-if type="personal_communication">
         <choose>
@@ -4596,7 +4627,7 @@
           <group delimiter=", ">
             <choose>
               <!-- Facts of publication with brackets for print monographic formats -->
-              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+              <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis">
                 <choose>
                   <if disambiguate="true">
                     <text macro="source-publication-publisher-note"/>
@@ -4612,6 +4643,28 @@
                   </if>
                 </choose>
                 <text macro="source-date-note"/>
+              </else-if>
+              <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+                <choose>
+                  <if match="any" variable="publisher publisher-place">
+                    <choose>
+                      <if disambiguate="true">
+                        <text macro="source-publication-publisher-note"/>
+                      </if>
+                    </choose>
+                    <text macro="source-date-note"/>
+                  </if>
+                  <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+                  <else-if match="any" variable="DOI URL"/>
+                  <else>
+                    <choose>
+                      <if disambiguate="true">
+                        <text macro="source-publication-publisher-note"/>
+                      </if>
+                    </choose>
+                    <text macro="source-date-note"/>
+                  </else>
+                </choose>
               </else-if>
               <else-if type="motion_picture" variable="publisher">
                 <choose>
@@ -4645,8 +4698,17 @@
       <if disambiguate="true">
         <choose>
           <!-- Facts of publication without brackets -->
-          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+          <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis"/>
           <else-if type="article" variable="genre publisher"/>
+          <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+            <choose>
+              <if match="any" variable="publisher publisher-place"/>
+              <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+              <else-if match="any" variable="DOI URL">
+                <text macro="source-date-note"/>
+              </else-if>
+            </choose>
+          </else-if>
           <else-if type="motion_picture" variable="publisher"/>
           <else-if type="personal_communication">
             <choose>
@@ -5940,7 +6002,7 @@
         </choose>
       </else-if>
       <else-if match="any" type="interview personal_communication">
-        <!-- CMOS18 14.13, 14.111: Personal communications only appear in the bibliography if the reader can retrieve them -->
+        <!-- Personal communications only appear in the bibliography if the reader can retrieve them (CMOS18 14.13, 14.111) -->
         <choose>
           <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
             <text macro="bibliography-notes"/>

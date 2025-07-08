@@ -486,7 +486,12 @@
                 <text macro="author-title-substitute-short"/>
               </else-if>
               <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-                <text macro="author-title-substitute-container"/>
+                <!-- unsigned reference articles consulted in physical formats list `title` in the manner of a `sub-verbo` locator (CMOS18 14.130) -->
+                <choose>
+                  <if match="none" variable="DOI URL">
+                    <text macro="author-title-substitute-container"/>
+                  </if>
+                </choose>
               </else-if>
             </choose>
             <names variable="illustrator"/>
@@ -2904,7 +2909,7 @@
           <group delimiter=", ">
             <choose>
               <!-- Facts of publication with brackets for print monographic formats -->
-              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+              <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis">
                 <choose>
                   <if disambiguate="true">
                     <text macro="source-publication-publisher-note"/>
@@ -2920,6 +2925,28 @@
                   </if>
                 </choose>
                 <text macro="source-date-note"/>
+              </else-if>
+              <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+                <choose>
+                  <if match="any" variable="publisher publisher-place">
+                    <choose>
+                      <if disambiguate="true">
+                        <text macro="source-publication-publisher-note"/>
+                      </if>
+                    </choose>
+                    <text macro="source-date-note"/>
+                  </if>
+                  <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+                  <else-if match="any" variable="DOI URL"/>
+                  <else>
+                    <choose>
+                      <if disambiguate="true">
+                        <text macro="source-publication-publisher-note"/>
+                      </if>
+                    </choose>
+                    <text macro="source-date-note"/>
+                  </else>
+                </choose>
               </else-if>
               <else-if type="motion_picture" variable="publisher">
                 <choose>
@@ -2953,8 +2980,17 @@
       <if disambiguate="true">
         <choose>
           <!-- Facts of publication without brackets -->
-          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+          <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis"/>
           <else-if type="article" variable="genre publisher"/>
+          <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+            <choose>
+              <if match="any" variable="publisher publisher-place"/>
+              <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+              <else-if match="any" variable="DOI URL">
+                <text macro="source-date-note"/>
+              </else-if>
+            </choose>
+          </else-if>
           <else-if type="motion_picture" variable="publisher"/>
           <else-if type="personal_communication">
             <choose>
