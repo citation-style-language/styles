@@ -42,9 +42,9 @@ An example:
 
 ### 3.1 - **Natural Language Version of default-locale in Style's Title**
 
-If you set `default-locale` attribute to any value <ins>other than</ins> English (`en-*`), you also need to include the name of that language in your style's title **in parentheses**, as already done above!
+If you set `default-locale` to any language <ins>other than</ins> English (`en-*`), you also need to include the name of that language in your style's title **in parentheses**, as already done above.
 
-For example:
+An example:
 
 `<title>Associação Brasileira de Normas Técnicas</title>` shall become `<title>Associacao Brasileira de Normas Tecnicas (Portuguese (Brazil))</title>`.
 
