@@ -68,6 +68,7 @@
             4.9. Archival location
             4.10. URL or persistent identifier
   -->
+  <!-- MHRA draws heavily on the Oxford Style Manual <https://archive.org/details/oxfordstylemanua0000unse> (especially its approach to the author-date system, 15.19), with some updates from more recent editions (including New Hart's Rules). This file follows OSM/NHR guidance where MHRA is silent. It also reuses code written for the Chicago Manual of Style (CMOS) and APA. -->
   <!-- Categories of CSL item types:
 
        Serial
@@ -262,15 +263,7 @@
   </macro>
   <macro name="label-version">
     <group delimiter=" ">
-      <choose>
-        <if type="software">
-          <!-- short version label software (cf. CMOS18 14.169) -->
-          <label form="short" variable="version"/>
-        </if>
-        <else>
-          <label variable="version"/>
-        </else>
-      </choose>
+      <label variable="version"/>
       <text variable="version"/>
     </group>
   </macro>
@@ -303,7 +296,6 @@
             </if>
           </choose>
           <names variable="author"/>
-          <!-- cf. `interview` model (cf. CMOS18 14.110); use `contributor` if `host` should be prioritized -->
           <names variable="host"/>
           <names variable="guest"/>
           <choose>
@@ -341,7 +333,7 @@
           <names variable="curator"/>
           <choose>
             <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (cf. CMOS18 14.169) -->
+              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
@@ -402,7 +394,7 @@
           <!-- do not list editors or translators as authors (MHRA 7.3) -->
           <choose>
             <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169) -->
+              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
@@ -455,7 +447,7 @@
             </choose>
             <choose>
               <if type="software">
-                <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169) -->
+                <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
                 <text variable="publisher"/>
               </if>
               <else-if type="standard">
@@ -1102,7 +1094,7 @@
         <text macro="description-serial"/>
       </else-if>
       <else-if type="paper-conference">
-        <text macro="description-paper"/>
+        <text macro="description-paper-conference"/>
       </else-if>
       <else-if type="song" variable="composer">
         <text macro="description-song"/>
@@ -1336,7 +1328,7 @@
         </choose>
       </else-if>
       <else>
-        <!-- generic description for an unpublished interview (based on CMOS18 14.108) -->
+        <!-- generic description for an unpublished interview (cf. CMOS18 14.108) -->
         <text term="interview"/>
       </else>
     </choose>
@@ -1393,7 +1385,7 @@
       <date form="text" variable="event-date"/>
     </group>
   </macro>
-  <macro name="description-paper">
+  <macro name="description-paper-conference">
     <choose>
       <if match="any" variable="collection-editor container-author editor editorial-director">
         <!-- monographic usage -->
@@ -3020,7 +3012,7 @@
           <if match="any" type="interview personal_communication">
             <choose>
               <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- unpublished `interview` or `personal_communication` use inline format (cf. CMOS18 14.111) -->
+                <!-- unpublished `interview` or `personal_communication` use inline format (NHR 17.3.2) -->
                 <text macro="date-short"/>
               </if>
             </choose>
@@ -3069,6 +3061,47 @@
       <text variable="references"/>
     </group>
   </macro>
+  <macro name="bibliography-filtered-notes">
+    <!-- MHRA does not provide specific guidance on excluding citations from the bibliography (MHRA 8.3), but this seems to be the intent, as some of its examples are only usable in a note; this macro follows guidance in NHR and CMOS. -->
+    <choose>
+      <if type="classic">
+        <choose>
+          <if match="any" variable="archive editor translator publisher">
+            <text macro="bibliography-notes"/>
+          </if>
+        </choose>
+      </if>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if variable="author">
+            <!-- Only signed reference entries appear in the bibliography: the MHRA model for an unsigned entry is only usable as a note (MHRA 7.5.ix) -->
+            <text macro="bibliography-notes"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if match="any" type="interview personal_communication">
+        <!-- Personal communications only appear in the bibliography if the reader can retrieve them (cf. MHRA 7.11, NHR 17.3.2, CMOS18 14.13, 14.111) -->
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <text macro="bibliography-notes"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if match="any" type="document manuscript paper-conference speech">
+        <!-- In note styles, the bibliography also omits inaccessible manuscripts (cf. CMOS18 14.114), conference papers (cf. CMOS18 14.115), and private documents (cf. CMOS18 14.118) -->
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <text macro="bibliography-notes"/>
+          </if>
+        </choose>
+      </else-if>
+      <!-- social media content usually omitted from the bibliography (cf. CMOS18 14.106) -->
+      <else-if type="post"/>
+      <else>
+        <text macro="bibliography-notes"/>
+      </else>
+    </choose>
+  </macro>
   <bibliography hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;" subsequent-author-substitute-rule="partial-first">
     <sort>
       <key macro="author-bib"/>
@@ -3080,7 +3113,7 @@
       <key macro="source-archive"/>
     </sort>
     <layout>
-      <text macro="bibliography-notes"/>
+      <text macro="bibliography-filtered-notes"/>
     </layout>
   </bibliography>
 </style>
