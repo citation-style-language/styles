@@ -52,7 +52,7 @@ To create the file name from the title:
   * replace spaces and apostrophes with hyphens (e.g., "Documents d'archéologie française (French)" becomes "documents-d-archeologie-francaise.csl")
   * drop diacritics (e.g., "für" becomes "fur", not "fuer")
   * drop text between parentheses (e.g., "Ugeskrift for Læger (Danish)" becomes "ugeskrift-for-laeger.csl")
-  * avoid abbreviations (e.g., use "modern-humanities-research-association.csl" instead of "mhra.csl")
+  * avoid abbreviations (e.g., use "modern-humanities-research-association-notes.csl" instead of "mhra-notes.csl")
   * add the ".csl" extension
 
 You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly lowercase titles and replace spaces by hyphens, although you may have to make some more changes by hand.
@@ -64,7 +64,7 @@ For example, the style ID would be "http://www.zotero.org/styles/modern-humaniti
 
 ```xml
    <info>
-     <id>http://www.zotero.org/styles/modern-humanities-research-association-notess</id>
+     <id>http://www.zotero.org/styles/modern-humanities-research-association-notes</id>
    </info>
 ```
 
