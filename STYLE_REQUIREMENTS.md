@@ -119,17 +119,47 @@ If a style guide is only available in print, provide a URL that allows us to loc
 
 ```xml
    <info>
-     <link href="http://www.mhra.org.uk/Publications/Books/StyleGuide/download.shtml" rel="documentation"/>
+     <link href="https://www.mhra.org.uk/style/" rel="documentation"/>
    </info>
 ```
 
-##### 11 - XML Indentation
+##### 11 - Categories
+
+Adding [CSL subject categories](https://docs.citationstyles.org/en/stable/specification.html#appendix-i-categories) to your style enables users to find it more easily.
+For example, if your style is for a journal in the field of history, add:
+
+```xml
+   <category field="history"/>
+   <category field="humanities"/> 
+```
+
+The `generic-base` category is for styles used across multiple institutions and publishers, such as APA or Chicago, and should be removed from derivative styles.
+
+##### 12 - Authors and Contributors
+
+If you are the creator of a new style or have made significant changes to it, add yourself as an author in the `<author/>` element.
+If you are not the original author or have made minor changes, add yourself as a contributor in the `<contributor/>` element.
+
+Consider including a permanent identifier such as an ORCID ID in the `<uri/>` element:
+
+```xml
+   <author>
+     <name>Jane Smith</name>
+     <uri>https://orcid.org/0000-0002-9131-5520</uri>
+   </author>
+   <contributor>
+     <name>John Doe</name>
+     <uri>https://orcid.org/0009-0004-7791-2291</uri>
+   </contributor>
+```
+
+##### 12 - XML Indentation
 
 Indent the style's XML with 2 spaces per level. 
 Some text editors support automatic indentation of XML. 
 Alternatively, use our [style formatter](http://formatter.citationstyles.org/) tool.
 
-##### 12 - Validation
+##### 13 - Validation
 
 Make sure your finished style [validates](https://github.com/citation-style-language/styles/blob/master/STYLE_DEVELOPMENT.md#validation) against the CSL schema.
 
