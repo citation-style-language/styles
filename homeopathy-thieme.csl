@@ -5,22 +5,21 @@
     <id>http://www.zotero.org/styles/homeopathy-thieme</id>
     <link href="http://www.zotero.org/styles/homeopathy-thieme" rel="self"/>
     <link href="http://www.zotero.org/styles/american-medical-association" rel="template"/>
-    <link href="https://www.journals.elsevier.com/homeopathy/submit-your-paper" rel="documentation"/>
+    <link href="https://lp.thieme.de/open-access-files/175/author_instructions.pdf" rel="documentation"/>
     <author>
       <name>Kurian Poruthukaren</name>
     </author>
-    <author>
-      <name>ChatGPT (OpenAI)</name>
-    </author>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
-    <updated>2025-07-08T12:00:00+05:30</updated>
+    <updated>2025-07-20T07:40:07+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
     <names variable="author">
-      <name form="long" name-as-sort-order="all" initialize-with="." delimiter=", " and="text" et-al-min="7" et-al-use-first="3" sort-separator=" "/>
-      <et-al/>
+      <name and="text" et-al-min="7" et-al-use-first="3" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
     </names>
   </macro>
   <macro name="title">
@@ -28,17 +27,12 @@
       <text variable="title"/>
       <choose>
         <if type="thesis">
-          <text value=" [PhD dissertation]"/>
+          <text variable="genre" prefix=" [" suffix="]"/>
         </if>
       </choose>
     </group>
   </macro>
   <macro name="access">
-    <choose>
-      <if type="article-journal">
-        <text value=" [serial online]"/>
-      </if>
-    </choose>
     <text variable="URL" prefix=" Available at: "/>
     <date variable="accessed" prefix=" Accessed " form="text"/>
   </macro>
@@ -54,40 +48,54 @@
     </group>
   </macro>
   <macro name="publisher">
-    <group delimiter=": ">
-      <text variable="publisher-place"/>
-      <text variable="publisher"/>
-    </group>
-    <group delimiter=" ">
-      <date variable="issued" form="text"/>
-      <text variable="number"/>
+    <group delimiter="; ">
+      <group delimiter=": ">
+        <text variable="publisher-place"/>
+        <text variable="publisher"/>
+      </group>
+      <group delimiter=" ">
+        <date variable="issued" form="text"/>
+        <text variable="number"/>
+      </group>
     </group>
   </macro>
   <macro name="container-title">
-    <text variable="container-title" font-style="normal" text-case="title"/>
+    <text variable="container-title" form="short" strip-periods="true" font-style="normal"/>
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <label form="short" suffix=" "/>
-      <name form="long" initialize-with="." delimiter=", " and="text"/>
+      <name initialize-with="" name-as-sort-order="all"/>
+      <label form="short" prefix=", "/>
     </names>
+  </macro>
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <label variable="edition" form="short"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
   </macro>
   <citation>
     <layout vertical-align="sup" delimiter=",">
       <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography hanging-indent="true">
+  <bibliography second-field-align="flush" hanging-indent="true">
     <layout>
       <text variable="citation-number"/>
-      <text value=". "/>
       <group delimiter=". ">
         <text macro="author"/>
         <text macro="title"/>
       </group>
       <choose>
         <if type="article-journal">
-          <group delimiter=". ">
+          <group delimiter=" " prefix=". ">
             <text macro="container-title"/>
             <group delimiter=";">
               <text macro="issued"/>
@@ -95,33 +103,33 @@
             </group>
           </group>
         </if>
-        <else-if type="chapter">
-          <group delimiter=". ">
-            <group delimiter=" ">
+        <else-if type="chapter paper-conference" match="any">
+          <group delimiter=". " prefix=". ">
+            <group delimiter=": ">
               <text term="in" text-case="capitalize-first"/>
               <text macro="editor"/>
             </group>
             <text variable="container-title"/>
+            <group delimiter=":">
+              <text macro="publisher"/>
+              <text variable="page"/>
+            </group>
+          </group>
+        </else-if>
+        <else-if type="book thesis report" match="any">
+          <group delimiter=". " prefix=". ">
+            <text macro="edition"/>
             <text macro="publisher"/>
           </group>
         </else-if>
-        <else-if type="book">
-          <text macro="publisher"/>
-        </else-if>
-        <else-if type="thesis">
-          <text macro="publisher"/>
-        </else-if>
-        <else-if type="report">
-          <text macro="publisher"/>
-        </else-if>
         <else>
-          <group delimiter=". ">
+          <group delimiter=". " prefix=". ">
             <text macro="container-title"/>
             <text macro="publisher"/>
           </group>
         </else>
       </choose>
-      <text macro="access"/>
+      <text macro="access" prefix=". "/>
       <choose>
         <if variable="issued" match="none">
           <text variable="DOI" prefix=" https://doi.org/"/>
