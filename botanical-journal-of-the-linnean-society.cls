@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" et-al-min="3" et-al-use-first="1" page-range-format="minimal" demote-non-dropping-particle="sort-only" default-locale="en-US">
-  <!-- This style was edited with the Visual CSL Editor (https://editor.citationstyles.org/visualEditor/) -->
   <info>
     <title>Botanical Journal of the Linnean Society</title>
-    <title-short>Bot. J. Linn. Soc.</title-short>
     <id>http://www.zotero.org/styles/botanical-journa-of-the-linnean-society</id>
     <link href="https://academic.oup.com/botlinnean" rel="self"/>
     <author>
@@ -114,7 +112,7 @@
         <else-if type="chapter paper-conference" match="any">
           <group prefix=" " delimiter=". ">
             <group delimiter=": ">
-              <text term="In" text-case="capitalize-first" suffix=": "/>
+              <text term="in" text-case="capitalize-first" suffix=": "/>
               <text macro="editor"/>
             </group>
             <text variable="container-title" font-style="italic" text-case="title"/>
