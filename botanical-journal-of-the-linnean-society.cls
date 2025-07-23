@@ -2,8 +2,9 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" et-al-min="3" et-al-use-first="1" page-range-format="minimal" demote-non-dropping-particle="sort-only" default-locale="en-US">
   <info>
     <title>Botanical Journal of the Linnean Society</title>
-    <id>http://www.zotero.org/styles/botanical-journa-of-the-linnean-society</id>
-    <link href="https://academic.oup.com/botlinnean" rel="self"/>
+    <id>http://www.zotero.org/styles/botanical-journal-of-the-linnean-society</id>
+    <link href="http://www.zotero.org/styles/botanical-journal-of-the-linnean-society" rel="self"/>
+    <link href="https://academic.oup.com/botlinnean" rel="documentation"/>
     <author>
       <name>Manuel Tiburtini</name>
     </author>
@@ -11,11 +12,11 @@
     <category field="biology"/>
     <issn>0024-4074</issn>
     <eissn>1095-8339</eissn>
-    <updated>2024-11-12T21:46:52+00:00</updated>
+    <updated>2025-07-23T16:15:25+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor">
-    <names variable="editor" prefix="In: ">
+    <names variable="editor">
       <name name-as-sort-order="all" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="always"/>
       <label form="short" prefix=" (" suffix=")"/>
     </names>
@@ -112,7 +113,7 @@
         <else-if type="chapter paper-conference" match="any">
           <group prefix=" " delimiter=". ">
             <group delimiter=": ">
-              <text term="in" text-case="capitalize-first" suffix=": "/>
+              <text term="in" text-case="capitalize-first"/>
               <text macro="editor"/>
             </group>
             <text variable="container-title" font-style="italic" text-case="title"/>
