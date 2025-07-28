@@ -25,18 +25,21 @@
     <issn>2510-1358</issn>
     <summary>Style for Zeitschrift für digitale Geisteswissenschaften (ZfdG).</summary>
     <published>2019-05-28T14:00:00+00:00</published>
-    <updated>2025-07-28T10:02:05+00:00</updated>
+    <updated>2025-07-28T12:37:27+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
     <terms>
       <term name="et-al">et al.</term>
       <term name="editor">Hg.</term>
+      <term name="edition" form="short">Auflage</term>
       <term name="volume">
         <single>Bd.</single>
         <multiple>Bde.</multiple>
       </term>
+      <term name="in">in</term>
       <term name="issue">H.</term>
+      <term name="accessed">letzter Zugriff</term>
     </terms>
   </locale>
   <macro name="contributors-long">
@@ -121,7 +124,7 @@
           <group>
             <choose>
               <if variable="volume">
-                <text prefix=". " term="volume" suffix="&#160;"/>
+                <text prefix=". " term="volume" suffix=" "/>
                 <text variable="volume"/>
               </if>
             </choose>
@@ -168,12 +171,13 @@
   </macro>
   <macro name="edition">
     <choose>
-      <if is-numeric="edition" match="any">
+      <if is-numeric="edition">
         <number prefix=". " variable="edition" form="ordinal"/>
-        <text term="edition" prefix="&#160;" suffix="."/>
+        <text prefix=" " term="edition" form="short" suffix="."/>
       </if>
       <else-if variable="edition">
         <text variable="edition" prefix=". "/>
+        <text prefix=" " term="edition" form="short" suffix="."/>
       </else-if>
     </choose>
   </macro>
@@ -240,13 +244,24 @@
           <date-part name="year"/>
         </date>
       </else-if>
-      <else-if type="webpage post post-weblog" match="any">
-        <text prefix=". " term="in" suffix=": " text-case="capitalize-first"/>
-        <text variable="container-title"/>
-        <date prefix=". " variable="issued">
-          <date-part name="month" suffix=" "/>
-          <date-part name="year"/>
-        </date>
+      <else-if type="webpage">
+        <choose>
+          <if variable="container-title">
+            <text prefix=". " term="in" suffix=": " text-case="capitalize-first"/>
+            <text variable="container-title"/>    
+          </if>
+        </choose>        
+        <choose>
+          <if variable="issued"/>
+          <else-if variable="accessed">
+            <text prefix=". " term="accessed" text-case="capitalize-first" suffix=": "/>
+            <date variable="accessed" delimiter=".">
+              <date-part name="day" form="numeric-leading-zeros"/>
+              <date-part name="month" form="numeric-leading-zeros"/>
+              <date-part name="year"/>
+            </date>
+          </else-if>
+        </choose>
       </else-if>
       <else-if type="article-journal article-magazine article-newspaper" match="any">
         <group prefix=" ">
@@ -255,7 +270,7 @@
           <date variable="issued" form="numeric" prefix=" (" suffix=")" date-parts="year"/>
           <choose>
             <if variable="issue">
-              <text prefix=", " term="issue" suffix="&#160;"/>
+              <text prefix=", " term="issue" suffix=" "/>
               <text variable="issue"/>
             </if>
           </choose>
@@ -339,7 +354,7 @@
             <text macro="issued"/>
             <group>
               <choose>
-                <if type="post-weblog post webpage" match="any">
+                <if type="post-weblog">
                   <text macro="dmy" prefix=". "/>
                 </if>
                 <else-if type="book chapter" match="any"/>
