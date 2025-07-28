@@ -29,14 +29,24 @@ If your style is meant to be used in one particular language, set the `default-l
 For example, CSL styles for English-language journals should typically be set to US English ("en-US") or British English ("en-GB"). 
 For a list of languages and their locale codes, see https://github.com/citation-style-language/locales/wiki.
 
-When using `default-locale`, add the chosen locale to the style title, unless the language is English. 
-An example:
+If you set `default-locale` to a language other than English (`en-*`), add the language to the end of the style title in parentheses.
+
+Two examples:
 
 ```xml
    <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
      <info>
        <title>Zeitschrift für Soziologie (Deutsch)</title>
        <id>http://www.zotero.org/styles/zeitschrift-fur-soziologie</id>
+     </info>
+   </style>
+```
+
+```xml
+   <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="pt-BR">
+     <info>
+       <title>Associação Brasileira de Normas Técnicas (Português - Brasil)</title>
+       <id>http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas</id>
      </info>
    </style>
 ```
