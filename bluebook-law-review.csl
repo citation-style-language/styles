@@ -19,10 +19,14 @@
     <contributor>
       <name>Timothy Magill</name>
     </contributor>
+    <contributor>
+      <name>Shay Elbaum</name>
+      <email>selbaum@law.harvard.edu</email>
+    </contributor>
     <category citation-format="note"/>
     <category field="law"/>
     <summary>The Bluebook legal citation style for law reviews.</summary>
-    <updated>2024-12-19T04:13:36+00:00</updated>
+    <updated>2025-05-06T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -36,9 +40,6 @@
     <names variable="author">
       <name and="symbol" delimiter=", " delimiter-precedes-last="never"/>
       <label form="short" prefix=" "/>
-      <substitute>
-        <text variable="title"/>
-      </substitute>
     </names>
   </macro>
   <macro name="author-short">
@@ -102,14 +103,18 @@
       <else-if variable="URL">
         <group delimiter=" ">
           <text variable="URL"/>
-          <group delimiter=" " prefix="(" suffix=")">
-            <text value="last visited"/>
-            <date variable="accessed">
-              <date-part name="month" form="short" suffix=" " strip-periods="true"/>
-              <date-part name="day" suffix=", "/>
-              <date-part name="year"/>
-            </date>
-          </group>
+          <choose>
+            <if variable="issued" match="none">
+              <group delimiter=" " prefix="(" suffix=")">
+                <text value="last visited"/>
+                <date variable="accessed">
+                  <date-part name="month" form="short" suffix=" "/>
+                  <date-part name="day" suffix=", "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </if>
+          </choose>
         </group>
       </else-if>
     </choose>
@@ -163,7 +168,7 @@
           </group>
         </group>
       </else-if>
-      <else-if type="article-newspaper article-magazine thesis" match="any">
+      <else-if type="article-newspaper article-magazine" match="any">
         <group delimiter=", ">
           <text variable="title" text-case="title" font-style="italic"/>
           <group delimiter=" ">
@@ -177,6 +182,21 @@
           </group>
         </group>
       </else-if>
+      <else-if type="article thesis" match="any">
+        <group delimiter=", ">
+          <text variable="title" text-case="title"/>
+          <text macro="container"/>
+        </group>
+        <text macro="issuance" prefix=" (" suffix=")"/>
+        <choose>
+          <if type="thesis">
+            <group delimiter=", " prefix=" (" suffix=")">
+              <text variable="genre" suffix=" dissertation"/>
+              <text variable="publisher"/>
+            </group>
+          </if>
+        </choose>
+      </else-if>
       <else-if type="chapter paper-conference" match="any">
         <text variable="title" text-case="title" font-style="italic"/>
         <group prefix=", " delimiter=" " suffix=" ">
@@ -187,7 +207,7 @@
         <text variable="locator" prefix=", "/>
         <text macro="issuance" prefix=" (" suffix=")"/>
       </else-if>
-      <else-if type="book" match="any">
+      <else-if type="book report" match="any">
         <text variable="title" text-case="title" font-variant="small-caps"/>
         <text variable="locator" prefix=" "/>
         <text macro="issuance" prefix=" (" suffix=")"/>
@@ -218,14 +238,14 @@
       </if>
       <else>
         <choose>
-          <if type="article-journal article-magazine article-newspaper broadcast interview manuscript map patent personal_communication song speech thesis webpage post-weblog" match="any">
+          <if type="article article-journal article-magazine article-newspaper broadcast interview manuscript map patent personal_communication song speech thesis webpage post-weblog" match="any">
             <group>
               <choose>
-                <if type="article-newspaper thesis post-weblog" match="any">
-                  <group suffix=", ">
+                <if type="article article-newspaper thesis webpage post-weblog" match="any">
+                  <group>
                     <date variable="issued">
-                      <date-part name="month" form="short"/>
-                      <date-part name="day" prefix=" "/>
+                      <date-part name="month" form="short" suffix=" "/>
+                      <date-part name="day" prefix=" " suffix=", "/>
                     </date>
                   </group>
                 </if>
@@ -240,6 +260,14 @@
               </date>
             </group>
           </if>
+          <else-if type="legal_case">
+            <group delimiter=" ">
+              <text variable="authority"/>
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else-if>
           <else>
             <group delimiter=", ">
               <text macro="editor-translator"/>
