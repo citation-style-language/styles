@@ -24,9 +24,9 @@ jobs:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       DISTRIBUTION_UPDATER_TOKEN: "${{ secrets.DISTRIBUTION_UPDATER_TOKEN }}"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: github.event_name == 'push'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: github.event_name == 'workflow_dispatch'
       with:
         fetch-depth: 0
@@ -35,7 +35,7 @@ jobs:
       id: release
       run: echo ::set-output name=branch::v1.0.2
     - name: Checkout release branch
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ steps.release.outputs.branch }}
         path: './release'
@@ -69,7 +69,7 @@ jobs:
       if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true'))
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 3.0.2
+        ruby-version: 3.3.6
     - name: but use cache to speed that up
       if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true'))
       uses: actions/cache@v4
@@ -109,13 +109,13 @@ jobs:
         cd release
         git rm composer.json
     
-    - uses: stefanzweifel/git-auto-commit-action@v5
+    - uses: stefanzweifel/git-auto-commit-action@v6
       with:
         repository: 'release'
         commit_message: Releasing ${{ steps.update.outputs.updated_files }} ${{ steps.update.outputs.deleted_files }} ${{ steps.update.outputs.updated_composer_files }} ${{ steps.update.outputs.deleted_composer_files }}
       if: github.event_name == 'push' && (steps.update.outputs.updated == 'true' || steps.update.outputs.deleted == 'true' || steps.update.outputs.updated_composer == 'true' || steps.update.outputs.deleted_composer == 'true')
 
-    - uses: stefanzweifel/git-auto-commit-action@v5
+    - uses: stefanzweifel/git-auto-commit-action@v6
       with:
         repository: 'release'
         commit_message: ${{ github.event.inputs.commit_message }}
