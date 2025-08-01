@@ -48,6 +48,10 @@
       <term name="review-of">review of the</term>
       <term form="short" name="review-of">review of</term>
       <term name="software">computer software</term>
+      <term form="short" name="supplement">
+        <single>suppl.</single>
+        <multiple>suppls.</multiple>
+      </term>
     </terms>
   </locale>
   <locale xml:lang="da">
@@ -211,19 +215,33 @@
       </else>
     </choose>
   </macro>
-  <macro name="label-issue-capitalized">
+  <macro name="label-issue">
     <group delimiter=" ">
       <label text-case="capitalize-first" variable="issue"/>
       <text variable="issue"/>
     </group>
   </macro>
-  <macro name="label-locator-capitalized">
+  <macro name="label-locator">
     <!-- Abbreviate page and paragraph; leave other locator labels in long form (APA 8.13) -->
     <group delimiter=" ">
       <choose>
-        <if locator="page paragraph" match="any">
+        <if locator="page">
           <label form="short" variable="locator"/>
         </if>
+        <else-if match="any" type="bill hearing legal_case legislation regulation treaty">
+          <!-- Bluebook-style labels for legal types -->
+          <choose>
+            <if locator="chapter paragraph section" match="any">
+              <label form="symbol" variable="locator"/>
+            </if>
+            <else>
+              <label text-case="capitalize-first" variable="locator"/>
+            </else>
+          </choose>
+        </else-if>
+        <else-if locator="paragraph">
+          <label form="short" variable="locator"/>
+        </else-if>
         <else-if is-numeric="locator">
           <label text-case="capitalize-first" variable="locator"/>
         </else-if>
@@ -236,7 +254,7 @@
       <text variable="locator"/>
     </group>
   </macro>
-  <macro name="label-number-capitalized">
+  <macro name="label-number">
     <group delimiter=" ">
       <choose>
         <if type="standard"/>
@@ -247,14 +265,18 @@
       <text text-case="capitalize-first" variable="number"/>
     </group>
   </macro>
-  <macro name="label-number-article-capitalized">
+  <macro name="label-number-capitalized">
+    <!-- alias for cross-compatibility of Bluebook macros -->
+    <text macro="label-number"/>
+  </macro>
+  <macro name="label-number-article">
     <!-- APA example 6: Journal article with article number or eLocator -->
     <group delimiter=" ">
       <text term="article-locator" text-case="capitalize-first"/>
       <text variable="number"/>
     </group>
   </macro>
-  <macro name="label-number-of-volumes-capitalized">
+  <macro name="label-number-of-volumes">
     <group delimiter=" ">
       <choose>
         <if is-numeric="number-of-volumes">
@@ -276,7 +298,7 @@
       <text variable="page"/>
     </group>
   </macro>
-  <macro name="label-part-number-capitalized">
+  <macro name="label-part-number">
     <group delimiter=" ">
       <choose>
         <if is-numeric="part-number">
@@ -293,7 +315,7 @@
       <text variable="section"/>
     </group>
   </macro>
-  <macro name="label-supplement-number-capitalized">
+  <macro name="label-supplement-number">
     <group delimiter=" ">
       <choose>
         <if is-numeric="supplement-number">
@@ -304,13 +326,13 @@
       <text text-case="capitalize-first" variable="supplement-number"/>
     </group>
   </macro>
-  <macro name="label-version-capitalized">
+  <macro name="label-version">
     <group delimiter=" ">
       <label text-case="capitalize-first" variable="version"/>
       <text variable="version"/>
     </group>
   </macro>
-  <macro name="label-volume-capitalized">
+  <macro name="label-volume">
     <group delimiter=" ">
       <choose>
         <if is-numeric="volume">
@@ -857,12 +879,12 @@
     <choose>
       <if variable="part-title">
         <group delimiter=". ">
-          <text macro="label-part-number-capitalized"/>
+          <text macro="label-part-number"/>
           <text text-case="capitalize-first" variable="part-title"/>
         </group>
       </if>
       <else-if is-numeric="part-number" match="none">
-        <text macro="label-part-number-capitalized"/>
+        <text macro="label-part-number"/>
       </else-if>
     </choose>
   </macro>
@@ -883,7 +905,7 @@
       <choose>
         <if variable="volume-title">
           <group delimiter=". ">
-            <text macro="label-volume-capitalized"/>
+            <text macro="label-volume"/>
             <text variable="volume-title"/>
           </group>
           <!-- Assume that `part-number` and `part-title` of monographic items refer to the source book/volume -->
@@ -891,12 +913,12 @@
         </if>
         <else-if variable="part-title volume">
           <group delimiter=", ">
-            <text macro="label-volume-capitalized"/>
+            <text macro="label-volume"/>
             <text macro="title-part"/>
           </group>
         </else-if>
         <else-if is-numeric="volume" match="none">
-          <text macro="label-volume-capitalized"/>
+          <text macro="label-volume"/>
           <text macro="title-part"/>
         </else-if>
         <else-if is-numeric="part-number" match="none">
@@ -1099,7 +1121,7 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <group delimiter=", ">
-              <text macro="label-version-capitalized"/>
+              <text macro="label-version"/>
               <text macro="label-edition"/>
               <text macro="identifier-volume"/>
             </group>
@@ -1108,7 +1130,7 @@
       </else-if>
       <else>
         <group delimiter=", ">
-          <text macro="label-version-capitalized"/>
+          <text macro="label-version"/>
           <text macro="label-edition"/>
           <text macro="identifier-volume"/>
         </group>
@@ -1127,7 +1149,7 @@
           <text text-case="title" variable="genre"/>
         </else>
       </choose>
-      <text macro="label-number-capitalized"/>
+      <text macro="label-number"/>
     </group>
   </macro>
   <macro name="identifier-part">
@@ -1135,7 +1157,7 @@
       <!-- Non-numeric part numbers are already printed as part of the book title -->
       <if variable="part-title"/>
       <else-if is-numeric="part-number">
-        <text macro="label-part-number-capitalized"/>
+        <text macro="label-part-number"/>
       </else-if>
     </choose>
   </macro>
@@ -1165,7 +1187,7 @@
           <text term="patent" text-case="capitalize-first"/>
         </else>
       </choose>
-      <text macro="label-number-capitalized"/>
+      <text macro="label-number"/>
     </group>
   </macro>
   <macro name="identifier-series">
@@ -1182,21 +1204,21 @@
   <macro name="identifier-volume">
     <group delimiter=", ">
       <text macro="identifier-series"/>
-      <text macro="label-supplement-number-capitalized"/>
+      <text macro="label-supplement-number"/>
       <choose>
         <!-- Volume number printed with volume/part title -->
         <if variable="volume volume-title"/>
         <else-if variable="part-title volume"/>
         <!-- Non-numeric volumes printed as part of the book title -->
         <else-if is-numeric="volume">
-          <text macro="label-volume-capitalized"/>
+          <text macro="label-volume"/>
         </else-if>
         <else>
-          <text macro="label-number-of-volumes-capitalized"/>
+          <text macro="label-number-of-volumes"/>
         </else>
       </choose>
       <text macro="identifier-part"/>
-      <text macro="label-issue-capitalized"/>
+      <text macro="label-issue"/>
       <text macro="identifier-locators"/>
     </group>
   </macro>
@@ -1673,7 +1695,7 @@
   <macro name="source-serial-identifier-locators">
     <choose>
       <if variable="number">
-        <text macro="label-number-article-capitalized"/>
+        <text macro="label-number-article"/>
       </if>
       <else>
         <text variable="page"/>
@@ -1686,7 +1708,7 @@
         <text font-style="italic" variable="volume"/>
         <group delimiter=", " prefix="(" suffix=")">
           <text variable="issue"/>
-          <text macro="label-supplement-number-capitalized"/>
+          <text macro="label-supplement-number"/>
         </group>
       </if>
       <else>
@@ -1697,7 +1719,7 @@
               <text variable="supplement-number"/>
             </if>
             <else>
-              <text macro="label-supplement-number-capitalized"/>
+              <text macro="label-supplement-number"/>
             </else>
           </choose>
         </group>
@@ -1841,7 +1863,7 @@
   <macro name="source-archive">
     <group delimiter=", ">
       <choose>
-        <if match="any" type="collection document manuscript" variable="archive_collection archive-place">
+        <if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
           <!-- With `archive_collection` or `archive-place`: physical archives. -->
           <!-- For physical archives, print the location before the archive name. -->
           <choose>
@@ -2026,9 +2048,9 @@
          : treaties
     -->
     <group delimiter=" ">
-      <choose>
-        <if type="treaty">
-          <group delimiter=", " suffix=".">
+      <group delimiter=", " suffix=".">
+        <choose>
+          <if type="treaty">
             <!-- APA generally defers to Bluebook for legal citations, but diverges without explanation for treaty items. We follow the Bluebook format that was used in APA 6th ed. -->
             <!-- APA manual omits treaty parties/authors, but per Bluebook they should be included at least for bilateral treaties. -->
             <text macro="legal-title"/>
@@ -2036,19 +2058,21 @@
             <text macro="legal-date"/>
             <!-- APA manual omits treaty source/report called for by Bluebook in favor of just URL. Both are included here, following the APA style used for all other item types to end the reference with a period, then give the URL afterward. -->
             <text macro="legal-source"/>
-          </group>
-        </if>
-        <else>
-          <group delimiter=" " suffix=".">
-            <group delimiter=", ">
-              <text macro="legal-title"/>
-              <text macro="legal-source"/>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <group delimiter=", ">
+                <text macro="legal-title"/>
+                <text macro="legal-source"/>
+              </group>
+              <text macro="legal-date"/>
+              <text macro="legal-identifier"/>
             </group>
-            <text macro="legal-date"/>
-            <text macro="legal-identifier"/>
-          </group>
-        </else>
-      </choose>
+          </else>
+        </choose>
+        <!-- locator for use in notes -->
+        <text macro="label-locator"/>
+      </group>
       <text variable="references"/>
       <text macro="source-DOI-URL"/>
     </group>
@@ -2309,14 +2333,14 @@
     </group>
   </macro>
   <!-- Citation -->
-  <citation collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" et-al-min="3" et-al-use-first="1" givenname-disambiguation-rule="primary-name-with-initials">
+  <citation collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " suffix=".">
       <group delimiter=", ">
         <group delimiter=" ">
           <text macro="author-short"/>
           <text macro="date-short" prefix="(" suffix=")"/>
         </group>
-        <text macro="label-locator-capitalized"/>
+        <text macro="label-locator"/>
       </group>
     </layout>
   </citation>
@@ -2362,6 +2386,11 @@
       <key macro="date-sort"/>
       <key variable="status"/>
       <key macro="title"/>
+      <key variable="volume"/>
+      <key variable="part-number"/>
+      <key variable="event-date"/>
+      <key variable="original-date"/>
+      <key macro="source-archive"/>
     </sort>
     <layout>
       <text macro="bibliography-filtered"/>
