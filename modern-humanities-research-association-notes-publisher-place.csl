@@ -21,7 +21,7 @@
     <category field="philosophy"/>
     <category field="theology"/>
     <summary>MHRA source citations, notes system, with place of publication (MHRA 7.3)</summary>
-    <updated>2025-07-20T07:28:13-04:00</updated>
+    <updated>2025-08-01T21:38:23-04:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -190,7 +190,7 @@
     <group delimiter=" ">
       <choose>
         <if is-numeric="number">
-          <text term="article-locator"/>
+          <text form="short" term="article-locator"/>
         </if>
       </choose>
       <text variable="number"/>
@@ -636,58 +636,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="date-sort">
-    <!-- Sort items by issue date as printed by `source-date-issued-day-month` macro -->
-    <choose>
-      <if type="personal_communication" variable="event-date issued">
-        <date date-parts="year" form="text" variable="event-date"/>
-      </if>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <choose>
-          <if variable="volume">
-            <text macro="date-issued-leading-zeros-year-month"/>
-          </if>
-          <else>
-            <text macro="date-issued-leading-zeros-full"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <!-- serial usage -->
-            <choose>
-              <if variable="volume">
-                <text macro="date-issued-leading-zeros-year-month"/>
-              </if>
-              <else>
-                <text macro="date-issued-leading-zeros-full"/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-        <choose>
-          <if match="any" variable="DOI URL">
-            <text macro="date-issued-leading-zeros-full"/>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software speech standard webpage">
-        <text macro="date-issued-leading-zeros-full"/>
-      </else-if>
-      <else>
-        <date date-parts="year" form="text" variable="issued"/>
-      </else>
-    </choose>
-  </macro>
   <!-- Date elements -->
   <macro name="date-issued-full">
     <choose>
@@ -710,19 +658,6 @@
         <date form="text" variable="issued"/>
       </else>
     </choose>
-  </macro>
-  <macro name="date-issued-leading-zeros-full">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-      <date-part form="numeric-leading-zeros" name="day"/>
-    </date>
-  </macro>
-  <macro name="date-issued-leading-zeros-year-month">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-    </date>
   </macro>
   <macro name="date-issued-year">
     <choose>
@@ -877,7 +812,7 @@
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text macro="title-serial"/>
+        <text macro="title-and-part-filter-review"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
@@ -887,7 +822,7 @@
           </if>
           <else>
             <!-- serial usage -->
-            <text macro="title-serial"/>
+            <text macro="title-and-part-filter-review"/>
           </else>
         </choose>
       </else-if>
@@ -974,18 +909,6 @@
       </else-if>
       <else>
         <text font-style="italic" text-case="title" variable="part-title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="title-serial">
-    <!-- For serials, assume that `part-number` and `part-title` refer to the article and append to `title` -->
-    <choose>
-      <if variable="container-title">
-        <text macro="title-and-part-filter-review"/>
-      </if>
-      <else>
-        <!-- for serial items without `container-title`, don't append `volume-title` to `title` -->
-        <text macro="title-and-part-filter-review"/>
       </else>
     </choose>
   </macro>
@@ -2280,6 +2203,7 @@
           </else-if>
         </choose>
       </group>
+      <!-- remove volume `issued` date from this position in author-date -->
       <choose>
         <if variable="available-date issued volume">
           <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
@@ -3114,10 +3038,12 @@
   <bibliography hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;" subsequent-author-substitute-rule="partial-first">
     <sort>
       <key macro="author-bib"/>
-      <key macro="title"/>
+      <key macro="title-and-descriptions"/>
       <key variable="volume"/>
       <key variable="part-number"/>
-      <key macro="date-sort"/>
+      <key variable="event-date"/>
+      <key variable="original-date"/>
+      <key variable="issued"/>
       <key variable="status"/>
       <key macro="source-archive"/>
     </sort>
