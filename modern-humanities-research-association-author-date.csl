@@ -207,7 +207,7 @@
     <group delimiter=" ">
       <choose>
         <if is-numeric="number">
-          <text term="article-locator"/>
+          <text form="short" term="article-locator"/>
         </if>
       </choose>
       <text variable="number"/>
@@ -701,53 +701,30 @@
       </else>
     </choose>
   </macro>
-  <macro name="date-sort">
-    <!-- Sort items by issue date as printed by `source-date-issued-day-month` macro -->
+  <macro name="date-sort-group">
+    <!-- Sort items with and without dates (CMOS18 14.44):
+
+          1. items with dates (= 0)
+          2. `no date` items (= 1)
+          3. items with `status` (forthcoming, in press, etc.) (= 2) -->
+    <choose>
+      <if variable="issued">
+        <text value="0"/>
+      </if>
+      <else-if variable="status">
+        <text value="2"/>
+      </else-if>
+      <else>
+        <!-- n.d. -->
+        <text value="1"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-sort-year">
     <choose>
       <if type="personal_communication" variable="event-date issued">
         <date date-parts="year" form="text" variable="event-date"/>
       </if>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <choose>
-          <if variable="volume">
-            <text macro="date-issued-leading-zeros-year-month"/>
-          </if>
-          <else>
-            <text macro="date-issued-leading-zeros-full"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <!-- serial usage -->
-            <choose>
-              <if variable="volume">
-                <text macro="date-issued-leading-zeros-year-month"/>
-              </if>
-              <else>
-                <text macro="date-issued-leading-zeros-full"/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-        <choose>
-          <if match="any" variable="DOI URL">
-            <text macro="date-issued-leading-zeros-full"/>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software speech standard webpage">
-        <text macro="date-issued-leading-zeros-full"/>
-      </else-if>
       <else>
         <date date-parts="year" form="text" variable="issued"/>
       </else>
@@ -775,19 +752,6 @@
         <date form="text" variable="issued"/>
       </else>
     </choose>
-  </macro>
-  <macro name="date-issued-leading-zeros-full">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-      <date-part form="numeric-leading-zeros" name="day"/>
-    </date>
-  </macro>
-  <macro name="date-issued-leading-zeros-year-month">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-    </date>
   </macro>
   <macro name="date-issued-month">
     <date variable="issued">
@@ -942,7 +906,7 @@
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text macro="title-serial"/>
+        <text macro="title-and-part-filter-review"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
@@ -952,7 +916,7 @@
           </if>
           <else>
             <!-- serial usage -->
-            <text macro="title-serial"/>
+            <text macro="title-and-part-filter-review"/>
           </else>
         </choose>
       </else-if>
@@ -1039,18 +1003,6 @@
       </else-if>
       <else>
         <text font-style="italic" text-case="title" variable="part-title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="title-serial">
-    <!-- For serials, assume that `part-number` and `part-title` refer to the article and append to `title` -->
-    <choose>
-      <if variable="container-title">
-        <text macro="title-and-part-filter-review"/>
-      </if>
-      <else>
-        <!-- for serial items without `container-title`, don't append `volume-title` to `title` -->
-        <text macro="title-and-part-filter-review"/>
       </else>
     </choose>
   </macro>
@@ -2345,17 +2297,6 @@
           </else-if>
         </choose>
       </group>
-      <choose>
-        <if variable="available-date issued volume">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
-        </if>
-        <else-if variable="available-date issued part-number">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
-        </else-if>
-        <else-if type="broadcast" variable="available-date issued number">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
-        </else-if>
-      </choose>
     </group>
   </macro>
   <!-- 4.3. Series -->
@@ -2878,7 +2819,7 @@
     <!-- MHRA's approach to author-date (sect. 7.13) is a simplification of the Oxford Guide to Style, sect. 15.19 -->
     <!-- Usage (MHRA 7.13):
     
-    <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" givenname-disambiguation-rule="primary-name-with-initials"><layout delimiter="; " prefix="(" suffix=")"><text macro="citation-author-date"/></layout></citation>
+    <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true"><layout delimiter="; " prefix="(" suffix=")"><text macro="citation-author-date"/></layout></citation>
     -->
     <group delimiter=": ">
       <group delimiter=", ">
@@ -2937,7 +2878,7 @@
       <text macro="label-locator-inline"/>
     </group>
   </macro>
-  <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" givenname-disambiguation-rule="primary-name-with-initials">
+  <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true">
     <layout delimiter="; " prefix="(" suffix=")">
       <text macro="citation-author-date"/>
     </layout>
@@ -2954,7 +2895,7 @@
   <macro name="bibliography-filtered-author-date">
     <!-- MHRA does not provide specific guidance on excluding citations from the bibliography (MHRA 8.3), but this seems to be the intent, as some of its examples are only usable in a note; this macro follows guidance in NHR and CMOS. -->
     <!-- usage:
-     <sort><key macro="author-bib"/><key macro="date-sort"/><key variable="status"/><key macro="title"/><key variable="volume"/><key variable="part-number"/><key macro="source-archive"/></sort><layout suffix="."><text macro="bibliography-filtered-author-date"/></layout>
+     <sort><key macro="author-bib"/><key macro="date-sort-group"/><key macro="date-sort-year"/><key variable="status"/><key macro="title-and-descriptions"/><key variable="volume"/><key variable="part-number"/><key variable="event-date"/><key variable="original-date"/><key variable="issued"/><key macro="source-archive"/></sort><layout><text macro="bibliography-filtered-author-date"/></layout>
     -->
     <choose>
       <if type="classic">
@@ -2992,11 +2933,15 @@
   <bibliography hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;" subsequent-author-substitute-rule="partial-first">
     <sort>
       <key macro="author-bib"/>
-      <key macro="date-sort"/>
+      <key macro="date-sort-group"/>
+      <key macro="date-sort-year"/>
       <key variable="status"/>
-      <key macro="title"/>
+      <key macro="title-and-descriptions"/>
       <key variable="volume"/>
       <key variable="part-number"/>
+      <key variable="event-date"/>
+      <key variable="original-date"/>
+      <key variable="issued"/>
       <key macro="source-archive"/>
     </sort>
     <layout>
