@@ -963,12 +963,12 @@
             <choose>
               <if match="any" type="interview personal_communication">
                 <choose>
-                  <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+                  <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
                     <!-- These variables indicate that the communication is retrievable by the reader. If not, then use the in-text-only personal communication format -->
-                    <text macro="date-issued-full"/>
+                    <text macro="date-issued-year"/>
                   </if>
                   <else>
-                    <text macro="date-issued-year"/>
+                    <text macro="date-issued-full"/>
                   </else>
                 </choose>
               </if>
@@ -984,61 +984,79 @@
         <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="event-date">
-        <date date-parts="year" form="text" variable="event-date"/>
+        <text macro="date-event-year"/>
       </else-if>
       <else-if variable="status">
         <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
         <text text-case="lowercase" variable="status"/>
         <text prefix="-" variable="year-suffix"/>
       </else-if>
-      <else>
+      <else-if match="any" type="interview personal_communication">
         <choose>
-          <if match="any" type="interview personal_communication">
-            <choose>
-              <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- only give n.d. for accessible personal communication (CMOS18 14.111)-->
-                <text form="short" term="no date"/>
-              </if>
-            </choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- only give n.d. for accessible personal communication (CMOS18 14.111)-->
+            <text form="short" term="no date"/>
+          </if>
+        </choose>
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
+        <!-- do not give n.d. for archival collections (CMOS18 14.128), `classic` (CMOS18 14.143), or reference entries (CMOS18 14.131) -->
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else-if type="manuscript">
+        <!-- do not give n.d. with a bare shelfmark -->
+        <choose>
+          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+            <text form="short" term="no date"/>
             <text prefix="-" variable="year-suffix"/>
           </if>
-          <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
-            <!-- do not give n.d. for archival collections (CMOS18 14.128), `classic` (CMOS18 14.143), or reference entries (CMOS18 14.131) -->
-            <text prefix="-" variable="year-suffix"/>
-          </else-if>
-          <else-if type="manuscript">
-            <!-- do not give n.d. with a bare shelfmark -->
-            <choose>
-              <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
-                <text form="short" term="no date"/>
-                <text prefix="-" variable="year-suffix"/>
-              </if>
-            </choose>
-          </else-if>
-          <else-if type="article-journal">
-            <choose>
-              <if match="any" variable="number page">
-                <text form="short" term="no date"/>
-              </if>
-              <else-if match="any" variable="available-date collection-title issue supplement-number volume">
-                <!-- journal articles should be forthcoming with an issue/volume but no date or locator (CMOS18 14.75) -->
-                <text term="forthcoming"/>
-              </else-if>
-              <else>
-                <text form="short" term="no date"/>
-              </else>
-            </choose>
-            <text prefix="-" variable="year-suffix"/>
+        </choose>
+      </else-if>
+      <else-if type="article-journal">
+        <choose>
+          <if match="any" variable="number page">
+            <text form="short" term="no date"/>
+          </if>
+          <else-if match="any" variable="available-date collection-title issue supplement-number volume">
+            <!-- journal articles should be forthcoming with an issue/volume but no date or locator (CMOS18 14.75) -->
+            <text term="forthcoming"/>
           </else-if>
           <else>
             <text form="short" term="no date"/>
-            <text prefix="-" variable="year-suffix"/>
           </else>
         </choose>
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else>
+        <text form="short" term="no date"/>
+        <text prefix="-" variable="year-suffix"/>
       </else>
     </choose>
   </macro>
   <!-- Date elements -->
+  <macro name="date-event-full">
+    <choose>
+      <if is-uncertain-date="issued">
+        <!-- guessed-at date (CMOS18 14.44) -->
+        <date form="text" prefix="[" suffix="?]" variable="event-date"/>
+      </if>
+      <else>
+        <date form="text" variable="event-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-event-year">
+    <choose>
+      <if is-uncertain-date="issued">
+        <!-- guessed-at date (CMOS18 14.44) -->
+        <date date-parts="year" form="text" prefix="[" suffix="?]" variable="event-date"/>
+      </if>
+      <else>
+        <date date-parts="year" form="text" variable="event-date"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="date-issued-full">
     <choose>
       <if is-uncertain-date="issued">
@@ -1061,6 +1079,17 @@
       </else>
     </choose>
   </macro>
+  <macro name="date-issued-year-month">
+    <choose>
+      <if is-uncertain-date="issued">
+        <!-- guessed-at date (CMOS18 14.44) -->
+        <date date-parts="year-month" form="text" prefix="[" suffix="?]" variable="issued"/>
+      </if>
+      <else>
+        <date date-parts="year-month" form="text" variable="issued"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="date-original-full">
     <choose>
       <if is-uncertain-date="original-date">
@@ -1078,6 +1107,16 @@
       </if>
       <else>
         <date date-parts="year" form="text" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-original-year-month">
+    <choose>
+      <if is-uncertain-date="original-date">
+        <date date-parts="year-month" form="text" prefix="[" suffix="?]" variable="original-date"/>
+      </if>
+      <else>
+        <date date-parts="year-month" form="text" variable="original-date"/>
       </else>
     </choose>
   </macro>
@@ -1669,6 +1708,9 @@
       <else-if variable="medium">
         <text variable="medium"/>
       </else-if>
+      <else-if variable="chapter-number">
+        <text macro="label-chapter-number"/>
+      </else-if>
       <else-if type="manuscript">
         <!-- 'unpublished manuscript' if no `genre` (CMOS18 14.114) -->
         <choose>
@@ -1840,7 +1882,7 @@
             </else>
           </choose>
           <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
+          <text macro="date-event-full"/>
         </group>
       </if>
       <else>
@@ -1877,7 +1919,7 @@
             </else>
           </choose>
           <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
+          <text macro="date-event-full"/>
         </group>
       </if>
       <else>
@@ -1903,7 +1945,7 @@
         </else>
       </choose>
       <text variable="event-place"/>
-      <date form="text" variable="event-date"/>
+      <text macro="date-event-full"/>
     </group>
   </macro>
   <macro name="description-paper-conference-bib">
@@ -4281,7 +4323,7 @@
         <group delimiter=", ">
           <text variable="event-title"/>
           <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
+          <text macro="date-event-full"/>
         </group>
       </if>
     </choose>
@@ -4400,7 +4442,7 @@
           <text macro="source-event-title-capitalized"/>
         </else>
       </choose>
-      <date form="text" variable="event-date"/>
+      <text macro="date-event-full"/>
       <text variable="event-place"/>
     </group>
   </macro>
@@ -4420,7 +4462,7 @@
           <text macro="source-event-title"/>
         </else>
       </choose>
-      <date form="text" variable="event-date"/>
+      <text macro="date-event-full"/>
       <text variable="event-place"/>
     </group>
   </macro>
@@ -5027,7 +5069,7 @@
         <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="event-date">
-        <date date-parts="year" form="text" variable="event-date"/>
+        <text macro="date-event-year"/>
       </else-if>
     </choose>
   </macro>
@@ -5037,13 +5079,13 @@
         <text macro="date-issued-full"/>
       </if>
       <else-if variable="issue volume">
-        <date date-parts="year-month" form="text" variable="issued"/>
+        <text macro="date-issued-year-month"/>
       </else-if>
       <else-if variable="supplement-number">
-        <date date-parts="year-month" form="text" variable="issued"/>
+        <text macro="date-issued-year-month"/>
       </else-if>
       <else-if match="any" variable="issue volume">
-        <date date-parts="year-month" form="text" variable="issued"/>
+        <text macro="date-issued-year-month"/>
       </else-if>
       <else>
         <text macro="date-issued-full"/>
@@ -5089,7 +5131,6 @@
             <text form="short" term="no date"/>
           </else>
         </choose>
-        <text prefix="-" variable="year-suffix"/>
       </else-if>
       <else>
         <text form="short" term="no date"/>
@@ -5146,13 +5187,13 @@
   <macro name="source-date-original-full-serial">
     <choose>
       <if variable="issue volume">
-        <date date-parts="year-month" form="text" variable="original-date"/>
+        <text macro="date-original-year-month"/>
       </if>
       <else-if variable="supplement-number">
-        <date date-parts="year-month" form="text" variable="original-date"/>
+        <text macro="date-original-year-month"/>
       </else-if>
       <else-if match="any" variable="issue volume">
-        <date date-parts="year-month" form="text" variable="original-date"/>
+        <text macro="date-original-year-month"/>
       </else-if>
       <else>
         <text macro="date-original-full"/>
