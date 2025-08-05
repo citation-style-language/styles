@@ -345,7 +345,86 @@
   <!-- 1. Author (APA 9.7-12) -->
   <macro name="author">
     <group delimiter=" ">
-      <text macro="author-substitute"/>
+      <!-- Substitutes for missing authors: order prioritizes primary creators (e.g., composer, author) over secondary roles (e.g., editor, curator), with title as the final fallback. -->
+      <names variable="composer">
+        <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+        <label form="short" prefix=" (" suffix=")" text-case="title"/>
+        <substitute>
+          <names variable="author"/>
+          <!-- `narrator` only cited in `identifier-contributors` -->
+          <names variable="illustrator"/>
+          <choose>
+            <if type="broadcast">
+              <names variable="script-writer director">
+                <!-- Actors/performers and producers [not executive] not cited in APA style. -->
+                <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+                <label prefix=" (" suffix=")" text-case="title"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="director">
+            <!-- For non-broadcast items, APA only cites directors and not writers. -->
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="guest host">
+            <!-- TODO: Collapse variables when that becomes available. -->
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="producer">
+            <!-- Producers not cited if there is a writer/director, but use if they are the principal creator. -->
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <choose>
+            <if match="none" variable="container-title"/>
+            <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
+              <!-- Items with a monographic `container-title` substitute their title and identifier, but leave description after `container-title`. This mimics the `source-monographic` macro. -->
+              <text macro="author-title-substitute"/>
+            </else-if>
+          </choose>
+          <names variable="executive-producer">
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="series-creator">
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="editor-translator"/>
+          <!-- `translator` is not cited as a primary creator (only as Ed. & Trans.). -->
+          <names variable="editor"/>
+          <names variable="editorial-director"/>
+          <names variable="compiler">
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <choose>
+            <if match="any" type="event performance speech">
+              <names variable="chair">
+                <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+                <label prefix=" (" suffix=")" text-case="title"/>
+              </names>
+              <names variable="organizer">
+                <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+                <label prefix=" (" suffix=")" text-case="title"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="curator">
+            <name delimiter-precedes-last="always" name-as-sort-order="all"/>
+            <label prefix=" (" suffix=")" text-case="title"/>
+          </names>
+          <names variable="collection-editor"/>
+          <choose>
+            <if type="standard">
+              <text variable="authority"/>
+            </if>
+          </choose>
+          <text macro="author-title-substitute"/>
+        </substitute>
+      </names>
       <choose>
         <!-- Print "with" contributor for books only -->
         <if match="any" type="book classic collection">
@@ -363,10 +442,72 @@
         <text macro="title-and-descriptions-short"/>
       </if>
       <else-if match="any" type="interview personal_communication">
-        <text macro="author-short-and-recipient"/>
+        <choose>
+          <!-- These variables indicate that the letter is retrievable by the reader. If not, use the APA in-text-only personal communication format. -->
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <names variable="author">
+              <name form="short"/>
+              <substitute>
+                <text macro="title-and-descriptions-short"/>
+              </substitute>
+            </names>
+          </if>
+          <else>
+            <group delimiter=", ">
+              <names variable="author">
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+              <text term="personal-communication"/>
+            </group>
+          </else>
+        </choose>
       </else-if>
       <else>
-        <text macro="author-substitute-short"/>
+        <names variable="composer">
+          <name form="short"/>
+          <substitute>
+            <names variable="author"/>
+            <names variable="illustrator"/>
+            <choose>
+              <if type="broadcast">
+                <!-- TODO: Collapse variables when that becomes available. -->
+                <!-- Ideally combine as `script-writer director` -->
+                <names variable="script-writer"/>
+              </if>
+            </choose>
+            <names variable="director"/>
+            <!-- TODO: Collapse variables when that becomes available. -->
+            <names variable="guest host"/>
+            <names variable="producer"/>
+            <choose>
+              <if match="none" variable="container-title"/>
+              <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
+                <text macro="title-and-descriptions-short"/>
+              </else-if>
+            </choose>
+            <names variable="executive-producer"/>
+            <names variable="series-creator"/>
+            <names variable="editor"/>
+            <names variable="editorial-director"/>
+            <names variable="compiler"/>
+            <choose>
+              <if match="any" type="event performance speech">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
+            <names variable="curator"/>
+            <names variable="collection-editor"/>
+            <choose>
+              <if type="standard">
+                <text variable="authority"/>
+              </if>
+            </choose>
+            <text macro="title-and-descriptions-short"/>
+          </substitute>
+        </names>
       </else>
     </choose>
   </macro>
@@ -381,156 +522,6 @@
     </choose>
   </macro>
   <!-- Author elements -->
-  <macro name="author-short-and-recipient">
-    <choose>
-      <!-- These variables indicate that the letter is retrievable by the reader. If not, use the APA in-text-only personal communication format. -->
-      <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-        <names variable="author">
-          <name form="short"/>
-          <substitute>
-            <text macro="title-and-descriptions-short"/>
-          </substitute>
-        </names>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <names variable="author">
-            <substitute>
-              <text macro="title-and-descriptions-short"/>
-            </substitute>
-          </names>
-          <text term="personal-communication"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
-  <macro name="author-substitute">
-    <!-- Substitutes for missing authors: order prioritizes primary creators (e.g., composer, author) over secondary roles (e.g., editor, curator), with title as the final fallback. -->
-    <names variable="composer">
-      <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-      <label form="short" prefix=" (" suffix=")" text-case="title"/>
-      <substitute>
-        <names variable="author"/>
-        <!-- `narrator` only cited in `identifier-contributors` -->
-        <names variable="illustrator"/>
-        <choose>
-          <if type="broadcast">
-            <names variable="script-writer director">
-              <!-- Actors/performers and producers [not executive] not cited in APA style. -->
-              <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-              <label prefix=" (" suffix=")" text-case="title"/>
-            </names>
-          </if>
-        </choose>
-        <names variable="director">
-          <!-- For non-broadcast items, APA only cites directors and not writers. -->
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <names variable="guest host">
-          <!-- TODO: Collapse variables when that becomes available. -->
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <names variable="producer">
-          <!-- Producers not cited if there is a writer/director, but use if they are the principal creator. -->
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <choose>
-          <if match="none" variable="container-title"/>
-          <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
-            <!-- Items with a monographic `container-title` substitute their title and identifier, but leave description after `container-title`. This mimics the `source-monographic` macro. -->
-            <text macro="author-title-substitute"/>
-          </else-if>
-        </choose>
-        <names variable="executive-producer">
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <names variable="series-creator">
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <names variable="editor-translator"/>
-        <!-- `translator` is not cited as a primary creator (only as Ed. & Trans.). -->
-        <names variable="editor"/>
-        <names variable="editorial-director"/>
-        <names variable="compiler">
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <choose>
-          <if match="any" type="event performance speech">
-            <names variable="chair">
-              <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-              <label prefix=" (" suffix=")" text-case="title"/>
-            </names>
-            <names variable="organizer">
-              <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-              <label prefix=" (" suffix=")" text-case="title"/>
-            </names>
-          </if>
-        </choose>
-        <names variable="curator">
-          <name delimiter-precedes-last="always" name-as-sort-order="all"/>
-          <label prefix=" (" suffix=")" text-case="title"/>
-        </names>
-        <names variable="collection-editor"/>
-        <choose>
-          <if type="standard">
-            <text variable="authority"/>
-          </if>
-        </choose>
-        <text macro="author-title-substitute"/>
-      </substitute>
-    </names>
-  </macro>
-  <macro name="author-substitute-short">
-    <names variable="composer">
-      <name form="short"/>
-      <substitute>
-        <names variable="author"/>
-        <names variable="illustrator"/>
-        <choose>
-          <if type="broadcast">
-            <!-- TODO: Collapse variables when that becomes available. -->
-            <!-- Ideally combine as `script-writer director` -->
-            <names variable="script-writer"/>
-          </if>
-        </choose>
-        <names variable="director"/>
-        <!-- TODO: Collapse variables when that becomes available. -->
-        <names variable="guest host"/>
-        <names variable="producer"/>
-        <choose>
-          <if match="none" variable="container-title"/>
-          <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
-            <text macro="title-and-descriptions-short"/>
-          </else-if>
-        </choose>
-        <names variable="executive-producer"/>
-        <names variable="series-creator"/>
-        <names variable="editor"/>
-        <names variable="editorial-director"/>
-        <names variable="compiler"/>
-        <choose>
-          <if match="any" type="event performance speech">
-            <names variable="chair"/>
-            <names variable="organizer"/>
-          </if>
-        </choose>
-        <names variable="curator"/>
-        <names variable="collection-editor"/>
-        <choose>
-          <if type="standard">
-            <text variable="authority"/>
-          </if>
-        </choose>
-        <text macro="title-and-descriptions-short"/>
-      </substitute>
-    </names>
-  </macro>
   <macro name="author-title-substitute">
     <choose>
       <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
@@ -866,12 +857,6 @@
       <text macro="title-part"/>
     </group>
   </macro>
-  <macro name="title-and-volume-title">
-    <group delimiter=": ">
-      <text variable="title"/>
-      <text macro="title-volume"/>
-    </group>
-  </macro>
   <macro name="title-monographic">
     <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
     <choose>
@@ -880,7 +865,10 @@
       </if>
       <else>
         <!-- For monographic items without `container-title` and with `volume-title`, append `volume-title` to `title` (APA example 30) -->
-        <text font-style="italic" macro="title-and-volume-title"/>
+        <group delimiter=": " font-style="italic">
+          <text variable="title"/>
+          <text macro="title-volume"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -1258,7 +1246,20 @@
           <text macro="description-format"/>
         </else-if>
         <else>
-          <text macro="description-generic"/>
+          <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
+          <choose>
+            <if match="any" type="event paper-conference performance speech">
+              <choose>
+                <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
+                  <text macro="description-format"/>
+                </if>
+              </choose>
+            </if>
+            <else-if match="any" type="document report software standard"/>
+            <else>
+              <text macro="description-format"/>
+            </else>
+          </choose>
         </else>
       </choose>
     </group>
@@ -1377,22 +1378,6 @@
       <else-if type="review-book">
         <text term="review-book" text-case="capitalize-first"/>
       </else-if>
-    </choose>
-  </macro>
-  <macro name="description-generic">
-    <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
-    <choose>
-      <if match="any" type="event paper-conference performance speech">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
-            <text macro="description-format"/>
-          </if>
-        </choose>
-      </if>
-      <else-if match="any" type="document report software standard"/>
-      <else>
-        <text macro="description-format"/>
-      </else>
     </choose>
   </macro>
   <macro name="description-interview">
@@ -1925,20 +1910,17 @@
       </if>
     </choose>
   </macro>
-  <macro name="source-location-title">
-    <choose>
-      <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
-      <if variable="event-title">
-        <text text-case="capitalize-first" variable="event-title"/>
-      </if>
-      <else>
-        <text text-case="capitalize-first" variable="event"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="source-location-title-place-date">
     <group delimiter=", ">
-      <text macro="source-location-title"/>
+      <choose>
+        <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
+        <if variable="event-title">
+          <text text-case="capitalize-first" variable="event-title"/>
+        </if>
+        <else>
+          <text text-case="capitalize-first" variable="event"/>
+        </else>
+      </choose>
       <text variable="event-place"/>
       <text macro="date-event-full"/>
     </group>
@@ -2000,39 +1982,34 @@
               <text variable="references"/>
             </if>
             <else>
-              <text macro="publication-history-structured"/>
+              <!-- Format publication history using CSL variables -->
+              <group delimiter=" ">
+                <text term="original-work-published" text-case="capitalize-first"/>
+                <group delimiter=", ">
+                  <choose>
+                    <if variable="original-title">
+                      <group delimiter=" ">
+                        <text value="as"/>
+                        <choose>
+                          <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+                            <text variable="original-title"/>
+                          </if>
+                          <else>
+                            <text font-style="italic" variable="original-title"/>
+                          </else>
+                        </choose>
+                      </group>
+                    </if>
+                  </choose>
+                  <text macro="date-original-year"/>
+                  <text variable="original-publisher"/>
+                </group>
+              </group>
             </else>
           </choose>
         </else>
       </choose>
     </group>
-  </macro>
-  <macro name="publication-history-structured">
-    <group delimiter=" ">
-      <text term="original-work-published" text-case="capitalize-first"/>
-      <group delimiter=", ">
-        <text macro="publication-history-title"/>
-        <text macro="date-original-year"/>
-        <text variable="original-publisher"/>
-      </group>
-    </group>
-  </macro>
-  <macro name="publication-history-title">
-    <choose>
-      <if variable="original-title">
-        <group delimiter=" ">
-          <text value="as"/>
-          <choose>
-            <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-              <text variable="original-title"/>
-            </if>
-            <else>
-              <text font-style="italic" variable="original-title"/>
-            </else>
-          </choose>
-        </group>
-      </if>
-    </choose>
   </macro>
   <!-- 6. Legal references: Bluebook style -->
   <macro name="legal-reference">
