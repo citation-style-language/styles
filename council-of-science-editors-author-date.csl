@@ -13,7 +13,7 @@
     <category citation-format="author-date"/>
     <category field="science"/>
     <summary>The Council of Science Editors style 9th edition, Citation-Sequence system: numbers in text, sorted by order of appearance in text.</summary>
-    <updated>2025-08-07T09:05:03+00:00</updated>
+    <updated>2025-08-07T09:29:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -26,6 +26,7 @@
         <single>editor</single>
         <multiple>editors</multiple>
       </term>
+      <term name="in press">published online ahead of print</term>
     </terms>
   </locale>
   <macro name="editor">
@@ -55,7 +56,17 @@
     </names>
   </macro>
   <macro name="access">
-    <text variable="URL"/>
+    <group delimiter=". ">
+      <group delimiter=" " prefix="[" suffix="]">
+        <text term="accessed"/>
+        <date variable="accessed" delimiter=" ">
+          <date-part name="year"/>
+          <date-part name="month" form="short" strip-periods="true"/>
+          <date-part name="day"/>
+        </date>
+      </group>
+      <text variable="URL"/>
+    </group>
   </macro>
   <macro name="title">
     <group delimiter=" ">
@@ -74,39 +85,6 @@
     <group delimiter=". ">
       <text variable="reviewed-title"/>
       <text variable="container-title"/>
-    </group>
-  </macro>
-  <macro name="issued">
-    <group delimiter=" ">
-      <date variable="issued" delimiter=" ">
-        <date-part name="year"/>
-      </date>
-      <choose>
-        <if type="patent article-newspaper webpage" match="any">
-          <date variable="issued" delimiter=" ">
-            <date-part name="month" form="short" strip-periods="true"/>
-            <date-part name="day"/>
-          </date>
-        </if>
-        <else-if type="article-journal article-magazine" match="any">
-          <choose>
-            <if variable="volume issue" match="none">
-              <date variable="issued" delimiter=" ">
-                <date-part name="month" form="short" strip-periods="true"/>
-                <date-part name="day"/>
-              </date>
-            </if>
-          </choose>
-        </else-if>
-      </choose>
-      <group prefix=" [" suffix="]" delimiter=" ">
-        <text term="accessed"/>
-        <date variable="accessed" delimiter=" ">
-          <date-part name="year"/>
-          <date-part name="month" form="short" strip-periods="true"/>
-          <date-part name="day"/>
-        </date>
-      </group>
     </group>
   </macro>
   <macro name="pages">
@@ -240,20 +218,30 @@
             <text variable="page" prefix=":"/>
           </group>
         </else-if>
+        <else-if type="webpage post post-weblog" match="any">
+          <text variable="container-title" suffix=";"/>
+        </else-if>
         <else>
           <group suffix=".">
             <text macro="title" prefix=" "/>
             <text macro="editor" prefix=" "/>
           </group>
-          <group prefix=" " suffix=".">
-            <group delimiter=". " prefix=" ">
-              <text variable="container-title" form="short" strip-periods="true"/>
-              <group>
-                <text variable="volume"/>
-                <text variable="issue" prefix="(" suffix=")"/>
-              </group>
-            </group>
-            <text variable="page" prefix=":"/>
+          <group delimiter=". " prefix=" ">
+            <text variable="container-title" form="short" strip-periods="true"/>
+            <choose>
+              <if match="none" variable="volume page">
+                <text term="in press" prefix=" [" suffix="]"/>
+              </if>
+              <else>
+                <group delimiter=":">
+                  <group>
+                    <text variable="volume"/>
+                    <text variable="issue" prefix="(" suffix=")"/>
+                  </group>
+                  <text variable="page"/>
+                </group>
+              </else>
+            </choose>
           </group>
         </else>
       </choose>
