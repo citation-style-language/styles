@@ -239,24 +239,28 @@
     </group>
   </macro>
   <macro name="label-part-number">
-    <group delimiter=" ">
-      <choose>
-        <if is-numeric="part-number">
-          <!-- TODO: Replace with `part-number` label when CSL provides one -->
-          <text form="short" term="part"/>
-        </if>
-      </choose>
-      <text variable="part-number"/>
-    </group>
-  </macro>
-  <macro name="label-part-number-roman">
-    <!-- label `part-number` by rendering it in Roman numerals -->
     <choose>
-      <if is-numeric="part-number">
-        <number font-variant="small-caps" form="roman" variable="part-number"/>
+      <if match="any" variable="issue supplement-number volume">
+        <group delimiter=" ">
+          <choose>
+            <if is-numeric="part-number">
+              <!-- TODO: Replace with `part-number` label when CSL provides one -->
+              <text form="short" term="part"/>
+            </if>
+          </choose>
+          <text variable="part-number"/>
+        </group>
       </if>
       <else>
-        <text variable="part-number"/>
+        <!-- if `part-number` is the item's primary division, label it through Roman numerals -->
+        <choose>
+          <if is-numeric="part-number">
+            <number form="roman" variable="part-number"/>
+          </if>
+          <else>
+            <text variable="part-number"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -294,7 +298,7 @@
       <text variable="version"/>
     </group>
   </macro>
-  <macro name="label-volume-roman">
+  <macro name="label-volume">
     <!-- label a volume by rendering it in Roman numerals (MHRA 7.3) -->
     <choose>
       <if is-numeric="volume">
@@ -833,8 +837,6 @@
         <if variable="title">
           <text macro="title"/>
           <text macro="description"/>
-          <!-- for author-date: -->
-          <!-- <text macro="description-capitalized"/> -->
           <text macro="identifier"/>
         </if>
         <else>
@@ -990,7 +992,7 @@
     <group delimiter=", ">
       <text macro="title-primary"/>
       <group delimiter=", ">
-        <text macro="label-part-number-roman"/>
+        <text macro="label-part-number"/>
         <text macro="title-part"/>
       </group>
     </group>
@@ -1108,6 +1110,19 @@
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
     </choose>
+  </macro>
+  <macro name="title-volume">
+    <group delimiter=", ">
+      <group delimiter=", ">
+        <text macro="label-volume"/>
+        <text font-style="italic" text-case="title" variable="volume-title"/>
+      </group>
+      <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
+      <group delimiter=", ">
+        <text macro="label-part-number"/>
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </group>
+    </group>
   </macro>
   <!-- 3.2. Description -->
   <macro name="description">
@@ -1906,21 +1921,6 @@
       </choose>
     </group>
   </macro>
-  <macro name="identifier-volume">
-    <group delimiter=", ">
-      <text macro="label-volume-roman"/>
-      <text font-style="italic" text-case="title" variable="volume-title"/>
-      <choose>
-        <if variable="part-number volume">
-          <text macro="label-part-number"/>
-        </if>
-        <else>
-          <text macro="label-part-number-roman"/>
-        </else>
-      </choose>
-      <text font-style="italic" text-case="title" variable="part-title"/>
-    </group>
-  </macro>
   <!-- 4. Source -->
   <macro name="source">
     <group delimiter=", ">
@@ -2118,7 +2118,7 @@
               <text macro="source-monographic-preposition"/>
               <group delimiter=", ">
                 <names variable="container-author"/>
-                <text macro="source-monographic-title"/>
+                <text font-style="italic" text-case="title" variable="container-title"/>
               </group>
             </group>
             <text macro="source-monographic-description"/>
@@ -2133,7 +2133,6 @@
       <text macro="label-number-of-volumes"/>
     </group>
   </macro>
-  <!-- Monographic source title -->
   <macro name="source-monographic-preposition">
     <!-- MHRA does not define how to display a chapter number; this macro is based on CMOS -->
     <group delimiter=" ">
@@ -2155,9 +2154,6 @@
         </else>
       </choose>
     </group>
-  </macro>
-  <macro name="source-monographic-title">
-    <text font-style="italic" text-case="title" variable="container-title"/>
   </macro>
   <!-- Monographic source description -->
   <macro name="source-monographic-description">
@@ -2302,7 +2298,7 @@
   <macro name="source-monographic-locator-volume">
     <group delimiter=" ">
       <group delimiter=", ">
-        <text macro="identifier-volume"/>
+        <text macro="title-volume"/>
         <choose>
           <if type="broadcast">
             <text macro="identifier-number"/>
@@ -2973,15 +2969,8 @@
           <text macro="label-locator"/>
         </if>
         <else>
-          <text macro="label-volume-roman"/>
-          <choose>
-            <if variable="part-number volume">
-              <text macro="label-part-number"/>
-            </if>
-            <else>
-              <text macro="label-part-number-roman"/>
-            </else>
-          </choose>
+          <text macro="label-volume"/>
+          <text macro="label-part-number"/>
           <text macro="label-locator"/>
         </else>
       </choose>
@@ -2989,7 +2978,7 @@
   </macro>
   <macro name="source-locator-subsequent-serial">
     <group delimiter=", ">
-      <text macro="label-part-number-roman"/>
+      <text macro="label-part-number"/>
       <text macro="label-locator"/>
     </group>
   </macro>
