@@ -1,5 +1,4 @@
-﻿
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" initialize="false" demote-non-dropping-particle="never" default-locale="pt-BR">
   <info>
     <title>Associação Brasileira de Normas Técnica - Autoridade Nacional de Proteção de Dados (Português - Brasil)</title>
@@ -18,7 +17,7 @@
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Brazilian Standard Style in accordance with ABNT-NBR 10520:2023 and ABNT-NBR 6023:2025</summary>
-    <updated>2025-08-06T14:38:01+00:00</updated>
+    <updated>2025-08-07T16:52:53+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt-BR">
@@ -270,8 +269,8 @@
         <group suffix=". ">
           <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
           <choose>
-            <if variable="event" match="any">
-              <text variable="event" text-case="uppercase"/>
+            <if variable="event-title" match="any">
+              <text variable="event-title" text-case="uppercase"/>
             </if>
             <else>
               <text variable="title-short" text-case="uppercase"/>
@@ -309,13 +308,14 @@
       <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
         <choose>
           <if variable="container-author editor collection-editor" match="any">
-            <text variable="container-title" font-weight="bold"/>
+            <text variable="container-title" strip-periods="false" font-style="normal" font-weight="bold"/>
           </if>
           <else>
-            <text variable="container-title" text-case="uppercase"/>
+            <text variable="container-title" font-weight="bold"/>
           </else>
         </choose>
       </else-if>
+      <else-if type="bill dataset" match="any"/>
       <else>
         <text variable="container-title" font-weight="bold"/>
       </else>
@@ -373,7 +373,11 @@
               <date variable="issued" date-parts="year" form="numeric" prefix=" " suffix="-"/>
             </else-if>
             <else>
-              <date variable="issued" date-parts="year" form="numeric" prefix=" "/>
+              <date date-parts="year" form="numeric" variable="issued" prefix=" ">
+                <date-part name="day"/>
+                <date-part name="month" form="short"/>
+                <date-part name="year"/>
+              </date>
               <date variable="original-date" date-parts="year" form="numeric" prefix=" [" suffix="]"/>
             </else>
           </choose>
@@ -457,6 +461,7 @@
           <text macro="issued"/>
           <text macro="section"/>
           <group>
+            <text variable="volume" prefix="ano " suffix=", "/>
             <text term="page" form="short" suffix=" "/>
             <text variable="page" suffix="."/>
           </group>
@@ -523,7 +528,12 @@
   <macro name="section">
     <choose>
       <if variable="section issue" match="any">
-        <text variable="section"/>
+        <choose>
+          <if match="any" variable="container-title">
+            <text variable="container-title" font-weight="bold" suffix=": "/>
+          </if>
+        </choose>
+        <text variable="section" prefix="seção "/>
         <text variable="issue"/>
       </if>
     </choose>
@@ -549,6 +559,20 @@
           </else>
         </choose>
       </else>
+    </choose>
+  </macro>
+  <macro name="e-book">
+    <choose>
+      <if match="any" variable="URL">
+        <text value="E-book" font-style="italic" suffix=". "/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="doi">
+    <choose>
+      <if match="all" variable="DOI">
+        <text variable="DOI" form="short" prefix="DOI: " suffix=". "/>
+      </if>
     </choose>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year" delimiter-precedes-et-al="never">
@@ -587,7 +611,7 @@
       </choose>
     </layout>
   </citation>
-  <bibliography et-al-min="4" et-al-use-first="1" line-spacing="1" entry-spacing="1">
+  <bibliography et-al-min="4" et-al-use-first="1">
     <sort>
       <key macro="author-short"/>
       <key variable="year-suffix"/>
@@ -618,6 +642,7 @@
             <text macro="edition" suffix=", "/>
             <text macro="locators" suffix=", "/>
             <text macro="issued"/>
+            <text macro="doi"/>
             <text macro="access"/>
           </group>
         </else-if>
@@ -643,10 +668,10 @@
                   <text variable="abstract"/>
                 </group>
                 <text macro="container-title" suffix=", "/>
-                <text macro="section" prefix="Seção " suffix=", "/>
+                <text macro="section" suffix=", "/>
                 <text variable="publisher-place" suffix=", "/>
                 <text variable="publisher" suffix=", "/>
-                <text variable="volume" prefix="v. " suffix=", "/>
+                <text variable="volume" prefix="ano " suffix=", "/>
                 <text variable="number" prefix="n. " suffix=", "/>
                 <text variable="page" prefix="p. " suffix=", "/>
                 <text macro="issued-legislation" suffix=". "/>
@@ -680,8 +705,8 @@
             <text macro="publisher"/>
             <text variable="ISSN" prefix="ISSN " suffix="."/>
             <text macro="collection-title" prefix="(" suffix="). "/>
+            <text macro="e-book"/>
             <text macro="locators"/>
-            <text variable="medium" suffix=". "/>
             <choose>
               <if variable="genre" match="any">
                 <text variable="title-short" suffix=". "/>
@@ -784,6 +809,7 @@
             <text macro="edition" suffix=". "/>
             <text macro="publisher"/>
             <text macro="collection-title" prefix="(" suffix="). "/>
+            <text macro="e-book"/>
             <text macro="locators" suffix=". "/>
             <text macro="access"/>
           </group>
