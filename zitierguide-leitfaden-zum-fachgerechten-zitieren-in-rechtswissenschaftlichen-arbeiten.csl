@@ -17,7 +17,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>This style is based on Roger Müller, ZitierGuide Leitfaden zum fachgerechten Zitieren in rechtswissenschaftlichen Arbeiten, 5. Auflage, Zürich 2022 (ISBN 978-3-7255-8301-0). It is an adaption of the style "Juristische Zitierweise Schweizer" by Stephan Schlegel (https://www.zotero.org/styles/juristische-zitierweise-schweizer), which is based on the style "Juristische Zitierweise (Stüber)" by Oliver Wolf and Philipp Zumstein (https://www.zotero.org/styles/juristische-zitierweise).</summary>
-    <updated>2025-03-21T11:54:20+00:00</updated>
+    <updated>2025-08-08T12:07:07+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -72,19 +72,43 @@
       </else>
     </choose>
   </macro>
+  <macro name="page">
+    <group delimiter=" ">
+      <label variable="page" form="short"/>
+      <text variable="page-first" suffix=" ff"/>
+    </group>
+  </macro>
+  <macro name="disambiguate-title-short">
+    <choose>
+      <if match="any" disambiguate="true">
+        <choose>
+          <if match="any" variable="page">
+            <text variable="title-short" prefix=". (zit. " suffix=")"/>
+          </if>
+          <else>
+            <text variable="title-short" prefix=" (zit. " suffix=")"/>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
   <citation name-form="short" initialize-with="." disambiguate-add-givenname="true">
     <sort>
       <key variable="author"/>
     </sort>
     <layout suffix="." delimiter="; ">
       <group delimiter=", ">
-        <text macro="author-inline-citation"/>
         <choose>
-          <if match="any" disambiguate="true">
-            <text variable="note"/>
+          <if type="legislation bill legal_case" match="none">
+            <text macro="author-inline-citation"/>
+            <text macro="citation-locator"/>
+            <choose>
+              <if match="any" disambiguate="true">
+                <text variable="title-short"/>
+              </if>
+            </choose>
           </if>
         </choose>
-        <text macro="citation-locator"/>
       </group>
     </layout>
   </citation>
@@ -112,19 +136,18 @@
                   <text variable="title"/>
                   <group delimiter=" ">
                     <choose>
-                      <if variable="title-short" match="any">
-                        <text form="short" variable="title-short"/>
+                      <if variable="container-title-short" match="any">
+                        <text variable="container-title-short" form="short"/>
                       </if>
                       <else>
                         <text form="short" suffix=" " variable="container-title"/>
                       </else>
                     </choose>
-                    <group delimiter="">
-                      <date date-parts="year" form="text" variable="issued"/>
-                      <text variable="page-first" prefix=" S. " suffix=" ff"/>
-                    </group>
+                    <date date-parts="year" form="text" variable="issued"/>
+                    <text macro="page"/>
                   </group>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </if>
               <else-if type="chapter">
                 <group delimiter=", ">
@@ -146,8 +169,14 @@
                     <text variable="publisher-place"/>
                     <date form="text" variable="issued" date-parts="year"/>
                   </group>
-                  <text variable="page-first" form="short" prefix=" S. " suffix=" ff"/>
+                  <text macro="page"/>
                 </group>
+                <choose>
+                  <if match="any" disambiguate="true">
+                    <text variable="title-short" prefix=" (zit. " suffix=")"/>
+                  </if>
+                </choose>
+                <text macro="disambiguate-title-short"/>
               </else-if>
               <else-if type="thesis">
                 <group delimiter=", ">
@@ -162,6 +191,7 @@
                     <date form="text" variable="issued" date-parts="year"/>
                   </group>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </else-if>
               <else-if type="article-newspaper article-magazine" match="any">
                 <group delimiter=", ">
@@ -172,15 +202,9 @@
                     <date form="text" variable="issued" prefix="vom "/>
                   </group>
                   <text variable="issue"/>
-                  <choose>
-                    <if match="any" is-numeric="page">
-                      <text variable="page-first" prefix=" S. "/>
-                    </if>
-                    <else>
-                      <text variable="page-first" prefix=" S. " suffix=" ff"/>
-                    </else>
-                  </choose>
+                  <text macro="page"/>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </else-if>
               <else-if type="webpage" match="any">
                 <group delimiter=", ">
@@ -188,6 +212,7 @@
                   <text variable="title"/>
                   <text variable="abstract"/>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </else-if>
               <else-if type="post-weblog" match="any">
                 <group delimiter=", ">
@@ -198,6 +223,7 @@
                     <date form="text" date-parts="year-month-day" variable="issued"/>
                   </group>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </else-if>
               <else>
                 <group delimiter=", ">
@@ -210,6 +236,7 @@
                     <date form="text" variable="issued" date-parts="year"/>
                   </group>
                 </group>
+                <text macro="disambiguate-title-short"/>
               </else>
             </choose>
           </group>
