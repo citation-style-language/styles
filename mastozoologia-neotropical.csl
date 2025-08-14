@@ -1,23 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only">
+  <!-- Polyglot; journal publishes in English, Spanish, and Portuguese. -->
   <info>
     <title>Mastozoologia Neotropical</title>
     <id>http://www.zotero.org/styles/mastozoologia-neotropical</id>
     <link href="http://www.zotero.org/styles/mastozoologia-neotropical" rel="self"/>
     <link href="http://www.zotero.org/styles/journal-of-mammalogy" rel="template"/>
-    <link href="http://www.sarem.org.ar/wp-content/uploads/2014/03/SAREM_MastNeotrop_NormasEditoriales-dic2013.pdf" rel="documentation"/>
+    <link href="https://mn.sarem.org.ar/para-publicar-en-mn/" rel="documentation"/>
+    <link href="https://mn.sarem.org.ar/wp-content/uploads/SAREM-SBMz_Mastozoologia-Neotropical_Editorial-Guidelines_2023.docx" rel="documentation"/>
     <author>
       <name>Ignacio Estevan</name>
     </author>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="biology"/>
     <category field="zoology"/>
     <issn>0327-9383</issn>
     <eissn>1666-0536</eissn>
     <summary>Style for Mastozoologia Neotropical</summary>
-    <updated>2014-11-16T22:06:38+00:00</updated>
+    <updated>2025-07-24T15:53:05+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <label variable="edition"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="anon">
     <choose>
       <if variable="author editor translator" match="none">
@@ -29,7 +47,7 @@
     <choose>
       <if type="chapter paper-conference" match="any">
         <names variable="editor translator" delimiter=", ">
-          <name and="symbol" initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+          <name and="symbol" delimiter-precedes-last="never" initialize-with=". "/>
           <label form="short" prefix=", "/>
         </names>
         <text macro="anon"/>
@@ -38,49 +56,41 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name name-as-sort-order="first" and="symbol" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="never">
-        <name-part name="family" text-case="uppercase"/>
+      <name and="symbol" delimiter-precedes-et-al="never" initialize-with=". " name-as-sort-order="first">
+        <name-part name="family" font-variant="small-caps"/>
       </name>
+      <et-al font-variant="small-caps"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
+        <text variable="title"/>
       </substitute>
     </names>
     <text macro="anon"/>
-    <choose>
-      <if variable="URL">
-        <text term="online" prefix=" [" suffix="]"/>
-      </if>
-    </choose>
   </macro>
   <macro name="author-short">
     <names variable="author">
-      <name form="short" and="text" delimiter=", " initialize-with=". "/>
+      <name form="short" and="symbol" initialize-with=". "/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
+        <text variable="title" form="short"/>
       </substitute>
     </names>
     <text macro="anon"/>
   </macro>
   <macro name="access">
     <choose>
-      <if type="article-journal article-magazine article-newspaper bill book chapter graphic legal_case legislation motion_picture paper-conference report song thesis" match="none">
-        <text variable="container-title" font-style="italic" suffix=". "/>
+      <if match="any" variable="DOI">
+        <text variable="DOI" prefix="https://doi.org/"/>
         <choose>
-          <if variable="URL">
-            <text variable="URL" prefix="&lt;" suffix="&gt;"/>
-            <group prefix=" (" suffix=")">
-              <date variable="accessed" delimiter=" ">
-                <date-part name="day"/>
-                <date-part name="month"/>
-                <date-part name="year"/>
-              </date>
-            </group>
-          </if>
+          <if variable="URL"/>
         </choose>
       </if>
+      <else-if type="webpage post post-weblog report" match="any">
+        <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="publisher">
@@ -119,18 +129,22 @@
   <macro name="locators">
     <choose>
       <if type="article-journal article-magazine article-newspaper" match="any">
-        <text variable="container-title" prefix=". "/>
-        <text variable="volume" prefix=" "/>
-        <text variable="page" prefix=":"/>
+        <group delimiter=" ">
+          <text variable="container-title" prefix=". "/>
+          <group delimiter=":">
+            <text variable="volume"/>
+            <text variable="page"/>
+          </group>
+        </group>
       </if>
-      <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference  song" match="any">
-        <group prefix=". " delimiter=" ">
-          <label variable="page" form="short" text-case="capitalize-first" suffix=" "/>
-          <text variable="page" suffix=","/>
-          <text term="in" suffix=":"/>
+      <else-if type="chapter paper-conference" match="any">
+        <group delimiter=" ">
           <text variable="container-title"/>
           <text macro="container-contributors" prefix="(" suffix=")"/>
         </group>
+      </else-if>
+      <else-if type="book" match="any">
+        <text macro="edition"/>
       </else-if>
     </choose>
   </macro>
@@ -145,27 +159,29 @@
       <key macro="author"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <text macro="author-short"/>
-        <text macro="issued-year"/>
+      <group delimiter=":">
+        <group delimiter=" ">
+          <text macro="author-short"/>
+          <text macro="issued-year"/>
+        </group>
+        <text macro="citation-locator"/>
       </group>
-      <text macro="citation-locator" prefix=":"/>
     </layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="7" et-al-use-first="6" entry-spacing="1" line-spacing="1">
+  <bibliography et-al-min="7" et-al-use-first="1" hanging-indent="true">
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
     </sort>
     <layout suffix=".">
-      <text macro="author" suffix="."/>
-      <text macro="issued" prefix=" " suffix=". "/>
-      <text variable="title"/>
-      <text macro="locators"/>
-      <group delimiter=". " prefix=". ">
+      <group delimiter=". " suffix=".">
+        <text macro="author"/>
+        <text macro="issued"/>
+        <text variable="title"/>
+        <text macro="locators"/>
         <text macro="publisher"/>
-        <text macro="access"/>
       </group>
+      <text macro="access" prefix=" "/>
     </layout>
   </bibliography>
 </style>

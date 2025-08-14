@@ -170,7 +170,7 @@ A generic structure could then look like:
 </citation>
 ```
 
-If a case is missing in your style, you can add a new case and specify how information should be rendered in that case (e.g. see [Chicago (full note)](https://www.zotero.org/styles/chicago-fullnote-bibliography?source=1) for an example).
+If a case is missing in your style, you can add a new case and specify how information should be rendered in that case (e.g. see [Chicago (notes and bibliography)](https://www.zotero.org/styles/chicago-notes-bibliography?source=1) for an example).
 
 #### Note: Updating from Older CSL Versions
 

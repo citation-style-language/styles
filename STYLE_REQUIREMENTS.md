@@ -29,14 +29,24 @@ If your style is meant to be used in one particular language, set the `default-l
 For example, CSL styles for English-language journals should typically be set to US English ("en-US") or British English ("en-GB"). 
 For a list of languages and their locale codes, see https://github.com/citation-style-language/locales/wiki.
 
-When using `default-locale`, add the chosen locale to the style title, unless the language is English. 
-An example:
+If you set `default-locale` to a language other than English (`en-*`), add the language to the end of the style title in parentheses.
+
+Two examples:
 
 ```xml
    <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
      <info>
        <title>Zeitschrift für Soziologie (Deutsch)</title>
        <id>http://www.zotero.org/styles/zeitschrift-fur-soziologie</id>
+     </info>
+   </style>
+```
+
+```xml
+   <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="pt-BR">
+     <info>
+       <title>Associação Brasileira de Normas Técnicas (Português - Brasil)</title>
+       <id>http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas</id>
      </info>
    </style>
 ```
@@ -52,7 +62,7 @@ To create the file name from the title:
   * replace spaces and apostrophes with hyphens (e.g., "Documents d'archéologie française (French)" becomes "documents-d-archeologie-francaise.csl")
   * drop diacritics (e.g., "für" becomes "fur", not "fuer")
   * drop text between parentheses (e.g., "Ugeskrift for Læger (Danish)" becomes "ugeskrift-for-laeger.csl")
-  * avoid abbreviations (e.g., use "modern-humanities-research-association.csl" instead of "mhra.csl")
+  * avoid abbreviations (e.g., use "modern-humanities-research-association-notes.csl" instead of "mhra-notes.csl")
   * add the ".csl" extension
 
 You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly lowercase titles and replace spaces by hyphens, although you may have to make some more changes by hand.
@@ -60,22 +70,22 @@ You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly
 ##### 5 - Style ID
 
 The style ID must be "http://www.zotero.org/styles/file-name", with "file-name" representing the style's file name without the ".csl" extension. 
-For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <id>http://www.zotero.org/styles/modern-humanities-research-association</id>
+     <id>http://www.zotero.org/styles/modern-humanities-research-association-notes</id>
    </info>
 ```
 
 ##### 6 - "self" Link
 
 The style's "self" link, which tells where the style will available online, must be "http://www.zotero.org/styles/file-name", with "**file-name**" representing the style's file name without the ".csl" extension. 
-For example, "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <link href="http://www.zotero.org/styles/modern-humanities-research-association" rel="self"/>
+     <link href="http://www.zotero.org/styles/modern-humanities-research-association-notes" rel="self"/>
    </info>
 ```
 
