@@ -2,7 +2,7 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" and="text" class="in-text" demote-non-dropping-particle="never" page-range-format="minimal-two" version="1.0">
   <info>
     <title>Modern Language Association 9th edition</title>
-    <title-short>MLA</title-short>
+    <title-short>MLA Handbook</title-short>
     <id>http://www.zotero.org/styles/modern-language-association</id>
     <link href="http://www.zotero.org/styles/modern-language-association" rel="self"/>
     <link href="https://style.mla.org/" rel="documentation"/>
@@ -10,10 +10,10 @@
       <name>Sebastian Karcher</name>
       <uri>https://orcid.org/0000-0001-8249-7388</uri>
     </author>
-    <contributor>
+    <author>
       <name>Andrew Dunning</name>
       <uri>https://orcid.org/0000-0003-0464-5036</uri>
-    </contributor>
+    </author>
     <contributor>
       <name>Patrick O'Brien</name>
     </contributor>
@@ -22,7 +22,7 @@
     <category field="humanities"/>
     <category field="literature"/>
     <summary>MLA source citations, 9th edition</summary>
-    <updated>2023-07-21T20:05:10+00:00</updated>
+    <updated>2025-07-15T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -48,6 +48,14 @@
       <term form="short" name="version">vers.</term>
     </terms>
   </locale>
+  <!-- Variable labels -->
+  <macro name="label-volume">
+    <group delimiter=" ">
+      <label form="short" variable="volume"/>
+      <text variable="volume"/>
+    </group>
+  </macro>
+  <!-- 1. Author -->
   <macro name="author">
     <names variable="author">
       <name delimiter-precedes-et-al="always" delimiter-precedes-last="always" name-as-sort-order="first"/>
@@ -76,6 +84,7 @@
       </choose>
     </group>
   </macro>
+  <!-- 2. Title of Source -->
   <macro name="title">
     <choose>
       <if variable="container-title">
@@ -96,10 +105,13 @@
       </else>
     </choose>
   </macro>
+  <!-- Container 1 -->
+  <!-- 3. Title of Container -->
   <macro name="container-title">
     <text font-style="italic" text-case="title" variable="container-title"/>
   </macro>
-  <macro name="other-contributors">
+  <!-- 4. Contributor -->
+  <macro name="container-contributor">
     <choose>
       <if variable="container-title">
         <group delimiter=", ">
@@ -135,7 +147,8 @@
       </else>
     </choose>
   </macro>
-  <macro name="version">
+  <!-- 5. Version -->
+  <macro name="container-version">
     <group delimiter=", ">
       <choose>
         <if is-numeric="edition">
@@ -148,45 +161,50 @@
           <text text-case="capitalize-first" variable="edition"/>
         </else>
       </choose>
-      <text variable="version"/>
+      <group delimiter=" ">
+        <choose>
+          <if variable="edition">
+            <label variable="version"/>
+          </if>
+          <else>
+            <label text-case="capitalize-first" variable="version"/>
+          </else>
+        </choose>
+        <text variable="version"/>
+      </group>
       <text variable="medium"/>
     </group>
   </macro>
-  <macro name="volume-lowercase">
-    <group delimiter=" ">
-      <label form="short" variable="volume"/>
-      <text variable="volume"/>
-    </group>
-  </macro>
-  <macro name="number">
+  <!-- 6. Number -->
+  <macro name="container-number">
     <group delimiter=", ">
       <group>
         <choose>
           <!--lowercase if we have a preceding element-->
           <if match="any" variable="edition container-title">
-            <text macro="volume-lowercase"/>
+            <text macro="label-volume"/>
           </if>
           <!--other contributors preceding the volume-->
           <else-if variable="author">
             <choose>
               <if match="any" variable="container-author director editor illustrator interviewer translator">
-                <text macro="volume-lowercase"/>
+                <text macro="label-volume"/>
               </if>
             </choose>
           </else-if>
           <else-if variable="editor">
             <choose>
               <if match="any" variable="container-author director illustrator interviewer translator">
-                <text macro="volume-lowercase"/>
+                <text macro="label-volume"/>
               </if>
             </choose>
           </else-if>
           <else-if match="any" variable="container-author director illustrator interviewer">
-            <text macro="volume-lowercase"/>
+            <text macro="label-volume"/>
           </else-if>
           <else>
             <group delimiter=" ">
-              <label form="short" variable="volume" text-case="capitalize-first"/>
+              <label form="short" text-case="capitalize-first" variable="volume"/>
               <text variable="volume"/>
             </group>
           </else>
@@ -204,7 +222,8 @@
       <text variable="number"/>
     </group>
   </macro>
-  <macro name="publisher">
+  <!-- 7. Publisher -->
+  <macro name="container-publisher">
     <choose>
       <if type="thesis">
         <group delimiter=". ">
@@ -222,12 +241,21 @@
           </group>
         </group>
       </if>
-      <else-if match="none" type="article-magazine article-newspaper article-journal">
-        <text variable="publisher"/>
+      <else-if match="none" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <choose>
+          <if variable="publisher">
+            <text variable="publisher"/>
+          </if>
+          <else>
+            <!-- use place of publication as fallback (cf. MLA9 5.67) -->
+            <text variable="publisher-place"/>
+          </else>
+        </choose>
       </else-if>
     </choose>
   </macro>
-  <macro name="publication-date">
+  <!-- 8. Publication Date -->
+  <macro name="container-publication-date">
     <choose>
       <if match="any" type="book chapter motion_picture paper-conference">
         <choose>
@@ -261,7 +289,8 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="location">
+  <!-- 9. Location -->
+  <macro name="container-location">
     <group delimiter=", ">
       <group delimiter=" ">
         <label form="short" variable="page"/>
@@ -274,6 +303,8 @@
       </choose>
     </group>
   </macro>
+  <!-- Container 2 -->
+  <!-- 3. Title of Container -->
   <macro name="container2-title">
     <group delimiter=", ">
       <choose>
@@ -296,6 +327,7 @@
       <text variable="archive_location"/>
     </group>
   </macro>
+  <!-- 9. Location -->
   <macro name="container2-location">
     <choose>
       <if match="none" variable="source"/>
@@ -318,7 +350,7 @@
     </choose>
   </macro>
   <macro name="accessed">
-    <!--using accessed where we don't have an issued date (MLA9 5.111) -->
+    <!-- give accessed if no issued date (MLA9 5.111) -->
     <choose>
       <if match="none" variable="issued">
         <group delimiter=" ">
@@ -367,18 +399,17 @@
           </else>
         </choose>
         <group delimiter=", ">
-          <!---This group corresponds to MLA's "Container 1"-->
+          <!--- Container 1 -->
           <text macro="container-title"/>
-          <text macro="other-contributors"/>
-          <text macro="version"/>
-          <text macro="number"/>
-          <text macro="publisher"/>
-          <text macro="publication-date"/>
-          <text macro="location"/>
+          <text macro="container-contributor"/>
+          <text macro="container-version"/>
+          <text macro="container-number"/>
+          <text macro="container-publisher"/>
+          <text macro="container-publication-date"/>
+          <text macro="container-location"/>
         </group>
         <group delimiter=", ">
-          <!---This group corresponds to MLA's "Container 2"-->
-          <!--currently just using this one for archival info-->
+          <!--- Container 2 -->
           <text macro="container2-title"/>
           <text macro="container2-location"/>
         </group>
