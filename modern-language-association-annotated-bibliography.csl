@@ -61,6 +61,12 @@
       <text variable="volume"/>
     </group>
   </macro>
+  <macro name="label-volume-capitalized">
+    <group delimiter=" ">
+      <label form="short" text-case="capitalize-first" variable="volume"/>
+      <text variable="volume"/>
+    </group>
+  </macro>
   <!-- 1. Author (MLA 5.3-22) -->
   <macro name="author">
     <names variable="author">
@@ -96,6 +102,9 @@
       <if variable="container-title">
         <text quotes="true" text-case="title" variable="title"/>
       </if>
+      <else-if variable="volume-title">
+        <text font-style="italic" text-case="title" variable="volume-title"/>
+      </else-if>
       <else>
         <text font-style="italic" text-case="title" variable="title"/>
       </else>
@@ -106,16 +115,68 @@
       <if variable="container-title">
         <text form="short" quotes="true" text-case="title" variable="title"/>
       </if>
+      <else-if variable="volume-title">
+        <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+      </else-if>
       <else>
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
+    </choose>
+  </macro>
+  <!-- + Supplemental Element after Title of Source (MLA 5.106-109) -->
+  <macro name="supplemental-element">
+    <group delimiter=". ">
+      <text macro="supplemental-contributor"/>
+      <text macro="supplemental-original-date"/>
+      <text macro="supplemental-generic-label"/>
+    </group>
+  </macro>
+  <macro name="supplemental-contributor">
+    <!-- [5.107] Contributor -->
+    <choose>
+      <if variable="container-title"/>
+      <else>
+        <group delimiter=", ">
+          <names delimiter=", " variable="container-author">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="director illustrator interviewer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="supplemental-original-date">
+    <!-- [5.108] Original publication date -->
+    <choose>
+      <if is-uncertain-date="original-date">
+        <date form="text" prefix="[" suffix="?]" variable="original-date"/>
+      </if>
+      <else>
+        <date form="text" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="supplemental-generic-label">
+    <!-- [5.109] Section of a work labeled generically -->
+    <choose>
+      <if match="none" type="thesis" variable="number">
+        <text text-case="capitalize-first" variable="genre"/>
+      </if>
     </choose>
   </macro>
   <!-- Container 1 -->
   <!-- 3. Title of Container (MLA 5.31-37) -->
   <macro name="container-title">
     <choose>
-      <if variable="volume-title">
+      <if variable="container-title volume-title">
         <text font-style="italic" text-case="title" variable="volume-title"/>
       </if>
       <else>
@@ -142,22 +203,6 @@
           </names>
         </group>
       </if>
-      <else>
-        <group delimiter=", ">
-          <names delimiter=", " variable="container-author">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
-          <names delimiter=", " variable="editor translator">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
-          <names delimiter=", " variable="director illustrator interviewer">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name/>
-          </names>
-        </group>
-      </else>
     </choose>
   </macro>
   <!-- 5. Version (MLA 5.48-50) -->
@@ -185,7 +230,6 @@
         </choose>
         <text variable="version"/>
       </group>
-      <text variable="medium"/>
     </group>
   </macro>
   <!-- 6. Number (MLA 5.51-53) -->
@@ -216,10 +260,7 @@
             <text macro="label-volume"/>
           </else-if>
           <else>
-            <group delimiter=" ">
-              <label form="short" text-case="capitalize-first" variable="volume"/>
-              <text variable="volume"/>
-            </group>
+            <text macro="label-volume-capitalized"/>
           </else>
         </choose>
       </group>
@@ -238,22 +279,7 @@
   <!-- 7. Publisher (MLA 5.54-67) -->
   <macro name="container-publisher">
     <choose>
-      <if type="thesis">
-        <group delimiter=". ">
-          <choose>
-            <if is-uncertain-date="issued">
-              <date date-parts="year" form="text" prefix="[" suffix="?]" variable="issued"/>
-            </if>
-            <else>
-              <date date-parts="year" form="text" variable="issued"/>
-            </else>
-          </choose>
-          <group delimiter=", ">
-            <text variable="publisher"/>
-            <text variable="genre"/>
-          </group>
-        </group>
-      </if>
+      <if type="thesis"/>
       <else-if match="none" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <choose>
           <if variable="publisher">
@@ -270,7 +296,7 @@
   <!-- 8. Publication Date (MLA 5.68-83) -->
   <macro name="container-publication-date">
     <choose>
-      <if match="any" type="book chapter motion_picture paper-conference">
+      <if match="any" type="book chapter motion_picture paper-conference thesis">
         <choose>
           <if is-uncertain-date="issued">
             <date date-parts="year" form="text" prefix="[" suffix="?]" variable="issued"/>
@@ -290,7 +316,7 @@
           </else>
         </choose>
       </else-if>
-      <else-if match="none" type="speech thesis">
+      <else-if match="none" type="speech">
         <choose>
           <if is-uncertain-date="issued">
             <date form="text" prefix="[" suffix="?]" variable="issued"/>
@@ -333,8 +359,12 @@
           </choose>
           <text variable="event-place"/>
         </if>
-        <else-if variable="volume-title">
-          <text font-style="italic" text-case="title" variable="title"/>
+        <else-if variable="title volume-title">
+          <group delimiter=" ">
+            <text macro="label-volume-capitalized"/>
+            <text value="of"/>
+            <text font-style="italic" text-case="title" variable="title"/>
+          </group>
         </else-if>
       </choose>
       <text variable="archive"/>
@@ -351,16 +381,6 @@
   </macro>
   <!-- 5. Version (MLA 5.48-50) -->
   <!-- 6. Number (MLA 5.51-53) -->
-  <macro name="container2-number">
-    <group delimiter=" ">
-      <text variable="number-of-volumes"/>
-      <choose>
-        <if is-numeric="number-of-volumes">
-          <label form="short" variable="number-of-volumes"/>
-        </if>
-      </choose>
-    </group>
-  </macro>
   <!-- 7. Publisher (MLA 5.54-67) -->
   <!-- 8. Publication Date (MLA 5.68-83) -->
   <!-- 9. Location (MLA 5.84-99) -->
@@ -385,8 +405,20 @@
       </else>
     </choose>
   </macro>
-  <macro name="accessed">
-    <!-- give accessed if no issued date (MLA 5.111) -->
+  <!-- + Supplemental Element at End of Entry (MLA 5.110-118) -->
+  <macro name="supplemental-element-end">
+    <group delimiter=". ">
+      <text macro="supplemental-date-access"/>
+      <text macro="supplemental-medium"/>
+      <text macro="supplemental-dissertations-theses"/>
+      <text macro="supplemental-publication-history"/>
+      <text macro="supplemental-book-series"/>
+      <text macro="supplemental-columns-sections"/>
+      <text macro="supplemental-multivolume-works"/>
+    </group>
+  </macro>
+  <macro name="supplemental-date-access">
+    <!-- [5.111] Date of access -->
     <choose>
       <if match="none" variable="issued">
         <group delimiter=" ">
@@ -395,6 +427,77 @@
         </group>
       </if>
     </choose>
+  </macro>
+  <macro name="supplemental-medium">
+    <!-- [5.112] Medium of publication -->
+    <text text-case="capitalize-first" variable="medium"/>
+  </macro>
+  <macro name="supplemental-dissertations-theses">
+    <!-- [5.113] Dissertations and theses -->
+    <choose>
+      <if type="thesis">
+        <group delimiter=", ">
+          <text variable="publisher"/>
+          <text variable="genre"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
+  <macro name="supplemental-publication-history">
+    <!-- [5.114] Publication history -->
+    <group delimiter=" ">
+      <text term="original-work-published" text-case="capitalize-first"/>
+      <group delimiter=", ">
+        <choose>
+          <if variable="original-title">
+            <group delimiter=" ">
+              <text value="as"/>
+              <choose>
+                <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+                  <text variable="original-title"/>
+                </if>
+                <else>
+                  <text font-style="italic" variable="original-title"/>
+                </else>
+              </choose>
+            </group>
+          </if>
+        </choose>
+        <text variable="original-publisher"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="supplemental-book-series">
+    <!-- [5.115] Book series -->
+    <group delimiter=", ">
+      <choose>
+        <if is-numeric="collection-number" variable="collection-title">
+          <group delimiter=" ">
+            <text text-case="title" variable="collection-title"/>
+            <text variable="collection-number"/>
+          </group>
+        </if>
+        <else-if variable="collection-title">
+          <text text-case="title" variable="collection-title"/>
+          <text variable="collection-number"/>
+        </else-if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="supplemental-columns-sections">
+    <!-- [5.116] Columns, sections, and other recurring titled features -->
+    <text text-case="title" variable="section"/>
+  </macro>
+  <macro name="supplemental-multivolume-works">
+    <!-- [5.117] Multivolume works -->
+    <group delimiter=" ">
+      <text variable="number-of-volumes"/>
+      <choose>
+        <if is-numeric="number-of-volumes">
+          <label form="short" variable="number-of-volumes"/>
+        </if>
+      </choose>
+    </group>
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " prefix="(" suffix=")">
@@ -426,14 +529,7 @@
       <group delimiter=". ">
         <text macro="author"/>
         <text macro="title"/>
-        <choose>
-          <if is-uncertain-date="original-date">
-            <date date-parts="year" form="text" prefix="[" suffix="?]" variable="original-date"/>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="original-date"/>
-          </else>
-        </choose>
+        <text macro="supplemental-element"/>
         <group delimiter=", ">
           <!--- Container 1 -->
           <text macro="container-title"/>
@@ -448,10 +544,9 @@
           <!--- Container 2 -->
           <text macro="container2-title"/>
           <text macro="container2-contributor"/>
-          <text macro="container2-number"/>
           <text macro="container2-location"/>
         </group>
-        <text macro="accessed"/>
+        <text macro="supplemental-element-end"/>
       </group>
       <text display="block" variable="note"/>
     </layout>
