@@ -89,17 +89,99 @@
           7.6. Columns, sections, and other recurring titled features (MLA 5.116)
           7.7. Multivolume works (MLA 5.117)
   -->
+  <!-- Categories of CSL item types:
+
+       Serial
+       : article-journal article-magazine article-newspaper periodical post-weblog review review-book
+
+       Serial or Monographic
+       : interview paper-conference
+
+         Monographic with any of `collection-editor compiler editor editorial-director`.
+         A serial `paper-conference` is unpublished if it lacks any of `issue page supplement-number volume`.
+
+       Monographic
+       : article book broadcast chapter classic collection dataset document
+         entry entry-dictionary entry-encyclopedia event figure
+         graphic manuscript map motion_picture musical_score
+         pamphlet patent performance personal_communication post report
+         software song speech standard thesis webpage
+
+       Legal
+       : bill hearing legal_case legislation regulation treaty
+  -->
   <!-- Variable labels -->
+  <macro name="label-edition-capitalized">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number form="ordinal" variable="edition"/>
+          <label form="short" variable="edition"/>
+        </group>
+      </if>
+      <else>
+        <text text-case="capitalize-first" variable="edition"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="label-issue">
+    <group delimiter=" ">
+      <label form="short" variable="issue"/>
+      <text variable="issue"/>
+    </group>
+  </macro>
+  <macro name="label-locator">
+    <group delimiter=" ">
+      <label form="short" variable="locator"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="label-number-of-volumes">
+    <group delimiter=" ">
+      <text variable="number-of-volumes"/>
+      <choose>
+        <if is-numeric="number-of-volumes">
+          <label form="short" variable="number-of-volumes"/>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="label-page">
+    <group delimiter=" ">
+      <label form="short" variable="page"/>
+      <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="label-version">
+    <group delimiter=" ">
+      <label variable="version"/>
+      <text variable="version"/>
+    </group>
+  </macro>
+  <macro name="label-version-capitalized">
+    <group delimiter=" ">
+      <label text-case="capitalize-first" variable="version"/>
+      <text variable="version"/>
+    </group>
+  </macro>
   <macro name="label-volume">
     <group delimiter=" ">
-      <label form="short" variable="volume"/>
+      <choose>
+        <if is-numeric="volume">
+          <label form="short" variable="volume"/>
+        </if>
+      </choose>
       <text variable="volume"/>
     </group>
   </macro>
   <macro name="label-volume-capitalized">
     <group delimiter=" ">
-      <label form="short" text-case="capitalize-first" variable="volume"/>
-      <text variable="volume"/>
+      <choose>
+        <if is-numeric="volume">
+          <label form="short" text-case="capitalize-first" variable="volume"/>
+        </if>
+      </choose>
+      <text text-case="capitalize-first" variable="volume"/>
     </group>
   </macro>
   <!-- 1. Author (MLA 5.3-22) -->
@@ -257,28 +339,15 @@
   <!-- 4.3. Version (MLA 5.48-50) -->
   <macro name="container1-version">
     <group delimiter=", ">
+      <text macro="label-edition-capitalized"/>
       <choose>
-        <if is-numeric="edition">
-          <group delimiter=" ">
-            <number form="ordinal" variable="edition"/>
-            <label form="short" variable="edition"/>
-          </group>
+        <if variable="edition">
+          <text macro="label-version"/>
         </if>
         <else>
-          <text text-case="capitalize-first" variable="edition"/>
+          <text macro="label-version-capitalized"/>
         </else>
       </choose>
-      <group delimiter=" ">
-        <choose>
-          <if variable="edition">
-            <label variable="version"/>
-          </if>
-          <else>
-            <label text-case="capitalize-first" variable="version"/>
-          </else>
-        </choose>
-        <text variable="version"/>
-      </group>
     </group>
   </macro>
   <!-- 4.4. Number (MLA 5.51-53) -->
@@ -313,10 +382,7 @@
           </else>
         </choose>
       </group>
-      <group delimiter=" ">
-        <label form="short" variable="issue"/>
-        <text variable="issue"/>
-      </group>
+      <text macro="label-issue"/>
       <choose>
         <if type="report">
           <text variable="genre"/>
@@ -343,17 +409,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="container-publisher-or-place">
-    <choose>
-      <if variable="publisher">
-        <text variable="publisher"/>
-      </if>
-      <else>
-        <!-- use place of publication as fallback (cf. MLA 5.67) -->
-        <text variable="publisher-place"/>
-      </else>
-    </choose>
-  </macro>
   <!-- 4.6. Publication Date (MLA 5.68-83) -->
   <macro name="container1-publication-date">
     <choose>
@@ -377,7 +432,8 @@
           </else>
         </choose>
       </else-if>
-      <else-if match="none" type="speech">
+      <else-if type="speech"/>
+      <else>
         <choose>
           <if is-uncertain-date="issued">
             <date form="text" prefix="[" suffix="?]" variable="issued"/>
@@ -386,16 +442,13 @@
             <date form="text" variable="issued"/>
           </else>
         </choose>
-      </else-if>
+      </else>
     </choose>
   </macro>
   <!-- 4.7. Location (MLA 5.84-99) -->
   <macro name="container1-location">
     <group delimiter=", ">
-      <group delimiter=" ">
-        <label form="short" variable="page"/>
-        <text variable="page"/>
-      </group>
+      <text macro="label-page"/>
       <choose>
         <if match="none" variable="source">
           <text macro="URI"/>
@@ -408,7 +461,7 @@
     <group delimiter=". ">
       <choose>
         <if variable="source">
-          <macro name="supplemental-dissertations-theses"/>
+          <text macro="supplemental-dissertations-theses"/>
         </if>
       </choose>
     </group>
@@ -565,14 +618,7 @@
   </macro>
   <!-- 7.7. Multivolume works (MLA 5.117) -->
   <macro name="supplemental-multivolume-works">
-    <group delimiter=" ">
-      <text variable="number-of-volumes"/>
-      <choose>
-        <if is-numeric="number-of-volumes">
-          <label form="short" variable="number-of-volumes"/>
-        </if>
-      </choose>
-    </group>
+    <text macro="label-number-of-volumes"/>
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " prefix="(" suffix=")">
@@ -586,10 +632,7 @@
         <else>
           <group delimiter=", ">
             <text macro="author-short"/>
-            <group delimiter=" ">
-              <label form="short" variable="locator"/>
-              <text variable="locator"/>
-            </group>
+            <text macro="label-locator"/>
           </group>
         </else>
       </choose>
