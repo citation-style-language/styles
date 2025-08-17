@@ -75,15 +75,11 @@
        5. Supplemental Element Between Containers (MLA 5.119)
        6. Container 2
           6.1. Title of Container (MLA 5.31-37)
-          6.2. Contributor (MLA 5.38-47)
-          6.3. Version (MLA 5.48-50)
-          6.4. Number (MLA 5.51-53)
-          6.5. Publisher (MLA 5.54-67)
-          6.6. Publication Date (MLA 5.68-83)
-          6.7. Location (MLA 5.84-99)
+          6.2. Location (MLA 5.84-99)
        7. Supplemental Element at End of Entry (MLA 5.110-118)
           7.1. Date of access (MLA 5.111)
           7.2. Medium of publication (MLA 5.112)
+          7.3. Dissertations and theses (MLA 5.113)
           7.4. Publication history (MLA 5.114)
           7.5. Book series (MLA 5.115)
           7.6. Columns, sections, and other recurring titled features (MLA 5.116)
@@ -150,6 +146,39 @@
     <group delimiter=" ">
       <label form="short" variable="page"/>
       <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="label-part-number">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="part-number">
+          <!-- TODO: Replace with `part-number` label when CSL provides one -->
+          <text form="short" term="part"/>
+        </if>
+      </choose>
+      <text variable="part-number"/>
+    </group>
+  </macro>
+  <macro name="label-part-number-capitalized">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="part-number">
+          <!-- TODO: Replace with `part-number` label when CSL provides one -->
+          <text form="short" term="part" text-case="capitalize-first"/>
+        </if>
+      </choose>
+      <text text-case="capitalize-first" variable="part-number"/>
+    </group>
+  </macro>
+  <macro name="label-supplement-number">
+    <group delimiter=" ">
+      <choose>
+        <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
+        <if is-numeric="supplement-number">
+          <text form="short" term="supplement"/>
+        </if>
+      </choose>
+      <text variable="supplement-number"/>
     </group>
   </macro>
   <macro name="label-version">
@@ -222,26 +251,183 @@
   <!-- 2. Title of Source (MLA 5.23-30) -->
   <macro name="title">
     <choose>
-      <if variable="container-title">
-        <text quotes="true" text-case="title" variable="title"/>
+      <if match="any" type="post webpage">
+        <!-- Handle `container-title` on `post` or `webpage` in manner of `publisher` -->
+        <text macro="title-and-part-filter-review"/>
       </if>
-      <else-if variable="volume-title">
-        <text font-style="italic" text-case="title" variable="volume-title"/>
+      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <text macro="title-and-part-filter-review"/>
+      </else-if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
+            <text macro="title-monographic"/>
+          </if>
+          <else>
+            <!-- serial usage -->
+            <text macro="title-and-part-filter-review"/>
+          </else>
+        </choose>
       </else-if>
       <else>
-        <text font-style="italic" text-case="title" variable="title"/>
+        <text macro="title-monographic"/>
       </else>
     </choose>
   </macro>
   <macro name="title-short">
     <choose>
-      <if variable="container-title">
-        <text form="short" quotes="true" text-case="title" variable="title"/>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-title`, assume that `title` contains the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-genre title">
+            <!-- Quotes, title case -->
+            <text form="short" quotes="true" text-case="title" variable="title"/>
+          </if>
+          <else-if variable="reviewed-genre reviewed-title title">
+            <!-- Quotes, title case -->
+            <text form="short" quotes="true" text-case="title" variable="title"/>
+          </else-if>
+          <else>
+            <text macro="supplemental-generic-label-short"/>
+          </else>
+        </choose>
       </if>
+      <else>
+        <text macro="title-primary-short"/>
+      </else>
+    </choose>
+  </macro>
+  <!-- Title elements -->
+  <macro name="title-and-part-filter-review">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- `title` is only the review title if there is a separate `reviewed-genre` or `reviewed-title`; otherwise, it is the title of the reviewed work, printed in the description -->
+        <choose>
+          <if match="any" variable="reviewed-genre reviewed-title">
+            <text macro="title-and-part-title"/>
+          </if>
+        </choose>
+      </if>
+      <else>
+        <text macro="title-and-part-title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-and-part-title">
+    <group delimiter=", ">
+      <text macro="title-primary"/>
+      <group delimiter=", ">
+        <text macro="label-part-number"/>
+        <text macro="title-part"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="title-monographic">
+    <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
+    <!-- There is no `title-monographic-note` as notes always open with the primary title. -->
+    <choose>
+      <if variable="container-title">
+        <text macro="title-primary"/>
+      </if>
+      <!-- For monographic items without `container-title`, bibliography entries list `part-title` or `volume-title` first if available -->
+      <else-if variable="part-title">
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else-if>
       <else-if variable="volume-title">
-        <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+        <text font-style="italic" text-case="title" variable="volume-title"/>
       </else-if>
       <else>
+        <text macro="title-primary"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-part">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
+            <text font-style="italic" text-case="title" variable="part-title"/>
+          </if>
+          <else>
+            <!-- serial usage -->
+            <text quotes="true" text-case="title" variable="part-title"/>
+          </else>
+        </choose>
+      </else-if>
+      <else>
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-primary">
+    <choose>
+      <if match="any" type="bill collection legislation regulation treaty">
+        <!-- No italics or quotes, title case -->
+        <text text-case="title" variable="title"/>
+      </if>
+      <else-if type="legal_case">
+        <!-- Italicized, sentence case -->
+        <text font-style="italic" variable="title"/>
+      </else-if>
+      <else-if match="any" type="book classic graphic hearing map periodical">
+        <!-- Italicized, title case (regardless of `container-title`) -->
+        <text font-style="italic" text-case="title" variable="title"/>
+      </else-if>
+      <else-if type="post">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="title"/>
+      </else-if>
+      <!-- Other types are formatted based on presence of `container-title` -->
+      <else-if variable="container-title">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech webpage">
+        <!-- Container-like but not necessarily with `container-title` -->
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else>
+        <!-- Italicized, title case (default) -->
+        <text font-style="italic" text-case="title" variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-primary-short">
+    <choose>
+      <if match="any" type="bill collection legislation regulation treaty">
+        <!-- No italics or quotes, title case -->
+        <text form="short" text-case="title" variable="title"/>
+      </if>
+      <else-if type="legal_case">
+        <!-- Italicized, sentence case -->
+        <text font-style="italic" form="short" variable="title"/>
+      </else-if>
+      <else-if match="any" type="book classic graphic hearing map periodical">
+        <!-- Italicized, title case (regardless of `container-title`) -->
+        <text font-style="italic" form="short" text-case="title" variable="title"/>
+      </else-if>
+      <else-if type="post">
+        <!-- Quotes, sentence case -->
+        <text form="short" quotes="true" variable="title"/>
+      </else-if>
+      <!-- Other types are formatted based on presence of `container-title` -->
+      <else-if variable="container-title">
+        <!-- Quotes, title case -->
+        <text form="short" quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech webpage">
+        <!-- Container-like but not necessarily with `container-title` -->
+        <!-- Quotes, title case -->
+        <text form="short" quotes="true" text-case="title" variable="title"/>
+      </else-if>
+      <else>
+        <!-- Italicized, title case (default) -->
         <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
     </choose>
@@ -272,7 +458,7 @@
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name/>
           </names>
-          <names delimiter=", " variable="director illustrator">
+          <names delimiter=", " variable="director illustrator contributor">
             <label form="verb" suffix=" " text-case="capitalize-first"/>
             <name/>
           </names>
@@ -294,14 +480,175 @@
   <!-- 3.3. Section of a work labeled generically (MLA 5.109) -->
   <macro name="supplemental-generic-label">
     <choose>
-      <if match="none" type="thesis" variable="number">
-        <text text-case="capitalize-first" variable="genre"/>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <text macro="supplemental-generic-label-review"/>
       </if>
+      <else-if type="thesis"/>
+      <else-if variable="number"/>
+      <else>
+        <text text-case="capitalize-first" variable="genre"/>
+      </else>
     </choose>
+  </macro>
+  <macro name="supplemental-generic-label-short">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <text macro="supplemental-generic-label-review-short"/>
+      </if>
+      <else>
+        <text text-case="capitalize-first" variable="genre"/>
+      </else>
+    </choose>
+  </macro>
+  <!-- Generic label elements -->
+  <macro name="supplemental-generic-label-review">
+    <group delimiter=" ">
+      <choose>
+        <if variable="reviewed-genre">
+          <group delimiter=" ">
+            <text term="review-of" text-case="capitalize-first"/>
+            <text variable="reviewed-genre"/>
+            <choose>
+              <if match="none" variable="reviewed-title">
+                <names variable="reviewed-author">
+                  <label form="verb" suffix=" "/>
+                  <name/>
+                </names>
+              </if>
+            </choose>
+          </group>
+        </if>
+        <else-if variable="number">
+          <text term="review-of" text-case="capitalize-first"/>
+        </else-if>
+        <!-- If no `reviewed-genre`, assume that `genre` is entered as 'Review of the book' or similar -->
+        <else-if variable="genre">
+          <text text-case="capitalize-first" variable="genre"/>
+        </else-if>
+        <else>
+          <text term="review-of" text-case="capitalize-first"/>
+        </else>
+      </choose>
+      <choose>
+        <if match="any" variable="reviewed-genre reviewed-title">
+          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+          <text font-style="italic" text-case="title" variable="reviewed-title"/>
+        </if>
+        <else>
+          <!-- Assume title is title of reviewed work -->
+          <text font-style="italic" text-case="title" variable="title"/>
+        </else>
+      </choose>
+    </group>
+    <choose>
+      <if variable="reviewed-genre reviewed-title title">
+        <names variable="reviewed-author">
+          <label form="verb" suffix=" "/>
+          <name/>
+        </names>
+      </if>
+      <else-if variable="reviewed-genre"/>
+      <else>
+        <names variable="reviewed-author">
+          <label form="verb" suffix=" "/>
+          <name/>
+        </names>
+      </else>
+    </choose>
+  </macro>
+  <macro name="supplemental-generic-label-review-short">
+    <group delimiter=" ">
+      <text term="review-of"/>
+      <choose>
+        <if match="any" variable="reviewed-genre reviewed-title">
+          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+          <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
+        </if>
+        <else>
+          <!-- Assume title is title of reviewed work -->
+          <text font-style="italic" form="short" text-case="title" variable="title"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <!-- 4. Container 1 -->
   <!-- 4.1. Title of Container (MLA 5.31-37) -->
   <macro name="container1-title">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <!-- serial usage -->
+        <text macro="container1-title-serial"/>
+      </if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor container-author editor editorial-director">
+            <!-- monographic usage -->
+            <text macro="container1-title-monographic"/>
+          </if>
+          <else>
+            <!-- serial usage -->
+            <text macro="container1-title-serial"/>
+          </else>
+        </choose>
+      </else-if>
+      <else-if match="any" type="patent post webpage"/>
+      <else>
+        <text macro="container1-title-monographic"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="container1-title-serial">
+    <group delimiter=", ">
+      <text font-style="italic" text-case="title" variable="volume-title"/>
+      <group delimiter=" ">
+        <choose>
+          <!-- Journal special issues and supplements (MHRA 7.4) -->
+          <if match="none" variable="container-title"/>
+          <else-if variable="supplement-number volume-title">
+            <text term="supplement"/>
+            <text value="to"/>
+          </else-if>
+          <else-if type="periodical" variable="supplement-number title">
+            <text term="supplement" text-case="capitalize-first"/>
+            <text value="to"/>
+          </else-if>
+          <else-if type="periodical">
+            <choose>
+              <if variable="genre">
+                <text text-case="capitalize-first" variable="genre"/>
+              </if>
+              <else-if variable="volume-title">
+                <text term="special-issue" text-case="capitalize-first"/>
+              </else-if>
+              <else-if type="periodical" variable="title">
+                <text term="special-issue" text-case="capitalize-first"/>
+              </else-if>
+            </choose>
+            <text value="of"/>
+          </else-if>
+          <else-if variable="volume-title">
+            <choose>
+              <if variable="genre">
+                <text variable="genre"/>
+              </if>
+              <else-if variable="volume-title">
+                <text term="special-issue"/>
+              </else-if>
+              <else-if type="periodical" variable="title">
+                <text term="special-issue"/>
+              </else-if>
+            </choose>
+            <text value="of"/>
+          </else-if>
+        </choose>
+        <text font-style="italic" text-case="title" variable="container-title"/>
+        <text prefix="[" suffix="]" variable="publisher-place"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="container1-title-monographic">
     <choose>
       <if variable="container-title volume-title">
         <text font-style="italic" text-case="title" variable="volume-title"/>
@@ -313,28 +660,30 @@
   </macro>
   <!-- 4.2. Contributor (MLA 5.38-47) -->
   <macro name="container1-contributor">
-    <names delimiter=", " variable="container-author">
-      <label form="verb" suffix=" "/>
-      <name/>
-    </names>
-    <choose>
-      <if variable="container-title">
-        <group delimiter=", ">
-          <names delimiter=", " variable="editor-translator">
-            <label form="verb" suffix=" "/>
-            <name/>
-          </names>
-          <names delimiter=", " variable="editor translator">
-            <label form="verb" suffix=" "/>
-            <name/>
-          </names>
-          <names delimiter=", " variable="director illustrator">
-            <label form="verb" suffix=" "/>
-            <name/>
-          </names>
-        </group>
-      </if>
-    </choose>
+    <group delimiter=", ">
+      <names delimiter=", " variable="container-author">
+        <label form="verb" suffix=" "/>
+        <name/>
+      </names>
+      <choose>
+        <if variable="container-title">
+          <group delimiter=", ">
+            <names delimiter=", " variable="editor-translator">
+              <label form="verb" suffix=" "/>
+              <name/>
+            </names>
+            <names delimiter=", " variable="editor translator">
+              <label form="verb" suffix=" "/>
+              <name/>
+            </names>
+            <names delimiter=", " variable="director illustrator contributor">
+              <label form="verb" suffix=" "/>
+              <name/>
+            </names>
+          </group>
+        </if>
+      </choose>
+    </group>
   </macro>
   <!-- 4.3. Version (MLA 5.48-50) -->
   <macro name="container1-version">
@@ -353,36 +702,57 @@
   <!-- 4.4. Number (MLA 5.51-53) -->
   <macro name="container1-number">
     <group delimiter=", ">
-      <group>
-        <choose>
-          <!--lowercase if we have a preceding element-->
-          <if match="any" variable="edition container-title">
-            <text macro="label-volume"/>
-          </if>
-          <!--other contributors preceding the volume-->
-          <else-if variable="author">
-            <choose>
-              <if match="any" variable="container-author director editor illustrator interviewer translator">
-                <text macro="label-volume"/>
-              </if>
-            </choose>
-          </else-if>
-          <else-if variable="editor">
-            <choose>
-              <if match="any" variable="container-author director illustrator interviewer translator">
-                <text macro="label-volume"/>
-              </if>
-            </choose>
-          </else-if>
-          <else-if match="any" variable="container-author director illustrator interviewer">
-            <text macro="label-volume"/>
-          </else-if>
-          <else>
-            <text macro="label-volume-capitalized"/>
-          </else>
-        </choose>
-      </group>
+      <choose>
+        <!-- `collection-title` is for any serial with multiple series (e.g. 'second series') -->
+        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+          <text variable="collection-title"/>
+          <text macro="label-volume"/>
+        </if>
+        <else-if match="any" type="interview paper-conference">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director">
+              <!-- monographic usage -->
+              <text macro="label-volume"/>
+            </if>
+            <else>
+              <!-- serial usage -->
+              <text variable="collection-title"/>
+              <text macro="label-volume"/>
+            </else>
+          </choose>
+        </else-if>
+        <else-if match="none" variable="part-title volume-title">
+          <choose>
+            <!--lowercase if we have a preceding element-->
+            <if match="any" variable="edition container-title">
+              <text macro="label-volume"/>
+            </if>
+            <!--other contributors preceding the volume-->
+            <else-if variable="author">
+              <choose>
+                <if match="any" variable="container-author contributor director editor editor-translator illustrator interviewer translator">
+                  <text macro="label-volume"/>
+                </if>
+              </choose>
+            </else-if>
+            <else-if variable="editor">
+              <choose>
+                <if match="any" variable="container-author contributor director editor-translator illustrator interviewer translator">
+                  <text macro="label-volume"/>
+                </if>
+              </choose>
+            </else-if>
+            <else-if match="any" variable="container-author contributor director editor-translator illustrator interviewer">
+              <text macro="label-volume"/>
+            </else-if>
+            <else>
+              <text macro="label-volume-capitalized"/>
+            </else>
+          </choose>
+        </else-if>
+      </choose>
       <text macro="label-issue"/>
+      <text macro="label-supplement-number"/>
       <choose>
         <if type="report">
           <text variable="genre"/>
@@ -400,12 +770,23 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="container-publisher-or-place"/>
+            <text macro="container1-publisher-or-place"/>
           </if>
         </choose>
       </else-if>
       <else>
-        <text macro="container-publisher-or-place"/>
+        <text macro="container1-publisher-or-place"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="container1-publisher-or-place">
+    <choose>
+      <if variable="publisher">
+        <text variable="publisher"/>
+      </if>
+      <else>
+        <!-- use place of publication as fallback (cf. MLA 5.67) -->
+        <text variable="publisher-place"/>
       </else>
     </choose>
   </macro>
@@ -460,9 +841,35 @@
   <macro name="supplemental-element-between">
     <group delimiter=". ">
       <choose>
-        <if variable="source">
+        <!-- information relevant only to one container appears either here or in `supplemental-element-end` -->
+        <if match="none" variable="source"/>
+        <else-if type="thesis">
           <text macro="supplemental-dissertations-theses"/>
-        </if>
+        </else-if>
+        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+          <!-- serial usage -->
+          <text macro="supplemental-columns-sections"/>
+        </else-if>
+        <else-if match="any" type="interview paper-conference">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director">
+              <!-- monographic usage -->
+              <text macro="supplemental-publication-history"/>
+              <text macro="supplemental-book-series"/>
+              <text macro="supplemental-multivolume-works"/>
+            </if>
+            <else>
+              <!-- serial usage -->
+              <text macro="supplemental-columns-sections"/>
+            </else>
+          </choose>
+        </else-if>
+        <else>
+          <!-- monographic usage -->
+          <text macro="supplemental-publication-history"/>
+          <text macro="supplemental-book-series"/>
+          <text macro="supplemental-multivolume-works"/>
+        </else>
       </choose>
     </group>
   </macro>
@@ -483,13 +890,6 @@
           </choose>
           <text variable="event-place"/>
         </if>
-        <else-if variable="title volume-title">
-          <group delimiter=" ">
-            <text macro="label-volume-capitalized"/>
-            <text value="of"/>
-            <text font-style="italic" text-case="title" variable="title"/>
-          </group>
-        </else-if>
       </choose>
       <text variable="archive"/>
       <text variable="archive-place"/>
@@ -497,17 +897,7 @@
       <text variable="archive_location"/>
     </group>
   </macro>
-  <!-- 6.2. Contributor (MLA 5.38-47) -->
-  <macro name="container2-contributor">
-    <names variable="collection-editor">
-      <label prefix=", "/>
-    </names>
-  </macro>
-  <!-- 6.3. Version (MLA 5.48-50) -->
-  <!-- 6.4. Number (MLA 5.51-53) -->
-  <!-- 6.5. Publisher (MLA 5.54-67) -->
-  <!-- 6.6. Publication Date (MLA 5.68-83) -->
-  <!-- 6.7. Location (MLA 5.84-99) -->
+  <!-- 6.2. Location (MLA 5.84-99) -->
   <macro name="container2-location">
     <choose>
       <if match="none" variable="source"/>
@@ -535,14 +925,36 @@
       <text macro="supplemental-date-access"/>
       <text macro="supplemental-medium"/>
       <choose>
-        <if match="none" variable="source">
+        <!-- information relevant only to one container appears either here or in `supplemental-element-between` -->
+        <if variable="source"/>
+        <else-if type="thesis">
           <text macro="supplemental-dissertations-theses"/>
-        </if>
+        </else-if>
+        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+          <!-- serial usage -->
+          <text macro="supplemental-columns-sections"/>
+        </else-if>
+        <else-if match="any" type="interview paper-conference">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director">
+              <!-- monographic usage -->
+              <text macro="supplemental-publication-history"/>
+              <text macro="supplemental-book-series"/>
+              <text macro="supplemental-multivolume-works"/>
+            </if>
+            <else>
+              <!-- serial usage -->
+              <text macro="supplemental-columns-sections"/>
+            </else>
+          </choose>
+        </else-if>
+        <else>
+          <!-- monographic usage -->
+          <text macro="supplemental-publication-history"/>
+          <text macro="supplemental-book-series"/>
+          <text macro="supplemental-multivolume-works"/>
+        </else>
       </choose>
-      <text macro="supplemental-publication-history"/>
-      <text macro="supplemental-book-series"/>
-      <text macro="supplemental-columns-sections"/>
-      <text macro="supplemental-multivolume-works"/>
     </group>
   </macro>
   <!-- 7.1. Date of access (MLA 5.111) -->
@@ -560,7 +972,7 @@
   <macro name="supplemental-medium">
     <text text-case="capitalize-first" variable="medium"/>
   </macro>
-  <!-- 7.4. Publication history (MLA 5.114) -->
+  <!-- 7.3. Dissertations and theses (MLA 5.113) -->
   <macro name="supplemental-dissertations-theses">
     <choose>
       <if type="thesis">
@@ -571,7 +983,7 @@
       </if>
     </choose>
   </macro>
-  <!-- 7.5. Book series (MLA 5.115) -->
+  <!-- 7.4. Publication history (MLA 5.114) -->
   <macro name="supplemental-publication-history">
     <group delimiter=" ">
       <text term="original-work-published" text-case="capitalize-first"/>
@@ -595,7 +1007,7 @@
       </group>
     </group>
   </macro>
-  <!-- 7.6. Columns, sections, and other recurring titled features (MLA 5.116) -->
+  <!-- 7.5. Book series (MLA 5.115) -->
   <macro name="supplemental-book-series">
     <group delimiter=", ">
       <choose>
@@ -618,7 +1030,83 @@
   </macro>
   <!-- 7.7. Multivolume works (MLA 5.117) -->
   <macro name="supplemental-multivolume-works">
-    <text macro="label-number-of-volumes"/>
+    <group delimiter=", ">
+      <choose>
+        <if variable="part-number part-title volume volume-title">
+          <!-- part and title with individual titles -->
+          <group delimiter=" ">
+            <text macro="label-part-number-capitalized"/>
+            <text value="of"/>
+            <text font-style="italic" text-case="title" variable="volume-title"/>
+          </group>
+          <group delimiter=" ">
+            <text macro="label-volume"/>
+            <text value="of"/>
+            <group delimiter=", ">
+              <choose>
+                <if variable="container-title">
+                  <text font-style="italic" text-case="title" variable="container-title"/>
+                </if>
+                <else>
+                  <text macro="title-primary"/>
+                </else>
+              </choose>
+              <names variable="collection-editor">
+                <name/>
+                <label prefix=", "/>
+              </names>
+            </group>
+          </group>
+        </if>
+        <else-if match="any" variable="part-title volume-title">
+          <group delimiter=" ">
+            <choose>
+              <if variable="part-number volume">
+                <group delimiter=", ">
+                  <text macro="label-volume-capitalized"/>
+                  <text macro="label-part-number"/>
+                  <text value="of"/>
+                </group>
+              </if>
+              <else-if variable="part-number">
+                <text macro="label-part-number-capitalized"/>
+                <text value="of"/>
+              </else-if>
+              <else-if variable="volume">
+                <text macro="label-volume-capitalized"/>
+                <text value="of"/>
+              </else-if>
+            </choose>
+            <group delimiter=", ">
+              <choose>
+                <if variable="container-title">
+                  <text font-style="italic" text-case="title" variable="container-title"/>
+                </if>
+                <else>
+                  <text macro="title-primary"/>
+                </else>
+              </choose>
+              <names variable="collection-editor">
+                <name/>
+                <label prefix=", "/>
+              </names>
+            </group>
+          </group>
+        </else-if>
+        <else-if variable="part-number volume">
+          <text macro="label-volume-capitalized"/>
+          <text macro="label-part-number"/>
+        </else-if>
+        <else-if variable="part-number">
+          <text macro="label-part-number-capitalized"/>
+        </else-if>
+        <else-if variable="volume">
+          <text macro="label-volume-capitalized"/>
+        </else-if>
+      </choose>
+      <text macro="label-number-of-volumes"/>
+      <!-- TODO: provide container date here when available -->
+    </group>
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " prefix="(" suffix=")">
@@ -641,7 +1129,15 @@
   <bibliography entry-spacing="0" et-al-min="3" et-al-use-first="1" hanging-indent="true" line-spacing="2" subsequent-author-substitute="&#8212;&#8212;&#8212;">
     <sort>
       <key macro="author"/>
-      <key variable="title"/>
+      <key macro="title"/>
+      <key macro="supplemental-generic-label"/>
+      <key macro="container1-version"/>
+      <key macro="container1-number"/>
+      <key macro="container1-publication-date"/>
+      <key macro="container1-location"/>
+      <key macro="container2-title"/>
+      <key macro="container2-location"/>
+      <key macro="supplemental-multivolume-works"/>
     </sort>
     <layout suffix=".">
       <group delimiter=". ">
@@ -662,7 +1158,6 @@
         <group delimiter=", ">
           <!--- Container 2 -->
           <text macro="container2-title"/>
-          <text macro="container2-contributor"/>
           <text macro="container2-location"/>
         </group>
         <text macro="supplemental-element-end"/>
