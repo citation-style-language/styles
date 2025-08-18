@@ -386,7 +386,7 @@
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech webpage">
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text quotes="true" text-case="title" variable="title"/>
@@ -420,7 +420,7 @@
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
       </else-if>
-      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech webpage">
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
         <text form="short" quotes="true" text-case="title" variable="title"/>
@@ -573,6 +573,17 @@
     </group>
   </macro>
   <!-- 4. Container 1 -->
+  <macro name="container1">
+    <group delimiter=", ">
+      <text macro="container1-title"/>
+      <text macro="container1-contributor"/>
+      <text macro="container1-version"/>
+      <text macro="container1-number"/>
+      <text macro="container1-publisher"/>
+      <text macro="container1-publication-date"/>
+      <text macro="container1-location"/>
+    </group>
+  </macro>
   <!-- 4.1. Title of Container (MLA 5.31-37) -->
   <macro name="container1-title">
     <choose>
@@ -602,7 +613,7 @@
       <text font-style="italic" text-case="title" variable="volume-title"/>
       <group delimiter=" ">
         <choose>
-          <!-- Journal special issues and supplements (MHRA 7.4) -->
+          <!-- Journal special issues and supplements (MLA 7.4) -->
           <if match="none" variable="container-title"/>
           <else-if variable="supplement-number volume-title">
             <text term="supplement"/>
@@ -648,9 +659,12 @@
   </macro>
   <macro name="container1-title-monographic">
     <choose>
-      <if variable="container-title volume-title">
-        <text font-style="italic" text-case="title" variable="volume-title"/>
+      <if variable="container-title part-title">
+        <text font-style="italic" text-case="title" variable="part-title"/>
       </if>
+      <else-if variable="container-title volume-title">
+        <text font-style="italic" text-case="title" variable="volume-title"/>
+      </else-if>
       <else>
         <text font-style="italic" text-case="title" variable="container-title"/>
       </else>
@@ -837,40 +851,19 @@
   </macro>
   <!-- 5. Supplemental Element Between Containers (MLA 5.119) -->
   <macro name="supplemental-element-between">
-    <group delimiter=". ">
-      <choose>
-        <!-- information relevant only to one container appears either here or in `supplemental-element-end` -->
-        <if match="none" variable="source"/>
-        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-          <!-- serial usage -->
-          <text macro="supplemental-columns-sections"/>
-        </else-if>
-        <else-if match="any" type="interview paper-conference">
-          <choose>
-            <if match="any" variable="collection-editor compiler editor editorial-director">
-              <!-- monographic usage -->
-              <text macro="supplemental-dissertations-theses"/>
-              <text macro="supplemental-publication-history"/>
-              <text macro="supplemental-book-series"/>
-              <text macro="supplemental-multivolume-works"/>
-            </if>
-            <else>
-              <!-- serial usage -->
-              <text macro="supplemental-columns-sections"/>
-            </else>
-          </choose>
-        </else-if>
-        <else>
-          <!-- monographic usage -->
-          <text macro="supplemental-dissertations-theses"/>
-          <text macro="supplemental-publication-history"/>
-          <text macro="supplemental-book-series"/>
-          <text macro="supplemental-multivolume-works"/>
-        </else>
-      </choose>
-    </group>
+    <choose>
+      <if variable="source">
+        <text macro="supplemental-element-movable"/>
+      </if>
+    </choose>
   </macro>
   <!-- 6. Container 2 -->
+  <macro name="container2">
+    <group delimiter=", ">
+      <text macro="container2-title"/>
+      <text macro="container2-location"/>
+    </group>
+  </macro>
   <!-- 6.1. Title of Container (MLA 5.31-37) -->
   <macro name="container2-title">
     <group delimiter=", ">
@@ -922,12 +915,21 @@
       <text macro="supplemental-date-access"/>
       <text macro="supplemental-medium"/>
       <choose>
-        <!-- information relevant only to one container appears either here or in `supplemental-element-between` -->
         <if variable="source"/>
-        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <else>
+          <text macro="supplemental-element-movable"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="supplemental-element-movable">
+    <!-- information relevant only to one container appears either in `supplemental-element-between` or `supplemental-element-end` depending on the presence of `source` -->
+    <group delimiter=". ">
+      <choose>
+        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
           <!-- serial usage -->
           <text macro="supplemental-columns-sections"/>
-        </else-if>
+        </if>
         <else-if match="any" type="interview paper-conference">
           <choose>
             <if match="any" variable="collection-editor compiler editor editorial-director">
@@ -1126,36 +1128,20 @@
     <sort>
       <key macro="author"/>
       <key macro="title"/>
-      <key macro="supplemental-generic-label"/>
-      <key macro="container1-version"/>
-      <key macro="container1-number"/>
-      <key macro="container1-publication-date"/>
-      <key macro="container1-location"/>
-      <key macro="container2-title"/>
-      <key macro="container2-location"/>
-      <key macro="supplemental-multivolume-works"/>
+      <key macro="supplemental-element-after-title"/>
+      <key macro="container1"/>
+      <key macro="supplemental-element-between"/>
+      <key macro="container2"/>
+      <key macro="supplemental-element-end"/>
     </sort>
     <layout suffix=".">
       <group delimiter=". ">
         <text macro="author"/>
         <text macro="title"/>
         <text macro="supplemental-element-after-title"/>
-        <group delimiter=", ">
-          <!--- Container 1 -->
-          <text macro="container1-title"/>
-          <text macro="container1-contributor"/>
-          <text macro="container1-version"/>
-          <text macro="container1-number"/>
-          <text macro="container1-publisher"/>
-          <text macro="container1-publication-date"/>
-          <text macro="container1-location"/>
-        </group>
+        <text macro="container1"/>
         <text macro="supplemental-element-between"/>
-        <group delimiter=", ">
-          <!--- Container 2 -->
-          <text macro="container2-title"/>
-          <text macro="container2-location"/>
-        </group>
+        <text macro="container2"/>
         <text macro="supplemental-element-end"/>
       </group>
       <text display="block" variable="note"/>
