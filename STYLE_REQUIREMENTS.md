@@ -29,14 +29,24 @@ If your style is meant to be used in one particular language, set the `default-l
 For example, CSL styles for English-language journals should typically be set to US English ("en-US") or British English ("en-GB"). 
 For a list of languages and their locale codes, see https://github.com/citation-style-language/locales/wiki.
 
-When using `default-locale`, add the chosen locale to the style title, unless the language is English. 
-An example:
+If you set `default-locale` to a language other than English (`en-*`), add the language to the end of the style title in parentheses.
+
+Two examples:
 
 ```xml
    <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="de-DE">
      <info>
        <title>Zeitschrift für Soziologie (Deutsch)</title>
        <id>http://www.zotero.org/styles/zeitschrift-fur-soziologie</id>
+     </info>
+   </style>
+```
+
+```xml
+   <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="pt-BR">
+     <info>
+       <title>Associação Brasileira de Normas Técnicas (Português - Brasil)</title>
+       <id>http://www.zotero.org/styles/associacao-brasileira-de-normas-tecnicas</id>
      </info>
    </style>
 ```
@@ -52,7 +62,7 @@ To create the file name from the title:
   * replace spaces and apostrophes with hyphens (e.g., "Documents d'archéologie française (French)" becomes "documents-d-archeologie-francaise.csl")
   * drop diacritics (e.g., "für" becomes "fur", not "fuer")
   * drop text between parentheses (e.g., "Ugeskrift for Læger (Danish)" becomes "ugeskrift-for-laeger.csl")
-  * avoid abbreviations (e.g., use "modern-humanities-research-association.csl" instead of "mhra.csl")
+  * avoid abbreviations (e.g., use "modern-humanities-research-association-notes.csl" instead of "mhra-notes.csl")
   * add the ".csl" extension
 
 You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly lowercase titles and replace spaces by hyphens, although you may have to make some more changes by hand.
@@ -60,22 +70,22 @@ You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly
 ##### 5 - Style ID
 
 The style ID must be "http://www.zotero.org/styles/file-name", with "file-name" representing the style's file name without the ".csl" extension. 
-For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <id>http://www.zotero.org/styles/modern-humanities-research-association</id>
+     <id>http://www.zotero.org/styles/modern-humanities-research-association-notes</id>
    </info>
 ```
 
 ##### 6 - "self" Link
 
 The style's "self" link, which tells where the style will available online, must be "http://www.zotero.org/styles/file-name", with "**file-name**" representing the style's file name without the ".csl" extension. 
-For example, "http://www.zotero.org/styles/modern-humanities-research-association" for "modern-humanities-research-association.csl":
+For example, "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
 
 ```xml
    <info>
-     <link href="http://www.zotero.org/styles/modern-humanities-research-association" rel="self"/>
+     <link href="http://www.zotero.org/styles/modern-humanities-research-association-notes" rel="self"/>
    </info>
 ```
 
@@ -119,17 +129,47 @@ If a style guide is only available in print, provide a URL that allows us to loc
 
 ```xml
    <info>
-     <link href="http://www.mhra.org.uk/Publications/Books/StyleGuide/download.shtml" rel="documentation"/>
+     <link href="https://www.mhra.org.uk/style/" rel="documentation"/>
    </info>
 ```
 
-##### 11 - XML Indentation
+##### 11 - Categories
+
+Adding [CSL subject categories](https://docs.citationstyles.org/en/stable/specification.html#appendix-i-categories) to your style enables users to find it more easily.
+For example, if your style is for a journal in the field of history, add:
+
+```xml
+   <category field="history"/>
+   <category field="humanities"/> 
+```
+
+The `generic-base` category is for styles used across multiple institutions and publishers, such as APA or Chicago, and should be removed from derivative styles.
+
+##### 12 - Authors and Contributors
+
+If you are the creator of a new style or have made significant changes to it, add yourself as an author in the `<author/>` element.
+If you are not the original author or have made minor changes, add yourself as a contributor in the `<contributor/>` element.
+
+Consider including a permanent identifier such as an ORCID ID in the `<uri/>` element:
+
+```xml
+   <author>
+     <name>Jane Smith</name>
+     <uri>https://orcid.org/0000-0002-9131-5520</uri>
+   </author>
+   <contributor>
+     <name>John Doe</name>
+     <uri>https://orcid.org/0009-0004-7791-2291</uri>
+   </contributor>
+```
+
+##### 12 - XML Indentation
 
 Indent the style's XML with 2 spaces per level. 
 Some text editors support automatic indentation of XML. 
 Alternatively, use our [style formatter](http://formatter.citationstyles.org/) tool.
 
-##### 12 - Validation
+##### 13 - Validation
 
 Make sure your finished style [validates](https://github.com/citation-style-language/styles/blob/master/STYLE_DEVELOPMENT.md#validation) against the CSL schema.
 
