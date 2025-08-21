@@ -56,6 +56,7 @@
         <single>n</single>
         <multiple>nn</multiple>
       </term>
+      <term name="original-work-published">originally published</term>
       <term form="short" name="paragraph">
         <single>par.</single>
         <multiple>pars.</multiple>
@@ -229,11 +230,14 @@
       <label form="long" prefix=", "/>
       <substitute>
         <names variable="author"/>
+        <names variable="guest">
+          <name delimiter-precedes-et-al="always" delimiter-precedes-last="always" name-as-sort-order="first"/>
+          <!-- `guest` has no label (see MLA 'Interview by podcast host') -->
+        </names>
         <names variable="editor-translator"/>
         <names variable="editor"/>
         <names variable="translator"/>
         <text macro="title"/>
-        <text macro="supplemental-generic-label"/>
       </substitute>
     </names>
   </macro>
@@ -243,11 +247,11 @@
         <name form="short" initialize-with=". "/>
         <substitute>
           <names variable="author"/>
+          <names variable="guest"/>
           <names variable="editor-translator"/>
           <names variable="editor"/>
           <names variable="translator"/>
           <text macro="title-short"/>
-          <text macro="supplemental-generic-label"/>
         </substitute>
       </names>
       <choose>
@@ -458,9 +462,10 @@
   <!-- 3.2. Original publication date (MLA 5.108) -->
   <macro name="supplemental-original-date">
     <choose>
-      <if is-uncertain-date="original-date">
+      <if match="any" variable="original-publisher original-publisher-place"/>
+      <else-if is-uncertain-date="original-date">
         <date form="text" prefix="[" suffix="?]" variable="original-date"/>
-      </if>
+      </else-if>
       <else>
         <date form="text" variable="original-date"/>
       </else>
@@ -613,32 +618,16 @@
             <text term="supplement" text-case="capitalize-first"/>
             <text value="to"/>
           </else-if>
-          <else-if type="periodical">
-            <choose>
-              <if variable="genre">
-                <text text-case="capitalize-first" variable="genre"/>
-              </if>
-              <else-if variable="volume-title">
-                <text term="special-issue" text-case="capitalize-first"/>
-              </else-if>
-              <else-if type="periodical" variable="title">
-                <text term="special-issue" text-case="capitalize-first"/>
-              </else-if>
-            </choose>
+          <else-if type="periodical" variable="volume-title">
+            <text term="special-issue" text-case="capitalize-first"/>
+            <text value="of"/>
+          </else-if>
+          <else-if type="periodical" variable="title">
+            <text term="special-issue" text-case="capitalize-first"/>
             <text value="of"/>
           </else-if>
           <else-if variable="volume-title">
-            <choose>
-              <if variable="genre">
-                <text variable="genre"/>
-              </if>
-              <else-if variable="volume-title">
-                <text term="special-issue"/>
-              </else-if>
-              <else-if type="periodical" variable="title">
-                <text term="special-issue"/>
-              </else-if>
-            </choose>
+            <text term="special-issue"/>
             <text value="of"/>
           </else-if>
         </choose>
@@ -669,36 +658,32 @@
       </names>
       <choose>
         <if variable="container-title">
-          <group delimiter=", ">
-            <names delimiter=", " variable="editor-translator">
-              <label form="verb" suffix=" "/>
-              <name/>
-            </names>
-            <names delimiter=", " variable="editor translator">
-              <label form="verb" suffix=" "/>
-              <name/>
-            </names>
-            <names delimiter=", " variable="director illustrator host series-creator contributor">
-              <label form="verb" suffix=" "/>
-              <name/>
-            </names>
-          </group>
+          <names delimiter=", " variable="editor-translator">
+            <label form="verb" suffix=" "/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb" suffix=" "/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="director series-creator illustrator host narrator contributor">
+            <label form="verb" suffix=" "/>
+            <name/>
+          </names>
         </if>
         <else>
-          <group delimiter=", ">
-            <names delimiter=", " variable="editor-translator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name/>
-            </names>
-            <names delimiter=", " variable="editor translator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name/>
-            </names>
-            <names delimiter=", " variable="director illustrator host series-creator contributor">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name/>
-            </names>
-          </group>
+          <names delimiter=", " variable="editor-translator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
+          <names delimiter=", " variable="director series-creator illustrator host narrator contributor">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name/>
+          </names>
         </else>
       </choose>
     </group>
@@ -990,7 +975,11 @@
   <!-- 7.4. Publication history (MLA 5.114) -->
   <macro name="supplemental-publication-history">
     <group delimiter=" ">
-      <text term="original-work-published" text-case="capitalize-first"/>
+      <choose>
+        <if match="any" variable="original-publisher original-publisher-place original-title">
+          <text term="original-work-published" text-case="capitalize-first"/>
+        </if>
+      </choose>
       <group delimiter=", ">
         <choose>
           <if variable="original-title">
@@ -998,16 +987,42 @@
               <text value="as"/>
               <choose>
                 <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-                  <text variable="original-title"/>
+                  <text quotes="true" text-case="title" variable="original-title"/>
                 </if>
                 <else>
-                  <text font-style="italic" variable="original-title"/>
+                  <text font-style="italic" text-case="title" variable="original-title"/>
                 </else>
               </choose>
             </group>
           </if>
         </choose>
-        <text variable="original-publisher"/>
+        <choose>
+          <if match="any" variable="original-publisher original-publisher-place">
+            <choose>
+              <if variable="original-publisher">
+                <group delimiter=" ">
+                  <choose>
+                    <if match="none" variable="original-title">
+                      <text term="by"/>
+                    </if>
+                  </choose>
+                  <text variable="original-publisher"/>
+                </group>
+              </if>
+              <else>
+                <text variable="original-publisher-place"/>
+              </else>
+            </choose>
+            <choose>
+              <if is-uncertain-date="original-date">
+                <date date-parts="year" form="text" prefix="[" suffix="?]" variable="original-date"/>
+              </if>
+              <else>
+                <date date-parts="year" form="text" variable="original-date"/>
+              </else>
+            </choose>
+          </if>
+        </choose>
       </group>
     </group>
   </macro>
