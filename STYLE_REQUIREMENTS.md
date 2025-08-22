@@ -62,7 +62,7 @@ To create the file name from the title:
   * replace capitals with lowercase letters
   * replace ampersands with "and" (e.g. "Arts & Health" becomes `arts-and-health.csl`)
   * replace spaces and apostrophes with hyphens (e.g. "Documents d'archéologie française (French)" becomes `documents-d-archeologie-francaise.csl`)
-  * drop diacritics (e.g. "bibliothèque" becomes "bibliotheque")
+  * drop diacritics (e.g. "bibliothèque" becomes "bibliotheque"); do not replace diacritics with other letter combinations (e.g. "für" becomes "fur", not "fuer")
   * drop text between parentheses, unless it is necessary for disambiguating two styles (e.g. "Ugeskrift for Læger (Danish)" becomes `ugeskrift-for-laeger.csl`)
   * use the title of the source without subtitles, using abbreviations only where they form part of the published name (e.g. `modern-language-review.csl` for the journal published as *Modern Language Review*, though commonly cited as *MLR* within its field; `chicago-author-date.csl` for the *Chicago Manual of Style*, author–date system)
   * add the `.csl` extension
