@@ -13,15 +13,17 @@
     <contributor>
       <name>Sebastian Karcher</name>
     </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="engineering"/>
-    <!--<category term="materials science"/>-->
     <category field="chemistry"/>
     <issn>1433-7851</issn>
     <eissn>1521-3773</eissn>
     <summary>A style for Wiley-VCH's journal "Angewandte Chemie International Edition"
 This style has many limits due to csl constraints, most notably the inability to include pages/page ranges for books, the wrong square brackets for two items cited together, and the lack of support for citing 1a)... b)...c)....</summary>
-    <updated>2020-05-15T22:06:38+00:00</updated>
+    <updated>2025-08-21T12:42:21+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -63,8 +65,18 @@ This style has many limits due to csl constraints, most notably the inability to
           </if>
         </choose>
         <choose>
-          <if type="webpage">
-            <text variable="URL" prefix="can be found under "/>
+          <if type="webpage post post-weblog" match="any">
+            <group>
+              <text variable="URL" prefix="can be found under "/>
+              <group delimiter=" " prefix="(" suffix=")">
+                <text term="accessed"/>
+                <date variable="accessed">
+                  <date-part name="day" suffix=" "/>
+                  <date-part name="month" suffix=" "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </group>
           </if>
         </choose>
       </if>
@@ -77,8 +89,18 @@ This style has many limits due to csl constraints, most notably the inability to
     </group>
   </macro>
   <macro name="pages">
-    <label variable="page" form="short" suffix=" "/>
+    <label suffix=" " variable="page" form="short"/>
     <text variable="page"/>
+  </macro>
+  <macro name="title">
+    <choose>
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <text variable="title" font-style="italic"/>
+      </if>
+      <else-if type="article-journal webpage post post-weblog" match="any">
+        <text variable="title" quotes="true"/>
+      </else-if>
+    </choose>
   </macro>
   <citation collapse="citation-number">
     <sort>
@@ -91,75 +113,75 @@ This style has many limits due to csl constraints, most notably the inability to
   <bibliography entry-spacing="0" second-field-align="flush">
     <layout suffix=".">
       <text variable="citation-number" prefix="[" suffix="]"/>
-      <text macro="author" suffix=", "/>
-      <choose>
-        <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <group delimiter=", ">
-            <text variable="title" text-case="title" font-style="italic"/>
-            <text macro="publisher"/>
-            <text macro="year-date"/>
-          </group>
-        </if>
-        <else-if type="chapter paper-conference" match="any">
-          <group delimiter=", ">
-            <group delimiter=" ">
-              <text term="in"/>
-              <text variable="container-title" form="short" text-case="title" font-style="italic"/>
-              <text macro="editor" prefix="(" suffix=")"/>
-            </group>
-            <text macro="publisher"/>
-            <text macro="year-date"/>
-            <group delimiter=" ">
-              <text macro="pages"/>
-            </group>
-          </group>
-        </else-if>
-        <else-if type="patent">
-          <group delimiter=", ">
-            <text variable="title" text-case="title" font-style="italic"/>
-            <text macro="year-date"/>
-            <text variable="number"/>
-          </group>
-        </else-if>
-        <else-if type="thesis">
-          <group delimiter=", ">
-            <text variable="title" text-case="title"/>
-            <text variable="genre"/>
-            <text variable="publisher"/>
-            <text macro="year-date"/>
-          </group>
-        </else-if>
-        <else-if type="webpage">
-          <group delimiter=", ">
-            <text variable="title" quotes="true"/>
-            <text macro="access"/>
-            <text macro="year-date"/>
-          </group>
-        </else-if>
-        <else-if type="article" match="any">
-          <group delimiter=", ">
-            <text macro="year-date"/>
-            <group delimiter=" ">
-              <text variable="publisher"/>
-              <text term="article"/>
-            </group>
-            <text variable="DOI" prefix="DOI: "/>
-          </group>
-        </else-if>
-        <else>
-          <group delimiter=" ">
-            <text variable="container-title" form="short" font-style="italic"/>
-            <group delimiter=", ">
+      <group>
+        <text macro="author"/>
+        <text macro="title" prefix=", "/>
+        <choose>
+          <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+            <group delimiter=", " prefix=", ">
+              <text macro="publisher"/>
               <text macro="year-date"/>
-              <group>
-                <text variable="volume" font-style="italic"/>
-              </group>
-              <text variable="page" form="short"/>
             </group>
-          </group>
-          <text macro="access" prefix=", "/>
-        </else>
-      </choose>
+          </if>
+          <else-if type="chapter paper-conference" match="any">
+            <group delimiter=", " prefix=" ">
+              <group delimiter=" ">
+                <text term="in"/>
+                <text variable="container-title" form="short" text-case="title" font-style="italic"/>
+                <text macro="editor" prefix="(" suffix=")"/>
+              </group>
+              <text macro="publisher"/>
+              <text macro="year-date"/>
+              <group delimiter=" ">
+                <text macro="pages"/>
+              </group>
+            </group>
+          </else-if>
+          <else-if type="patent">
+            <group delimiter=", " prefix=", ">
+              <text variable="title" text-case="title" font-style="italic"/>
+              <text macro="year-date"/>
+              <text variable="number"/>
+            </group>
+          </else-if>
+          <else-if type="thesis">
+            <group delimiter=", " prefix=", ">
+              <text variable="title" text-case="title"/>
+              <text variable="genre"/>
+              <text variable="publisher"/>
+              <text macro="year-date"/>
+            </group>
+          </else-if>
+          <else-if type="webpage post post-weblog" match="any">
+            <group delimiter=", " prefix=", ">
+              <text macro="access"/>
+              <text macro="year-date"/>
+            </group>
+          </else-if>
+          <else-if type="article" match="any">
+            <group delimiter=", " prefix=", ">
+              <text macro="year-date"/>
+              <group delimiter=" ">
+                <text variable="publisher"/>
+                <text term="article"/>
+              </group>
+              <text variable="DOI" prefix="DOI: "/>
+            </group>
+          </else-if>
+          <else-if type="personal_communication" match="any"/>
+          <else>
+            <group delimiter=" " prefix=" ">
+              <text variable="container-title" form="short" font-style="italic"/>
+              <group delimiter=", ">
+                <text macro="year-date"/>
+                <text variable="volume" font-style="italic"/>
+                <text variable="page" form="short"/>
+              </group>
+            </group>
+            <text macro="access" prefix=", "/>
+          </else>
+        </choose>
+      </group>
     </layout>
   </bibliography>
 </style>
