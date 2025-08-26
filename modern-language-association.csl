@@ -142,6 +142,17 @@
       <text variable="locator"/>
     </group>
   </macro>
+  <macro name="label-number">
+    <group delimiter=" ">
+      <choose>
+        <if type="standard"/>
+        <else-if is-numeric="number">
+          <label form="short" variable="number"/>
+        </else-if>
+      </choose>
+      <text variable="number"/>
+    </group>
+  </macro>
   <macro name="label-number-of-volumes">
     <group delimiter=" ">
       <text variable="number-of-volumes"/>
@@ -237,6 +248,14 @@
         <names variable="editor-translator"/>
         <names variable="editor"/>
         <names variable="translator"/>
+        <choose>
+          <if type="software">
+            <text variable="publisher"/>
+          </if>
+          <else-if type="standard">
+            <text variable="authority"/>
+          </else-if>
+        </choose>
         <text macro="title"/>
       </substitute>
     </names>
@@ -251,6 +270,14 @@
           <names variable="editor-translator"/>
           <names variable="editor"/>
           <names variable="translator"/>
+          <choose>
+            <if type="software">
+              <text variable="publisher"/>
+            </if>
+            <else-if type="standard">
+              <text variable="authority"/>
+            </else-if>
+          </choose>
           <text macro="title-short"/>
         </substitute>
       </names>
@@ -756,12 +783,22 @@
       </choose>
       <text macro="label-issue"/>
       <text macro="label-supplement-number"/>
-      <choose>
-        <if type="report">
-          <text variable="genre"/>
-        </if>
-      </choose>
-      <text variable="number"/>
+      <group delimiter=" ">
+        <choose>
+          <if is-numeric="number" type="broadcast" variable="genre">
+            <text variable="genre"/>
+            <text variable="number"/>
+          </if>
+          <else-if is-numeric="number" type="broadcast">
+            <text value="episode"/>
+            <text variable="number"/>
+          </else-if>
+          <else-if variable="number">
+            <text variable="genre"/>
+            <text macro="label-number"/>
+          </else-if>
+        </choose>
+      </group>
     </group>
   </macro>
   <!-- 4.5. Publisher (MLA 5.54-67) -->
@@ -859,8 +896,16 @@
   <macro name="container2-title">
     <group delimiter=", ">
       <choose>
-        <if type="speech">
-          <text variable="event"/>
+        <if match="any" variable="event event-date event-title">
+          <choose>
+            <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
+            <if variable="event-title">
+              <text text-case="capitalize-first" variable="event-title"/>
+            </if>
+            <else>
+              <text text-case="capitalize-first" variable="event"/>
+            </else>
+          </choose>
           <choose>
             <if is-uncertain-date="issued">
               <date form="text" prefix="[" suffix="?]" variable="event-date"/>
