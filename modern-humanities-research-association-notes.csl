@@ -42,8 +42,6 @@
       <term name="manuscript">unpublished manuscript</term>
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
-      <term name="review-of">review of the</term>
-      <term form="short" name="review-of">review of</term>
     </terms>
   </locale>
   <!-- Contents:
@@ -238,30 +236,15 @@
     </group>
   </macro>
   <macro name="label-part-number">
-    <choose>
-      <if match="any" variable="issue supplement-number volume">
-        <group delimiter=" ">
-          <choose>
-            <if is-numeric="part-number">
-              <!-- TODO: Replace with `part-number` label when CSL provides one -->
-              <text form="short" term="part"/>
-            </if>
-          </choose>
-          <text variable="part-number"/>
-        </group>
-      </if>
-      <else>
-        <!-- if `part-number` is the item's primary division, label it through Roman numerals -->
-        <choose>
-          <if is-numeric="part-number">
-            <number form="roman" variable="part-number"/>
-          </if>
-          <else>
-            <text variable="part-number"/>
-          </else>
-        </choose>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="part-number">
+          <!-- TODO: Replace with `part-number` label when CSL provides one -->
+          <text form="short" term="part"/>
+        </if>
+      </choose>
+      <text variable="part-number"/>
+    </group>
   </macro>
   <macro name="label-section">
     <group delimiter=" ">
@@ -975,22 +958,46 @@
   </macro>
   <macro name="title-part">
     <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text quotes="true" text-case="title" variable="part-title"/>
+      <if type="patent">
+        <!-- No italics or quotes, sentence case -->
+        <text form="short" text-case="capitalize-first" variable="part-title"/>
       </if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <!-- monographic usage -->
-            <text font-style="italic" text-case="title" variable="part-title"/>
-          </if>
-          <else>
-            <!-- serial usage -->
-            <text quotes="true" text-case="title" variable="part-title"/>
-          </else>
-        </choose>
+      <else-if match="any" type="bill collection legislation regulation treaty">
+        <!-- No italics or quotes, title case -->
+        <text text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="book classic graphic hearing map periodical">
+        <!-- Italicized, title case (regardless of `container-title`) -->
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="author container-title">
+        <!-- Signed encyclopedia entry in quotes, title case (cf. CMOS18 14.132) -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-dictionary" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="post">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <!-- Other types are formatted based on presence of `container-title` -->
+      <else-if variable="container-title">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
+        <!-- Container-like but not necessarily with `container-title` -->
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <else>
+        <!-- Italicized, title case (default) -->
         <text font-style="italic" text-case="title" variable="part-title"/>
       </else>
     </choose>
@@ -1096,7 +1103,7 @@
       <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
       <group delimiter=", ">
         <text macro="label-part-number"/>
-        <text font-style="italic" text-case="title" variable="part-title"/>
+        <text macro="title-part"/>
       </group>
     </group>
   </macro>
@@ -1433,49 +1440,38 @@
     <group delimiter=", ">
       <group delimiter=" ">
         <choose>
-          <if variable="reviewed-genre">
-            <text term="review-of"/>
-            <text variable="reviewed-genre"/>
-            <choose>
-              <if match="none" variable="reviewed-title">
-                <names variable="reviewed-author">
-                  <label form="verb-short" suffix=" "/>
-                  <name/>
-                </names>
-              </if>
-            </choose>
-          </if>
-          <else-if variable="number">
-            <text form="short" term="review-of"/>
-          </else-if>
-          <!-- If no `reviewed-genre`, assume that `genre` is entered as 'review of the book' or similar -->
-          <else-if variable="genre">
+          <if variable="genre">
+            <!-- assume that `genre` is entered as 'Review of the book' or similar -->
             <text variable="genre"/>
-          </else-if>
-          <else>
-            <text form="short" term="review-of"/>
-          </else>
-        </choose>
-        <choose>
-          <if variable="reviewed-author reviewed-genre">
-            <text form="verb-short" term="reviewed-author"/>
           </if>
+          <else>
+            <text term="review-of"/>
+          </else>
         </choose>
         <group delimiter=", ">
           <names variable="reviewed-author"/>
-          <group delimiter=" ">
-            <text macro="description-review-title"/>
-            <text macro="source-event-place-first" prefix="(" suffix=")"/>
-          </group>
+          <text macro="description-review-title"/>
+          <text variable="reviewed-genre"/>
         </group>
+        <text macro="source-event-place-first" prefix="(" suffix=")"/>
       </group>
       <text macro="label-section"/>
     </group>
   </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text form="short" term="review-of"/>
-      <text macro="description-review-title-short"/>
+      <text term="review-of"/>
+      <choose>
+        <if match="any" variable="reviewed-genre reviewed-title">
+          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+          <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
+        </if>
+        <else>
+          <!-- Assume title is title of reviewed work -->
+          <text font-style="italic" form="short" text-case="title" variable="title"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="description-review-title">
@@ -1488,19 +1484,6 @@
       <else>
         <!-- Assume title is title of reviewed work -->
         <text font-style="italic" text-case="title" variable="title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="description-review-title-short">
-    <choose>
-      <if match="any" variable="reviewed-genre reviewed-title">
-        <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
-        <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
-        <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
-      </if>
-      <else>
-        <!-- Assume title is title of reviewed work -->
-        <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
     </choose>
   </macro>
@@ -2105,12 +2088,11 @@
     <group delimiter=" ">
       <choose>
         <if match="any" type="broadcast entry entry-dictionary entry-encyclopedia motion_picture"/>
+        <else-if type="song" variable="chapter-number title">
+          <text macro="label-chapter-number"/>
+          <text term="from"/>
+        </else-if>
         <else-if type="song" variable="title">
-          <choose>
-            <if variable="chapter-number">
-              <text macro="label-chapter-number"/>
-            </if>
-          </choose>
           <text term="from"/>
         </else-if>
         <else-if variable="chapter-number page title">
