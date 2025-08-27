@@ -489,7 +489,11 @@
   <!-- 3.2. Original publication date (MLA 5.108) -->
   <macro name="supplemental-original-date">
     <choose>
-      <if match="any" variable="original-publisher original-publisher-place"/>
+      <if type="personal_communication">
+        <!-- date and place of composition for letters -->
+        <text macro="event"/>
+      </if>
+      <else-if match="any" variable="original-publisher original-publisher-place"/>
       <else-if is-uncertain-date="original-date">
         <date form="text" prefix="[" suffix="?]" variable="original-date"/>
       </else-if>
@@ -896,32 +900,48 @@
   <macro name="container2-title">
     <group delimiter=", ">
       <choose>
-        <if match="any" variable="event event-date event-title">
+        <if type="paper-conference">
           <choose>
-            <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
-            <if variable="event-title">
-              <text text-case="capitalize-first" variable="event-title"/>
+            <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+              <!-- Don't print event info for conference papers published in a proceedings -->
+              <text macro="event"/>
             </if>
-            <else>
-              <text text-case="capitalize-first" variable="event"/>
-            </else>
           </choose>
-          <choose>
-            <if is-uncertain-date="issued">
-              <date form="text" prefix="[" suffix="?]" variable="event-date"/>
-            </if>
-            <else>
-              <date form="text" variable="event-date"/>
-            </else>
-          </choose>
-          <text variable="event-place"/>
         </if>
+        <else>
+          <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs). -->
+          <text macro="event"/>
+        </else>
       </choose>
       <text variable="archive"/>
       <text variable="archive-place"/>
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
     </group>
+  </macro>
+  <macro name="event">
+    <choose>
+      <if match="any" variable="event event-date event-title">
+        <choose>
+          <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
+          <if variable="event-title">
+            <text text-case="capitalize-first" variable="event-title"/>
+          </if>
+          <else>
+            <text text-case="capitalize-first" variable="event"/>
+          </else>
+        </choose>
+        <choose>
+          <if is-uncertain-date="issued">
+            <date form="text" prefix="[" suffix="?]" variable="event-date"/>
+          </if>
+          <else>
+            <date form="text" variable="event-date"/>
+          </else>
+        </choose>
+        <text variable="event-place"/>
+      </if>
+    </choose>
   </macro>
   <!-- 6.2. Location (MLA 5.84-99) -->
   <macro name="container2-location">
