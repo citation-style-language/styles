@@ -103,58 +103,6 @@
       </substitute>
     </names>
   </macro>
-  <macro name="author-intext">
-    <choose>
-      <if type="interview personal_communication" match="any">
-        <choose>
-          <!-- These variables indicate that the letter is retrievable by the reader.
-                If not, then use the APA in-text-only personal communication format -->
-          <if variable="archive container-title DOI publisher URL" match="none">
-            <group delimiter=", ">
-              <names variable="author">
-                <name and="text" delimiter=", " initialize-with=". "/>
-                <substitute>
-                  <text macro="title-intext"/>
-                </substitute>
-              </names>
-              <!-- Replace with term="personal-communication" if that becomes available -->
-              <text term="letter"/>
-            </group>
-          </if>
-          <else>
-            <names variable="author" delimiter=", ">
-              <name form="short" and="text" delimiter=", " initialize-with=". "/>
-              <substitute>
-                <text macro="title-intext"/>
-              </substitute>
-            </names>
-          </else>
-        </choose>
-      </if>
-      <else>
-        <names variable="composer" delimiter=", ">
-          <name form="short" and="text" delimiter=", " initialize-with=". "/>
-          <substitute>
-            <names variable="author"/>
-            <names variable="illustrator"/>
-            <names variable="director"/>
-            <choose>
-              <if variable="container-title">
-                <choose>
-                  <if type="book entry entry-dictionary entry-encyclopedia" match="any">
-                    <text macro="title-intext"/>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-            <names variable="editor"/>
-            <names variable="editorial-director"/>
-            <text macro="title-intext"/>
-          </substitute>
-        </names>
-      </else>
-    </choose>
-  </macro>
   <macro name="date-bib">
     <group delimiter=" " prefix="(" suffix=")">
       <choose>
@@ -205,77 +153,6 @@
         </choose>
       </group>
     </group>
-  </macro>
-  <macro name="date-sort-group">
-    <!-- APA sorts 1. no-date items, 2. items with dates, 3. in-press (status) items -->
-    <choose>
-      <if variable="issued">
-        <text value="1"/>
-      </if>
-      <else-if variable="status">
-        <text value="2"/>
-      </else-if>
-      <else>
-        <text value="0"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="date-intext">
-    <choose>
-      <if variable="issued">
-        <group delimiter="/">
-          <group delimiter=" ">
-            <choose>
-              <if is-uncertain-date="original-date">
-                <text term="circa" form="short"/>
-              </if>
-            </choose>
-            <date variable="original-date">
-              <date-part name="year"/>
-            </date>
-          </group>
-          <group delimiter=" ">
-            <choose>
-              <if is-uncertain-date="issued">
-                <text term="circa" form="short"/>
-              </if>
-            </choose>
-            <group>
-              <choose>
-                <if type="interview personal_communication" match="any">
-                  <choose>
-                    <if variable="archive container-title DOI publisher URL" match="none">
-                      <!-- These variables indicate that the communication is retrievable by the reader.
-                           If not, then use the in-text-only personal communication format -->
-                      <date variable="issued" form="text"/>
-                    </if>
-                    <else>
-                      <date variable="issued">
-                        <date-part name="year"/>
-                      </date>
-                    </else>
-                  </choose>
-                </if>
-                <else>
-                  <date variable="issued">
-                    <date-part name="year"/>
-                  </date>
-                </else>
-              </choose>
-              <text variable="year-suffix"/>
-            </group>
-          </group>
-        </group>
-      </if>
-      <else-if variable="status">
-        <text variable="status" text-case="lowercase"/>
-        <text variable="year-suffix" prefix="-"/>
-      </else-if>
-      <else>
-        <text term="no date" form="short"/>
-        <text variable="year-suffix" prefix="-"/>
-      </else>
-    </choose>
   </macro>
   <!-- APA has two description elements following the title:
        title (parenthetical) [bracketed]  -->
@@ -351,49 +228,6 @@
             </group>
           </else>
         </choose>
-      </else>
-    </choose>
-  </macro>
-  <macro name="title-intext">
-    <choose>
-      <if variable="title" match="none">
-        <text macro="bracketed-intext" prefix="[" suffix="]"/>
-      </if>
-      <else-if type="bill">
-        <!-- If a bill has no number or container-title, assume it is a hearing; italic -->
-        <choose>
-          <if variable="number container-title" match="none">
-            <text variable="title" form="short" font-style="italic" text-case="title"/>
-          </if>
-          <else-if variable="title">
-            <text variable="title" form="short" text-case="title"/>
-          </else-if>
-          <else>
-            <group delimiter=" ">
-              <text variable="genre"/>
-              <group delimiter=" ">
-                <choose>
-                  <if variable="chapter-number container-title" match="none">
-                    <!-- Replace with label variable="number" as that becomes available -->
-                    <text term="issue" form="short"/>
-                  </if>
-                </choose>
-                <text variable="number"/>
-              </group>
-            </group>
-          </else>
-        </choose>
-      </else-if>
-      <else-if type="post webpage" match="any">
-        <!-- Webpages are always italicized -->
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
-      </else-if>
-      <else-if variable="container-title" match="any">
-        <!-- Other types are italicized or quoted based on presence of container-title. As in title macro. -->
-        <text variable="title" form="short" quotes="true" text-case="title"/>
-      </else-if>
-      <else>
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
       </else>
     </choose>
   </macro>
@@ -720,52 +554,6 @@
       </choose>
     </group>
   </macro>
-  <macro name="bracketed-intext">
-    <group prefix="[" suffix="]">
-      <choose>
-        <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
-          <!-- This should be localized -->
-          <text macro="reviewed-title-intext" prefix="Review of "/>
-        </if>
-        <else-if variable="interviewer" type="interview" match="any">
-          <names variable="interviewer">
-            <label form="verb" suffix=" " text-case="capitalize-first"/>
-            <name and="text" initialize-with=". " delimiter=", "/>
-            <substitute>
-              <text macro="format-intext"/>
-            </substitute>
-          </names>
-        </else-if>
-        <else-if type="personal_communication">
-          <!-- Letter information -->
-          <choose>
-            <if variable="recipient">
-              <group delimiter=" ">
-                <choose>
-                  <if variable="number" match="none">
-                    <text variable="genre" text-case="capitalize-first"/>
-                  </if>
-                  <else>
-                    <text term="letter" form="short" text-case="capitalize-first"/>
-                  </else>
-                </choose>
-                <names variable="recipient" delimiter=", ">
-                  <label form="verb" suffix=" "/>
-                  <name and="text" delimiter=", "/>
-                </names>
-              </group>
-            </if>
-            <else>
-              <text macro="format-intext"/>
-            </else>
-          </choose>
-        </else-if>
-        <else>
-          <text macro="format-intext"/>
-        </else>
-      </choose>
-    </group>
-  </macro>
   <macro name="bracketed-container">
     <group prefix="[" suffix="]">
       <choose>
@@ -1014,18 +802,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="reviewed-title-intext">
-    <choose>
-      <if variable="reviewed-title">
-        <!-- Not possible to distinguish TV series episode from other reviewed works [Ex. 69] -->
-        <text variable="reviewed-title" form="short" font-style="italic" text-case="title"/>
-      </if>
-      <else>
-        <!-- Assume title is title of reviewed work -->
-        <text variable="title" form="short" font-style="italic" text-case="title"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="format">
     <choose>
       <if variable="genre medium" match="any">
@@ -1038,38 +814,6 @@
           <text variable="medium" text-case="capitalize-first"/>
         </group>
       </if>
-      <!-- Generic labels for specific types -->
-      <!-- These should be localized when possible -->
-      <else-if type="dataset">
-        <text value="Data set"/>
-      </else-if>
-      <else-if type="book" variable="version" match="all">
-        <!-- Replace with type="software" and term="software" as that becomes available -->
-        <text value="Computer software"/>
-      </else-if>
-      <else-if type="interview personal_communication" match="any">
-        <choose>
-          <if variable="archive container-title DOI publisher URL" match="none">
-            <text term="letter" text-case="capitalize-first"/>
-          </if>
-          <else-if type="interview">
-            <text term="interview" text-case="capitalize-first"/>
-          </else-if>
-        </choose>
-      </else-if>
-      <else-if type="map">
-        <text value="Map"/>
-      </else-if>
-    </choose>
-  </macro>
-  <macro name="format-intext">
-    <choose>
-      <if variable="genre" match="any">
-        <text variable="genre" text-case="capitalize-first"/>
-      </if>
-      <else-if variable="medium">
-        <text variable="medium" text-case="capitalize-first"/>
-      </else-if>
       <!-- Generic labels for specific types -->
       <!-- These should be localized when possible -->
       <else-if type="dataset">
@@ -1339,44 +1083,21 @@
       </else>
     </choose>
   </macro>
-  <macro name="citation-locator">
-    <group delimiter=" ">
-      <choose>
-        <if locator="chapter">
-          <label variable="locator" text-case="capitalize-first"/>
-        </if>
-        <else>
-          <label variable="locator" form="short"/>
-        </else>
-      </choose>
-      <text variable="locator"/>
-    </group>
-  </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year" givenname-disambiguation-rule="primary-name-with-initials">
+  <citation collapse="citation-number">
     <sort>
-      <key macro="author-bib" names-min="3" names-use-first="1"/>
-      <key macro="date-sort-group"/>
-      <key macro="date-bib" sort="ascending"/>
-      <key variable="status"/>
+      <key variable="citation-number"/>
     </sort>
-    <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <text macro="author-intext"/>
-        <text macro="date-intext"/>
-        <text macro="citation-locator"/>
-      </group>
+    <layout delimiter="," prefix="[" suffix="]">
+      <text variable="citation-number"/>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="11" et-al-use-first="10">
     <sort>
-      <key macro="author-bib"/>
-      <key macro="date-sort-group"/>
-      <key macro="date-bib" sort="ascending"/>
-      <key variable="status"/>
-      <key macro="title"/>
+      <key variable="citation-number"/>
     </sort>
     <layout>
       <group delimiter=" ">
+        <text variable="citation-number" suffix="."/>
         <group delimiter=". " suffix=".">
           <text macro="author-bib"/>
           <text macro="date-bib"/>
