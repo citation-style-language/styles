@@ -29,7 +29,7 @@
     <category field="sociology"/>
     <category field="theology"/>
     <summary>Chicago-style source citations (with Bluebook for legal citations), author-date system, 17th edition</summary>
-    <updated>2025-08-25T13:26:51-04:00</updated>
+    <updated>2025-08-30T19:00:21-04:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -58,19 +58,28 @@
       <term form="verb-short" name="editortranslator">ed. and trans.</term>
       <term form="verb-short" name="illustrator">ill.</term>
       <term form="short" name="legislation">Pub. L.</term>
-      <term form="short" name="line">
-        <single>line</single>
-        <multiple>lines</multiple>
-      </term>
       <term name="manuscript">unpublished manuscript</term>
-      <term form="verb" name="narrator">read by</term>
-      <!-- both 'narrated by' (CMOS18 14.58) and 'read by' (CMOS18 14.164): taking the latter as it is in the section on recorded readings -->
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
-      <term name="review-of">review of the</term>
-      <term form="short" name="review-of">review of</term>
       <term name="timestamp">at</term>
       <term form="verb-short" name="translator">trans.</term>
+    </terms>
+  </locale>
+  <locale xml:lang="en-GB">
+    <terms>
+      <!-- ensure consistency with other `en-GB` contractions -->
+      <term form="short" name="collection-number">
+        <single>vol.</single>
+        <multiple>vols</multiple>
+      </term>
+      <term form="short" name="editor-translator">
+        <single>ed. and trans.</single>
+        <multiple>eds and trans.</multiple>
+      </term>
+      <term form="short" name="editortranslator">
+        <single>ed. and trans.</single>
+        <multiple>eds and trans.</multiple>
+      </term>
     </terms>
   </locale>
   <!-- Contents:
@@ -252,7 +261,14 @@
           </choose>
         </else-if>
         <else-if is-numeric="locator">
-          <label form="short" variable="locator"/>
+          <choose>
+            <if locator="line">
+              <label variable="locator"/>
+            </if>
+            <else>
+              <label form="short" variable="locator"/>
+            </else>
+          </choose>
         </else-if>
         <else-if locator="chapter line verse" match="any"/>
         <!-- a non-numeric canonical reference is identified by its formatting and does not need a label (CMOS18 14.143-54) -->
@@ -1164,7 +1180,7 @@
       </if>
       <!-- For monographic items without `container-title`, bibliography entries list `part-title` or `volume-title` first if available -->
       <else-if variable="part-title">
-        <text font-style="italic" text-case="title" variable="part-title"/>
+        <text macro="title-part"/>
       </else-if>
       <else-if variable="volume-title">
         <text font-style="italic" text-case="title" variable="volume-title"/>
@@ -1176,22 +1192,50 @@
   </macro>
   <macro name="title-part">
     <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text quotes="true" text-case="title" variable="part-title"/>
+      <if type="patent">
+        <!-- No italics or quotes, sentence case -->
+        <text form="short" text-case="capitalize-first" variable="part-title"/>
       </if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <!-- monographic usage -->
-            <text font-style="italic" text-case="title" variable="part-title"/>
-          </if>
-          <else>
-            <!-- serial usage -->
-            <text quotes="true" text-case="title" variable="part-title"/>
-          </else>
-        </choose>
+      <else-if match="any" type="bill collection legislation regulation treaty">
+        <!-- No italics or quotes, title case -->
+        <text text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="legal_case">
+        <!-- Italicized, sentence case -->
+        <text font-style="italic" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="book classic graphic hearing map">
+        <!-- Italicized, title case (regardless of `container-title`) -->
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="author container-title">
+        <!-- Signed encyclopedia entry in quotes, title case (CMOS18 14.132) -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-dictionary" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="post">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <!-- Other types are formatted based on presence of `container-title` -->
+      <else-if variable="container-title">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
+        <!-- Container-like but not necessarily with `container-title` -->
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <else>
+        <!-- Italicized, title case (default) -->
         <text font-style="italic" text-case="title" variable="part-title"/>
       </else>
     </choose>
@@ -1620,7 +1664,7 @@
   </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text form="short" term="review-of"/>
+      <text term="review-of"/>
       <text macro="description-review-title-short"/>
     </group>
   </macro>
@@ -1628,26 +1672,12 @@
     <!-- Anonymous reviews appear as 'unsigned' (CMOS18 14.102) -->
     <choose>
       <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-        <choose>
-          <if variable="reviewed-genre">
-            <text term="review-of" text-case="capitalize-first"/>
-          </if>
-          <else>
-            <text form="short" term="review-of" text-case="capitalize-first"/>
-          </else>
-        </choose>
+        <text term="review-of" text-case="capitalize-first"/>
       </if>
       <else>
         <group delimiter=" ">
           <text term="anonymous" text-case="capitalize-first"/>
-          <choose>
-            <if variable="reviewed-genre">
-              <text term="review-of"/>
-            </if>
-            <else>
-              <text form="short" term="review-of"/>
-            </else>
-          </choose>
+          <text term="review-of"/>
         </group>
       </else>
     </choose>
@@ -2167,7 +2197,7 @@
   </macro>
   <macro name="identifier-volume-monographic-bib">
     <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper broadcast event interview patent performance periodical post post-weblog review review-book speech webpage"/>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
       <else-if match="any" type="interview paper-conference">
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
@@ -2521,7 +2551,7 @@
   <macro name="source-monographic-title-bib">
     <choose>
       <if variable="part-title">
-        <text font-style="italic" text-case="title" variable="part-title"/>
+        <text macro="title-part"/>
       </if>
       <else-if variable="volume-title">
         <text font-style="italic" text-case="title" variable="volume-title"/>
@@ -3782,43 +3812,6 @@
     </group>
   </macro>
   <!-- Citation -->
-  <macro name="citation-author-date">
-    <!-- Usage:
-    
-    <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" et-al-min="3" et-al-use-first="1"><layout delimiter="; " prefix="(" suffix=")"><text macro="citation-author-date"/></layout></citation>
-    -->
-    <choose>
-      <if type="classic">
-        <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
-        <choose>
-          <if is-numeric="locator">
-            <group delimiter=", ">
-              <text macro="citation-author-date-item"/>
-              <text macro="source-locator-author-date"/>
-            </group>
-          </if>
-          <else-if locator="chapter line verse" match="any">
-            <group delimiter=" ">
-              <text macro="citation-author-date-item"/>
-              <text macro="source-locator-author-date"/>
-            </group>
-          </else-if>
-          <else>
-            <group delimiter=", ">
-              <text macro="citation-author-date-item"/>
-              <text macro="source-locator-author-date"/>
-            </group>
-          </else>
-        </choose>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <text macro="citation-author-date-item"/>
-          <text macro="source-locator-author-date"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
   <macro name="citation-author-date-item">
     <group delimiter=", ">
       <choose>
@@ -3876,7 +3869,37 @@
   </macro>
   <citation after-collapse-delimiter="; " collapse="year" disambiguate-add-givenname="true" disambiguate-add-names="true" disambiguate-add-year-suffix="true" et-al-min="4" et-al-use-first="1">
     <layout delimiter="; " prefix="(" suffix=")">
-      <text macro="citation-author-date"/>
+      <choose>
+        <if type="classic">
+          <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
+          <choose>
+            <if is-numeric="locator">
+              <group delimiter=", ">
+                <text macro="citation-author-date-item"/>
+                <text macro="source-locator-author-date"/>
+              </group>
+            </if>
+            <else-if locator="chapter line verse" match="any">
+              <group delimiter=" ">
+                <text macro="citation-author-date-item"/>
+                <text macro="source-locator-author-date"/>
+              </group>
+            </else-if>
+            <else>
+              <group delimiter=", ">
+                <text macro="citation-author-date-item"/>
+                <text macro="source-locator-author-date"/>
+              </group>
+            </else>
+          </choose>
+        </if>
+        <else>
+          <group delimiter=", ">
+            <text macro="citation-author-date-item"/>
+            <text macro="source-locator-author-date"/>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <!-- Bibliography -->
@@ -3896,43 +3919,6 @@
       </else>
     </choose>
   </macro>
-  <macro name="bibliography-filtered-author-date">
-    <!-- usage:
-     <sort><key macro="author-sort"/><key macro="date-sort-group"/><key macro="date-sort-year"/><key macro="date"/><key macro="title-and-descriptions-bib"/><key macro="source-bib"/><key variable="volume"/><key variable="part-number"/><key variable="event-date"/><key variable="issued"/><key macro="source-archive-bib"/></sort><layout suffix="."><text macro="bibliography-filtered-author-date"/></layout>
-    -->
-    <choose>
-      <if type="classic">
-        <choose>
-          <if match="any" variable="archive editor translator publisher">
-            <text macro="bibliography-author-date"/>
-          </if>
-        </choose>
-      </if>
-      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-        <choose>
-          <if variable="author">
-            <!-- Signed reference entries appear in the bibliography (CMOS18 14.132) -->
-            <text macro="bibliography-author-date"/>
-          </if>
-          <else-if match="any" variable="DOI URL">
-            <!-- Provide a bibliography if necessary identifying information is not in text -->
-            <text macro="bibliography-author-date"/>
-          </else-if>
-        </choose>
-      </else-if>
-      <else-if match="any" type="interview personal_communication">
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <!-- Personal communications only appear in the bibliography if the reader can retrieve them (CMOS18 14.13, 14.111) -->
-            <text macro="bibliography-author-date"/>
-          </if>
-        </choose>
-      </else-if>
-      <else>
-        <text macro="bibliography-author-date"/>
-      </else>
-    </choose>
-  </macro>
   <bibliography et-al-min="11" et-al-use-first="7" hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;&#8212;">
     <sort>
       <key macro="author-sort"/>
@@ -3948,7 +3934,38 @@
       <key macro="source-archive-bib"/>
     </sort>
     <layout suffix=".">
-      <text macro="bibliography-filtered-author-date"/>
+      <choose>
+        <if type="classic">
+          <choose>
+            <if match="any" variable="archive editor translator publisher">
+              <text macro="bibliography-author-date"/>
+            </if>
+          </choose>
+        </if>
+        <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+          <choose>
+            <if variable="author">
+              <!-- Signed reference entries appear in the bibliography (CMOS18 14.132) -->
+              <text macro="bibliography-author-date"/>
+            </if>
+            <else-if match="any" variable="DOI URL">
+              <!-- Provide a bibliography if necessary identifying information is not in text -->
+              <text macro="bibliography-author-date"/>
+            </else-if>
+          </choose>
+        </else-if>
+        <else-if match="any" type="interview personal_communication">
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <!-- Personal communications only appear in the bibliography if the reader can retrieve them (CMOS18 14.13, 14.111) -->
+              <text macro="bibliography-author-date"/>
+            </if>
+          </choose>
+        </else-if>
+        <else>
+          <text macro="bibliography-author-date"/>
+        </else>
+      </choose>
     </layout>
   </bibliography>
 </style>
