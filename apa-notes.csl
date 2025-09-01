@@ -1915,27 +1915,27 @@
   </macro>
   <!-- 4.7. DOI or URL (APA 9.34-36) -->
   <macro name="source-DOI-URL">
-    <choose>
-      <if variable="DOI">
-        <text prefix="https://doi.org/" variable="DOI"/>
-      </if>
-      <else-if variable="URL">
-        <group delimiter=" ">
-          <choose>
-            <if match="none" variable="issued status">
-              <group delimiter=" ">
-                <text term="retrieved" text-case="capitalize-first"/>
-                <group delimiter=", ">
-                  <date form="text" variable="accessed"/>
-                  <text term="from"/>
-                </group>
-              </group>
-            </if>
-          </choose>
+    <group delimiter=" ">
+      <choose>
+        <if variable="DOI"/>
+        <else-if match="any" variable="issued status"/>
+        <else-if variable="accessed URL">
+          <text term="retrieved" text-case="capitalize-first"/>
+          <group delimiter=", ">
+            <date form="text" variable="accessed"/>
+            <text term="from"/>
+          </group>
+        </else-if>
+      </choose>
+      <choose>
+        <if variable="DOI">
+          <text prefix="https://doi.org/" variable="DOI"/>
+        </if>
+        <else-if variable="URL">
           <text variable="URL"/>
-        </group>
-      </else-if>
-    </choose>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <!-- 5. Publication history (APA 9.39-41) -->
   <macro name="publication-history">
@@ -2014,42 +2014,38 @@
          `treaty`
          : treaties
     -->
-    <group delimiter=" ">
-      <group delimiter=", " suffix=".">
-        <choose>
-          <if type="treaty">
-            <text macro="legal-title"/>
-            <names variable="author">
-              <!-- Treaty parties should be included at least for bilateral treaties (Bluebook 21.4.2) -->
-              <name delimiter="-" et-al-min="100" et-al-use-first="99" form="short"/>
-            </names>
-            <text macro="legal-date"/>
-            <!-- treaty source/report in addition to URL (Bluebook 21.4.5) -->
-            <text macro="legal-source"/>
-          </if>
-          <else>
-            <group delimiter=" ">
-              <group delimiter=", ">
-                <text macro="legal-title"/>
-                <text macro="legal-source"/>
-              </group>
-              <text macro="legal-date"/>
-              <text macro="legal-identifier"/>
+    <group delimiter=", ">
+      <choose>
+        <if type="treaty">
+          <text macro="legal-title"/>
+          <names variable="author">
+            <!-- Treaty parties should be included at least for bilateral treaties (Bluebook 21.4.2) -->
+            <name delimiter="-" et-al-min="100" et-al-use-first="99" form="short"/>
+          </names>
+          <text macro="legal-date"/>
+          <!-- treaty source/report in addition to URL (Bluebook 21.4.5) -->
+          <text macro="legal-source"/>
+        </if>
+        <else>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="legal-title"/>
+              <text macro="legal-source"/>
             </group>
-          </else>
+            <text macro="legal-date"/>
+            <text macro="legal-identifier"/>
+          </group>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <!-- locator for use in notes -->
+        <choose>
+          <if locator="page" variable="page">
+            <text term="at"/>
+          </if>
         </choose>
-        <group delimiter=" ">
-          <!-- locator for use in notes -->
-          <choose>
-            <if locator="page" variable="page">
-              <text term="at"/>
-            </if>
-          </choose>
-          <text macro="label-locator"/>
-        </group>
+        <text macro="label-locator"/>
       </group>
-      <text variable="references"/>
-      <text macro="source-DOI-URL"/>
     </group>
   </macro>
   <!-- 6.1. Legal date -->
@@ -2312,13 +2308,15 @@
   </citation>
   <!-- Bibliography -->
   <macro name="bibliography">
-    <choose>
-      <if match="any" type="bill hearing legal_case legislation regulation treaty">
-        <!-- Legal items have different orders and delimiters -->
-        <text macro="legal-reference"/>
-      </if>
-      <else>
-        <group delimiter=" ">
+    <group delimiter=" ">
+      <choose>
+        <if match="any" type="bill hearing legal_case legislation regulation treaty">
+          <!-- Legal items have different orders and delimiters -->
+          <text macro="legal-reference" suffix="."/>
+          <text macro="source-DOI-URL"/>
+          <text variable="references"/>
+        </if>
+        <else>
           <group delimiter=". " suffix=".">
             <text macro="author"/>
             <text macro="date"/>
@@ -2327,23 +2325,9 @@
           </group>
           <text macro="source-DOI-URL"/>
           <text macro="publication-history"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
-  <macro name="bibliography-filtered">
-    <choose>
-      <if type="personal_communication">
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <text macro="bibliography"/>
-          </if>
-        </choose>
-      </if>
-      <else>
-        <text macro="bibliography"/>
-      </else>
-    </choose>
+        </else>
+      </choose>
+    </group>
   </macro>
   <bibliography entry-spacing="0" et-al-min="21" et-al-use-first="19" et-al-use-last="true" hanging-indent="true" line-spacing="2">
     <sort>
@@ -2359,7 +2343,18 @@
       <key macro="source-archive"/>
     </sort>
     <layout>
-      <text macro="bibliography-filtered"/>
+      <choose>
+        <if type="personal_communication">
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <text macro="bibliography"/>
+            </if>
+          </choose>
+        </if>
+        <else>
+          <text macro="bibliography"/>
+        </else>
+      </choose>
     </layout>
   </bibliography>
 </style>
