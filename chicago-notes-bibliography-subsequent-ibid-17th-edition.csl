@@ -1219,7 +1219,7 @@
       </group>
       <text macro="source-medium-bib"/>
       <text macro="source-archive-bib"/>
-      <text macro="source-DOI-URL-bib"/>
+      <text macro="source-date-accessed-DOI-URL-bib"/>
     </group>
   </macro>
   <macro name="title-and-source-note">
@@ -1272,7 +1272,7 @@
       </choose>
       <text macro="source-medium-note"/>
       <text macro="source-archive-note"/>
-      <text macro="source-DOI-URL-note"/>
+      <text macro="source-date-accessed-DOI-URL-note"/>
     </group>
   </macro>
   <!-- 3.1. Title -->
@@ -5376,55 +5376,48 @@
     </group>
   </macro>
   <!-- 4.10. URL or persistent identifier -->
-  <macro name="source-DOI-URL-bib">
-    <choose>
-      <if variable="DOI">
-        <text prefix="https://doi.org/" variable="DOI"/>
-      </if>
-      <else-if variable="URL">
-        <group delimiter=". ">
-          <choose>
-            <if match="none" variable="available-date event-date issued status">
-              <group delimiter=" ">
-                <text term="accessed" text-case="capitalize-first"/>
-                <date form="text" variable="accessed"/>
-              </group>
-            </if>
-          </choose>
-          <text variable="URL"/>
-        </group>
-      </else-if>
-    </choose>
+  <macro name="source-date-accessed-DOI-URL-bib">
+    <group delimiter=". ">
+      <choose>
+        <if variable="DOI"/>
+        <else-if match="any" variable="available-date event-date issued status"/>
+        <else-if variable="accessed URL">
+          <group delimiter=" ">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date form="text" variable="accessed"/>
+          </group>
+        </else-if>
+      </choose>
+      <text macro="source-DOI-URL"/>
+    </group>
   </macro>
-  <macro name="source-DOI-URL-note">
-    <choose>
-      <if variable="DOI">
-        <text prefix="https://doi.org/" variable="DOI"/>
-      </if>
-      <else-if variable="URL">
-        <group delimiter=", ">
-          <choose>
-            <if match="none" variable="available-date event-date issued status">
-              <group delimiter=" ">
-                <text term="accessed"/>
-                <date form="text" variable="accessed"/>
-              </group>
-            </if>
-          </choose>
-          <text variable="URL"/>
-        </group>
-      </else-if>
-    </choose>
+  <macro name="source-date-accessed-DOI-URL-note">
+    <group delimiter=", ">
+      <choose>
+        <if variable="DOI"/>
+        <else-if match="any" variable="available-date event-date issued status"/>
+        <else-if variable="accessed URL">
+          <group delimiter=" ">
+            <text term="accessed"/>
+            <date form="text" variable="accessed"/>
+          </group>
+        </else-if>
+      </choose>
+      <text macro="source-DOI-URL"/>
+    </group>
   </macro>
   <macro name="source-DOI-URL">
-    <!-- Alias to avoid modifying legal references block shared with APA -->
-    <text macro="source-DOI-URL-bib"/>
+    <choose>
+      <if variable="DOI">
+        <text prefix="https://doi.org/" variable="DOI"/>
+      </if>
+      <else-if variable="URL">
+        <text variable="URL"/>
+      </else-if>
+    </choose>
   </macro>
   <!-- 5. Notes -->
-  <macro name="notes">
-    <!-- Notes on source element: original publication, reprint info, retraction info -->
-    <text variable="references"/>
-  </macro>
+  <!-- TODO: add variables for distributor and exhibitions if available in CSL -->
   <!-- 6. Legal references: Bluebook style (shared with APA) -->
   <!-- Where APA or Chicago diverge from Bluebook, the official manual is followed -->
   <macro name="legal-reference">
@@ -5448,42 +5441,38 @@
          `treaty`
          : treaties
     -->
-    <group delimiter=" ">
-      <group delimiter=", " suffix=".">
-        <choose>
-          <if type="treaty">
-            <text macro="legal-title"/>
-            <names variable="author">
-              <!-- Treaty parties should be included at least for bilateral treaties (Bluebook 21.4.2) -->
-              <name delimiter="-" et-al-min="100" et-al-use-first="99" form="short"/>
-            </names>
-            <text macro="legal-date"/>
-            <!-- treaty source/report in addition to URL (Bluebook 21.4.5) -->
-            <text macro="legal-source"/>
-          </if>
-          <else>
-            <group delimiter=" ">
-              <group delimiter=", ">
-                <text macro="legal-title"/>
-                <text macro="legal-source"/>
-              </group>
-              <text macro="legal-date"/>
-              <text macro="legal-identifier"/>
+    <group delimiter=", ">
+      <choose>
+        <if type="treaty">
+          <text macro="legal-title"/>
+          <names variable="author">
+            <!-- Treaty parties should be included at least for bilateral treaties (Bluebook 21.4.2) -->
+            <name delimiter="-" et-al-min="100" et-al-use-first="99" form="short"/>
+          </names>
+          <text macro="legal-date"/>
+          <!-- treaty source/report in addition to URL (Bluebook 21.4.5) -->
+          <text macro="legal-source"/>
+        </if>
+        <else>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="legal-title"/>
+              <text macro="legal-source"/>
             </group>
-          </else>
+            <text macro="legal-date"/>
+            <text macro="legal-identifier"/>
+          </group>
+        </else>
+      </choose>
+      <group delimiter=" ">
+        <!-- locator for use in notes -->
+        <choose>
+          <if locator="page" variable="page">
+            <text term="at"/>
+          </if>
         </choose>
-        <group delimiter=" ">
-          <!-- locator for use in notes -->
-          <choose>
-            <if locator="page" variable="page">
-              <text term="at"/>
-            </if>
-          </choose>
-          <text macro="label-locator"/>
-        </group>
+        <text macro="label-locator"/>
       </group>
-      <text variable="references"/>
-      <text macro="source-DOI-URL"/>
     </group>
   </macro>
   <!-- 6.1. Legal date -->
@@ -5734,30 +5723,29 @@
   </macro>
   <!-- Citation -->
   <macro name="citation-notes-full">
-    <choose>
-      <if match="any" type="bill hearing legal_case legislation regulation treaty">
-        <!-- Legal items have different orders and delimiters -->
-        <text macro="legal-reference"/>
-      </if>
-      <else-if type="personal_communication" variable="genre">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" type="bill hearing legal_case legislation regulation treaty">
+          <!-- Legal items have different orders and delimiters -->
+          <text macro="legal-reference"/>
+          <text macro="source-date-accessed-DOI-URL-note"/>
+        </if>
+        <else-if type="personal_communication" variable="genre">
           <text macro="author-note"/>
           <text macro="title-and-source-note"/>
-        </group>
-      </else-if>
-      <else-if type="personal_communication" variable="author recipient">
-        <group delimiter=" ">
+        </else-if>
+        <else-if type="personal_communication" variable="author recipient">
+          <group delimiter=" ">
+            <text macro="author-note"/>
+            <text macro="title-and-source-note"/>
+          </group>
+        </else-if>
+        <else>
           <text macro="author-note"/>
           <text macro="title-and-source-note"/>
-        </group>
-      </else-if>
-      <else>
-        <group delimiter=", ">
-          <text macro="author-note"/>
-          <text macro="title-and-source-note"/>
-        </group>
-      </else>
-    </choose>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="citation-notes-shortened-author-title">
     <!-- Shortened note styles mirror the filtering approach of author-date -->
@@ -5868,19 +5856,21 @@
   </citation>
   <!-- Bibliography -->
   <macro name="bibliography-notes">
-    <choose>
-      <if match="any" type="bill hearing legal_case legislation regulation treaty">
-        <!-- Legal items have different orders and delimiters -->
-        <text macro="legal-reference"/>
-      </if>
-      <else>
-        <group delimiter=". ">
+    <group delimiter=". ">
+      <choose>
+        <if match="any" type="bill hearing legal_case legislation regulation treaty">
+          <!-- Legal items have different orders and delimiters -->
+          <text macro="legal-reference"/>
+          <text macro="source-date-accessed-DOI-URL-bib"/>
+          <text variable="references"/>
+        </if>
+        <else>
           <text macro="author-bib"/>
           <text macro="title-and-source-bib"/>
-          <text macro="notes"/>
-        </group>
-      </else>
-    </choose>
+          <text variable="references"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <bibliography et-al-min="11" et-al-use-first="7" hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;&#8212;">
     <sort>
