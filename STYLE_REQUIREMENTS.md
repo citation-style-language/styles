@@ -4,29 +4,31 @@ Before submitting your style to the CSL style repository, please make sure it fo
 
 ##### 1 - Title Abbreviations
 
-The style name in `<title/>` should be written out in full. 
-To store a title abbreviation, use the `<title-short/>` element, e.g.:
+The style name in `<title/>` should provide the full title of the style manual, journal, or publisher that issues the guidance.
+To store a title abbreviation (not typically displayed but helpful for searchability), use the `<title-short/>` element, for example:
 
 ```xml
    <info>
-     <title>Modern Humanities Research Association</title>
-     <title-short>MHRA</title-short>
+     <title>New Hart's Rules 2nd edition (notes)</title>
+     <title-short>NHR</title-short>
    </info>
 ```
 
-For university department styles (and other institutional styles), always put the name of the institution before the name of the department. 
-Institutional styles may also mention the type of style (e.g. "Vancouver", "APA", or "Harvard") in the title. 
-Use hyphens to separate these elements, e.g. "Oxford Brookes University - Faculty of Health and Life Sciences - Harvard". 
+Where a style guide provides multiple referencing systems or variants, add the variant in parentheses, such as "Chicago Manual of Style 18th edition (author-date)".
+
+For university department styles (and other institutional styles), always put the name of the institution before the name of the department.
+Institutional styles may also mention the name of a style (e.g. "Vancouver" or "APA") in the title.
+Use hyphens to separate these elements, e.g. "University of Oxford - Faculty of History - New Hart's Rules".
 
 ##### 2 - Title Diacritics
 
-Don't remove diacritics from the style title. 
+Don't remove diacritics from the style title.
 For example, use `<title>Associação Brasileira de Normas Técnicas</title>` instead of `<title>Associacao Brasileira de Normas Tecnicas</title>`.
 
 ##### 3 - Style Locale
 
-If your style is meant to be used in one particular language, set the `default-locale` attribute on `<style/>` to the appropriate locale code. 
-For example, CSL styles for English-language journals should typically be set to US English ("en-US") or British English ("en-GB"). 
+If your style is meant to be used in one particular language, set the `default-locale` attribute on `<style/>` to the appropriate locale code.
+For example, CSL styles for English-language journals should typically be set to US English (`en-US`) or British English (`en-GB`).
 For a list of languages and their locale codes, see https://github.com/citation-style-language/locales/wiki.
 
 If you set `default-locale` to a language other than English (`en-*`), add the language to the end of the style title in parentheses.
@@ -53,46 +55,46 @@ Two examples:
 
 ##### 4 - File Name
 
-The file name of a style should be based on its title. 
-However, file names may only contain lowercase roman letters (a-z), digits (0-9), and single hyphens (-), and must end with the ".csl" extension. 
+The file name of a style should be based on its title.
+However, file names may only contain lowercase roman letters (a-z), digits (0-9), and single hyphens (-), and must end with the `.csl` extension.
 To create the file name from the title:
 
   * replace capitals with lowercase letters
-  * replace ampersands with "and" (e.g., "Arts & Health" becomes "arts-and-health.csl")
-  * replace spaces and apostrophes with hyphens (e.g., "Documents d'archéologie française (French)" becomes "documents-d-archeologie-francaise.csl")
-  * drop diacritics (e.g., "für" becomes "fur", not "fuer")
-  * drop text between parentheses (e.g., "Ugeskrift for Læger (Danish)" becomes "ugeskrift-for-laeger.csl")
-  * avoid abbreviations (e.g., use "modern-humanities-research-association-notes.csl" instead of "mhra-notes.csl")
-  * add the ".csl" extension
+  * replace ampersands with "and" (e.g. "Arts & Health" becomes `arts-and-health.csl`)
+  * replace spaces and apostrophes with hyphens (e.g. "Documents d'archéologie française (French)" becomes `documents-d-archeologie-francaise.csl`)
+  * drop diacritics (e.g. "bibliothèque" becomes "bibliotheque"); do not replace diacritics with other letter combinations (e.g. "für" becomes "fur", not "fuer")
+  * drop text between parentheses, unless it is necessary for disambiguating two styles (e.g. "Ugeskrift for Læger (Danish)" becomes `ugeskrift-for-laeger.csl`)
+  * use the title of the source without subtitles, using abbreviations only where they form part of the published name (e.g. `modern-language-review.csl` for the journal published as *Modern Language Review*, though commonly cited as *MLR* within its field; `chicago-author-date.csl` for the *Chicago Manual of Style*, author–date system)
+  * add the `.csl` extension
 
 You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly lowercase titles and replace spaces by hyphens, although you may have to make some more changes by hand.
 
 ##### 5 - Style ID
 
-The style ID must be "http://www.zotero.org/styles/file-name", with "file-name" representing the style's file name without the ".csl" extension. 
-For example, the style ID would be "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
+The style ID must be `http://www.zotero.org/styles/file-name`, with `file-name` representing the style's file name without the `.csl` extension.
+For example, the style ID for `chicago-notes.csl` is `http://www.zotero.org/styles/chicago-notes`:
 
 ```xml
    <info>
-     <id>http://www.zotero.org/styles/modern-humanities-research-association-notes</id>
+     <id>http://www.zotero.org/styles/chicago-notes</id>
    </info>
 ```
 
-##### 6 - "self" Link
+##### 6 - `self` Link
 
-The style's "self" link, which tells where the style will available online, must be "http://www.zotero.org/styles/file-name", with "**file-name**" representing the style's file name without the ".csl" extension. 
-For example, "http://www.zotero.org/styles/modern-humanities-research-association-notes" for "modern-humanities-research-association-notes.csl":
+The style's `self` link, which tells where the style will available online, must be `http://www.zotero.org/styles/file-name`, with `file-name` representing the style's file name without the `.csl` extension.
+For example, `http://www.zotero.org/styles/chicago-notes` for `chicago-notes.csl`:
 
 ```xml
    <info>
-     <link href="http://www.zotero.org/styles/modern-humanities-research-association-notes" rel="self"/>
+     <link href="http://www.zotero.org/styles/chicago-notes" rel="self"/>
    </info>
 ```
 
 ##### 7 - License
 
-The style must be licensed under the Creative Commons Attribution-ShareAlike 3.0 License. 
-Use the exact text below, without any hard line breaks for ``<rights/>``:
+The style must be licensed under the Creative Commons Attribution-ShareAlike 3.0 License.
+Use the exact text below, without any hard line breaks for `<rights/>`:
 
 ```xml
    <info>
@@ -100,9 +102,9 @@ Use the exact text below, without any hard line breaks for ``<rights/>``:
    </info>
 ```
 
-##### 8 - "template" Link
+##### 8 - `template` Link
 
-If you started from another CSL style, delete the original style authors and contributors, and point to the original style with a "template" link:
+If you started from another CSL style, delete the original style authors and contributors, and point to the original style with a `template` link:
 
 ```xml
    <info>
@@ -121,10 +123,10 @@ Journal styles should list the journal's print ISSN (``<issn/>``) and online ISS
    </info>
 ```
 
-##### 10 - "documentation" Link
+##### 10 - `documentation` Link
 
-Independent styles should have a "documentation" link that points to a description of the style's citation format. 
-For journals, this is typically the "instructions to authors" webpage. 
+Independent styles should have a `documentation` link that points to a description of the style's citation format.
+For journals, this is typically the "instructions to authors" webpage.
 If a style guide is only available in print, provide a URL that allows us to locate a paper copy.
 
 ```xml
@@ -140,7 +142,7 @@ For example, if your style is for a journal in the field of history, add:
 
 ```xml
    <category field="history"/>
-   <category field="humanities"/> 
+   <category field="humanities"/>
 ```
 
 The `generic-base` category is for styles used across multiple institutions and publishers, such as APA or Chicago, and should be removed from derivative styles.
@@ -165,8 +167,8 @@ Consider including a permanent identifier such as an ORCID ID in the `<uri/>` el
 
 ##### 12 - XML Indentation
 
-Indent the style's XML with 2 spaces per level. 
-Some text editors support automatic indentation of XML. 
+Indent the style's XML with 2 spaces per level.
+Some text editors support automatic indentation of XML.
 Alternatively, use our [style formatter](http://formatter.citationstyles.org/) tool.
 
 ##### 13 - Validation
