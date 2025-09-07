@@ -28,7 +28,7 @@
     <category field="sociology"/>
     <category field="theology"/>
     <summary>Chicago-style source citations (with Bluebook for legal citations), notes and bibliography system, archival references with place first (CMOS18 14.205), without URLs (CMOS18 13.6)</summary>
-    <updated>2025-09-01T11:10:55-04:00</updated>
+    <updated>2025-09-07T17:04:41-04:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -867,14 +867,6 @@
         <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text macro="source-serial-name"/>
       </else-if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <!-- serial usage -->
-            <text macro="source-serial-name"/>
-          </if>
-        </choose>
-      </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <!-- Anonymous entries in reference works (CMOS18 14.130) -->
         <text font-style="italic" text-case="title" variable="container-title"/>
@@ -899,14 +891,6 @@
       <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
         <!-- Publication name also substituted for unsigned reviews (CMOS18 14.102) -->
         <text font-style="italic" text-case="title" variable="container-title"/>
-      </else-if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <!-- serial usage -->
-            <text font-style="italic" text-case="title" variable="container-title"/>
-          </if>
-        </choose>
       </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <!-- Anonymous entries in reference works (CMOS18 14.130) -->
@@ -3178,7 +3162,8 @@
     <group delimiter=". ">
       <text macro="source-serial-title-volume-bib"/>
       <choose>
-        <if type="article-newspaper">
+        <if match="any" type="article-magazine article-newspaper">
+          <!-- magazines and newspapers provide the full date in place of volume/issue numbers (CMOS18 14.87, 14.89) -->
           <group delimiter=", ">
             <text macro="source-serial-title-bib"/>
             <text macro="source-serial-identifier-bib"/>
@@ -3209,7 +3194,8 @@
     <group delimiter=", ">
       <text macro="source-serial-title-volume-note"/>
       <choose>
-        <if type="article-newspaper">
+        <if match="any" type="article-magazine article-newspaper">
+          <!-- magazines and newspapers provide the full date in place of volume/issue numbers (CMOS18 14.87, 14.89) -->
           <group delimiter=", ">
             <text macro="source-serial-title-note"/>
             <text macro="source-serial-identifier-note"/>
@@ -3339,19 +3325,31 @@
   <!-- Serial source identifier -->
   <macro name="source-serial-identifier-bib">
     <choose>
-      <if match="any" variable="issue supplement-number volume">
-        <group delimiter=": ">
-          <text macro="source-serial-identifier-volume-bib"/>
-          <text macro="source-serial-locator"/>
-        </group>
-      </if>
-      <else>
+      <if match="any" type="article-magazine article-newspaper">
         <group delimiter=", ">
           <group delimiter=". ">
             <text macro="source-serial-identifier-volume-bib"/>
-            <!-- periodical edition always capitalized (CMOS18 14.89) -->
+            <!-- for author-date: -->
+            <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
+            <!-- newspaper edition always capitalized (CMOS18 14.89) -->
             <text macro="label-edition-capitalized"/>
           </group>
+          <text macro="source-serial-locator"/>
+        </group>
+      </if>
+      <else-if match="any" variable="issue supplement-number volume">
+        <group delimiter=": ">
+          <text macro="source-serial-identifier-volume-bib"/>
+          <!-- for author-date: -->
+          <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
+          <text macro="source-serial-locator"/>
+        </group>
+      </else-if>
+      <else>
+        <group delimiter=", ">
+          <text macro="source-serial-identifier-volume-bib"/>
+          <!-- for author-date: -->
+          <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
           <text macro="source-serial-locator"/>
         </group>
       </else>
@@ -3360,19 +3358,25 @@
   </macro>
   <macro name="source-serial-identifier-note">
     <choose>
-      <if match="any" variable="issue supplement-number volume">
+      <if match="any" type="article-magazine article-newspaper">
+        <group delimiter=", ">
+          <group delimiter=", ">
+            <text macro="source-serial-identifier-volume-note"/>
+            <!-- newspaper edition always capitalized (CMOS18 14.89) -->
+            <text macro="label-edition-capitalized"/>
+          </group>
+          <text macro="source-serial-locator"/>
+        </group>
+      </if>
+      <else-if match="any" variable="issue supplement-number volume">
         <group delimiter=": ">
           <text macro="source-serial-identifier-volume-note"/>
           <text macro="source-serial-locator"/>
         </group>
-      </if>
+      </else-if>
       <else>
         <group delimiter=", ">
-          <group delimiter=", ">
-            <text macro="source-serial-identifier-volume-note"/>
-            <!-- periodical edition always capitalized (CMOS18 14.89) -->
-            <text macro="label-edition-capitalized"/>
-          </group>
+          <text macro="source-serial-identifier-volume-note"/>
           <text macro="source-serial-locator"/>
         </group>
       </else>
@@ -3381,15 +3385,15 @@
   <macro name="source-serial-identifier-volume-bib">
     <group delimiter=", ">
       <choose>
-        <if type="article-newspaper">
-          <!-- newspapers provide the full date in place of volume/issue numbers (CMOS18 14.89) -->
+        <if match="any" type="article-magazine article-newspaper">
+          <!-- magazines and newspapers provide the full date in place of volume/issue numbers (CMOS18 14.87, 14.89) -->
           <text variable="collection-title"/>
           <text macro="source-serial-volume-status-bib"/>
         </if>
         <else-if match="any" variable="issue supplement-number volume">
           <choose>
-            <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-              <!-- date appears first if the magazine or review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
+            <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+              <!-- date appears first if the review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
               <choose>
                 <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                   <text macro="source-date-bib"/>
@@ -3407,8 +3411,8 @@
                 <if variable="collection-title volume">
                   <text macro="label-volume"/>
                 </if>
-                <else-if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-                  <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
+                <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                  <!-- date appears first if a review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
                   <choose>
                     <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                       <text variable="volume"/>
@@ -3426,8 +3430,8 @@
               <text macro="label-supplement-number"/>
             </group>
             <choose>
-              <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-                <!-- date for anonymous magazine and review articles only appears here if it did not earlier (CMOS18 14.87, 14.102) -->
+              <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                <!-- date for unsigned reviews only appears here if it did not earlier (CMOS18 14.102) -->
                 <choose>
                   <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                     <text macro="source-date-bib" prefix="(" suffix=")"/>
@@ -3452,16 +3456,16 @@
   <macro name="source-serial-identifier-volume-note">
     <group delimiter=", ">
       <choose>
-        <if type="article-newspaper">
-          <!-- newspapers provide the full date in place of volume/issue numbers (CMOS18 14.89) -->
+        <if match="any" type="article-magazine article-newspaper">
+          <!-- magazines and newspapers provide the full date in place of volume/issue numbers (CMOS18 14.87, 14.89) -->
           <text variable="collection-title"/>
           <text macro="source-serial-volume-status-note"/>
         </if>
         <else-if match="any" variable="issue supplement-number volume">
           <choose>
-            <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+            <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
               <choose>
-                <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+                <!-- date appears first if a review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
                 <!-- the conditions below mirror substitution in `author-note` -->
                 <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator"/>
                 <else-if match="any" variable="reviewed-genre reviewed-title title"/>
@@ -3484,8 +3488,8 @@
                 </if>
                 <else-if variable="volume">
                   <choose>
-                    <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-                      <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+                    <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                      <!-- date appears first if a review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
                       <choose>
                         <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                           <text variable="volume"/>
@@ -3511,8 +3515,8 @@
               <text macro="label-supplement-number"/>
             </group>
             <choose>
-              <if match="any" type="article-magazine review review-book" variable="reviewed-author reviewed-genre reviewed-title">
-                <!-- date appears first if a magazine or review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
+              <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+                <!-- date appears first if a review `container-title` has been substituted for a missing author (CMOS18 14.89) -->
                 <choose>
                   <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
                     <text macro="source-date-issued-or-status" prefix="(" suffix=")"/>
@@ -3596,8 +3600,8 @@
           <text variable="number"/>
         </group>
       </if>
-      <!-- do not give pages for newspapers (CMOS18 14.89) -->
-      <else-if type="article-newspaper"/>
+      <!-- do not give pages for magazines or newspapers (CMOS18 14.87, 14.89) -->
+      <else-if match="any" type="article-magazine article-newspaper"/>
       <else>
         <text variable="page"/>
       </else>
@@ -5047,7 +5051,8 @@
   </macro>
   <macro name="source-date-issued-full-serial">
     <choose>
-      <if type="article-newspaper">
+      <if match="any" type="article-magazine article-newspaper">
+        <!-- magazines and newspapers provide the full date in place of volume/issue numbers (CMOS18 14.87, 14.89) -->
         <text macro="date-issued-full"/>
       </if>
       <else-if variable="issue volume">
