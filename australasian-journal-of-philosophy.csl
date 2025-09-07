@@ -16,10 +16,10 @@
     <category field="humanities"/>
     <issn>0004-8402</issn>
     <eissn>1471-6828</eissn>
-    <updated>2022-07-05T21:41:58+09:30</updated>
+    <updated>2025-08-26T08:59:59+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale>
+  <locale xml:lang="en">
     <style-options punctuation-in-quote="false"/>
     <terms>
       <term name="translator" form="short">trans.</term>
@@ -45,6 +45,7 @@
         <single>no.</single>
         <multiple>nos.</multiple>
       </term>
+      <term name="presented at">paper presented at</term>
     </terms>
   </locale>
   <macro name="author">
@@ -96,18 +97,14 @@
       <if variable="DOI">
         <choose>
           <if type="article-journal article" match="any">
-            <group delimiter=" ">
-              <text variable="DOI" prefix="doi:"/>
-            </group>
+            <text variable="DOI" prefix="doi:"/>
           </if>
         </choose>
       </if>
       <else-if variable="URL">
         <choose>
           <if type="webpage manuscript report chapter book thesis paper-conference" match="any">
-            <group delimiter=" ">
-              <text variable="URL"/>
-            </group>
+            <text variable="URL"/>
           </if>
         </choose>
       </else-if>
@@ -134,17 +131,17 @@
       </if>
       <else-if type="chapter book report paper-conference" match="any">
         <text variable="genre" suffix=". "/>
-        <group delimiter=": ">
-          <text variable="publisher"/>
-        </group>
+        <text variable="publisher"/>
       </else-if>
     </choose>
   </macro>
   <macro name="event">
     <choose>
       <if variable="event">
-        <text term="presented at" prefix="paper " suffix=" "/>
-        <text variable="event"/>
+        <group delimiter=" ">
+          <text term="presented at" text-case="capitalize-first"/>
+          <text variable="event"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -193,9 +190,7 @@
     <choose>
       <if type="article-journal article-magazine" match="any">
         <group prefix=" " delimiter=": ">
-          <group>
-            <text variable="volume" font-weight="bold"/>
-          </group>
+          <text variable="volume" font-weight="bold"/>
           <text variable="page"/>
         </group>
       </if>
@@ -205,61 +200,45 @@
             <date-part name="day"/>
             <date-part name="month" form="long" prefix=" "/>
           </date>
-          <group delimiter=" ">
-            <text variable="page"/>
-          </group>
+          <text variable="page"/>
         </group>
       </else-if>
-      <else-if type="chapter paper-conference report" match="any">
-        <text value=""/>
-      </else-if>
+      <else-if type="chapter paper-conference report" match="any"/>
       <else>
         <text variable="page"/>
       </else>
     </choose>
   </macro>
-  <citation et-al-min="4" et-al-use-first="2" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year-suffix-ranged">
+  <macro name="citation-locator">
+    <group delimiter=" ">
+      <choose>
+        <if match="none" locator="page">
+          <label text-case="lowercase" strip-periods="false" variable="locator" form="symbol"/>
+        </if>
+      </choose>
+      <text variable="locator" form="short"/>
+    </group>
+  </macro>
+  <citation et-al-min="4" et-al-use-first="2" disambiguate-add-year-suffix="true" disambiguate-add-names="false" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year-suffix-ranged" cite-group-delimiter="; ">
     <sort>
       <key macro="year-date-inline"/>
       <key macro="author"/>
     </sort>
     <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=" ">
-        <text macro="author-short"/>
-        <choose>
-          <if variable="locator">
-            <group delimiter=": ">
-              <text macro="year-date-inline"/>
-              <choose>
-                <if match="any" locator="section paragraph">
-                  <group delimiter="">
-                    <label text-case="lowercase" strip-periods="false" variable="locator" form="symbol"/>
-                    <text variable="locator" form="short"/>
-                  </group>
-                </if>
-                <else-if locator="page">
-                  <text variable="locator" form="short"/>
-                </else-if>
-                <else>
-                  <group delimiter=" ">
-                    <label variable="locator" form="short"/>
-                    <text variable="locator" form="short"/>
-                  </group>
-                </else>
-              </choose>
-            </group>
-          </if>
-          <else>
-            <text macro="year-date-inline"/>
-          </else>
-        </choose>
+      <group delimiter=": ">
+        <group delimiter=" ">
+          <text macro="author-short"/>
+          <text macro="year-date-inline"/>
+        </group>
+        <text macro="citation-locator"/>
       </group>
     </layout>
   </citation>
-  <bibliography et-al-min="7" et-al-use-first="5" subsequent-author-substitute-rule="partial-each" hanging-indent="true" entry-spacing="1">
+  <bibliography et-al-min="7" et-al-use-first="5" subsequent-author-substitute-rule="partial-each" hanging-indent="true" entry-spacing="0" line-spacing="2">
     <sort>
       <key macro="author"/>
       <key macro="year-date"/>
+      <key variable="citation-number"/>
     </sort>
     <layout suffix=".">
       <group delimiter=" ">
@@ -272,12 +251,17 @@
           <if type="book report" match="any">
             <choose>
               <if is-numeric="volume">
-                <group delimiter=" " prefix=", ">
-                  <text term="volume" form="short"/>
-                  <number variable="volume"/>
-                  <text variable="volume-title" text-case="title" prefix=": "/>
+                <group delimiter=": " prefix=", ">
+                  <group delimiter=" ">
+                    <text term="volume" form="short"/>
+                    <number font-weight="bold" variable="volume"/>
+                  </group>
+                  <text variable="volume-title" font-style="italic" text-case="title"/>
                 </group>
               </if>
+              <else-if variable="volume-title">
+                <text variable="volume-title" font-style="italic" text-case="title" prefix=", "/>
+              </else-if>
             </choose>
             <choose>
               <if is-numeric="edition">
@@ -304,15 +288,29 @@
           <if type="chapter paper-conference" match="any">
             <choose>
               <if variable="volume">
-                <text term="volume" form="short" prefix=", "/>
-                <text variable="volume" font-weight="bold" prefix=" "/>
+                <group delimiter=": " prefix=", ">
+                  <group delimiter=" ">
+                    <text term="volume" form="short"/>
+                    <number font-weight="bold" variable="volume"/>
+                  </group>
+                  <text variable="volume-title" font-style="italic" text-case="title"/>
+                </group>
+              </if>
+              <else-if variable="volume-title">
+                <text variable="volume-title" font-style="italic" text-case="title" prefix=", "/>
+              </else-if>
+            </choose>
+            <choose>
+              <if is-numeric="edition">
+                <group delimiter=" " prefix=", ">
+                  <number variable="edition" form="ordinal"/>
+                  <label variable="edition"/>
+                </group>
               </if>
             </choose>
             <choose>
               <if match="any" variable="page locator">
-                <group delimiter="" prefix=": ">
-                  <text variable="page" prefix=""/>
-                </group>
+                <text variable="page" prefix=": "/>
               </if>
             </choose>
           </if>
