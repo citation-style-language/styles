@@ -8,31 +8,30 @@
     <link href="http://www.zotero.org/styles/zeitschrift-fur-theologie-und-philosophie" rel="self"/>
     <link href="http://www.zotero.org/styles/theologie-und-philosophie" rel="template"/>
     <link href="https://ztp.jesuiten.org/" rel="documentation"/>
-    <link href="https://ztp.jesuiten.org/ojs2/index.php/ZTP/about/submissions#authorGuidelines" rel="documentation"/>
+    <link href="https://ztp.jesuiten.org/index.php/ZTP/libraryFiles/downloadPublic/11" rel="documentation"/>
     <author>
       <name>Bernhard Knorn SJ</name>
-      <email>bksj AT gmx DOT net</email>
+      <uri>https://orcid.org/0000-0003-3632-8123</uri>
     </author>
     <category citation-format="note"/>
     <category field="theology"/>
     <category field="philosophy"/>
     <issn>2709-8427</issn>
     <summary>English and German full note style for Zeitschrift für Theologie und Philosophie (ZTP).</summary>
-    <updated>2021-01-26T15:30:00+01:00</updated>
+    <updated>2025-08-15T12:30:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
     <terms>
-      <term name="accessed">Stand:</term>
+      <term name="accessed">Stand</term>
       <term name="editor" form="short">Hg.</term>
-      <term name="editor" form="verb-short">hg. v.</term>
-      <term name="translator" form="verb-short">übers. v.</term>
-      <term name="editortranslator" form="verb-short">hg. u. übers. v.</term>
-      <term name="et-al">u.a.</term>
+      <term name="editor" form="verb-short">hg. von</term>
+      <term name="translator" form="verb-short">übers. von</term>
+      <term name="editortranslator" form="verb-short">hg. und übers. von</term>
+      <term name="et-al">u.&#8239;a.</term>
       <term name="reviewed-author">Rez.</term>
       <term name="folio" form="short">fol.</term>
       <term name="note" form="short">Anm.</term>
-      <term name="and">u.</term>
       <term name="at">hier</term>
     </terms>
   </locale>
@@ -123,14 +122,21 @@
     </choose>
   </macro>
   <macro name="original-date">
-    <group delimiter=" " prefix=" [" suffix="]">
-      <choose>
-        <if is-uncertain-date="original-date">
-          <text term="circa" form="short"/>
-        </if>
-      </choose>
-      <date variable="original-date" form="text"/>
-    </group>
+    <choose>
+      <if type="post-weblog webpage" match="any">
+        <date variable="issued" form="numeric" prefix=" (" suffix=")"/>
+      </if>
+      <else>
+        <group delimiter=" " prefix=" [" suffix="]">
+          <choose>
+            <if is-uncertain-date="original-date">
+              <text term="circa" form="short"/>
+            </if>
+          </choose>
+          <date variable="original-date" form="text"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="volume">
     <choose>
@@ -156,28 +162,31 @@
       <if type="article-journal book chapter entry-encyclopedia entry-dictionary" match="any">
         <text variable="DOI" prefix=", DOI: "/>
       </if>
-      <else-if type="speech post-weblog webpage" match="any">
+      <else-if type="manuscript speech post-weblog webpage" match="any">
         <text variable="URL" prefix=", "/>
+        <group prefix=", ">
+          <text term="accessed" suffix=": "/>
+          <date variable="accessed" form="numeric"/>
+        </group>
       </else-if>
     </choose>
   </macro>
   <macro name="point-locators">
     <choose>
       <if variable="locator">
-        <choose>
-          <if type="article-journal article-magazine article-newspaper chapter entry-encyclopedia entry-dictionary" match="any">
-            <text term="at" prefix=", " suffix=" "/>
-          </if>
-          <else>
-            <text value=", "/>
-          </else>
-        </choose>
-        <choose>
-          <if locator="page" match="none">
-            <label variable="locator" form="symbol" suffix=" "/>
-          </if>
-        </choose>
-        <text variable="locator"/>
+        <group delimiter=" " prefix=", ">
+          <choose>
+            <if type="article-journal article-magazine article-newspaper chapter entry-encyclopedia entry-dictionary" match="any">
+              <text term="at" suffix=" "/>
+            </if>
+          </choose>
+          <choose>
+            <if locator="page" match="none">
+              <label variable="locator" form="symbol"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -259,30 +268,23 @@
             </else-if>
           </choose>
           <choose>
-            <if type="article-newspaper article-magazine post-weblog webpage" match="any">
-              <text term="in" prefix=", " suffix=": "/>
-              <text variable="container-title"/>
+            <if type="article-newspaper article-magazine speech post-weblog webpage" match="any">
+              <group prefix=", " delimiter=": ">
+                <text term="in"/>
+                <text variable="container-title"/>
+              </group>
             </if>
           </choose>
           <choose>
             <if type="webpage post-weblog" match="any">
               <text variable="genre" prefix=". "/>
-              <group delimiter=" " prefix=", ">
-                <text term="accessed"/>
-                <text macro="date"/>
-              </group>
             </if>
-            <else-if type="speech">
+            <else-if type="speech manuscript">
               <group prefix=". " delimiter=", ">
                 <text variable="genre"/>
                 <text variable="publisher-place"/>
-                <text macro="date"/>
+                <date variable="issued" form="numeric"/>
               </group>
-            </else-if>
-            <else-if type="manuscript">
-              <text variable="genre" prefix=". "/>
-              <text variable="publisher-place" prefix=", "/>
-              <text macro="date" prefix=", "/>
               <group delimiter=", " prefix=". ">
                 <text variable="archive"/>
                 <text variable="archive_location"/>
@@ -336,8 +338,16 @@
             </else>
           </choose>
           <text variable="page" prefix=", "/>
-          <text macro="point-locators"/>
-          <text macro="access-note"/>
+          <choose>
+            <if variable="DOI">
+              <text macro="point-locators"/>
+              <text macro="access-note"/>
+            </if>
+            <else>
+              <text macro="access-note"/>
+              <text macro="point-locators"/>
+            </else>
+          </choose>
         </else>
       </choose>
     </layout>
@@ -363,29 +373,22 @@
       </choose>
       <choose>
         <if type="webpage post-weblog article-newspaper article-magazine article-journal entry-dictionary entry-encyclopedia" match="any">
-          <text term="in" prefix=", " suffix=": "/>
-          <text variable="container-title" form="short"/>
+          <group prefix=", " delimiter=": ">
+            <text term="in"/>
+            <text variable="container-title" form="short"/>
+          </group>
         </if>
       </choose>
       <choose>
         <if type="webpage post-weblog" match="any">
           <text variable="genre" prefix=". "/>
-          <group delimiter=" " prefix=", ">
-            <text term="accessed"/>
-            <text macro="date"/>
-          </group>
         </if>
-        <else-if type="speech">
+        <else-if type="speech manuscript">
           <group prefix=". " delimiter=", ">
             <text variable="genre"/>
             <text variable="publisher-place"/>
-            <text macro="date"/>
+            <date variable="issued" form="numeric"/>
           </group>
-        </else-if>
-        <else-if type="manuscript">
-          <text variable="genre" prefix=". "/>
-          <text variable="publisher-place" prefix=", "/>
-          <text macro="date" prefix=", "/>
           <group delimiter=", " prefix=". ">
             <text variable="archive"/>
             <text variable="archive_location"/>
