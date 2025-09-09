@@ -16,7 +16,7 @@
     </contributor>
     <category citation-format="author-date"/>
     <summary>Harvard author-date style updated for University of the West of England (UWE) (et-al format updated to comply with UWE Harvard Referencing</summary>
-    <updated>2025-03-12T08:47:42+00:00</updated>
+    <updated>2025-04-16T16:26:15+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -31,12 +31,13 @@
     </names>
   </macro>
   <macro name="author">
-    <names variable="author" font-style="normal">
-      <name font-style="normal" and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="10" et-al-use-first="1" initialize-with="." name-as-sort-order="all"/>
+    <names variable="author">
+      <name and="text" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="10" et-al-use-first="1" initialize-with="." name-as-sort-order="all"/>
       <et-al font-style="italic"/>
-      <label form="short" font-style="normal" prefix=" "/>
+      <label form="short" prefix=" "/>
       <substitute>
-        <text macro="substitute-author" font-style="normal"/>
+        <names variable="editor translator director"/>
+        <text macro="substitute-author"/>
       </substitute>
     </names>
   </macro>
@@ -184,8 +185,10 @@
     <text variable="title" quotes="true"/>
   </macro>
   <macro name="translator">
-    <text term="translator" form="short" plural="true" text-case="capitalize-first" suffix="."/>
-    <names variable="translator" prefix=" " suffix="."/>
+    <names variable="translator" prefix=" " suffix=".">
+      <label form="short" text-case="capitalize-first" suffix=" "/>
+      <name/>
+    </names>
   </macro>
   <macro name="original-title">
     <text variable="original-title" font-style="italic" prefix="[" suffix="]"/>
@@ -292,7 +295,7 @@
       <key variable="title"/>
     </sort>
     <layout suffix=".">
-      <text macro="author" font-style="normal"/>
+      <text macro="author"/>
       <text macro="year-date-bibliography" prefix=" (" suffix=")"/>
       <choose>
         <if match="all" variable="author collection-title">
@@ -306,31 +309,32 @@
         </else-if>
         <else-if match="any" variable="author editor" type="webpage post post-weblog">
           <choose>
-            <if type="chapter article-magazine article-newspaper post-weblog" match="any">
+            <if type="chapter paper-conference article-magazine article-newspaper post-weblog" match="any">
               <text macro="standard-title" prefix=" " suffix=""/>
             </if>
             <else>
               <text macro="italicised-title" prefix=" " suffix=""/>
             </else>
           </choose>
+          <text macro="book-volumes" prefix=" "/>
         </else-if>
       </choose>
       <text macro="original-title"/>
       <text macro="scale" prefix=" " suffix="."/>
       <text macro="director" prefix=" "/>
-      <text macro="translator" prefix=" "/>
       <choose>
-        <if type="chapter" match="any">
-          <text term="in" text-case="capitalize-first" prefix=". " suffix=":"/>
+        <if match="any" type="book">
+          <group delimiter=". " prefix=". " suffix=". ">
+            <text macro="translator"/>
+            <text macro="editor"/>
+          </group>
         </if>
-        <else-if type="paper-conference" match="all" variable="container-title">
-          <text term="in" text-case="capitalize-first" prefix=". " suffix=": "/>
+        <else-if type="chapter paper-conference" match="any">
+          <group delimiter=": " prefix=". ">
+            <text term="in" text-case="capitalize-first"/>
+            <text macro="editor"/>
+          </group>
         </else-if>
-      </choose>
-      <choose>
-        <if match="any" variable="author">
-          <text macro="editor" prefix=" "/>
-        </if>
       </choose>
       <group delimiter=" for ">
         <text macro="interviewer" prefix=" "/>
@@ -344,14 +348,12 @@
       <text macro="broadcast-details" prefix=" "/>
       <text macro="day-month" prefix=". "/>
       <text macro="medium-online" prefix=" "/>
-      <group>
+      <group delimiter=". ">
         <text macro="event-name"/>
-        <choose>
-          <if match="none" variable="publisher-place">
-            <text macro="event-place"/>
-          </if>
-        </choose>
-        <text macro="event-date"/>
+        <group delimiter=", ">
+          <text macro="event-place"/>
+          <text macro="event-date"/>
+        </group>
       </group>
       <choose>
         <if type="broadcast interview" match="none">
@@ -362,7 +364,6 @@
             </group>
             <choose>
               <if type="book chapter paper-conference report thesis" match="any">
-                <text macro="book-volumes"/>
                 <group delimiter=" ">
                   <group delimiter=": ">
                     <text variable="publisher-place"/>
