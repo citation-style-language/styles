@@ -13,7 +13,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>İstanbul Bilgi Üniversitesi Lisansüstü Programlar Enstitüsü'nün hukuk için hazırladığı yönergeye uygun hazırlanmıştır.</summary>
-    <updated>2025-06-01T23:26:04+00:00</updated>
+    <updated>2025-09-12T15:44:49+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="tr">
@@ -38,7 +38,7 @@
       </substitute>
     </names>
   </macro>
-  <macro name="author-first-bibliography">
+  <macro name="author-bibliography">
     <names variable="author">
       <name name-as-sort-order="first" font-weight="bold" delimiter=" / " initialize="false" sort-separator=", " et-al-min="5" et-al-use-first="1"/>
       <substitute>
@@ -58,7 +58,7 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <name delimiter=" / " initialize="false" font-weight="bold"/>
+      <name font-weight="normal" delimiter=" / " initialize="false"/>
       <label form="short" prefix=" (" suffix=")" text-case="lowercase"/>
     </names>
   </macro>
@@ -69,13 +69,15 @@
     </names>
   </macro>
   <macro name="translator">
-    <names variable="translator">
-      <name font-weight="bold" delimiter=" / " initialize="false" prefix="(Çev.: " suffix=")"/>
+    <names variable="translator" prefix="(" suffix=")">
+      <label form="short" suffix=": "/>
+      <name font-weight="bold" delimiter=" / " initialize="false"/>
     </names>
   </macro>
   <macro name="translator-short">
     <names variable="translator">
-      <name form="short" font-weight="bold" delimiter=" / " initialize="false" prefix="(Çev.: " suffix=")"/>
+      <label form="short" suffix=": "/>
+      <name form="short" font-weight="bold" delimiter=" / " initialize="false"/>
     </names>
   </macro>
   <macro name="title">
@@ -135,32 +137,18 @@
     <text variable="container-title"/>
   </macro>
   <macro name="publisher">
-    <group delimiter=", ">
-      <text variable="publisher"/>
-      <text variable="publisher-place"/>
+    <group delimiter=" ">
+      <group delimiter=", ">
+        <text variable="publisher"/>
+        <text variable="publisher-place"/>
+      </group>
+      <text macro="year"/>
     </group>
   </macro>
   <macro name="year">
     <date variable="issued">
       <date-part name="year"/>
     </date>
-  </macro>
-  <macro name="year-with-comma">
-    <choose>
-      <if variable="publisher-place">
-        <text macro="year" prefix=" "/>
-      </if>
-      <else>
-        <text macro="year" prefix=", "/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="thesis-type">
-    <choose>
-      <if variable="genre">
-        <text variable="genre" prefix=" (" suffix=")"/>
-      </if>
-    </choose>
   </macro>
   <macro name="edition">
     <choose>
@@ -192,286 +180,127 @@
   <macro name="volume-issue">
     <group delimiter=", ">
       <group delimiter=": ">
-        <text value="C"/>
+        <label variable="volume" form="short"/>
         <text variable="volume"/>
       </group>
       <group delimiter=": ">
-        <text value="S"/>
+        <label variable="issue" form="short"/>
         <text variable="issue"/>
       </group>
     </group>
   </macro>
-  <macro name="access">
+  <macro name="access"/>
+  <macro name="online-source">
     <group delimiter=" ">
-      <text term="accessed" prefix="(" suffix=" "/>
-      <date variable="accessed" suffix=")">
-        <date-part name="day" suffix="/"/>
-        <date-part name="month" form="numeric" suffix="/"/>
-        <date-part name="year"/>
-      </date>
+      <text variable="URL" prefix=", "/>
+      <group delimiter=" ">
+        <text term="accessed" prefix="(" suffix=" "/>
+        <date variable="accessed" suffix=")">
+          <date-part name="day" suffix="/"/>
+          <date-part name="month" form="numeric" suffix="/"/>
+          <date-part name="year"/>
+        </date>
+      </group>
     </group>
   </macro>
-  <macro name="online-source">
+  <macro name="cite-locator">
+    <group delimiter=" ">
+      <label variable="locator" form="short"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="pages">
+    <group delimiter=" ">
+      <label variable="page" form="short"/>
+      <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="locators">
     <choose>
-      <if variable="URL">
-        <group delimiter=" ">
-          <text variable="URL" prefix=", "/>
-          <choose>
-            <if variable="accessed">
-              <text macro="access"/>
-            </if>
-          </choose>
-        </group>
+      <if type="book">
+        <text macro="translator"/>
+        <text macro="volume-display"/>
+        <text macro="edition"/>
+        <text macro="publisher"/>
       </if>
+      <else-if type="chapter paper-conference" match="any">
+        <group delimiter=", ">
+          <text macro="editor"/>
+          <text macro="container-title"/>
+          <text macro="publisher"/>
+          <text macro="pages"/>
+        </group>
+      </else-if>
+      <else-if type="article-journal">
+        <group delimiter=", ">
+          <text macro="container-title"/>
+          <text macro="volume-issue"/>
+          <text macro="year"/>
+          <text macro="pages"/>
+        </group>
+      </else-if>
+      <else-if type="webpage post-weblog post" match="any">
+        <text macro="translator" prefix=", "/>
+        <text variable="container-title"/>
+        <text macro="year" prefix=" "/>
+      </else-if>
+      <else-if type="thesis">
+        <text macro="translator"/>
+        <text macro="publisher"/>
+        <text variable="genre" prefix=" (" suffix=")"/>
+      </else-if>
+      <else>
+        <text macro="translator"/>
+        <text macro="container-title"/>
+        <text macro="publisher"/>
+      </else>
     </choose>
   </macro>
   <citation et-al-min="5" et-al-use-first="1" disambiguate-add-names="true">
     <layout suffix="." delimiter="; ">
       <choose>
         <if position="subsequent">
-          <choose>
-            <if type="book">
-              <text macro="author-short"/>
-              <text macro="translator-short" prefix=" "/>
-              <choose>
-                <if disambiguate="true">
-                  <text macro="title-short" prefix=", "/>
-                </if>
-              </choose>
-              <text variable="locator" prefix=", s. "/>
-            </if>
-            <else-if type="article-journal">
-              <text macro="author-short"/>
-              <text macro="translator-short" prefix=" "/>
-              <choose>
-                <if disambiguate="true">
-                  <text macro="title" prefix=", "/>
-                </if>
-              </choose>
-              <text variable="locator" prefix=", s. "/>
-            </else-if>
-            <else-if type="webpage post-weblog">
-              <text macro="author-short"/>
-              <text macro="translator-short" prefix=" "/>
-              <choose>
-                <if disambiguate="true">
-                  <text macro="title" prefix=", "/>
-                </if>
-              </choose>
-              <text variable="locator" prefix=", s. "/>
-            </else-if>
-            <else-if type="chapter paper-conference">
-              <text macro="author-short"/>
-              <text macro="translator-short" prefix=" "/>
-              <text variable="locator" prefix=", s. "/>
-            </else-if>
-            <else>
-              <text macro="author-short"/>
-              <text macro="translator-short" prefix=" "/>
-              <text variable="locator" prefix=", s. "/>
-            </else>
-          </choose>
+          <group delimiter=", ">
+            <text macro="author-short"/>
+            <text macro="translator-short"/>
+            <choose>
+              <if disambiguate="true">
+                <text macro="title"/>
+              </if>
+            </choose>
+            <text macro="cite-locator"/>
+          </group>
         </if>
         <else>
-          <choose>
-            <if type="book">
-              <text macro="author-first"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="volume-display" prefix=", "/>
-              <text macro="edition" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text variable="locator" prefix=", s. "/>
+          <group delimiter=", ">
+            <text macro="author-first"/>
+            <text macro="title"/>
+            <text macro="locators"/>
+            <group delimiter=" ">
+              <text macro="cite-locator"/>
               <text macro="online-source"/>
               <choose>
                 <if disambiguate="true" variable="title-short">
                   <text variable="title-short" prefix=" (" suffix=")"/>
                 </if>
               </choose>
-            </if>
-            <else-if type="article-journal">
-              <text macro="author-first"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=" "/>
-              <text macro="container-title" prefix=", "/>
-              <text macro="volume-issue" prefix=", "/>
-              <text variable="publisher-place" prefix=", "/>
-              <text macro="year" prefix=", "/>
-              <text variable="locator" prefix=", s. "/>
-              <choose>
-                <if variable="URL">
-                  <text variable="URL" prefix=", "/>
-                  <choose>
-                    <if variable="accessed">
-                      <text macro="access" prefix=" "/>
-                    </if>
-                  </choose>
-                </if>
-              </choose>
-            </else-if>
-            <else-if type="webpage post-weblog">
-              <text macro="author-first"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text variable="container-title" prefix=", "/>
-              <text macro="year" prefix=" "/>
-              <text variable="URL" prefix=", "/>
-              <choose>
-                <if variable="locator">
-                  <text variable="locator" prefix=", s. "/>
-                </if>
-              </choose>
-              <text macro="access" prefix=" "/>
-            </else-if>
-            <else-if type="thesis">
-              <text macro="author-first"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text macro="thesis-type"/>
-              <text variable="locator" prefix=", s. "/>
-              <text macro="online-source"/>
-            </else-if>
-            <else-if type="chapter paper-conference">
-              <text macro="author-first"/>
-              <text macro="title-chapter" prefix=", "/>
-              <text macro="translator" prefix=" "/>
-              <choose>
-                <if variable="editor">
-                  <text macro="editor" prefix=" "/>
-                  <text macro="container-title" prefix=", "/>
-                </if>
-                <else>
-                  <text macro="container-title" prefix=" "/>
-                </else>
-              </choose>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text variable="locator" prefix=", s. "/>
-              <text macro="online-source"/>
-            </else-if>
-            <else-if type="book" variable="editor" match="all">
-              <text macro="editor"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="volume-display" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text variable="locator" prefix=", s. "/>
-              <text macro="online-source"/>
-            </else-if>
-            <else>
-              <text macro="author-first"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="container-title" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text variable="locator" prefix=", s. "/>
-              <text macro="online-source"/>
-            </else>
-          </choose>
+            </group>
+          </group>
         </else>
       </choose>
     </layout>
   </citation>
   <bibliography hanging-indent="true" et-al-min="5" et-al-use-first="1">
     <sort>
-      <key macro="author-first-bibliography"/>
+      <key macro="author-bibliography"/>
       <key variable="title"/>
     </sort>
     <layout suffix=".">
-      <choose>
-        <if type="book">
-          <choose>
-            <if variable="editor" match="none">
-              <text macro="author-first-bibliography"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="volume-display" prefix=", "/>
-              <text macro="edition" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text macro="online-source"/>
-            </if>
-            <else>
-              <text macro="editor-bibliography"/>
-              <text macro="title" prefix=", "/>
-              <text macro="translator" prefix=", "/>
-              <text macro="volume-display" prefix=", "/>
-              <text macro="publisher" prefix=", "/>
-              <text macro="year-with-comma"/>
-              <text macro="online-source"/>
-            </else>
-          </choose>
-        </if>
-        <else-if type="article-journal">
-          <text macro="author-first-bibliography"/>
-          <text macro="title" prefix=", "/>
-          <text macro="translator" prefix=" "/>
-          <text macro="container-title" prefix=", "/>
-          <text macro="volume-issue" prefix=", "/>
-          <text variable="publisher-place" prefix=", "/>
-          <text macro="year" prefix=", "/>
-          <text variable="page" prefix=", s. "/>
-          <choose>
-            <if variable="URL">
-              <text variable="URL" prefix=", "/>
-              <choose>
-                <if variable="accessed">
-                  <text macro="access" prefix=" "/>
-                </if>
-              </choose>
-            </if>
-          </choose>
-        </else-if>
-        <else-if type="webpage post-weblog">
-          <text macro="author-first-bibliography"/>
-          <text macro="title" prefix=", "/>
-          <text macro="translator" prefix=", "/>
-          <text variable="container-title" prefix=", "/>
-          <text macro="year" prefix=" "/>
-          <text variable="URL" prefix=", "/>
-          <text macro="access" prefix=" "/>
-        </else-if>
-        <else-if type="thesis">
-          <text macro="author-first-bibliography"/>
-          <text macro="title" prefix=", "/>
-          <text macro="translator" prefix=", "/>
-          <text macro="publisher" prefix=", "/>
-          <text macro="year-with-comma"/>
-          <text macro="thesis-type"/>
-          <text macro="online-source"/>
-        </else-if>
-        <else-if type="chapter paper-conference">
-          <text macro="author-first-bibliography"/>
-          <text macro="title-chapter" prefix=", "/>
-          <text macro="translator" prefix=" "/>
-          <choose>
-            <if variable="editor">
-              <text macro="editor" prefix=" "/>
-              <text macro="container-title" prefix=", "/>
-            </if>
-            <else>
-              <text macro="container-title" prefix=" "/>
-            </else>
-          </choose>
-          <text macro="publisher" prefix=", "/>
-          <text macro="year-with-comma"/>
-          <text macro="online-source"/>
-        </else-if>
-        <else>
-          <text macro="author-first-bibliography"/>
-          <text macro="title" prefix=", "/>
-          <text macro="translator" prefix=", "/>
-          <text macro="container-title" prefix=", "/>
-          <text macro="publisher" prefix=", "/>
-          <text macro="year-with-comma"/>
-          <text macro="online-source"/>
-        </else>
-      </choose>
+      <group delimiter=", ">
+        <text macro="author-bibliography"/>
+        <text macro="title"/>
+        <text macro="locators"/>
+      </group>
     </layout>
   </bibliography>
 </style>
