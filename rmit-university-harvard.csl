@@ -11,7 +11,8 @@
       <email>library.systems@rmit.edu.au</email>
     </author>
     <category citation-format="author-date"/>
-    <updated>2020-06-24T03:04:07+00:00</updated>
+    <category field="generic-base"/>
+    <updated>2025-07-31T10:12:22+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -50,9 +51,12 @@
           <name/>
           <substitute>
             <choose>
-              <if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+              <if type="webpage post post-weblog" match="any">
                 <text variable="title" strip-periods="true" font-style="italic"/>
               </if>
+              <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+                <text variable="title" strip-periods="true" font-style="italic"/>
+              </else-if>
               <else>
                 <text variable="title" quotes="true"/>
               </else>
@@ -64,7 +68,7 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name name-as-sort-order="all" and="symbol" sort-separator=", " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+      <name name-as-sort-order="all" and="symbol" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
@@ -85,15 +89,17 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="URL" type="article-newspaper webpage speech report">
-        <text value="viewed"/>
-        <group prefix=" " delimiter=", ">
-          <date variable="accessed" delimiter=" ">
-            <date-part name="day" suffix=" "/>
-            <date-part name="month" suffix=" "/>
-            <date-part name="year" suffix=","/>
-          </date>
-          <text variable="URL" prefix=" &lt;" suffix="&gt;"/>
+      <if variable="URL" type="article-newspaper report speech webpage post post-weblog" match="any">
+        <group delimiter=". ">
+          <group delimiter=" " prefix=" ">
+            <text term="accessed"/>
+            <date variable="accessed" form="text">
+              <date-part name="day"/>
+              <date-part name="month"/>
+              <date-part name="year"/>
+            </date>
+          </group>
+          <text variable="URL"/>
         </group>
       </if>
     </choose>
@@ -114,9 +120,7 @@
     <choose>
       <if type="speech">
         <group delimiter=", ">
-          <!-- suffix=", "> -->
           <text variable="genre"/>
-          <!-- <text term="presented at"/> -->
           <text variable="event"/>
           <text variable="event-place"/>
         </group>
@@ -132,11 +136,14 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
-        <text variable="title" strip-periods="false" font-style="italic" suffix=","/>
+      <if type="webpage post post-weblog" match="any">
+        <text variable="title" strip-periods="true" font-style="italic"/>
       </if>
+      <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+        <text variable="title" strip-periods="false" font-style="italic" suffix=","/>
+      </else-if>
       <else>
-        <text variable="title" quotes="true"/>
+        <text variable="title"/>
       </else>
     </choose>
   </macro>
@@ -199,9 +206,9 @@
       <key macro="author"/>
       <key macro="year-date"/>
     </sort>
-    <layout suffix=".">
+    <layout>
       <text macro="author"/>
-      <date variable="issued" prefix=" " suffix=",">
+      <date variable="issued" prefix=" (" suffix=")">
         <date-part name="year"/>
       </date>
       <choose>
@@ -228,6 +235,12 @@
             </group>
           </group>
         </else-if>
+        <else-if type="webpage post post-weblog" match="any">
+          <text macro="title" prefix=" "/>
+          <group delimiter=" " prefix=", ">
+            <text variable="container-title"/>
+          </group>
+        </else-if>
         <else>
           <group suffix=",">
             <text macro="title" prefix=" "/>
@@ -243,9 +256,9 @@
           </group>
         </else>
       </choose>
-      <text prefix=", " macro="presentation"/>
-      <text prefix=", " macro="newspaper-webpage"/>
-      <text prefix=", " macro="access"/>
+      <text macro="presentation" prefix=", "/>
+      <text macro="newspaper-webpage" prefix=", "/>
+      <text macro="access" prefix=", "/>
     </layout>
   </bibliography>
 </style>
