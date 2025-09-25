@@ -282,6 +282,12 @@
       <text variable="locator"/>
     </group>
   </macro>
+  <macro name="label-locator-all">
+    <group delimiter=" ">
+      <label form="short" variable="locator"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
   <macro name="label-number-capitalized">
     <group delimiter=" ">
       <choose>
@@ -301,6 +307,12 @@
           <label form="short" variable="number-of-volumes"/>
         </if>
       </choose>
+    </group>
+  </macro>
+  <macro name="label-page">
+    <group delimiter=" ">
+      <label form="short" variable="page"/>
+      <text variable="page"/>
     </group>
   </macro>
   <macro name="label-part-number">
@@ -1027,7 +1039,7 @@
           </choose>
         </if>
         <else-if type="chapter" variable="container-title genre">
-          <!-- 'Introduction to' etc. (CMOS18 14.12, 14.14) -->
+          <!-- 'introduction to', 'online appendix to' (CMOS18 14.12, 14.14) -->
           <group delimiter=" ">
             <text macro="title-and-descriptions-bib"/>
             <text macro="source-bib"/>
@@ -1396,33 +1408,49 @@
     </choose>
   </macro>
   <macro name="description-format-short">
-    <choose>
-      <if variable="genre">
-        <text variable="genre"/>
-      </if>
-      <else-if variable="medium">
-        <text variable="medium"/>
-      </else-if>
-      <else-if type="manuscript">
-        <!-- 'unpublished manuscript' if no `genre` (CMOS18 14.114) -->
-        <choose>
-          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-            <text term="manuscript"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if type="personal_communication">
-        <!-- 'pers. comm.' if no `genre` (CMOS18 14.111) -->
-        <choose>
-          <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-            <text form="short" term="personal-communication"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if variable="chapter-number">
-        <text macro="label-chapter-number"/>
-      </else-if>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if variable="container-title genre">
+          <text variable="genre"/>
+          <choose>
+            <if disambiguate="true">
+              <!-- disambiguate items with an identical `genre` (e.g. 'introduction') -->
+              <text macro="source-monographic-preposition-note"/>
+              <text font-style="italic" text-case="title" variable="container-title"/>
+            </if>
+          </choose>
+        </if>
+        <else-if variable="genre">
+          <text variable="genre"/>
+        </else-if>
+        <else-if variable="medium">
+          <text variable="medium"/>
+        </else-if>
+        <else-if type="manuscript">
+          <!-- 'unpublished manuscript' if no `genre` (CMOS18 14.114) -->
+          <choose>
+            <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+              <text term="manuscript"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if type="personal_communication">
+          <!-- 'pers. comm.' if no `genre` (CMOS18 14.111) -->
+          <choose>
+            <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+              <text form="short" term="personal-communication"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if variable="chapter-number container-title">
+          <text macro="source-monographic-preposition-note"/>
+          <text font-style="italic" text-case="title" variable="container-title"/>
+        </else-if>
+        <else-if variable="chapter-number">
+          <text macro="label-chapter-number"/>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="description-generic-bib">
     <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
@@ -2024,10 +2052,11 @@
   <macro name="identifier-number-bib">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number" type="broadcast" variable="genre">
+        <if type="thesis"/>
+        <else-if is-numeric="number" type="broadcast" variable="genre">
           <text text-case="capitalize-first" variable="genre"/>
           <text variable="number"/>
-        </if>
+        </else-if>
         <else-if is-numeric="number" type="broadcast">
           <text text-case="capitalize-first" value="episode"/>
           <text variable="number"/>
@@ -2532,6 +2561,40 @@
       </else>
     </choose>
   </macro>
+  <macro name="source-monographic-preposition-note">
+    <choose>
+      <if type="chapter" variable="container-title genre">
+        <text value="to"/>
+      </if>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="any" variable="author composer">
+            <!-- Give preposition only for signed entries; otherwise, title is substituted -->
+            <text term="in"/>
+          </if>
+        </choose>
+      </else-if>
+      <!-- if printing chapter page numbers (CMOS17/classic):
+      <else-if variable="chapter-number page title"><text term="in"/></else-if>
+      -->
+      <else-if variable="chapter-number">
+        <group delimiter=" ">
+          <text macro="label-chapter-number"/>
+          <choose>
+            <if type="song">
+              <text term="on"/>
+            </if>
+            <else>
+              <text term="in"/>
+            </else>
+          </choose>
+        </group>
+      </else-if>
+      <else>
+        <text term="in"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="source-monographic-title-bib">
     <choose>
       <if variable="part-title">
@@ -2771,7 +2834,11 @@
   <!-- Monographic source locator -->
   <macro name="source-monographic-locator">
     <choose>
-      <if is-numeric="volume" locator="page">
+      <!-- archival locators appear after the shelfmark (CMOS18 14.127) -->
+      <if locator="column" variable="archive archive_location"/>
+      <else-if locator="folio" variable="archive archive_location"/>
+      <else-if locator="page" variable="archive archive_location"/>
+      <else-if is-numeric="volume" locator="page">
         <group delimiter=":">
           <choose>
             <if match="none" variable="collection-editor part-number part-title volume-title">
@@ -2780,7 +2847,7 @@
           </choose>
           <text variable="locator"/>
         </group>
-      </if>
+      </else-if>
       <else-if variable="locator">
         <text macro="label-locator"/>
       </else-if>
@@ -2798,6 +2865,8 @@
           <text variable="page"/>
         </group>
       </else-if>
+      <!-- archival locators appear after the shelfmark (CMOS18 14.127) -->
+      <else-if variable="archive archive_location page"/>
       <else>
         <text variable="page"/>
       </else>
@@ -3042,7 +3111,7 @@
       </else-if>
       <else-if type="thesis">
         <!-- thesis type appears with university name (CMOS18 14.113) -->
-        <text macro="description-format-bib"/>
+        <text text-case="capitalize-first" variable="genre"/>
       </else-if>
       <else-if match="any" variable="original-publisher original-publisher-place">
         <choose>
@@ -3347,69 +3416,89 @@
   </macro>
   <!-- 4.9. Archival location -->
   <macro name="source-archive-bib">
-    <choose>
-      <!-- With `archive_collection` or `archive-place`: physical archives -->
-      <if type="graphic">
-        <text macro="source-archive-name-first"/>
-      </if>
-      <else-if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
-        <text macro="source-archive-place-first"/>
-      </else-if>
-      <!-- Without `archive_collection` or `archive-place`: digital archives (database and identifier) -->
-      <else>
-        <text macro="source-archive-identifier"/>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if type="graphic">
+          <text macro="source-archive-reference-institution-first"/>
+        </if>
+        <else>
+          <text macro="source-archive-reference-place-first"/>
+        </else>
+      </choose>
+      <text macro="source-archive-database-number" prefix="(" suffix=")"/>
+    </group>
   </macro>
   <macro name="source-archive-note">
-    <choose>
-      <!-- With `archive_collection` or `archive-place`: physical archives -->
-      <if type="graphic">
-        <text macro="source-archive-name-first"/>
-      </if>
-      <else-if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
-        <text macro="source-archive-place-first"/>
-      </else-if>
-      <!-- Without `archive_collection` or `archive-place`: digital archives (database and identifier) -->
-      <else>
-        <text macro="source-archive-identifier"/>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if type="graphic">
+          <text macro="source-archive-reference-institution-first"/>
+        </if>
+        <else>
+          <text macro="source-archive-reference-place-first"/>
+        </else>
+      </choose>
+      <text macro="source-archive-database-number" prefix="(" suffix=")"/>
+    </group>
   </macro>
   <!-- Archival elements -->
-  <macro name="source-archive-identifier">
+  <macro name="source-archive-database-number">
+    <!-- database identifier, if not included elsewhere (CMOS18 14.113) -->
     <choose>
-      <if variable="archive archive_location">
-        <!-- database identifier: the only example is `thesis`, but presumably this is for all types (CMOS18 14.113) -->
-        <group delimiter=" ">
-          <text variable="archive"/>
-          <text prefix="(" suffix=")" variable="archive_location"/>
-        </group>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <text variable="archive"/>
-          <text variable="archive_location"/>
-        </group>
-      </else>
+      <if match="any" variable="archive_collection archive_location archive-place"/>
+      <else-if type="thesis">
+        <text variable="number"/>
+      </else-if>
+      <else-if match="any" type="dataset entry song" variable="genre"/>
+      <else-if variable="archive">
+        <text variable="number"/>
+      </else-if>
     </choose>
   </macro>
-  <macro name="source-archive-name-first">
+  <macro name="source-archive-locator">
+    <choose>
+      <!-- physical locators with archival references appear after the shelfmark (CMOS18 14.127) -->
+      <if locator="column" variable="archive archive_location">
+        <!-- archival locators must always be labelled to avoid confusion with `archive_location` -->
+        <text macro="label-locator-all"/>
+      </if>
+      <else-if locator="folio" variable="archive archive_location">
+        <text macro="label-locator-all"/>
+      </else-if>
+      <else-if locator="page" variable="archive archive_location">
+        <text macro="label-locator-all"/>
+      </else-if>
+      <else-if variable="archive archive_location page">
+        <choose>
+          <if is-numeric="page">
+            <!-- TODO: remove this conditional when `page` parsing is fixed for different locator types -->
+            <text macro="label-page"/>
+          </if>
+          <else>
+            <text variable="page"/>
+          </else>
+        </choose>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="source-archive-reference-institution-first">
     <!-- Archive (gallery) name first for art (CMOS18 14.133) -->
     <group delimiter=", ">
       <text variable="archive"/>
       <text variable="archive-place"/>
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
+      <text macro="source-archive-locator"/>
     </group>
   </macro>
-  <macro name="source-archive-place-first">
-    <!-- Specified for citations of archives and manuscripts in collections outside North America (CMOS18 14.205) -->
+  <macro name="source-archive-reference-place-first">
+    <!-- For archives and manuscripts in collections outside North America (CMOS18 14.205) -->
     <group delimiter=", ">
       <text variable="archive-place"/>
       <text variable="archive"/>
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
+      <text macro="source-archive-locator"/>
     </group>
   </macro>
   <!-- 4.10. URL or persistent identifier -->
