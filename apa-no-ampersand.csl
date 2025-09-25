@@ -864,6 +864,12 @@
       <text macro="title-part"/>
     </group>
   </macro>
+  <macro name="title-and-volume-title">
+    <group delimiter=": ">
+      <text variable="title"/>
+      <text macro="title-volume"/>
+    </group>
+  </macro>
   <macro name="title-monographic">
     <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
     <choose>
@@ -872,10 +878,7 @@
       </if>
       <else>
         <!-- For monographic items without `container-title` and with `volume-title`, append `volume-title` to `title` (APA example 30) -->
-        <group delimiter=": " font-style="italic">
-          <text variable="title"/>
-          <text macro="title-volume"/>
-        </group>
+        <text font-style="italic" macro="title-and-volume-title"/>
       </else>
     </choose>
   </macro>
@@ -944,7 +947,6 @@
             <if match="none" variable="title">
               <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
               <text macro="identifier-contributors"/>
-              <text macro="identifier-database"/>
               <text macro="identifier-monographic"/>
             </if>
             <!-- If the report is a chapter in a larger report, then most identifying information is printed in the source. -->
@@ -954,7 +956,6 @@
             <else>
               <group delimiter="; ">
                 <text macro="identifier-contributors"/>
-                <text macro="identifier-database"/>
                 <text macro="identifier-number"/>
                 <text macro="identifier-monographic"/>
               </group>
@@ -965,7 +966,6 @@
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <group delimiter="; ">
             <text macro="identifier-contributors"/>
-            <text macro="identifier-database"/>
             <text macro="identifier-number"/>
             <text macro="identifier-monographic"/>
           </group>
@@ -990,7 +990,6 @@
         <else>
           <group delimiter="; ">
             <text macro="identifier-contributors"/>
-            <text macro="identifier-database"/>
             <text macro="identifier-number"/>
             <text macro="identifier-monographic"/>
             <text macro="identifier-part-serial"/>
@@ -1104,14 +1103,6 @@
         <label form="short" prefix=", " text-case="title"/>
       </names>
     </group>
-  </macro>
-  <macro name="identifier-database">
-    <choose>
-      <if match="none" variable="archive_collection archive-place">
-        <!-- With `archive_collection` or `archive-place`: physical archives. Without: online archives. -->
-        <text variable="archive_location"/>
-      </if>
-    </choose>
   </macro>
   <macro name="identifier-locators">
     <choose>
@@ -1777,7 +1768,6 @@
       <if variable="container-title">
         <group prefix="(" suffix=")">
           <group delimiter="; ">
-            <text macro="identifier-database"/>
             <choose>
               <if match="none" type="broadcast graphic map motion_picture">
                 <!-- For some audiovisual media, number information comes after `title`, not `container-title` (APA example 94); but an album track number is `chapter-number` -->
@@ -1841,35 +1831,25 @@
   <macro name="source-archive">
     <group delimiter=", ">
       <choose>
-        <if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
-          <!-- With `archive_collection` or `archive-place`: physical archives. -->
-          <!-- For physical archives, print the location before the archive name. -->
-          <choose>
-            <if variable="archive_collection">
-              <!-- With collection: `archive_collection` (`archive_location`), `archive`, `archive-place` -->
-              <group delimiter=" ">
-                <text variable="archive_collection"/>
-                <text prefix="(" suffix=")" variable="archive_location"/>
-              </group>
-              <text variable="archive"/>
-              <text variable="archive-place"/>
-            </if>
-            <else>
-              <!-- No collection: `archive` (`archive_location`), `archive-place` -->
-              <group delimiter=" ">
-                <text variable="archive"/>
-                <text prefix="(" suffix=")" variable="archive_location"/>
-              </group>
-              <text variable="archive-place"/>
-            </else>
-          </choose>
+        <if variable="archive_collection">
+          <!-- With collection: `archive_collection` (`archive_location`), `archive`, `archive-place` -->
+          <group delimiter=" ">
+            <text variable="archive_collection"/>
+            <text prefix="(" suffix=")" variable="archive_location"/>
+          </group>
+          <text variable="archive"/>
+          <text variable="archive-place"/>
         </if>
         <else>
-          <!-- Without `archive_collection` or `archive-place`: online archives. -->
-          <text variable="archive"/>
-          <!-- `archive_location` appears in `identifier-database` -->
+          <!-- No collection: `archive` (`archive_location`), `archive-place` -->
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text prefix="(" suffix=")" variable="archive_location"/>
+          </group>
+          <text variable="archive-place"/>
         </else>
       </choose>
+      <!-- a database identifier/number is stored in `number` and appears in `identifier-number` -->
     </group>
   </macro>
   <!-- 4.5. Works with specific locations (APA 9.31) -->
