@@ -20,7 +20,7 @@
     <category field="philosophy"/>
     <category field="theology"/>
     <summary>MHRA source citations, notes system</summary>
-    <updated>2025-05-19T00:00:00+00:00</updated>
+    <updated>2025-08-07T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -34,16 +34,12 @@
         <single>ed. and trans.</single>
         <multiple>eds and trans.</multiple>
       </term>
-      <term form="verb" name="editor-translator">edited and translated by</term>
-      <term form="verb" name="editortranslator">edited and translated by</term>
       <term form="verb-short" name="editor-translator">ed. and trans. by</term>
       <term form="verb-short" name="editortranslator">ed. and trans. by</term>
       <term name="et-al">and others</term>
       <term name="manuscript">unpublished manuscript</term>
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
-      <term name="review-of">review of the</term>
-      <term form="short" name="review-of">review of</term>
     </terms>
   </locale>
   <!-- Contents:
@@ -91,6 +87,32 @@
        : bill hearing legal_case legislation regulation treaty
   -->
   <!-- Variable labels -->
+  <macro name="label-chapter-number">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="chapter-number" type="song">
+          <text value="track"/>
+        </if>
+        <else-if is-numeric="chapter-number">
+          <label form="short" variable="chapter-number"/>
+        </else-if>
+      </choose>
+      <text variable="chapter-number"/>
+    </group>
+  </macro>
+  <macro name="label-chapter-number-long">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="chapter-number" type="song">
+          <text value="track"/>
+        </if>
+        <else-if is-numeric="chapter-number">
+          <label variable="chapter-number"/>
+        </else-if>
+      </choose>
+      <text variable="chapter-number"/>
+    </group>
+  </macro>
   <macro name="label-edition">
     <group delimiter=" ">
       <choose>
@@ -189,7 +211,7 @@
     <group delimiter=" ">
       <choose>
         <if is-numeric="number">
-          <text term="article-locator"/>
+          <text form="short" term="article-locator"/>
         </if>
       </choose>
       <text variable="number"/>
@@ -222,17 +244,6 @@
       <text variable="part-number"/>
     </group>
   </macro>
-  <macro name="label-part-number-roman">
-    <!-- label `part-number` by rendering it in Roman numerals -->
-    <choose>
-      <if is-numeric="part-number">
-        <number font-variant="small-caps" form="roman" variable="part-number"/>
-      </if>
-      <else>
-        <text variable="part-number"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="label-section">
     <group delimiter=" ">
       <choose>
@@ -247,14 +258,14 @@
     <group delimiter=" ">
       <choose>
         <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
-        <if variable="supplement-number volume-title">
+        <if is-numeric="supplement-number" variable="volume-title">
           <!-- if there is a volume title, it is already described as a supplement -->
           <text form="short" term="issue"/>
         </if>
-        <else-if type="periodical" variable="supplement-number title">
+        <else-if is-numeric="supplement-number" type="periodical" variable="title">
           <text form="short" term="issue"/>
         </else-if>
-        <else-if variable="supplement-number">
+        <else-if is-numeric="supplement-number">
           <text form="short" term="supplement"/>
         </else-if>
       </choose>
@@ -267,7 +278,7 @@
       <text variable="version"/>
     </group>
   </macro>
-  <macro name="label-volume-roman">
+  <macro name="label-volume">
     <!-- label a volume by rendering it in Roman numerals (MHRA 7.3) -->
     <choose>
       <if is-numeric="volume">
@@ -354,24 +365,14 @@
           </choose>
         </substitute>
       </names>
-      <choose>
-        <if match="none" variable="author"/>
-        <else-if match="any" type="classic song thesis"/>
-        <else-if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-          <!-- contributors immediately follow the main author (MHRA 7.9.v); assumed that this should appear with most bracketed types -->
-          <names variable="contributor">
-            <label form="verb" suffix=" "/>
-            <name/>
-          </names>
-        </else-if>
-      </choose>
+      <text macro="author-contributors"/>
     </group>
   </macro>
   <macro name="author-note">
     <group delimiter=", ">
       <names variable="composer">
         <name delimiter-precedes-last="contextual"/>
-        <label form="short" prefix=", "/>
+        <label form="short" prefix=" (" suffix=")"/>
         <substitute>
           <choose>
             <if variable="author interviewer">
@@ -384,7 +385,6 @@
             </if>
           </choose>
           <names variable="author"/>
-          <names variable="host"/>
           <names variable="illustrator"/>
           <choose>
             <if type="song">
@@ -398,24 +398,14 @@
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
-              <!-- `standard` listed in bibliography under organization, but note omits this (CMOS18 14.159) -->
+              <!-- `standard` listed in bibliography under organization, but note omits this (cf. CMOS18 14.159) -->
               <text variable="authority"/>
             </else-if>
           </choose>
           <text macro="author-review-unsigned"/>
         </substitute>
       </names>
-      <choose>
-        <if match="none" variable="author"/>
-        <else-if match="any" type="classic thesis"/>
-        <else-if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-          <!-- contributors immediately follow the main author (MHRA 7.9.v); assumed that this should appear with most bracketed types -->
-          <names variable="contributor">
-            <label form="verb" suffix=" "/>
-            <name/>
-          </names>
-        </else-if>
-      </choose>
+      <text macro="author-contributors"/>
     </group>
   </macro>
   <macro name="author-short">
@@ -451,7 +441,7 @@
                 <text variable="publisher"/>
               </if>
               <else-if type="standard">
-                <!-- `standard` listed in bibliography under organization, but note omits this (CMOS18 14.159) -->
+                <!-- `standard` listed in bibliography under organization, but note omits this (cf. CMOS18 14.159) -->
                 <text variable="authority"/>
               </else-if>
             </choose>
@@ -470,6 +460,19 @@
     </choose>
   </macro>
   <!-- Author elements -->
+  <macro name="author-contributors">
+    <!-- contributors immediately follow the main author (MHRA 7.9.v); assumed that this should appear with most bracketed types -->
+    <choose>
+      <if match="none" variable="author composer interviewer performer"/>
+      <else-if match="any" type="classic thesis"/>
+      <else-if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
+        <names variable="contributor">
+          <label form="verb" suffix=" "/>
+          <name/>
+        </names>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="author-short-and-recipient">
     <group delimiter=" ">
       <choose>
@@ -596,112 +599,76 @@
         <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="event-date">
-        <date date-parts="year" form="text" variable="event-date"/>
+        <text macro="date-event-year"/>
       </else-if>
       <else-if variable="status">
         <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
         <text text-case="lowercase" variable="status"/>
         <text prefix="-" variable="year-suffix"/>
       </else-if>
-      <else>
+      <else-if match="any" type="interview personal_communication">
         <choose>
-          <if match="any" type="interview personal_communication">
-            <choose>
-              <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- only give n.d. for accessible personal communication (cf. CMOS18 14.111)-->
-                <text form="short" term="no date"/>
-              </if>
-            </choose>
-            <text prefix="-" variable="year-suffix"/>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- only give n.d. for accessible personal communication (cf. CMOS18 14.111)-->
+            <text form="short" term="no date"/>
           </if>
-          <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
-            <!-- do not give n.d. for archival collections (cf. CMOS18 14.128), `classic` (cf. 14.143), or reference entries (cf. 14.131) -->
-            <text prefix="-" variable="year-suffix"/>
-          </else-if>
-          <else-if type="manuscript">
-            <!-- do not give n.d. with a bare shelfmark -->
-            <choose>
-              <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
-                <text form="short" term="no date"/>
-                <text prefix="-" variable="year-suffix"/>
-              </if>
-            </choose>
-          </else-if>
-          <else>
+        </choose>
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
+        <!-- do not give n.d. for archival collections (cf. CMOS18 14.128), `classic` (cf. 14.143), or reference entries (cf. 14.131) -->
+        <text prefix="-" variable="year-suffix"/>
+      </else-if>
+      <else-if type="manuscript">
+        <!-- do not give n.d. with a bare shelfmark -->
+        <choose>
+          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
             <text form="short" term="no date"/>
             <text prefix="-" variable="year-suffix"/>
-          </else>
-        </choose>
-      </else>
-    </choose>
-  </macro>
-  <macro name="date-sort">
-    <!-- Sort items by issue date as printed by `source-date-issued-day-month` macro -->
-    <choose>
-      <if type="personal_communication" variable="event-date issued">
-        <date date-parts="year" form="text" variable="event-date"/>
-      </if>
-      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <choose>
-          <if variable="volume">
-            <text macro="date-issued-leading-zeros-year-month"/>
           </if>
-          <else>
-            <text macro="date-issued-leading-zeros-full"/>
-          </else>
         </choose>
-      </else-if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <!-- serial usage -->
-            <choose>
-              <if variable="volume">
-                <text macro="date-issued-leading-zeros-year-month"/>
-              </if>
-              <else>
-                <text macro="date-issued-leading-zeros-full"/>
-              </else>
-            </choose>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-        <choose>
-          <if match="any" variable="DOI URL">
-            <text macro="date-issued-leading-zeros-full"/>
-          </if>
-          <else>
-            <date date-parts="year" form="text" variable="issued"/>
-          </else>
-        </choose>
-      </else-if>
-      <else-if match="any" type="article broadcast collection dataset document event graphic interview manuscript map patent performance personal_communication post software speech standard webpage">
-        <text macro="date-issued-leading-zeros-full"/>
       </else-if>
       <else>
-        <date date-parts="year" form="text" variable="issued"/>
+        <text form="short" term="no date"/>
+        <text prefix="-" variable="year-suffix"/>
       </else>
     </choose>
   </macro>
   <!-- Date elements -->
+  <macro name="date-event-full">
+    <choose>
+      <if is-uncertain-date="issued">
+        <date form="text" prefix="[" suffix="?]" variable="event-date"/>
+      </if>
+      <else>
+        <date form="text" variable="event-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-event-year">
+    <choose>
+      <if is-uncertain-date="issued">
+        <date date-parts="year" form="text" prefix="[" suffix="?]" variable="event-date"/>
+      </if>
+      <else>
+        <date date-parts="year" form="text" variable="event-date"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="date-issued-full">
     <choose>
       <if is-uncertain-date="issued">
         <choose>
-          <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-            <!-- use a form such as [1787?] for uncertain dates with published items, interpreted as being equivalent to types with bracketed details of publication (MHRA 7.3) -->
-            <date form="text" prefix="[" suffix="?]" variable="issued"/>
-          </if>
-          <else>
-            <!-- 'c.' for types with unbracketed details of publication (MHRA 7.9.i) -->
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
             <group delimiter=" ">
               <text font-style="italic" form="short" term="circa"/>
               <date form="text" variable="issued"/>
             </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date form="text" prefix="[" suffix="?]" variable="issued"/>
           </else>
         </choose>
       </if>
@@ -710,33 +677,20 @@
       </else>
     </choose>
   </macro>
-  <macro name="date-issued-leading-zeros-full">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-      <date-part form="numeric-leading-zeros" name="day"/>
-    </date>
-  </macro>
-  <macro name="date-issued-leading-zeros-year-month">
-    <date delimiter="-" variable="issued">
-      <date-part name="year"/>
-      <date-part form="numeric-leading-zeros" name="month"/>
-    </date>
-  </macro>
   <macro name="date-issued-year">
     <choose>
       <if is-uncertain-date="issued">
         <choose>
-          <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-            <!-- use a form such as [1787?] for uncertain dates with published items, interpreted as being equivalent to types with bracketed details of publication (MHRA 7.3) -->
-            <date date-parts="year" form="text" prefix="[" suffix="?]" variable="issued"/>
-          </if>
-          <else>
-            <!-- 'c.' for types with unbracketed details of publication (MHRA 7.9.i) -->
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
             <group delimiter=" ">
               <text font-style="italic" form="short" term="circa"/>
               <date date-parts="year" form="text" variable="issued"/>
             </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date date-parts="year" form="text" prefix="[" suffix="?]" variable="issued"/>
           </else>
         </choose>
       </if>
@@ -745,20 +699,42 @@
       </else>
     </choose>
   </macro>
+  <macro name="date-issued-year-month">
+    <choose>
+      <if is-uncertain-date="issued">
+        <choose>
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
+            <group delimiter=" ">
+              <text font-style="italic" form="short" term="circa"/>
+              <date date-parts="year-month" form="text" variable="issued"/>
+            </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date date-parts="year-month" form="text" prefix="[" suffix="?]" variable="issued"/>
+          </else>
+        </choose>
+      </if>
+      <else>
+        <date date-parts="year-month" form="text" variable="issued"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="date-original-full">
     <choose>
       <if is-uncertain-date="original-date">
         <choose>
-          <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-            <!-- use a form such as [1787?] for uncertain dates with published items, interpreted as being equivalent to types with bracketed details of publication (MHRA 7.3) -->
-            <date form="text" prefix="[" suffix="?]" variable="original-date"/>
-          </if>
-          <else>
-            <!-- 'c.' for types with unbracketed details of publication (MHRA 7.9.i) -->
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
             <group delimiter=" ">
               <text font-style="italic" form="short" term="circa"/>
               <date form="text" variable="original-date"/>
             </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date form="text" prefix="[" suffix="?]" variable="original-date"/>
           </else>
         </choose>
       </if>
@@ -771,21 +747,43 @@
     <choose>
       <if is-uncertain-date="original-date">
         <choose>
-          <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis">
-            <!-- use a form such as [1787?] for uncertain dates with published items, interpreted as being equivalent to types with bracketed details of publication (MHRA 7.3) -->
-            <date date-parts="year" form="text" prefix="[" suffix="?]" variable="original-date"/>
-          </if>
-          <else>
-            <!-- 'c.' for types with unbracketed details of publication (MHRA 7.9.i) -->
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
             <group delimiter=" ">
               <text font-style="italic" form="short" term="circa"/>
               <date date-parts="year" form="text" variable="original-date"/>
             </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date date-parts="year" form="text" prefix="[" suffix="?]" variable="original-date"/>
           </else>
         </choose>
       </if>
       <else>
         <date date-parts="year" form="text" variable="original-date"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="date-original-year-month">
+    <choose>
+      <if is-uncertain-date="original-date">
+        <choose>
+          <if type="graphic">
+            <!-- artwork exceptionally uses 'c.' with uncertain dates (MHRA 7.9.i) -->
+            <group delimiter=" ">
+              <text font-style="italic" form="short" term="circa"/>
+              <date date-parts="year-month" form="text" variable="original-date"/>
+            </group>
+          </if>
+          <else>
+            <!-- uncertain dates are presumably bracketed for other types (MHRA 7.3) -->
+            <date date-parts="year-month" form="text" prefix="[" suffix="?]" variable="original-date"/>
+          </else>
+        </choose>
+      </if>
+      <else>
+        <date date-parts="year-month" form="text" variable="original-date"/>
       </else>
     </choose>
   </macro>
@@ -800,6 +798,8 @@
         </if>
         <else>
           <text macro="description"/>
+          <!-- for author-date: -->
+          <!-- <text macro="description-capitalized"/> -->
           <text macro="identifier"/>
         </else>
       </choose>
@@ -876,7 +876,7 @@
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text macro="title-serial"/>
+        <text macro="title-and-part-filter-review"/>
       </else-if>
       <else-if match="any" type="interview paper-conference">
         <choose>
@@ -886,7 +886,7 @@
           </if>
           <else>
             <!-- serial usage -->
-            <text macro="title-serial"/>
+            <text macro="title-and-part-filter-review"/>
           </else>
         </choose>
       </else-if>
@@ -949,42 +949,54 @@
     <group delimiter=", ">
       <text macro="title-primary"/>
       <group delimiter=", ">
-        <text macro="label-part-number-roman"/>
+        <text macro="label-part-number"/>
         <text macro="title-part"/>
       </group>
     </group>
   </macro>
   <macro name="title-part">
     <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <text quotes="true" text-case="title" variable="part-title"/>
+      <if type="patent">
+        <!-- No italics or quotes, sentence case -->
+        <text form="short" text-case="capitalize-first" variable="part-title"/>
       </if>
-      <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <!-- monographic usage -->
-            <text font-style="italic" text-case="title" variable="part-title"/>
-          </if>
-          <else>
-            <!-- serial usage -->
-            <text quotes="true" text-case="title" variable="part-title"/>
-          </else>
-        </choose>
+      <else-if match="any" type="bill collection legislation regulation treaty">
+        <!-- No italics or quotes, title case -->
+        <text text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="book classic graphic hearing map periodical">
+        <!-- Italicized, title case (regardless of `container-title`) -->
+        <text font-style="italic" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="author container-title">
+        <!-- Signed encyclopedia entry in quotes, title case (cf. CMOS18 14.132) -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-dictionary" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" variable="container-title">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="post">
+        <!-- Quotes, sentence case -->
+        <text quotes="true" variable="part-title"/>
+      </else-if>
+      <!-- Other types are formatted based on presence of `container-title` -->
+      <else-if variable="container-title">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
+      </else-if>
+      <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
+        <!-- Container-like but not necessarily with `container-title` -->
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <else>
+        <!-- Italicized, title case (default) -->
         <text font-style="italic" text-case="title" variable="part-title"/>
-      </else>
-    </choose>
-  </macro>
-  <macro name="title-serial">
-    <!-- For serials, assume that `part-number` and `part-title` refer to the article and append to `title` -->
-    <choose>
-      <if variable="container-title">
-        <text macro="title-and-part-filter-review"/>
-      </if>
-      <else>
-        <!-- for serial items without `container-title`, don't append `volume-title` to `title` -->
-        <text macro="title-and-part-filter-review"/>
       </else>
     </choose>
   </macro>
@@ -1080,6 +1092,19 @@
       </else>
     </choose>
   </macro>
+  <macro name="title-volume">
+    <group delimiter=", ">
+      <group delimiter=", ">
+        <text macro="label-volume"/>
+        <text font-style="italic" text-case="title" variable="volume-title"/>
+      </group>
+      <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
+      <group delimiter=", ">
+        <text macro="label-part-number"/>
+        <text macro="title-part"/>
+      </group>
+    </group>
+  </macro>
   <!-- 3.2. Description -->
   <macro name="description">
     <choose>
@@ -1169,6 +1194,10 @@
           </else>
         </choose>
       </else-if>
+      <else-if variable="chapter-number title"/>
+      <else-if variable="chapter-number">
+        <text macro="label-chapter-number-long"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="description-format-short">
@@ -1194,6 +1223,9 @@
             <text form="short" term="personal-communication"/>
           </if>
         </choose>
+      </else-if>
+      <else-if variable="chapter-number">
+        <text macro="label-chapter-number"/>
       </else-if>
     </choose>
   </macro>
@@ -1358,7 +1390,7 @@
             </else>
           </choose>
           <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
+          <text macro="date-event-full"/>
         </group>
       </if>
       <else>
@@ -1384,7 +1416,7 @@
         </else>
       </choose>
       <text variable="event-place"/>
-      <date form="text" variable="event-date"/>
+      <text macro="date-event-full"/>
     </group>
   </macro>
   <macro name="description-paper-conference">
@@ -1403,58 +1435,41 @@
     </choose>
   </macro>
   <macro name="description-review">
-    <!-- Reviewed item -->
     <group delimiter=", ">
       <group delimiter=" ">
-        <text macro="description-review-genre"/>
         <choose>
-          <if variable="reviewed-author reviewed-genre">
-            <text form="verb-short" term="reviewed-author"/>
+          <if variable="genre">
+            <!-- assume that `genre` is entered as 'Review of the book' or similar -->
+            <text variable="genre"/>
           </if>
+          <else>
+            <text term="review-of"/>
+          </else>
         </choose>
         <group delimiter=", ">
           <names variable="reviewed-author"/>
-          <group delimiter=" ">
-            <text macro="description-review-title"/>
-            <text macro="source-event-place-first" prefix="(" suffix=")"/>
-          </group>
+          <text macro="description-review-title"/>
+          <text variable="reviewed-genre"/>
         </group>
+        <text macro="source-event-place-first" prefix="(" suffix=")"/>
       </group>
       <text macro="label-section"/>
     </group>
   </macro>
-  <macro name="description-review-genre">
-    <choose>
-      <if variable="reviewed-genre">
-        <group delimiter=" ">
-          <text term="review-of"/>
-          <text variable="reviewed-genre"/>
-          <choose>
-            <if match="none" variable="reviewed-title">
-              <names variable="reviewed-author">
-                <label form="verb-short" suffix=" "/>
-                <name/>
-              </names>
-            </if>
-          </choose>
-        </group>
-      </if>
-      <else-if variable="number">
-        <text form="short" term="review-of"/>
-      </else-if>
-      <!-- If no `reviewed-genre`, assume that `genre` is entered as 'Review of the book' or similar -->
-      <else-if variable="genre">
-        <text variable="genre"/>
-      </else-if>
-      <else>
-        <text form="short" term="review-of"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text form="short" term="review-of"/>
-      <text macro="description-review-title-short"/>
+      <text term="review-of"/>
+      <choose>
+        <if match="any" variable="reviewed-genre reviewed-title">
+          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+          <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
+        </if>
+        <else>
+          <!-- Assume title is title of reviewed work -->
+          <text font-style="italic" form="short" text-case="title" variable="title"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="description-review-title">
@@ -1470,27 +1485,9 @@
       </else>
     </choose>
   </macro>
-  <macro name="description-review-title-short">
-    <choose>
-      <if match="any" variable="reviewed-genre reviewed-title">
-        <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
-        <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
-        <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
-      </if>
-      <else>
-        <!-- Assume title is title of reviewed work -->
-        <text font-style="italic" form="short" text-case="title" variable="title"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="description-serial">
     <group delimiter=", ">
-      <choose>
-        <if match="none" type="periodical" variable="volume-title">
-          <!-- move `genre` with special issue (cf. CMOS18 14.77) or supplement (cf. CMOS18 14.78) -->
-          <text macro="description-format"/>
-        </if>
-      </choose>
+      <text macro="description-format"/>
       <!-- `section` provides magazine departments (cf. CMOS18 14.88) and newspaper column names (cf. CMOS18 14.93) -->
       <text macro="label-section"/>
     </group>
@@ -1629,12 +1626,12 @@
               <label form="verb-short" suffix=" "/>
               <name/>
             </names>
-            <names variable="guest">
-              <label form="verb" suffix=" "/>
-              <name/>
-            </names>
             <names variable="host">
               <label form="verb-short" suffix=" "/>
+              <name/>
+            </names>
+            <names variable="guest">
+              <label form="verb" suffix=" "/>
               <name/>
             </names>
             <names delimiter=", " variable="illustrator narrator">
@@ -1694,12 +1691,12 @@
                   <label form="verb-short" suffix=" "/>
                   <name/>
                 </names>
-                <names variable="guest">
-                  <label form="verb" suffix=" "/>
-                  <name/>
-                </names>
                 <names variable="host">
                   <label form="verb-short" suffix=" "/>
+                  <name/>
+                </names>
+                <names variable="guest">
+                  <label form="verb" suffix=" "/>
                   <name/>
                 </names>
               </if>
@@ -1876,21 +1873,6 @@
       </choose>
     </group>
   </macro>
-  <macro name="identifier-volume">
-    <group delimiter=", ">
-      <text macro="label-volume-roman"/>
-      <text font-style="italic" text-case="title" variable="volume-title"/>
-      <choose>
-        <if variable="part-number volume">
-          <text macro="label-part-number"/>
-        </if>
-        <else>
-          <text macro="label-part-number-roman"/>
-        </else>
-      </choose>
-      <text font-style="italic" text-case="title" variable="part-title"/>
-    </group>
-  </macro>
   <!-- 4. Source -->
   <macro name="source">
     <group delimiter=", ">
@@ -1942,7 +1924,9 @@
     <group delimiter=" ">
       <choose>
         <!-- Journal special issues and supplements (MHRA 7.4) -->
-        <if variable="collection-title supplement-number"/>
+        <if match="none" variable="container-title"/>
+        <else-if match="none" type="periodical" variable="supplement-number volume-title"/>
+        <!-- TODO: use `container-genre` here once available to allow a custom description of the journal volume -->
         <else-if variable="supplement-number volume-title">
           <text term="supplement"/>
           <text value="to"/>
@@ -1951,18 +1935,12 @@
           <text term="supplement"/>
           <text value="to"/>
         </else-if>
-        <else-if match="any" type="periodical" variable="volume-title">
-          <choose>
-            <if variable="genre">
-              <text variable="genre"/>
-            </if>
-            <else-if variable="volume-title">
-              <text term="special-issue"/>
-            </else-if>
-            <else-if type="periodical" variable="editor title">
-              <text term="special-issue"/>
-            </else-if>
-          </choose>
+        <else-if variable="volume-title">
+          <text term="special-issue"/>
+          <text value="of"/>
+        </else-if>
+        <else-if type="periodical" variable="title">
+          <text term="special-issue"/>
           <text value="of"/>
         </else-if>
       </choose>
@@ -2088,7 +2066,7 @@
               <text macro="source-monographic-preposition"/>
               <group delimiter=", ">
                 <names variable="container-author"/>
-                <text macro="source-monographic-title"/>
+                <text font-style="italic" text-case="title" variable="container-title"/>
               </group>
             </group>
             <text macro="source-monographic-description"/>
@@ -2103,19 +2081,30 @@
       <text macro="label-number-of-volumes"/>
     </group>
   </macro>
-  <!-- Monographic source title -->
   <macro name="source-monographic-preposition">
-    <choose>
-      <if type="song">
-        <text term="from"/>
-      </if>
-      <else-if match="none" type="broadcast entry entry-dictionary entry-encyclopedia motion_picture">
-        <text term="in"/>
-      </else-if>
-    </choose>
-  </macro>
-  <macro name="source-monographic-title">
-    <text font-style="italic" text-case="title" variable="container-title"/>
+    <!-- MHRA does not define how to display a chapter number; this macro is based on CMOS -->
+    <group delimiter=" ">
+      <choose>
+        <if match="any" type="broadcast entry entry-dictionary entry-encyclopedia motion_picture"/>
+        <else-if type="song" variable="chapter-number title">
+          <text macro="label-chapter-number"/>
+          <text term="from"/>
+        </else-if>
+        <else-if type="song" variable="title">
+          <text term="from"/>
+        </else-if>
+        <else-if variable="chapter-number page title">
+          <text term="in"/>
+        </else-if>
+        <else-if variable="chapter-number title">
+          <text macro="label-chapter-number"/>
+          <text term="in"/>
+        </else-if>
+        <else>
+          <text term="in"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <!-- Monographic source description -->
   <macro name="source-monographic-description">
@@ -2190,12 +2179,12 @@
         <label form="verb-short" suffix=" "/>
         <name/>
       </names>
-      <names variable="guest">
-        <label form="verb" suffix=" "/>
-        <name/>
-      </names>
       <names variable="host">
         <label form="verb-short" suffix=" "/>
+        <name/>
+      </names>
+      <names variable="guest">
+        <label form="verb" suffix=" "/>
         <name/>
       </names>
       <names delimiter=", " variable="chair organizer">
@@ -2260,7 +2249,7 @@
   <macro name="source-monographic-locator-volume">
     <group delimiter=" ">
       <group delimiter=", ">
-        <text macro="identifier-volume"/>
+        <text macro="title-volume"/>
         <choose>
           <if type="broadcast">
             <text macro="identifier-number"/>
@@ -2279,15 +2268,16 @@
           </else-if>
         </choose>
       </group>
+      <!-- remove volume `issued` date from this position in author-date -->
       <choose>
         <if variable="available-date issued volume">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
+          <text macro="date-issued-year" prefix="(" suffix=")"/>
         </if>
         <else-if variable="available-date issued part-number">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
+          <text macro="date-issued-year" prefix="(" suffix=")"/>
         </else-if>
         <else-if type="broadcast" variable="available-date issued number">
-          <date date-parts="year" form="text" prefix="(" suffix=")" variable="issued"/>
+          <text macro="date-issued-year" prefix="(" suffix=")"/>
         </else-if>
       </choose>
     </group>
@@ -2337,7 +2327,7 @@
         <group delimiter=", ">
           <text variable="event-title"/>
           <text variable="event-place"/>
-          <date form="text" variable="event-date"/>
+          <text macro="date-event-full"/>
         </group>
       </if>
     </choose>
@@ -2395,7 +2385,7 @@
   <macro name="source-event-description">
     <group delimiter=", ">
       <text macro="source-event-title"/>
-      <date form="text" variable="event-date"/>
+      <text macro="date-event-full"/>
       <text variable="event-place"/>
     </group>
   </macro>
@@ -2407,10 +2397,10 @@
         <text variable="event-place"/>
         <choose>
           <if variable="event-date">
-            <date form="text" variable="event-date"/>
+            <text macro="date-event-full"/>
           </if>
           <else>
-            <date form="text" variable="issued"/>
+            <text macro="date-issued-full"/>
           </else>
         </choose>
       </group>
@@ -2490,45 +2480,43 @@
     <!-- mirrors `source-monographic-publication-bracketed` -->
     <choose>
       <if disambiguate="true">
-        <group prefix="(" suffix=")">
-          <group delimiter=", ">
-            <choose>
-              <!-- Facts of publication with brackets for print monographic formats -->
-              <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher"/>
-                  </if>
-                </choose>
-                <text macro="source-date"/>
-              </if>
-              <else-if type="article" variable="genre publisher">
-                <!-- without brackets for a preprint in a repository (cf. CMOS18 14.76), with brackets for a working paper (cf. CMOS18 14.116) -->
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher"/>
-                  </if>
-                </choose>
-                <text macro="source-date"/>
-              </else-if>
-              <else-if type="motion_picture" variable="publisher">
-                <choose>
-                  <if disambiguate="true">
-                    <text macro="source-publication-publisher"/>
-                  </if>
-                </choose>
-                <text macro="source-date"/>
-              </else-if>
-              <else-if type="personal_communication">
-                <choose>
-                  <if match="any" variable="collection-editor compiler editor editorial-director publisher">
-                    <!-- in an edited collection -->
-                    <text macro="source-date"/>
-                  </if>
-                </choose>
-              </else-if>
-            </choose>
-          </group>
+        <group delimiter=", " prefix="(" suffix=")">
+          <choose>
+            <!-- Facts of publication with brackets for print monographic formats -->
+            <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
+              <choose>
+                <if disambiguate="true">
+                  <text macro="source-publication-publisher"/>
+                </if>
+              </choose>
+              <text macro="source-date"/>
+            </if>
+            <else-if type="article" variable="genre publisher">
+              <!-- without brackets for a preprint in a repository (cf. CMOS18 14.76), with brackets for a working paper (cf. CMOS18 14.116) -->
+              <choose>
+                <if disambiguate="true">
+                  <text macro="source-publication-publisher"/>
+                </if>
+              </choose>
+              <text macro="source-date"/>
+            </else-if>
+            <else-if type="motion_picture" variable="publisher">
+              <choose>
+                <if disambiguate="true">
+                  <text macro="source-publication-publisher"/>
+                </if>
+              </choose>
+              <text macro="source-date"/>
+            </else-if>
+            <else-if type="personal_communication">
+              <choose>
+                <if match="any" variable="collection-editor compiler editor editorial-director publisher">
+                  <!-- in an edited collection -->
+                  <text macro="source-date"/>
+                </if>
+              </choose>
+            </else-if>
+          </choose>
         </group>
       </if>
     </choose>
@@ -2664,6 +2652,13 @@
         <if type="thesis" variable="publisher">
           <text variable="publisher"/>
         </if>
+        <else-if type="motion_picture" variable="publisher-place">
+          <!-- prioritize the country of origin for films (MHRA 7.8) -->
+          <text variable="publisher-place"/>
+        </else-if>
+        <else-if type="motion_picture" variable="event-place">
+          <text variable="event-place"/>
+        </else-if>
         <else-if variable="publisher">
           <group delimiter=": ">
             <!-- <text variable="publisher-place"/> -->
@@ -2756,7 +2751,7 @@
         <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="event-date">
-        <date date-parts="year" form="text" variable="event-date"/>
+        <text macro="date-event-year"/>
       </else-if>
     </choose>
   </macro>
@@ -2766,10 +2761,10 @@
         <text macro="date-issued-full"/>
       </if>
       <else-if match="any" variable="supplement-number volume">
-        <date date-parts="year" form="text" variable="issued"/>
+        <text macro="date-issued-year"/>
       </else-if>
       <else-if variable="issue">
-        <date date-parts="year-month" form="text" variable="issued"/>
+        <text macro="date-issued-year-month"/>
       </else-if>
       <else>
         <text macro="date-issued-full"/>
@@ -2860,10 +2855,10 @@
         <text macro="date-original-full"/>
       </if>
       <else-if match="any" variable="supplement-number volume">
-        <date date-parts="year" form="text" variable="original-date"/>
+        <text macro="date-original-year"/>
       </else-if>
       <else-if variable="issue">
-        <date date-parts="year-month" form="text" variable="original-date"/>
+        <text macro="date-original-year-month"/>
       </else-if>
       <else>
         <text macro="date-original-full"/>
@@ -2916,15 +2911,8 @@
           <text macro="label-locator"/>
         </if>
         <else>
-          <text macro="label-volume-roman"/>
-          <choose>
-            <if variable="part-number volume">
-              <text macro="label-part-number"/>
-            </if>
-            <else>
-              <text macro="label-part-number-roman"/>
-            </else>
-          </choose>
+          <text macro="label-volume"/>
+          <text macro="label-part-number"/>
           <text macro="label-locator"/>
         </else>
       </choose>
@@ -2932,7 +2920,7 @@
   </macro>
   <macro name="source-locator-subsequent-serial">
     <group delimiter=", ">
-      <text macro="label-part-number-roman"/>
+      <text macro="label-part-number"/>
       <text macro="label-locator"/>
     </group>
   </macro>
@@ -2994,22 +2982,6 @@
     </choose>
   </macro>
   <!-- Citation -->
-  <macro name="citation-notes-full-subsequent-author-title">
-    <choose>
-      <if position="subsequent">
-        <group delimiter=", ">
-          <text macro="citation-notes-shortened-author-title-item"/>
-          <text macro="source-locator-subsequent"/>
-        </group>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <text macro="author-note"/>
-          <text macro="title-and-source"/>
-        </group>
-      </else>
-    </choose>
-  </macro>
   <macro name="citation-notes-shortened-author-title-item">
     <group delimiter=" ">
       <group delimiter=", ">
@@ -3056,7 +3028,20 @@
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true">
     <layout delimiter="; " suffix=".">
-      <text macro="citation-notes-full-subsequent-author-title"/>
+      <choose>
+        <if position="subsequent">
+          <group delimiter=", ">
+            <text macro="citation-notes-shortened-author-title-item"/>
+            <text macro="source-locator-subsequent"/>
+          </group>
+        </if>
+        <else>
+          <group delimiter=", ">
+            <text macro="author-note"/>
+            <text macro="title-and-source"/>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <!-- Bibliography -->
@@ -3069,59 +3054,58 @@
       <text variable="references"/>
     </group>
   </macro>
-  <macro name="bibliography-filtered-notes">
-    <!-- MHRA does not provide specific guidance on excluding citations from the bibliography (MHRA 8.3), but this seems to be the intent, as some of its examples are only usable in a note; this macro follows guidance in NHR and CMOS. -->
-    <choose>
-      <if type="classic">
-        <choose>
-          <if match="any" variable="archive editor translator publisher">
-            <text macro="bibliography-notes"/>
-          </if>
-        </choose>
-      </if>
-      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-        <choose>
-          <if variable="author">
-            <!-- Only signed reference entries appear in the bibliography: the MHRA model for an unsigned entry is only usable as a note (MHRA 7.5.ix) -->
-            <text macro="bibliography-notes"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if match="any" type="interview personal_communication">
-        <!-- Personal communications only appear in the bibliography if the reader can retrieve them (cf. MHRA 7.11, NHR 17.3.2, CMOS18 14.13, 14.111) -->
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <text macro="bibliography-notes"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if match="any" type="document manuscript paper-conference speech">
-        <!-- In note styles, the bibliography also omits inaccessible manuscripts (cf. CMOS18 14.114), conference papers (cf. CMOS18 14.115), and private documents (cf. CMOS18 14.118) -->
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <text macro="bibliography-notes"/>
-          </if>
-        </choose>
-      </else-if>
-      <!-- social media content usually omitted from the bibliography (cf. CMOS18 14.106) -->
-      <else-if type="post"/>
-      <else>
-        <text macro="bibliography-notes"/>
-      </else>
-    </choose>
-  </macro>
   <bibliography hanging-indent="true" subsequent-author-substitute="&#8212;&#8212;" subsequent-author-substitute-rule="partial-first">
     <sort>
       <key macro="author-bib"/>
-      <key macro="title"/>
+      <key macro="title-and-descriptions"/>
+      <key macro="source"/>
       <key variable="volume"/>
       <key variable="part-number"/>
-      <key macro="date-sort"/>
-      <key variable="status"/>
+      <key variable="event-date"/>
+      <key variable="original-date"/>
+      <key macro="source-date-issued-or-status"/>
       <key macro="source-archive"/>
     </sort>
     <layout>
-      <text macro="bibliography-filtered-notes"/>
+      <!-- MHRA (8.3) does not provide specific guidance on excluding citations from the bibliography, but this seems to be the intent, as some of its examples are only usable in a note; the following draws on guidance from New Hart's Rules and Chicago. -->
+      <choose>
+        <if type="classic">
+          <choose>
+            <if match="any" variable="archive editor translator publisher">
+              <text macro="bibliography-notes"/>
+            </if>
+          </choose>
+        </if>
+        <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+          <choose>
+            <if variable="author">
+              <!-- Only signed reference entries appear in the bibliography: the MHRA model for an unsigned entry is only usable as a note (MHRA 7.5.ix) -->
+              <text macro="bibliography-notes"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if match="any" type="interview personal_communication">
+          <!-- Personal communications only appear in the bibliography if the reader can retrieve them (cf. MHRA 7.11, NHR 17.3.2, CMOS18 14.13, 14.111) -->
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <text macro="bibliography-notes"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if match="any" type="document manuscript paper-conference speech">
+          <!-- In note styles, the bibliography also omits inaccessible manuscripts (cf. CMOS18 14.114), conference papers (cf. CMOS18 14.115), and private documents (cf. CMOS18 14.118) -->
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <text macro="bibliography-notes"/>
+            </if>
+          </choose>
+        </else-if>
+        <!-- social media content usually omitted from the bibliography (cf. CMOS18 14.106) -->
+        <else-if type="post"/>
+        <else>
+          <text macro="bibliography-notes"/>
+        </else>
+      </choose>
     </layout>
   </bibliography>
 </style>
