@@ -17,7 +17,7 @@
     <category field="social_science"/>
     <category field="humanities"/>
     <summary>This citation style for books and edited volumes of the publisher Barbar Budrich is based on the 'Style Sheet' for authors and editors from 2024 which is unfortunately not available from the publisher's website.</summary>
-    <updated>2025-09-17T17:09:01+00:00</updated>
+    <updated>2025-10-17T15:39:42+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -32,6 +32,16 @@
       <date-part name="year"/>
     </date>
   </locale>
+  <macro name="cite-locator">
+    <group delimiter=" ">
+      <choose>
+        <if match="none" locator="page">
+          <label variable="locator" form="short"/>
+        </if>
+      </choose>
+      <text variable="locator"/>
+    </group>
+  </macro>
   <macro name="creator-year-long">
     <group delimiter=" ">
       <names variable="author">
@@ -45,17 +55,11 @@
       <text macro="year" prefix="(" suffix=")"/>
     </group>
   </macro>
-  <macro name="editor-container-title">
-    <group delimiter=": ">
-      <text term="in" text-case="capitalize-first"/>
-      <group delimiter=": " suffix=".">
-        <names variable="editor">
-          <name delimiter="/" name-as-sort-order="all"/>
-          <label form="short" prefix=" (" suffix=")"/>
-        </names>
-        <text variable="container-title"/>
-      </group>
-    </group>
+  <macro name="editors">
+    <names variable="editor">
+      <name delimiter="/" name-as-sort-order="all"/>
+      <label form="short" prefix=" (" suffix=")"/>
+    </names>
   </macro>
   <macro name="publication-place-publisher">
     <group delimiter=": ">
@@ -106,11 +110,6 @@
       </group>
     </group>
   </macro>
-  <macro name="doi">
-    <group>
-      <text variable="DOI" prefix="DOI: "/>
-    </group>
-  </macro>
   <macro name="container-title-volume">
     <group delimiter=" ">
       <text variable="container-title"/>
@@ -149,74 +148,62 @@
       <key macro="creator-year-short"/>
     </sort>
     <layout>
-      <group delimiter=". " suffix=". ">
+      <group delimiter=". " suffix=".">
         <group delimiter=": ">
           <text macro="creator-year-long"/>
           <text variable="title"/>
         </group>
-      </group>
-      <choose>
-        <if type="book" match="any">
-          <group delimiter=". ">
-            <text macro="edition"/>
-            <text macro="publication-place-publisher"/>
-            <text macro="collection-title-number"/>
-            <text macro="doi"/>
-          </group>
-        </if>
-        <else-if type="article-journal article-magazine article-newspaper" match="any">
-          <group delimiter=", ">
-            <group delimiter=": ">
-              <text term="in" text-case="capitalize-first"/>
-              <text macro="container-title-volume"/>
-            </group>
+        <choose>
+          <if type="book" match="any">
             <group delimiter=". ">
-              <text macro="page-range"/>
-              <text macro="doi"/>
-            </group>
-          </group>
-        </else-if>
-        <else-if type="chapter" match="any">
-          <group delimiter=", ">
-            <group delimiter=". ">
-              <text macro="editor-container-title"/>
               <text macro="edition"/>
               <text macro="publication-place-publisher"/>
+              <text macro="collection-title-number"/>
               <text macro="doi"/>
             </group>
-          </group>
-        </else-if>
-        <else-if type="thesis">
-          <group delimiter=". ">
+          </if>
+          <else-if type="article-journal article-magazine article-newspaper" match="any">
+            <group delimiter=", ">
+              <group delimiter=": ">
+                <text term="in" text-case="capitalize-first"/>
+                <text macro="container-title-volume"/>
+              </group>
+              <text macro="page-range"/>
+            </group>
+            <text macro="doi"/>
+          </else-if>
+          <else-if type="chapter paper-conference" match="any">
+            <group delimiter=": ">
+              <text term="in" text-case="capitalize-first"/>
+              <text macro="editors"/>
+              <text variable="container-title"/>
+            </group>
+            <text macro="edition"/>
+            <text macro="publication-place-publisher"/>
+            <text macro="doi"/>
+          </else-if>
+          <else-if type="thesis">
             <text variable="genre" prefix=" "/>
             <text macro="publication-place-publisher"/>
             <text macro="doi"/>
-          </group>
-        </else-if>
-        <else-if type="manuscript">
-          <group delimiter=". ">
+          </else-if>
+          <else-if type="manuscript">
             <text variable="genre" prefix=" "/>
             <text macro="publication-place-publisher"/>
             <text macro="doi"/>
             <text macro="online-url"/>
-          </group>
-        </else-if>
-        <else>
-          <group delimiter=". ">
-            <choose>
-              <if match="any" variable="container-title">
-                <text macro="editor-container-title"/>
-              </if>
-            </choose>
+          </else-if>
+          <else>
+            <text variable="container-title"/>
             <text macro="publication-place-publisher"/>
             <text macro="page-range"/>
             <text macro="collection-title-number"/>
             <text macro="online-url"/>
             <text macro="page-range"/>
             <text macro="doi"/>
-          </group>
-        </else>
-      </choose>
+          </else>
+        </choose>
+      </group>
     </layout>
   </bibliography>
 </style>
