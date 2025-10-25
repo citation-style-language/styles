@@ -30,10 +30,6 @@
       <term name="open-inner-quote">‘</term>
       <term name="close-inner-quote">’</term>
       <term name="advance-online-publication">published online</term>
-      <term name="column">
-        <single>col.</single>
-        <multiple>cols.</multiple>
-      </term>
       <term form="short" name="editor-translator">
         <single>ed. and trans.</single>
         <multiple>eds and trans.</multiple>
@@ -44,10 +40,6 @@
       </term>
       <term form="verb-short" name="editor-translator">ed. and trans. by</term>
       <term form="verb-short" name="editortranslator">ed. and trans. by</term>
-      <term name="folio">
-        <single>fol.</single>
-        <multiple>fols.</multiple>
-      </term>
       <term name="manuscript">unpublished manuscript</term>
       <term name="original-work-published">originally published as</term>
       <term form="short" name="paper-conference">paper</term>
@@ -275,7 +267,7 @@
             </if>
           </choose>
           <choose>
-            <if type="classic">
+            <if match="any" type="classic document manuscript personal_communication">
               <names variable="author">
                 <name delimiter-precedes-et-al="after-inverted-name" delimiter-precedes-last="always" name-as-sort-order="first"/>
               </names>
@@ -363,9 +355,9 @@
             </if>
           </choose>
           <choose>
-            <if type="classic">
+            <if match="any" type="classic document manuscript personal_communication">
               <names variable="author">
-                <name delimiter-precedes-et-al="after-inverted-name" delimiter-precedes-last="always" name-as-sort-order="first"/>
+                <name initialize="false"/>
               </names>
             </if>
             <else>
@@ -831,21 +823,40 @@
   <macro name="title-and-source">
     <group delimiter=" ">
       <group delimiter=", ">
-        <choose>
-          <if type="chapter" variable="container-title genre">
-            <!-- MHRA does not cover introductions but NHR 18.2.6 suggests 'introduction in' (cf. CMOS18 14.12, 14.14, 'introduction to') -->
-            <group delimiter=" ">
-              <text macro="title-and-descriptions"/>
-              <text macro="source"/>
-            </group>
-          </if>
-          <else>
-            <text macro="title-and-descriptions"/>
-            <text macro="source"/>
-          </else>
-        </choose>
-        <text macro="source-monographic-publication-unbracketed"/>
-        <text macro="source-monographic-publication-bracketed"/>
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <choose>
+              <if type="chapter" variable="container-title genre">
+                <!-- MHRA does not cover introductions but NHR 18.2.6 suggests 'introduction in' (cf. CMOS18 14.12, 14.14, 'introduction to') -->
+                <group delimiter=" ">
+                  <text macro="title-and-descriptions"/>
+                  <text macro="source"/>
+                </group>
+              </if>
+              <else>
+                <text macro="title-and-descriptions"/>
+                <text macro="source"/>
+              </else>
+            </choose>
+            <text macro="source-monographic-publication-unbracketed"/>
+            <text macro="source-monographic-publication-bracketed"/>
+          </group>
+          <choose>
+            <!-- Series, for monographic types only -->
+            <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+            <else-if match="any" type="interview paper-conference">
+              <choose>
+                <if match="any" variable="collection-editor container-author editor editorial-director">
+                  <!-- monographic usage -->
+                  <text macro="source-series" prefix="(" suffix=")"/>
+                </if>
+              </choose>
+            </else-if>
+            <else>
+              <text macro="source-series" prefix="(" suffix=")"/>
+            </else>
+          </choose>
+        </group>
         <choose>
           <!-- Locator for monographic types only; serial locator handled in `source-serial-locator` -->
           <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
@@ -911,11 +922,11 @@
         <choose>
           <if variable="reviewed-genre title">
             <!-- Quotes, title case -->
-            <text form="short" quotes="true" text-case="title" variable="title"/>
+            <text form="short" quotes="true" variable="title"/>
           </if>
           <else-if variable="reviewed-genre reviewed-title title">
             <!-- Quotes, title case -->
-            <text form="short" quotes="true" text-case="title" variable="title"/>
+            <text form="short" quotes="true" variable="title"/>
           </else-if>
           <else>
             <text macro="description-short"/>
@@ -956,11 +967,11 @@
     <choose>
       <if type="patent">
         <!-- No italics or quotes, sentence case -->
-        <text form="short" text-case="capitalize-first" variable="part-title"/>
+        <text form="short" variable="part-title"/>
       </if>
       <else-if match="any" type="bill collection legislation regulation treaty">
         <!-- No italics or quotes, title case -->
-        <text text-case="title" variable="part-title"/>
+        <text variable="part-title"/>
       </else-if>
       <else-if match="any" type="book classic graphic hearing map periodical">
         <!-- Italicized, title case (regardless of `container-title`) -->
@@ -968,7 +979,7 @@
       </else-if>
       <else-if type="entry-encyclopedia" variable="author container-title">
         <!-- Signed encyclopedia entry in quotes, title case (cf. CMOS18 14.132) -->
-        <text quotes="true" text-case="title" variable="part-title"/>
+        <text quotes="true" variable="part-title"/>
       </else-if>
       <else-if type="entry-dictionary" variable="container-title">
         <!-- Quotes, sentence case -->
@@ -985,12 +996,12 @@
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
         <!-- Quotes, title case -->
-        <text quotes="true" text-case="title" variable="part-title"/>
+        <text quotes="true" variable="part-title"/>
       </else-if>
       <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
-        <text quotes="true" text-case="title" variable="part-title"/>
+        <text quotes="true" variable="part-title"/>
       </else-if>
       <else>
         <!-- Italicized, title case (default) -->
@@ -1002,11 +1013,11 @@
     <choose>
       <if type="patent">
         <!-- No italics or quotes, sentence case -->
-        <text form="short" text-case="capitalize-first" variable="title"/>
+        <text form="short" variable="title"/>
       </if>
       <else-if match="any" type="bill collection legislation regulation treaty">
         <!-- No italics or quotes, title case -->
-        <text text-case="title" variable="title"/>
+        <text variable="title"/>
       </else-if>
       <else-if match="any" type="book classic graphic hearing map periodical">
         <!-- Italicized, title case (regardless of `container-title`) -->
@@ -1014,7 +1025,7 @@
       </else-if>
       <else-if type="entry-encyclopedia" variable="author container-title">
         <!-- Signed encyclopedia entry in quotes, title case (cf. CMOS18 14.132) -->
-        <text quotes="true" text-case="title" variable="title"/>
+        <text quotes="true" variable="title"/>
       </else-if>
       <else-if type="entry-dictionary" variable="container-title">
         <!-- Quotes, sentence case -->
@@ -1031,12 +1042,12 @@
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
         <!-- Quotes, title case -->
-        <text quotes="true" text-case="title" variable="title"/>
+        <text quotes="true" variable="title"/>
       </else-if>
       <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
-        <text quotes="true" text-case="title" variable="title"/>
+        <text quotes="true" variable="title"/>
       </else-if>
       <else>
         <!-- Italicized, title case (default) -->
@@ -1048,11 +1059,11 @@
     <choose>
       <if type="patent">
         <!-- No italics or quotes, sentence case -->
-        <text form="short" text-case="capitalize-first" variable="title"/>
+        <text form="short" variable="title"/>
       </if>
       <else-if match="any" type="bill collection legislation regulation treaty">
         <!-- No italics or quotes, title case -->
-        <text form="short" text-case="title" variable="title"/>
+        <text form="short" variable="title"/>
       </else-if>
       <else-if match="any" type="book classic graphic hearing map periodical">
         <!-- Italicized, title case (regardless of `container-title`) -->
@@ -1060,7 +1071,7 @@
       </else-if>
       <else-if type="entry-encyclopedia" variable="author container-title">
         <!-- Signed encyclopedia entry in quotes, title case (cf. CMOS18 14.132) -->
-        <text form="short" quotes="true" text-case="title" variable="title"/>
+        <text form="short" quotes="true" variable="title"/>
       </else-if>
       <else-if type="entry-dictionary" variable="container-title">
         <!-- Quotes, sentence case -->
@@ -1077,12 +1088,12 @@
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
         <!-- Quotes, title case -->
-        <text form="short" quotes="true" text-case="title" variable="title"/>
+        <text form="short" quotes="true" variable="title"/>
       </else-if>
       <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
         <!-- Quotes, title case -->
-        <text form="short" quotes="true" text-case="title" variable="title"/>
+        <text form="short" quotes="true" variable="title"/>
       </else-if>
       <else>
         <!-- Italicized, title case (default) -->
@@ -2289,17 +2300,27 @@
   <macro name="source-monographic-locator">
     <group delimiter=", ">
       <text macro="source-monographic-locator-volume"/>
-      <group delimiter=" ">
-        <choose>
-          <if variable="page">
+      <choose>
+        <!-- archival locators appear after the shelfmark (MHRA 7.7) -->
+        <if locator="column" variable="archive archive_location page"/>
+        <else-if locator="folio" variable="archive archive_location page"/>
+        <else-if locator="page" variable="archive archive_location page"/>
+        <else-if variable="archive archive_location page">
+          <text macro="label-locator"/>
+        </else-if>
+        <else-if variable="page">
+          <group delimiter=" ">
             <text macro="label-page"/>
             <text macro="label-locator" prefix="(" suffix=")"/>
-          </if>
-          <else>
-            <text macro="label-locator"/>
-          </else>
-        </choose>
-      </group>
+          </group>
+        </else-if>
+        <else-if locator="column" variable="archive archive_location"/>
+        <else-if locator="folio" variable="archive archive_location"/>
+        <else-if locator="page" variable="archive archive_location"/>
+        <else>
+          <text macro="label-locator"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="source-monographic-locator-volume">
@@ -2470,20 +2491,14 @@
           <choose>
             <if match="any" variable="collection-editor container-author editor editorial-director">
               <!-- monographic usage -->
-              <group delimiter=" ">
-                <text macro="source-publication-and-date"/>
-                <text macro="source-series" prefix="(" suffix=")"/>
-              </group>
+              <text macro="source-publication-and-date"/>
             </if>
           </choose>
         </else-if>
         <!-- `patent` date in identification (cf. CMOS18 14.158) -->
         <else-if type="patent"/>
         <else>
-          <group delimiter=" ">
-            <text macro="source-publication-and-date"/>
-            <text macro="source-series" prefix="(" suffix=")"/>
-          </group>
+          <text macro="source-publication-and-date"/>
         </else>
       </choose>
       <text macro="source-publication-original-title"/>
@@ -2517,25 +2532,24 @@
     </choose>
   </macro>
   <macro name="source-monographic-publication-unbracketed">
-    <group delimiter=" ">
-      <choose>
-        <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis"/>
-        <else-if type="article" variable="genre publisher"/>
-        <else-if type="entry-dictionary" variable="publisher"/>
-        <else-if type="entry-encyclopedia" variable="publisher"/>
-        <else-if type="personal_communication">
-          <choose>
-            <if match="none" variable="collection-editor compiler editor editorial-director publisher">
-              <!-- not in an edited collection -->
-              <text macro="source-monographic-publication"/>
-            </if>
-          </choose>
-        </else-if>
-        <else>
-          <text macro="source-monographic-publication"/>
-        </else>
-      </choose>
-    </group>
+    <!-- Facts of publication without brackets -->
+    <choose>
+      <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard thesis"/>
+      <else-if type="article" variable="genre publisher"/>
+      <else-if type="entry-dictionary" variable="publisher"/>
+      <else-if type="entry-encyclopedia" variable="publisher"/>
+      <else-if type="personal_communication">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director publisher">
+            <!-- not in an edited collection -->
+            <text macro="source-monographic-publication"/>
+          </if>
+        </choose>
+      </else-if>
+      <else>
+        <text macro="source-monographic-publication"/>
+      </else>
+    </choose>
   </macro>
   <macro name="source-monographic-publication-short-bracketed">
     <!-- mirrors `source-monographic-publication-bracketed` -->
@@ -2998,6 +3012,63 @@
       <text variable="archive"/>
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
+      <choose>
+        <!-- archival locators appear after the shelfmark (MHRA 7.7) -->
+        <if locator="column" variable="archive archive_location page">
+          <text macro="source-archive-locator-page"/>
+        </if>
+        <else-if locator="folio" variable="archive archive_location page">
+          <text macro="source-archive-locator-page"/>
+        </else-if>
+        <else-if locator="page" variable="archive archive_location page">
+          <text macro="source-archive-locator-page"/>
+        </else-if>
+        <else-if variable="archive archive_location page">
+          <choose>
+            <if is-numeric="page">
+              <!-- TODO: remove this conditional when `page` parsing is fixed for different locator types -->
+              <text macro="label-page"/>
+            </if>
+            <else>
+              <text variable="page"/>
+            </else>
+          </choose>
+        </else-if>
+        <else-if locator="column" variable="archive archive_location">
+          <text macro="label-locator"/>
+        </else-if>
+        <else-if locator="folio" variable="archive archive_location">
+          <text macro="label-locator"/>
+        </else-if>
+        <else-if locator="page" variable="archive archive_location">
+          <text macro="label-locator"/>
+        </else-if>
+      </choose>
+      <choose>
+        <!-- database identifier, if not included elsewhere (cf. CMOS18 14.113) -->
+        <if match="any" variable="archive_collection archive_location archive-place"/>
+        <else-if type="thesis">
+          <text variable="number"/>
+        </else-if>
+        <else-if match="any" type="dataset entry song" variable="genre"/>
+        <else-if variable="archive">
+          <text variable="number"/>
+        </else-if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="source-archive-locator-page">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="page">
+          <!-- TODO: remove this conditional when `page` parsing is fixed for different locator types -->
+          <text macro="label-page"/>
+        </if>
+        <else>
+          <text variable="page"/>
+        </else>
+      </choose>
+      <text macro="label-locator" prefix="(" suffix=")"/>
     </group>
   </macro>
   <macro name="source-archive-short">
