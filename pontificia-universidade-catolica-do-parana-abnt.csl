@@ -79,10 +79,9 @@
     <!-- Macro responsavel por mostrar o autor -->
     <choose>
       <if type="song">
-        <!-- para músicas é o intérprete -->
-        <text value="Intérprete: "/>
-        <names variable="author">
-          <name delimiter=" e ">
+        <!-- para músicas, listar os intérpretes (sem rótulo literal) -->
+        <names variable="author" and="text">
+          <name>
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
@@ -128,18 +127,17 @@
     <choose>
       <if type="motion_picture">
         <text term="director" text-case="capitalize-first" suffix=": "/>
-        <names variable="director">
-          <name delimiter=" e ">
+        <names variable="director" and="text">
+          <name>
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
         </names>
       </if>
       <else-if type="broadcast">
-        <!-- para transmissões é apresentador -->
-        <text value="Apresentado por "/>
-        <names variable="director">
-          <name delimiter=" e ">
+        <!-- para transmissões, apenas liste os nomes (sem rótulo literal fixo) -->
+        <names variable="director" and="text">
+          <name>
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
@@ -171,16 +169,16 @@
   <macro name="interviewer">
     <!-- Macro responsavel por mostrar o nome do entrevistador -->
     <text term="interviewer" suffix=": " text-case="capitalize-first"/>
-    <names variable="interviewer" delimiter="; ">
-      <name delimiter=" e " sort-separator=" " delimiter-precedes-last="always"/>
+    <names variable="interviewer" delimiter="; " and="text">
+      <name sort-separator=" " delimiter-precedes-last="always"/>
       <et-al font-style="italic"/>
     </names>
   </macro>
   <macro name="recipient">
     <!-- Macro responsavel por mostrar o nome do destinatário -->
     <text term="recipient" suffix=": " text-case="capitalize-first"/>
-    <names variable="recipient" delimiter="; ">
-      <name delimiter=" e " sort-separator=" " delimiter-precedes-last="always"/>
+    <names variable="recipient" delimiter="; " and="text">
+      <name sort-separator=" " delimiter-precedes-last="always"/>
       <et-al font-style="italic"/>
     </names>
   </macro>
@@ -362,7 +360,7 @@
             <text variable="publisher-place"/>
           </if>
           <else>
-            <text value="s. l." font-style="italic" prefix="[" suffix="]" text-case="capitalize-first"/>
+            <text term="no-place" form="short" font-style="italic" prefix="[" suffix="]"/>
           </else>
         </choose>
         <group prefix=": " suffix=",">
@@ -371,14 +369,18 @@
               <text variable="publisher"/>
             </if>
             <else>
-              <text value="s. n." font-style="italic" prefix="[" suffix="]"/>
+              <text term="no-publisher" form="short" font-style="italic" prefix="[" suffix="]"/>
             </else>
           </choose>
         </group>
         <text macro="issued" prefix=" "/>
       </if>
       <else>
-        <text value="s. l.: s. n." font-style="italic" prefix="[" suffix="]" text-case="capitalize-first"/>
+        <group>
+          <text term="no-place" form="short" font-style="italic" prefix="[" suffix="]"/>
+          <text value=": "/>
+          <text term="no-publisher" form="short" font-style="italic" prefix="[" suffix="]"/>
+        </group>
         <text macro="issued" prefix=", "/>
       </else>
     </choose>
@@ -388,9 +390,10 @@
     <group suffix=". ">
       <choose>
         <if is-uncertain-date="issued">
-          <date variable="issued">
-            <date-part name="year" prefix="[ca. " suffix="]"/>
-          </date>
+          <group>
+            <text term="circa" form="short" prefix="[" suffix="] "/>
+            <date variable="issued" date-parts="year" form="numeric"/>
+          </group>
         </if>
         <else-if variable="issued" match="any">
           <choose>
@@ -419,7 +422,7 @@
               <text variable="status" font-style="italic"/>
             </if>
             <else>
-              <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+              <text term="no-date" form="short" font-style="italic" prefix="[" suffix="]"/>
             </else>
           </choose>
         </else>
@@ -449,7 +452,7 @@
           </choose>
         </else-if>
         <else>
-          <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+          <text term="no-date" form="short" font-style="italic" prefix="[" suffix="]"/>
         </else>
       </choose>
     </group>
@@ -560,7 +563,10 @@
   <macro name="collection-title">
     <!-- Macro responsável por mostrar os dados de coleção para livro e capítulo -->
     <text variable="collection-title"/>
-    <text variable="collection-number" prefix=", v. "/>
+    <group delimiter=" " prefix=", ">
+      <label variable="collection-number" form="short"/>
+      <text variable="collection-number"/>
+    </group>
   </macro>
   <macro name="genre">
     <!-- Macro responsável por mostrar as informações de tipo para carta, e-mail e mensagem -->
@@ -583,20 +589,13 @@
     </group>
   </macro>
   <macro name="place">
-    <!-- Macro responsável por utilizar local de publicação como local e, em sua ausência, utilizar o termo padrão s. l.  -->
+    <!-- Macro responsável por utilizar local de publicação como local e, em sua ausência, utilizar o termo padrão -->
     <choose>
       <if variable="publisher-place" match="any">
         <text variable="publisher-place" suffix=", "/>
       </if>
       <else>
-        <choose>
-          <if type="graphic post webpage" match="any">
-            <text value="s. l." prefix="[" suffix="], " font-style="italic" text-case="capitalize-first"/>
-          </if>
-          <else>
-            <text value="s. l." prefix="[" suffix="], " font-style="italic"/>
-          </else>
-        </choose>
+        <text term="no-place" form="short" prefix="[" suffix="], " font-style="italic"/>
       </else>
     </choose>
   </macro>
