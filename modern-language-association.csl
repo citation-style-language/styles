@@ -83,9 +83,7 @@
           4.6. Publication Date (MLA 5.68-83)
           4.7. Location (MLA 5.84-99)
        5. Supplemental Element Between Containers (MLA 5.119)
-       6. Container 2
-          6.1. Title of Container (MLA 5.31-37)
-          6.2. Location (MLA 5.84-99)
+       6. Container 2 (MLA 5.102)
        7. Supplemental Element at End of Entry (MLA 5.110-118)
           7.1. Date of access (MLA 5.111)
           7.2. Medium of publication (MLA 5.112)
@@ -249,12 +247,9 @@
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
-          <if type="software">
-            <text variable="publisher"/>
-          </if>
-          <else-if type="standard">
+          <if type="standard">
             <text variable="authority"/>
-          </else-if>
+          </if>
         </choose>
         <text macro="title"/>
       </substitute>
@@ -271,12 +266,9 @@
           <names variable="editor"/>
           <names variable="translator"/>
           <choose>
-            <if type="software">
-              <text variable="publisher"/>
-            </if>
-            <else-if type="standard">
+            <if type="standard">
               <text variable="authority"/>
-            </else-if>
+            </if>
           </choose>
           <text macro="title-short"/>
         </substitute>
@@ -491,7 +483,7 @@
     <choose>
       <if type="personal_communication">
         <!-- date and place of composition for letters -->
-        <text macro="event"/>
+        <text macro="container1-location-event"/>
       </if>
       <else-if match="any" variable="original-publisher original-publisher-place"/>
       <else-if is-uncertain-date="original-date">
@@ -861,7 +853,10 @@
       <else>
         <choose>
           <if is-uncertain-date="issued">
-            <date form="text" prefix="[" suffix="?]" variable="issued"/>
+            <group delimiter=" ">
+              <text term="circa" text-case="capitalize-first"/>
+              <date form="text" variable="issued"/>
+            </group>
           </if>
           <else>
             <date form="text" variable="issued"/>
@@ -872,14 +867,73 @@
   </macro>
   <!-- 4.7. Location (MLA 5.84-99) -->
   <macro name="container1-location">
+    <!-- location of a physical object or event (MLA 5.99) -->
     <group delimiter=", ">
+      <choose>
+        <!-- serials cannot be part of an event -->
+        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+        <!-- `event-date` supplies date of composition for letters, handled in `supplemental-original-date` -->
+        <else-if type="personal_communication"/>
+        <else-if type="paper-conference">
+          <choose>
+            <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+              <!-- Don't print event info for conference papers published in a proceedings volume -->
+              <text macro="container1-location-event"/>
+            </if>
+          </choose>
+        </else-if>
+        <else>
+          <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs). -->
+          <text macro="container1-location-event"/>
+        </else>
+      </choose>
+      <text variable="archive"/>
+      <text variable="archive-place"/>
+      <text variable="archive_collection"/>
+      <text variable="archive_location"/>
       <text macro="label-page"/>
       <choose>
         <if match="none" variable="source">
-          <text macro="URI"/>
+          <text macro="container1-location-URI"/>
         </if>
       </choose>
     </group>
+  </macro>
+  <macro name="container1-location-event">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" variable="event event-date event-title">
+          <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
+          <choose>
+            <if variable="event-title">
+              <text text-case="capitalize-first" variable="event-title"/>
+            </if>
+            <else>
+              <text text-case="capitalize-first" variable="event"/>
+            </else>
+          </choose>
+          <choose>
+            <if is-uncertain-date="issued">
+              <date form="text" prefix="[" suffix="?]" variable="event-date"/>
+            </if>
+            <else>
+              <date form="text" variable="event-date"/>
+            </else>
+          </choose>
+          <text variable="event-place"/>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="container1-location-URI">
+    <choose>
+      <if variable="DOI">
+        <text prefix="https://doi.org/" variable="DOI"/>
+      </if>
+      <else>
+        <text variable="URL"/>
+      </else>
+    </choose>
   </macro>
   <!-- 5. Supplemental Element Between Containers (MLA 5.119) -->
   <macro name="supplemental-element-between">
@@ -889,83 +943,18 @@
       </if>
     </choose>
   </macro>
-  <!-- 6. Container 2 -->
+  <!-- 6. Container 2 (MLA 5.102) -->
   <macro name="container2">
     <group delimiter=", ">
-      <text macro="container2-title"/>
-      <text macro="container2-location"/>
-    </group>
-  </macro>
-  <!-- 6.1. Title of Container (MLA 5.31-37) -->
-  <macro name="container2-title">
-    <group delimiter=", ">
+      <!-- Title of Container -->
+      <text font-style="italic" variable="source"/>
+      <!-- Location -->
       <choose>
-        <if type="personal_communication"/>
-        <!-- `event-date` supplies date of composition for letters, handled in `supplemental-original-date` -->
-        <else-if type="paper-conference">
-          <choose>
-            <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
-              <!-- Don't print event info for conference papers published in a proceedings -->
-              <text macro="event"/>
-            </if>
-          </choose>
-        </else-if>
-        <else>
-          <!-- For other item types, print event info even if published (e.g. collection catalogs, performance programs). -->
-          <text macro="event"/>
-        </else>
+        <if variable="source">
+          <text macro="container1-location-URI"/>
+        </if>
       </choose>
-      <text variable="archive"/>
-      <text variable="archive-place"/>
-      <text variable="archive_collection"/>
-      <text variable="archive_location"/>
     </group>
-  </macro>
-  <macro name="event">
-    <choose>
-      <if match="any" variable="event event-date event-title">
-        <choose>
-          <!-- TODO: We expect `event-title` to be used, but processors and applications may not be updated yet. This macro ensures that either `event` or `event-title` can be accepted. Remove if processor logic and application adoption can handle this. -->
-          <if variable="event-title">
-            <text text-case="capitalize-first" variable="event-title"/>
-          </if>
-          <else>
-            <text text-case="capitalize-first" variable="event"/>
-          </else>
-        </choose>
-        <choose>
-          <if is-uncertain-date="issued">
-            <date form="text" prefix="[" suffix="?]" variable="event-date"/>
-          </if>
-          <else>
-            <date form="text" variable="event-date"/>
-          </else>
-        </choose>
-        <text variable="event-place"/>
-      </if>
-    </choose>
-  </macro>
-  <!-- 6.2. Location (MLA 5.84-99) -->
-  <macro name="container2-location">
-    <choose>
-      <if match="none" variable="source"/>
-      <else-if match="any" variable="DOI URL">
-        <group delimiter=", ">
-          <text font-style="italic" variable="source"/>
-          <text macro="URI"/>
-        </group>
-      </else-if>
-    </choose>
-  </macro>
-  <macro name="URI">
-    <choose>
-      <if variable="DOI">
-        <text prefix="https://doi.org/" variable="DOI"/>
-      </if>
-      <else>
-        <text variable="URL"/>
-      </else>
-    </choose>
   </macro>
   <!-- 7. Supplemental Element at End of Entry (MLA 5.110-118) -->
   <macro name="supplemental-element-end">
