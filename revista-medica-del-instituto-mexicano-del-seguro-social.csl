@@ -50,7 +50,6 @@
       <term name="section" form="short">secc.</term>
       <term name="report">Informe N.º</term>
       <!--Refuerzo de localización adicional -->
-      <term name="in">En</term>
       <term name="available at">Disponible en</term>
       <term name="cited">citado</term>
       <term name="internet">internet</term>
@@ -123,7 +122,7 @@
     <choose>
       <!-- Artículos, capítulos, reseñas, entradas de diccionario/enciclopedia, etc. -->
       <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="any">
-        <!-- Sin punto entre el título del contenedor y [Internet] -->
+        <!-- Sin punto entre el título del contenedor y [Internet], pero con punto después del corchete -->
         <group delimiter=" ">
           <choose>
             <!-- Para artículos de revista y reseñas: usar abreviatura si está disponible -->
@@ -144,15 +143,14 @@
               <text variable="container-title" strip-periods="true"/>
             </else>
           </choose>
-          <!-- Añadir [Internet] solo si hay URL -->
+          <!-- Añadir [Internet]. solo si hay URL -->
           <choose>
             <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+              <text term="internet" prefix="[" suffix="]." text-case="capitalize-first"/>
             </if>
           </choose>
         </group>
-        <!-- Edición si aplica -->
-        <text macro="edition" prefix=" "/>
+        <!-- (Se omite edición aquí para evitar duplicidad con la sección del título) -->
       </if>
       <!-- Legislación -->
       <else-if type="bill legislation" match="any">
@@ -193,27 +191,31 @@
       </else>
     </choose>
   </macro>
-  <macro name="title">
-    <!-- Título principal del documento -->
-    <text variable="title"/>
-    <!-- Si el tipo NO es artículo, capítulo o reseña, añade [internet] y edición -->
-    <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
-        <!-- Si tiene URL, muestra [internet] en minúscula -->
+<macro name="title">
+  <!-- Título principal del documento -->
+  <text variable="title"/>
+  <choose>
+    <!-- Tesis: imprime [Internet] si hay URL y luego [género] -->
+    <if type="thesis">
+      <group delimiter="">
         <choose>
           <if variable="URL">
             <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
           </if>
         </choose>
-      </if>
-    </choose>
-    <!-- Si el documento es una tesis, muestra el tipo de tesis (p. ej. [Tesis de maestría]) -->
-    <choose>
-      <if type="thesis">
         <text variable="genre" prefix=" [" suffix="]"/>
-      </if>
-    </choose>
-  </macro>
+      </group>
+    </if>
+    <!-- Resto de tipos NO seriados: imprime [Internet] si hay URL -->
+    <else-if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
+      <choose>
+        <if variable="URL">
+          <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+        </if>
+      </choose>
+    </else-if>
+  </choose>
+</macro>
   <macro name="edition">
     <choose>
       <!-- Si la edición es un número (por ejemplo: 2, 3, 4) -->
@@ -393,38 +395,34 @@
       <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography et-al-min="4" et-al-use-first="3" second-field-align="flush">
-    <layout>
-      <text variable="citation-number" suffix=". "/>
-      <!-- Autor. Título. -->
-      <group delimiter=". " suffix=". ">
-        <text macro="author"/>
-        <text macro="title"/>
-      </group>
-      <!-- Edición fuera del título -->
-      <text macro="edition" suffix=". "/>
-      <!-- Contenedor/editor + editorial + (fecha y, si aplica, volumen/número y páginas) -->
-      <group delimiter=" " suffix=" ">
-        <group delimiter=": ">
-          <text macro="chapter-marker"/>
-          <group delimiter=" ">
-            <text macro="editor"/>
-            <text macro="container-title"/>
-          </group>
-        </group>
-        <text macro="publisher"/>
-        <!-- Fecha + [Volumen/Número]:Páginas (sin espacio antes de ":") -->
+<bibliography et-al-min="4" et-al-use-first="3" second-field-align="flush">
+  <layout>
+    <text variable="citation-number" suffix=". "/>
+    <group delimiter=". " suffix=". ">
+      <text macro="author"/>
+      <text macro="title"/>
+      <text macro="edition"/>
+    </group>
+    <group delimiter=" " suffix=" ">
+      <group delimiter=": ">
+        <text macro="chapter-marker"/>
         <group delimiter=" ">
-          <text macro="date"/>
-          <group delimiter="">
-            <text macro="journal-location"/>
-            <text macro="pages"/>
-          </group>
+          <text macro="editor"/>
+          <text macro="container-title"/>
         </group>
       </group>
-      <text macro="collection-details" suffix=". "/>
-      <text macro="report-details"/>
-      <text macro="access"/>
-    </layout>
-  </bibliography>
+      <text macro="publisher"/>
+      <group delimiter=" ">
+        <text macro="date"/>
+        <group delimiter="">
+          <text macro="journal-location"/>
+          <text macro="pages"/>
+        </group>
+      </group>
+    </group>
+    <text macro="collection-details" suffix=". "/>
+    <text macro="report-details"/>
+    <text macro="access"/>
+  </layout>
+</bibliography>
 </style>
