@@ -926,14 +926,12 @@
               <choose>
                 <if match="any" variable="collection-editor container-author editor editorial-director">
                   <!-- monographic usage -->
-                  <!-- <text macro="source-monographic-locator"/> -->
                   <!-- for OGS: -->
                   <text macro="source-monographic-locator-range"/>
                 </if>
               </choose>
             </else-if>
             <else>
-              <!-- <text macro="source-monographic-locator"/> -->
               <!-- for OGS: -->
               <text macro="source-monographic-locator-range"/>
             </else>
@@ -2063,7 +2061,6 @@
       <text macro="source-serial-identifier-volume"/>
       <!-- periodical edition always capitalized (cf. CMOS18 14.89) -->
       <text macro="label-edition-capitalized"/>
-      <!-- <text macro="source-serial-locator"/> -->
       <!-- for OGS: -->
       <text macro="source-serial-locator-range"/>
     </group>
@@ -2954,7 +2951,6 @@
       <!-- usually `archive`, `archive-place` but sometimes also `archive-place`, `archive` (NHR 18.6.5); the latter is more common elsewhere (OGS 15.11.1 and MHRA4 7.7) -->
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
-      <!-- <text macro="source-archive-locator"/> -->
       <!-- for OGS: -->
       <text macro="source-archive-locator-range"/>
       <choose>
@@ -3107,8 +3103,36 @@
       <choose>
         <if position="subsequent">
           <group delimiter=", ">
-            <text macro="citation-notes-shortened-author-title-item"/>
-            <text macro="source-locator-subsequent"/>
+            <choose>
+              <if match="any" variable="part-number volume">
+                <!-- comma always needed with volume/part -->
+                <text macro="citation-notes-shortened-author-title-item"/>
+                <text macro="source-locator-subsequent"/>
+              </if>
+              <else-if type="classic">
+                <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
+                <choose>
+                  <if is-numeric="locator">
+                    <text macro="citation-notes-shortened-author-title-item"/>
+                    <text macro="source-locator-subsequent"/>
+                  </if>
+                  <else-if locator="chapter line verse" match="any">
+                    <group delimiter=" ">
+                      <text macro="citation-notes-shortened-author-title-item"/>
+                      <text macro="source-locator-subsequent"/>
+                    </group>
+                  </else-if>
+                  <else>
+                    <text macro="citation-notes-shortened-author-title-item"/>
+                    <text macro="source-locator-subsequent"/>
+                  </else>
+                </choose>
+              </else-if>
+              <else>
+                <text macro="citation-notes-shortened-author-title-item"/>
+                <text macro="source-locator-subsequent"/>
+              </else>
+            </choose>
           </group>
         </if>
         <else>
