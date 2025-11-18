@@ -3215,7 +3215,16 @@
         <group delimiter=", ">
           <text macro="label-locator"/>
           <!-- an article ID appears alongside locators in notes (CMOS18 14.71) -->
-          <text variable="number"/>
+          <choose>
+            <!-- if there is an `archive` with no other reference, `number` appears in `source-archive-database-number` -->
+            <if match="any" variable="archive_collection archive_location archive-place">
+              <text variable="number"/>
+            </if>
+            <else-if variable="archive"/>
+            <else>
+              <text variable="number"/>
+            </else>
+          </choose>
         </group>
       </if>
       <!-- do not give pages for magazines or newspapers (CMOS18 14.87, 14.89) -->
@@ -4386,9 +4395,11 @@
     <!-- database identifier, if not included elsewhere (CMOS18 14.113) -->
     <choose>
       <if match="any" variable="archive_collection archive_location archive-place"/>
+      <!-- `number` never shown elsewhere with a thesis -->
       <else-if type="thesis">
         <text variable="number"/>
       </else-if>
+      <!-- `number` shown with `genre` -->
       <else-if match="any" type="dataset entry song" variable="genre"/>
       <else-if variable="archive">
         <text variable="number"/>
