@@ -9,12 +9,12 @@
     <link href="https://repozitorij.uni-lj.si/IzpisGradiva.php?id=174278" rel="documentation"/>
     <author>
       <name>Maks Alič</name>
-      <email>alic.maks@gmail.com</email>
+      <email>maks.alic@fgg.uni-lj.si</email>
     </author>
     <category citation-format="author-date"/>
     <category field="engineering"/>
     <category field="generic-base"/>
-    <updated>2024-12-27T10:00:57+00:00</updated>
+    <updated>2025-11-16T10:00:57+00:00</updated>
     <rights license="https://creativecommons.org/licenses/by-sa/4.0/">UL FGG APA 7 2024 by Knjižnica UL FGG is licensed under a Creative Commons Attribution-ShareAlike 4.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -45,7 +45,6 @@
   </locale>
   <locale xml:lang="sl">
     <terms>
-      <term name="retrieved">Pridobljeno</term>
       <term name="and">in</term>
       <term name="no date">b. d.</term>
       <term name="et-al">idr.</term>
@@ -53,7 +52,6 @@
       <term name="letter" form="short">pismo</term>
       <term name="editor" form="long">urednik</term>
       <term name="editor" form="short">ur.</term>
-      <term name="from">s</term>
     </terms>
   </locale>
   <macro name="author-bib">
@@ -285,7 +283,21 @@
     <choose>
       <if variable="title">
         <group delimiter=" ">
-          <text macro="title"/>
+          <choose>
+            <if type="post webpage" match="any">
+              <choose>
+                <if variable="DOI URL" match="any">
+                  <text macro="title" suffix="."/>
+                </if>
+                <else>
+                  <text macro="title"/>
+                </else>
+              </choose>
+            </if>
+            <else>
+              <text macro="title"/>
+            </else>
+          </choose>
           <text macro="parenthetical"/>
           <text macro="bracketed"/>
         </group>
@@ -1171,16 +1183,12 @@
   <macro name="access">
     <choose>
       <if variable="DOI" match="any">
-        <text variable="DOI" prefix="https://doi.org/"/>
+        <text variable="DOI" prefix="https://doi.org/" suffix=""/>
       </if>
       <else-if variable="URL">
-        <group delimiter=" ">           
-            <group delimiter=" ">
-              <text term="retrieved" text-case="capitalize-first"/>
-              <date variable="accessed" form="numeric"/>
-              <text term="from"/>
-            </group>
-          <text variable="URL"/>
+        <group delimiter=" " suffix="">
+          <text variable="URL" suffix=""/>
+          <date variable="accessed" form="numeric" prefix="(" suffix=")"/>
         </group>
       </else-if>
     </choose>
@@ -1501,15 +1509,22 @@
         </if>
         <else>
           <group delimiter=" ">
-            <group delimiter=". " suffix=".">
+            <group delimiter=". ">
               <text macro="author-bib"/>
               <text macro="date-bib"/>
               <text macro="title-and-descriptions"/>
               <text macro="container"/>
               <text macro="event"/>
               <text macro="publisher"/>
-              <text macro="access"/>
             </group>
+            <choose>
+              <if variable="DOI URL" match="any">
+                <text macro="access"/>
+              </if>
+              <else>
+                <text value="." prefix=""/>
+              </else>
+            </choose>
             <text macro="publication-history"/>
           </group>
         </else>
