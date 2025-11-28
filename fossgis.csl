@@ -14,7 +14,7 @@
     <category citation-format="numeric"/>
     <category field="geography"/>
     <category field="geology"/>
-    <updated>2025-11-27T13:14:42+00:00</updated>
+    <updated>2025-11-28T15:07:53+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -31,6 +31,7 @@
       <term name="presented at">präsentiert bei</term>
       <term name="edition">Auflage</term>
       <term name="editor">Hrsg.</term>
+      <term name="preprint">Preprint</term>
     </terms>
   </locale>
   <macro name="editor">
@@ -69,7 +70,7 @@
       <text variable="title" text-case="title"/>
       <text term="in" prefix=", " suffix=" "/>
       <text macro="editor" suffix=": "/>
-      <text variable="container-title" font-style="italic" suffix=". "/>
+      <text variable="container-title" font-style="italic"/>
     </group>
   </macro>
   <macro name="issued">
@@ -99,8 +100,8 @@
   </macro>
   <macro name="access">
     <choose>
-      <if type="article-journal">
-        <text variable="DOI" font-weight="normal" text-decoration="none" prefix=", DOI: "/>
+      <if match="any" variable="DOI">
+        <text variable="DOI" font-weight="normal" text-decoration="none" prefix="DOI: "/>
       </if>
     </choose>
   </macro>
@@ -155,7 +156,7 @@
           </group>
         </else-if>
         <else-if type="chapter">
-          <group>
+          <group delimiter=", ">
             <text macro="book-container"/>
             <group delimiter=", ">
               <text macro="series"/>
@@ -167,14 +168,9 @@
           </group>
         </else-if>
         <else-if type="paper-conference">
-          <group>
-            <text variable="title" text-case="title"/>
-            <group prefix=", in " suffix=" ">
-              <text macro="editor" suffix=": "/>
-              <text variable="container-title"/>
-            </group>
+          <group delimiter=", ">
+            <text macro="book-container"/>
             <group delimiter=", ">
-              <text macro="volume"/>
               <text macro="pages"/>
               <text macro="publisher"/>
               <text macro="issued"/>
@@ -208,7 +204,7 @@
             </group>
           </group>
         </else-if>
-        <else-if type="article-journal">
+        <else-if type="article-journal" match="any">
           <group delimiter=" ">
             <text variable="title" text-case="title" suffix="."/>
             <text variable="container-title" font-style="italic"/>
@@ -233,7 +229,32 @@
               <text variable="volume" font-style="italic"/>
               <text variable="page"/>
             </group>
-            <text variable="DOI" text-case="title" prefix="DOI: "/>
+          </group>
+        </else-if>
+        <else-if type="software" match="any">
+          <group delimiter=", " suffix=" ">
+            <group delimiter=" ">
+              <text variable="title" text-case="title"/>
+              <text variable="version" font-style="italic" prefix="(" suffix=")"/>
+            </group>
+            <text macro="issued"/>
+          </group>
+        </else-if>
+        <else-if type="article" match="any">
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <text variable="title" suffix="."/>
+              <group delimiter=" ">
+                <text term="preprint" font-style="italic"/>
+                <choose>
+                  <if match="any" variable="source">
+                    <text term="available at" font-style="italic" suffix=":"/>
+                    <text variable="source" font-style="normal"/>
+                  </if>
+                </choose>
+              </group>
+            </group>
+            <text macro="issued"/>
           </group>
         </else-if>
         <else>
@@ -250,7 +271,7 @@
           </group>
         </else>
       </choose>
-      <text macro="access"/>
+      <text macro="access" prefix=", "/>
     </layout>
   </bibliography>
 </style>
