@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-GB">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only">
   <info>
-    <title>Cite Them Right 11th edition - Harvard</title>
-    <id>http://www.zotero.org/styles/harvard-cite-them-right-11th-edition</id>
-    <link href="http://www.zotero.org/styles/harvard-cite-them-right-11th-edition" rel="self"/>
-    <link href="http://www.zotero.org/styles/harvard-cite-them-right-10th-edition" rel="template"/>
-    <link href="http://www.citethemrightonline.com/" rel="documentation"/>
+    <title>Cite Them Right 13th edition - Harvard (AI-enabled)</title>
+    <id>http://www.zotero.org/styles/harvard-cite-them-right-13-ai</id>
+    <link href="http://www.zotero.org/styles/harvard-cite-them-right-13-ai" rel="self"/>
+    <link href="http://www.zotero.org/styles/harvard-cite-them-right-11th-edition" rel="template"/>
+    <link href="https://www.citethemrightonline.com/" rel="documentation"/>
     <author>
-      <name>Patrick O'Brien</name>
+      <name>Patrick O'Brien revised by Justin Paterson</name>
     </author>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <summary>Harvard according to Cite Them Right, 11th edition.</summary>
-    <updated>2022-06-27T07:43:59+00:00</updated>
+    <summary>Harvard according to Cite Them Right, 13th edition. Place of publication removed for books and reports; conference location retained; support for journal article numbers; AI-source prompt and version support.</summary>
+    <updated>2025-11-18T13:43:35Z</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+
   <locale xml:lang="en-GB">
     <terms>
       <term name="editor" form="short">
@@ -25,6 +26,7 @@
       <term name="edition" form="short">edn.</term>
     </terms>
   </locale>
+
   <macro name="editor">
     <choose>
       <if type="chapter paper-conference" match="any">
@@ -34,7 +36,7 @@
         <choose>
           <if variable="container-author" match="none">
             <names variable="editor translator" delimiter=", ">
-              <name and="text" initialize-with="." name-as-sort-order="all"/>
+              <name and="text" initialize-with="."/>
               <label form="short" prefix=" (" suffix=")"/>
             </names>
           </if>
@@ -42,6 +44,7 @@
       </if>
     </choose>
   </macro>
+
   <macro name="secondary-contributors">
     <choose>
       <if type="chapter paper-conference" match="none">
@@ -58,6 +61,7 @@
       </else-if>
     </choose>
   </macro>
+
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter-precedes-last="never" initialize-with="." name-as-sort-order="all"/>
@@ -67,7 +71,7 @@
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
-          <if type="article-newspaper article-magazine" match="any">
+          <if type="article-newspaper article-magazine article-journal" match="any">
             <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
@@ -77,6 +81,7 @@
       </substitute>
     </names>
   </macro>
+
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
@@ -85,7 +90,7 @@
         <names variable="editor"/>
         <names variable="translator"/>
         <choose>
-          <if type="article-newspaper article-magazine" match="any">
+          <if type="article-newspaper article-magazine article-journal" match="any">
             <text variable="container-title" text-case="title" font-style="italic"/>
           </if>
           <else>
@@ -95,10 +100,14 @@
       </substitute>
     </names>
   </macro>
+
   <macro name="access">
     <choose>
       <if variable="DOI">
-        <text variable="DOI" prefix="doi:"/>
+        <group delimiter=": ">
+          <text term="available at" text-case="capitalize-first"/>
+          <text variable="DOI" prefix="https://doi.org/"/>
+        </group>
       </if>
       <else-if variable="URL">
         <text term="available at" suffix=": " text-case="capitalize-first"/>
@@ -114,6 +123,7 @@
       </else-if>
     </choose>
   </macro>
+
   <macro name="number-volumes">
     <choose>
       <if variable="volume" match="none">
@@ -124,6 +134,28 @@
       </if>
     </choose>
   </macro>
+
+  <!-- NEW: AI helpers -->
+  <macro name="ai-version">
+    <choose>
+      <if type="software" variable="version" match="all">
+        <text variable="version" prefix=" (" suffix=")"/>
+      </if>
+    </choose>
+  </macro>
+
+  <macro name="ai-prompt">
+    <choose>
+      <if variable="original-title">
+        <group>
+          <text value="prompt: &quot;"/>
+          <text variable="original-title"/>
+          <text value="&quot;"/>
+        </group>
+      </if>
+    </choose>
+  </macro>
+
   <macro name="title">
     <choose>
       <if type="bill book legal_case legislation motion_picture report song thesis webpage graphic" match="any">
@@ -142,7 +174,18 @@
         <text variable="title" form="long" quotes="true"/>
       </else>
     </choose>
+    <!-- Append AI details for software/webpage: version + prompt -->
+    <choose>
+      <if type="software webpage" match="any">
+        <group delimiter=". ">
+          <text macro="ai-version"/>
+          <text macro="ai-prompt"/>
+        </group>
+      </if>
+    </choose>
   </macro>
+
+  <!-- UPDATED: remove place for reports; keep event & event-place for conferences -->
   <macro name="publisher">
     <choose>
       <if type="thesis">
@@ -151,30 +194,32 @@
           <text variable="publisher"/>
         </group>
       </if>
+
+      <!-- CTR 13: reports no longer include place of publication -->
       <else-if type="report">
         <group delimiter=". ">
           <group delimiter=" ">
             <text variable="genre"/>
             <text variable="number"/>
           </group>
-          <group delimiter=": ">
-            <text variable="publisher-place"/>
-            <text variable="publisher"/>
-          </group>
+          <text variable="publisher"/>
         </group>
       </else-if>
+
+      <!-- All other non-journal items -->
       <else-if type="article-journal article-newspaper article-magazine" match="none">
         <group delimiter=" ">
           <group delimiter=", ">
+            <!-- Retain conference name & location -->
             <choose>
-              <if type="speech" variable="event" match="any">
-                <text variable="event" font-style="italic"/>
+              <if type="speech paper-conference" variable="event" match="any">
+                <group delimiter=", ">
+                  <text variable="event" font-style="italic"/>
+                  <text variable="event-place"/>
+                </group>
               </if>
             </choose>
-            <group delimiter=": ">
-              <text variable="publisher-place"/>
-              <text variable="publisher"/>
-            </group>
+            <text variable="publisher"/>
           </group>
           <group prefix="(" suffix=")" delimiter=", ">
             <text variable="collection-title"/>
@@ -184,6 +229,7 @@
       </else-if>
     </choose>
   </macro>
+
   <macro name="year-date">
     <choose>
       <if variable="issued">
@@ -198,6 +244,7 @@
       </else>
     </choose>
   </macro>
+
   <macro name="locator">
     <choose>
       <if type="article-journal">
@@ -206,6 +253,7 @@
       </if>
     </choose>
   </macro>
+
   <macro name="published-date">
     <choose>
       <if type="article-newspaper article-magazine post-weblog speech" match="any">
@@ -216,16 +264,35 @@
       </if>
     </choose>
   </macro>
+
+  <!-- UPDATED: article numbers for journals without pages -->
   <macro name="pages">
     <choose>
-      <if type="chapter paper-conference article-journal article article-magazine article-newspaper book review review-book report" match="any">
+      <if type="article-journal">
+        <choose>
+          <if variable="page">
+            <group delimiter=" ">
+              <label variable="page" form="short"/>
+              <text variable="page"/>
+            </group>
+          </if>
+          <else-if variable="number">
+            <group delimiter=" ">
+              <text value="article"/>
+              <text variable="number"/>
+            </group>
+          </else-if>
+        </choose>
+      </if>
+      <else-if type="chapter paper-conference article article-magazine article-newspaper book review review-book report" match="any">
         <group delimiter=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
-      </if>
+      </else-if>
     </choose>
   </macro>
+
   <macro name="container-title">
     <choose>
       <if variable="container-title">
@@ -247,6 +314,7 @@
       </if>
     </choose>
   </macro>
+
   <macro name="edition">
     <choose>
       <if is-numeric="edition">
@@ -260,6 +328,7 @@
       </else>
     </choose>
   </macro>
+
   <macro name="container-prefix">
     <choose>
       <if type="chapter paper-conference" match="any">
@@ -267,6 +336,7 @@
       </if>
     </choose>
   </macro>
+
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true" collapse="year">
     <sort>
       <key macro="year-date"/>
@@ -284,6 +354,7 @@
       </group>
     </layout>
   </citation>
+
   <bibliography and="text" et-al-min="4" et-al-use-first="1">
     <sort>
       <key macro="author"/>
