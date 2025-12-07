@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" et-al-min="3" et-al-use-first="1" page-range-format="chicago" demote-non-dropping-particle="sort-only" default-locale="fr-FR">
+<style class="note" version="1.0" et-al-min="3" et-al-use-first="1" page-range-format="expanded" demote-non-dropping-particle="sort-only" default-locale="fr-FR" xmlns="http://purl.org/net/xbiblio/csl">
   <info>
     <title>Revue d'histoire des sciences (Français)</title>
     <id>http://www.zotero.org/styles/revue-dhistoire-des-sciences</id>
@@ -12,9 +12,14 @@
     <category citation-format="note"/>
     <category field="generic-base"/>
     <issn>1969-6582</issn>
-    <updated>2025-09-07T10:41:45+00:00</updated>
+    <updated>2025-12-07T17:09:17+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="fr">
+    <terms>
+      <term name="editor" form="short">dir.</term>
+    </terms>
+  </locale>
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter-precedes-last="never" initialize="false" initialize-with=". "/>
@@ -63,21 +68,24 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <if type="article-journal book chapter legal_case legislation motion_picture report song" match="any">
+      <if match="any" disambiguate="true">
         <text value="op. cit. in " font-style="italic"/>
-        <text variable="first-reference-note-number" form="short" font-style="normal" prefix="n. "/>
-      </if>
-      <else>
-        <text variable="first-reference-note-number" form="short" prefix="n. "/>
         <text variable="first-reference-note-number"/>
-      </else>
+      </if>
+      <else-if match="none" disambiguate="true">
+        <group>
+          <text macro="date" prefix=" (" suffix="), "/>
+          <text value="op. cit. in " font-style="italic"/>
+          <text variable="first-reference-note-number" form="short" font-style="normal" prefix="n. "/>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="chapter book thesis" match="any">
+      <if type="chapter book thesis entry-encyclopedia manuscript" match="any">
         <group delimiter=", " prefix="(" suffix=")">
-          <group delimiter=" : ">
+          <group delimiter=" : ">
             <choose>
               <if type="thesis" match="none">
                 <text variable="publisher-place"/>
@@ -122,13 +130,22 @@
   <macro name="pageref">
     <choose>
       <if match="any" locator="chapter">
-        <text variable="locator" prefix="chap. "/>
+        <text variable="locator" prefix="chap. "/>
       </if>
       <else-if match="any" locator="page">
-        <text variable="locator" prefix="p. "/>
+        <text variable="locator"/>
       </else-if>
       <else-if match="any" locator="section">
-        <text variable="locator" prefix="sect. "/>
+        <text variable="locator" prefix="sect. "/>
+      </else-if>
+      <else-if match="any" locator="part">
+        <text variable="locator" prefix="part. "/>
+      </else-if>
+      <else-if match="any" locator="volume">
+        <text variable="locator" prefix="vol. "/>
+      </else-if>
+      <else-if match="none" position="ibid">
+        <text variable="page"/>
       </else-if>
     </choose>
   </macro>
@@ -143,10 +160,10 @@
   </macro>
   <macro name="container">
     <choose>
-      <if type="chapter paper-conference" match="any">
+      <if type="chapter paper-conference entry-encyclopedia" match="any">
         <group delimiter=", ">
           <group delimiter=" ">
-            <text term="in"/>
+            <text term="in" font-style="normal"/>
             <text macro="editor"/>
           </group>
           <text variable="container-title" font-style="italic"/>
@@ -176,15 +193,23 @@
     </group>
   </macro>
   <citation>
-    <layout delimiter=" ; " suffix=".">
+    <layout delimiter=" ; " suffix=".">
       <choose>
-        <if position="subsequent">
+        <if position="ibid">
           <group delimiter=", ">
-            <text macro="author-short"/>
-            <text macro="title-short"/>
+            <text term="ibid" font-style="italic"/>
             <text macro="pageref"/>
           </group>
         </if>
+        <else-if match="any" position="subsequent">
+          <group delimiter=", ">
+            <group>
+              <text macro="author-short"/>
+              <text macro="title-short"/>
+            </group>
+            <text macro="pageref"/>
+          </group>
+        </else-if>
         <else>
           <group>
             <text macro="author" suffix=", "/>
@@ -197,7 +222,7 @@
                     <text macro="volref"/>
                   </group>
                 </if>
-                <else-if type="chapter paper-conference" match="any">
+                <else-if type="chapter paper-conference entry-encyclopedia" match="any">
                   <group delimiter=" " prefix=" ">
                     <text macro="container"/>
                     <text macro="publisher"/>
@@ -216,13 +241,19 @@
                   </group>
                 </else-if>
                 <else-if type="thesis" match="any">
-                  <group delimiter=", ">
+                  <group delimiter=" ">
                     <text variable="container-title"/>
                     <text variable="genre"/>
                     <group delimiter=" ">
                       <text macro="publisher"/>
-                      <date form="text" date-parts="year-month-day" variable="issued"/>
                     </group>
+                  </group>
+                </else-if>
+                <else-if type="manuscript" match="any">
+                  <group>
+                    <text variable="container-title" quotes="true"/>
+                    <date form="text" variable="issued" prefix="ms. du " suffix=" "/>
+                    <text macro="publisher"/>
                   </group>
                 </else-if>
                 <else>
