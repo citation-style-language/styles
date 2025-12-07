@@ -643,25 +643,44 @@
   <macro name="author-short-and-recipient">
     <group delimiter=" ">
       <choose>
-        <!-- Inaccessible personal commmunication is cited in-text (CMOS18 14.111) -->
+        <!-- inaccessible `interview` or `personal_commmunication`: in-text citation (CMOS18 14.111) -->
         <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-          <!-- These variables indicate whether the letter is retrievable by the reader -->
-          <group delimiter=", ">
-            <names variable="author">
-              <substitute>
-                <text macro="title-and-descriptions-short"/>
-              </substitute>
-            </names>
-          </group>
           <choose>
-            <if match="none" variable="genre">
+            <if position="first">
+              <!-- at the first citation in shortened forms, give the full name -->
+              <names variable="author">
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+            </if>
+            <else>
+              <names variable="author">
+                <name and="text" form="short"/>
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+            </else>
+          </choose>
+          <choose>
+            <if variable="genre"/>
+            <!-- recipient appears in the description if there is a `genre`; otherwise after `author` -->
+            <else-if position="first">
               <names variable="recipient">
                 <label form="verb" suffix=" "/>
                 <name and="text"/>
               </names>
-            </if>
+            </else-if>
+            <else>
+              <names variable="recipient">
+                <label form="verb" suffix=" "/>
+                <name and="text" form="short"/>
+              </names>
+            </else>
           </choose>
         </if>
+        <!-- accessible `interview` or `personal_communication`: standard citation -->
         <else-if variable="author recipient">
           <names variable="author">
             <label/>
@@ -832,19 +851,15 @@
           </choose>
           <group>
             <choose>
-              <if match="any" type="interview personal_communication">
-                <choose>
-                  <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                    <!-- These variables indicate that the communication is retrievable by the reader. If not, then use the in-text-only personal communication format -->
-                    <text macro="date-issued-year"/>
-                  </if>
-                  <else>
-                    <text macro="date-issued-full"/>
-                  </else>
-                </choose>
-              </if>
-              <else>
+              <if match="none" type="interview personal_communication">
                 <text macro="date-issued-year"/>
+              </if>
+              <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
+              <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+                <text macro="date-issued-year"/>
+              </else-if>
+              <else>
+                <text macro="date-issued-full"/>
               </else>
             </choose>
             <text variable="year-suffix"/>
@@ -1473,7 +1488,22 @@
   <macro name="description-short">
     <choose>
       <if match="any" type="interview" variable="interviewer">
-        <text macro="description-interview-short"/>
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <text macro="description-interview-short"/>
+          </if>
+          <else>
+            <!-- for an inaccessible `interview`, give a full in-text description at the first citation -->
+            <choose>
+              <if position="first">
+                <text macro="description-interview-note"/>
+              </if>
+              <else>
+                <text macro="description-interview-short"/>
+              </else>
+            </choose>
+          </else>
+        </choose>
       </if>
       <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
         <text macro="description-review-short"/>
@@ -4871,14 +4901,13 @@
         </choose>
         <text macro="citation-notes-shortened-author-title-disambiguate"/>
         <choose>
-          <if match="any" type="interview personal_communication">
-            <choose>
-              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- unpublished `interview` or `personal_communication` use inline format (CMOS18 14.111) -->
-                <text macro="date-short"/>
-              </if>
-            </choose>
-          </if>
+          <if match="none" type="interview personal_communication"/>
+          <else-if match="none" position="first"/>
+          <else-if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- inaccessible `interview` or `personal_communication` uses in-text format (CMOS18 14.111): give the date at the first citation in shortened notes -->
+            <text macro="date-short"/>
+            <text macro="source-medium-note"/>
+          </else-if>
         </choose>
         <text macro="source-monographic-publication-short-unbracketed"/>
       </group>
