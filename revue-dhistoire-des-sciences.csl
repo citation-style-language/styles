@@ -12,12 +12,13 @@
     <category citation-format="note"/>
     <category field="generic-base"/>
     <issn>1969-6582</issn>
-    <updated>2025-12-07T17:09:17+00:00</updated>
+    <updated>2025-12-08T11:49:14+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="fr">
     <terms>
       <term name="editor" form="short">dir.</term>
+      <term name="op-cit" form="short">op. cit. in</term>
     </terms>
   </locale>
   <macro name="author">
@@ -69,14 +70,19 @@
   <macro name="title-short">
     <choose>
       <if match="any" disambiguate="true">
-        <text value="op. cit. in " font-style="italic"/>
+        <text term="op-cit" form="short" font-style="italic"/>
         <text variable="first-reference-note-number"/>
       </if>
       <else-if match="none" disambiguate="true">
-        <group>
-          <text macro="date" prefix=" (" suffix="), "/>
-          <text value="op. cit. in " font-style="italic"/>
-          <text variable="first-reference-note-number" form="short" font-style="normal" prefix="n.&#160;"/>
+        <group delimiter=", " prefix=" ">
+          <text macro="date" prefix="(" suffix=")"/>
+          <group>
+            <text term="op-cit" form="short" font-style="italic"/>
+            <group delimiter=" ">
+              <label variable="first-reference-note-number" form="short"/>
+              <text variable="first-reference-note-number" form="short" font-style="normal"/>
+            </group>
+          </group>
         </group>
       </else-if>
     </choose>
@@ -85,7 +91,7 @@
     <choose>
       <if type="chapter book thesis entry-encyclopedia manuscript" match="any">
         <group delimiter=", " prefix="(" suffix=")">
-          <group delimiter="&#160;: ">
+          <group delimiter=" : ">
             <choose>
               <if type="thesis" match="none">
                 <text variable="publisher-place"/>
@@ -129,24 +135,12 @@
   </macro>
   <macro name="pageref">
     <choose>
-      <if match="any" locator="chapter">
-        <text variable="locator" prefix="chap.&#160;"/>
+      <if match="none" locator="page">
+        <group delimiter=" ">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
       </if>
-      <else-if match="any" locator="page">
-        <text variable="locator"/>
-      </else-if>
-      <else-if match="any" locator="section">
-        <text variable="locator" prefix="sect.&#160;"/>
-      </else-if>
-      <else-if match="any" locator="part">
-        <text variable="locator" prefix="part.&#160;"/>
-      </else-if>
-      <else-if match="any" locator="volume">
-        <text variable="locator" prefix="vol.&#160;"/>
-      </else-if>
-      <else-if match="none" position="ibid">
-        <text variable="page"/>
-      </else-if>
     </choose>
   </macro>
   <macro name="volref">
@@ -193,14 +187,17 @@
     </group>
   </macro>
   <citation>
-    <layout delimiter="&#160;; " suffix=".">
+    <layout delimiter=" ; " suffix=".">
       <choose>
-        <if position="ibid">
+        <if position="ibid-with-locator">
           <group delimiter=", ">
             <text term="ibid" font-style="italic"/>
             <text macro="pageref"/>
           </group>
         </if>
+        <else-if position="ibid">
+          <text term="ibid" font-style="italic"/>
+        </else-if>
         <else-if match="any" position="subsequent">
           <group delimiter=", ">
             <group>
@@ -211,56 +208,58 @@
           </group>
         </else-if>
         <else>
-          <group>
-            <text macro="author" suffix=", "/>
-            <text macro="title" suffix=" "/>
-            <group>
-              <choose>
-                <if type="article-journal" match="any">
-                  <group delimiter=", ">
-                    <text macro="container"/>
-                    <text macro="volref"/>
-                  </group>
-                </if>
-                <else-if type="chapter paper-conference entry-encyclopedia" match="any">
-                  <group delimiter=" " prefix=" ">
-                    <text macro="container"/>
-                    <text macro="publisher"/>
-                  </group>
-                </else-if>
-                <else-if type="book" match="any">
-                  <group delimiter=" ">
+          <group delimiter=", ">
+            <text macro="author"/>
+            <group delimiter=" ">
+              <text macro="title"/>
+              <group>
+                <choose>
+                  <if type="article-journal" match="any">
                     <group delimiter=", ">
-                      <text macro="volumes"/>
-                      <text macro="edition"/>
+                      <text macro="container"/>
+                      <text macro="volref"/>
                     </group>
-                    <group delimiter=", ">
+                  </if>
+                  <else-if type="chapter paper-conference entry-encyclopedia" match="any">
+                    <group delimiter=" " prefix=" ">
+                      <text macro="container"/>
                       <text macro="publisher"/>
-                      <text macro="volume"/>
                     </group>
-                  </group>
-                </else-if>
-                <else-if type="thesis" match="any">
-                  <group delimiter=" ">
-                    <text variable="container-title"/>
-                    <text variable="genre"/>
+                  </else-if>
+                  <else-if type="book" match="any">
                     <group delimiter=" ">
+                      <group delimiter=", ">
+                        <text macro="volumes"/>
+                        <text macro="edition"/>
+                      </group>
+                      <group delimiter=", ">
+                        <text macro="publisher"/>
+                        <text macro="volume"/>
+                      </group>
+                    </group>
+                  </else-if>
+                  <else-if type="thesis" match="any">
+                    <group delimiter=" ">
+                      <text variable="container-title"/>
+                      <text variable="genre"/>
+                      <group delimiter=" ">
+                        <text macro="publisher"/>
+                      </group>
+                    </group>
+                  </else-if>
+                  <else-if type="manuscript" match="any">
+                    <group>
+                      <text variable="container-title" quotes="true"/>
+                      <date form="text" variable="issued" prefix="ms. du " suffix=" "/>
                       <text macro="publisher"/>
                     </group>
-                  </group>
-                </else-if>
-                <else-if type="manuscript" match="any">
-                  <group>
-                    <text variable="container-title" quotes="true"/>
-                    <date form="text" variable="issued" prefix="ms. du " suffix=" "/>
+                  </else-if>
+                  <else>
                     <text macro="publisher"/>
-                  </group>
-                </else-if>
-                <else>
-                  <text macro="publisher"/>
-                  <text macro="date" prefix="(" suffix=")"/>
-                </else>
-              </choose>
+                    <text macro="date" prefix="(" suffix=")"/>
+                  </else>
+                </choose>
+              </group>
             </group>
             <text macro="pageref" prefix=", "/>
           </group>
@@ -288,7 +287,7 @@
               </group>
             </if>
             <else-if type="chapter paper-conference" match="any">
-              <group delimiter=", " prefix=" ">
+              <group delimiter=", ">
                 <text macro="container"/>
                 <text macro="publisher"/>
                 <text macro="pageno"/>
