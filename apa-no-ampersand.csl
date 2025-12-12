@@ -169,7 +169,6 @@
        `standard` == `report`
        `performance` == `speech`
        `event` == `speech`
-       `collection` == `book` (but give full date)
   -->
   <!-- Role equivalencies:
 
@@ -356,100 +355,104 @@
   </macro>
   <!-- 1. Author (APA 9.7-12) -->
   <macro name="author">
+    <!-- Substitutes for missing authors: order prioritizes primary creators (e.g., composer, author) over secondary roles (e.g., editor, curator), with title as the final fallback. -->
+    <names variable="composer">
+      <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+      <label form="short" prefix=" (" suffix=")" text-case="title"/>
+      <substitute>
+        <names variable="author"/>
+        <!-- `narrator` only cited in `identifier-contributors` -->
+        <names variable="illustrator"/>
+        <choose>
+          <if type="broadcast">
+            <names variable="script-writer director">
+              <!-- Actors/performers and producers [not executive] not cited in APA style. -->
+              <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+              <label prefix=" (" suffix=")" text-case="title"/>
+            </names>
+          </if>
+        </choose>
+        <names variable="director">
+          <!-- For non-broadcast items, APA only cites directors and not writers. -->
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <names variable="guest host">
+          <!-- TODO: Collapse variables when that becomes available. -->
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <names variable="producer">
+          <!-- Producers not cited if there is a writer/director, but use if they are the principal creator. -->
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <choose>
+          <if match="any" type="entry-dictionary entry-encyclopedia">
+            <text variable="publisher"/>
+          </if>
+        </choose>
+        <choose>
+          <if match="none" variable="container-title"/>
+          <else-if match="any" type="book classic entry entry-dictionary entry-encyclopedia">
+            <!-- Items with a monographic `container-title` substitute their title and identifier, but leave description after `container-title`. This mimics the `source-monographic` macro. -->
+            <text macro="author-title-substitute"/>
+          </else-if>
+        </choose>
+        <names variable="executive-producer">
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <names variable="series-creator">
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <names variable="editor-translator"/>
+        <!-- `translator` is not cited as a primary creator (only as Ed. & Trans.). -->
+        <names variable="editor"/>
+        <names variable="editorial-director"/>
+        <names variable="compiler">
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <choose>
+          <if match="any" type="event performance speech">
+            <names variable="chair">
+              <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+              <label prefix=" (" suffix=")" text-case="title"/>
+            </names>
+            <names variable="organizer">
+              <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+              <label prefix=" (" suffix=")" text-case="title"/>
+            </names>
+          </if>
+        </choose>
+        <names variable="curator">
+          <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
+          <label prefix=" (" suffix=")" text-case="title"/>
+        </names>
+        <names variable="collection-editor"/>
+        <choose>
+          <if type="standard">
+            <text variable="authority"/>
+          </if>
+        </choose>
+        <text macro="author-title-substitute"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-and-contributors">
     <group delimiter=" ">
-      <!-- Substitutes for missing authors: order prioritizes primary creators (e.g., composer, author) over secondary roles (e.g., editor, curator), with title as the final fallback. -->
-      <names variable="composer">
-        <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-        <label form="short" prefix=" (" suffix=")" text-case="title"/>
-        <substitute>
-          <names variable="author"/>
-          <!-- `narrator` only cited in `identifier-contributors` -->
-          <names variable="illustrator"/>
-          <choose>
-            <if type="broadcast">
-              <names variable="script-writer director">
-                <!-- Actors/performers and producers [not executive] not cited in APA style. -->
-                <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-                <label prefix=" (" suffix=")" text-case="title"/>
-              </names>
-            </if>
-          </choose>
-          <names variable="director">
-            <!-- For non-broadcast items, APA only cites directors and not writers. -->
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="guest host">
-            <!-- TODO: Collapse variables when that becomes available. -->
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="producer">
-            <!-- Producers not cited if there is a writer/director, but use if they are the principal creator. -->
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <choose>
-            <if match="any" type="entry-dictionary entry-encyclopedia">
-              <text variable="publisher"/>
-            </if>
-          </choose>
-          <choose>
-            <if match="none" variable="container-title"/>
-            <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
-              <!-- Items with a monographic `container-title` substitute their title and identifier, but leave description after `container-title`. This mimics the `source-monographic` macro. -->
-              <text macro="author-title-substitute"/>
-            </else-if>
-          </choose>
-          <names variable="executive-producer">
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="series-creator">
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="editor-translator"/>
-          <!-- `translator` is not cited as a primary creator (only as Ed. & Trans.). -->
-          <names variable="editor"/>
-          <names variable="editorial-director"/>
-          <names variable="compiler">
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <choose>
-            <if match="any" type="event performance speech">
-              <names variable="chair">
-                <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-                <label prefix=" (" suffix=")" text-case="title"/>
-              </names>
-              <names variable="organizer">
-                <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-                <label prefix=" (" suffix=")" text-case="title"/>
-              </names>
-            </if>
-          </choose>
-          <names variable="curator">
-            <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
-            <label prefix=" (" suffix=")" text-case="title"/>
-          </names>
-          <names variable="collection-editor"/>
-          <choose>
-            <if type="standard">
-              <text variable="authority"/>
-            </if>
-          </choose>
-          <text macro="author-title-substitute"/>
-        </substitute>
-      </names>
+      <text macro="author"/>
       <choose>
-        <!-- Print "with" contributor for books only -->
-        <if match="any" type="book classic collection">
+        <!-- add nonprimary authors equivalent to those appearing "on a book cover"; do not modify the in-text citation (APA 9.8) -->
+        <if match="none" variable="author compiler composer editor editor-translator illustrator"/>
+        <else-if match="any" type="book musical_score pamphlet report standard">
           <names prefix="(" suffix=")" variable="contributor">
             <label form="verb" suffix=" "/>
             <name and="text" delimiter-precedes-last="always" name-as-sort-order="all"/>
           </names>
-        </if>
+        </else-if>
       </choose>
     </group>
   </macro>
@@ -505,7 +508,7 @@
             </choose>
             <choose>
               <if match="none" variable="container-title"/>
-              <else-if match="any" type="book classic collection entry entry-dictionary entry-encyclopedia">
+              <else-if match="any" type="book classic entry entry-dictionary entry-encyclopedia">
                 <text macro="title-and-descriptions-short"/>
               </else-if>
             </choose>
@@ -2325,7 +2328,7 @@
         </if>
         <else>
           <group delimiter=". " suffix=".">
-            <text macro="author"/>
+            <text macro="author-and-contributors"/>
             <text macro="date"/>
             <text macro="title-and-descriptions"/>
             <text macro="source"/>
