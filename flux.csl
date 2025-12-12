@@ -35,6 +35,8 @@
       <term name="page" form="short">p.</term>
       <term name="issue" form="short">n°</term>
       <term name="et-al">et alii.</term>
+      <term name="online">En ligne</term>
+      <term name="at">Disponible à l'adresse :</term>
     </terms>
   </locale>
   <macro name="container-contributors">
@@ -106,14 +108,17 @@
             <text variable="DOI" prefix="DOI : "/>
           </if>
           <else-if variable="URL">
-            <group>
-              <text value="[En ligne] (consulté le" suffix=" "/>
-              <date variable="accessed">
-                <date-part name="day" suffix=" "/>
-                <date-part name="month" suffix=" "/>
-                <date-part name="year" suffix=") "/>
-              </date>
-              <text value="Disponible à l'adresse : "/>
+            <group delimiter=" ">
+              <text term="online" prefix="[" suffix="]"/>
+              <group prefix="(" suffix=")">
+                <text term="accessed" suffix=" "/>
+                <date variable="accessed">
+                  <date-part name="day" suffix=" "/>
+                  <date-part name="month" suffix=" "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+              <text term="at"/>
               <text variable="URL"/>
             </group>
           </else-if>
@@ -130,7 +135,8 @@
         <text variable="title" font-style="italic"/>
         <group prefix=" (" suffix=")" delimiter=" ">
           <text variable="genre"/>
-          <text variable="number" prefix="n° "/>
+          <label variable="number" form="short"/>
+          <text variable="number"/>
         </group>
       </else-if>
       <else-if type="book graphic motion_picture report song manuscript speech" match="any">
@@ -159,7 +165,7 @@
   </macro>
   <macro name="event">
     <group delimiter=", ">
-      <text value="Organisateur"/>
+      <text term="director"/>
       <text variable="container-title" font-style="italic"/>
       <text variable="event-place"/>
       <date variable="issued">
@@ -242,22 +248,22 @@
     <choose>
       <if type="article-journal article-magazine" match="any">
         <group delimiter=", ">
-          <group>
-            <text term="volume" form="short" suffix=" "/>
+          <group delimiter=" ">
+            <label variable="volume" form="short"/>
             <text variable="volume"/>
           </group>
-          <group>
-            <text term="issue" form="short" suffix=" "/>
+          <group delimiter=" ">
+            <label variable="issue" form="short"/>
             <text variable="issue"/>
           </group>
-          <group>
+          <group delimiter=" ">
             <label variable="page" form="short"/>
-            <text variable="page" prefix=" "/>
+            <text variable="page"/>
           </group>
         </group>
       </if>
       <else-if type="article-newspaper">
-        <group delimiter=" " prefix=", ">
+        <group delimiter=" ">
           <label variable="page" form="short"/>
           <text variable="page"/>
         </group>
@@ -265,17 +271,17 @@
       <else-if type="book graphic motion_picture report song chapter paper-conference" match="any">
         <group delimiter=", ">
           <text macro="edition"/>
-          <group>
-            <text term="volume" form="short" plural="true" suffix=" "/>
+          <group delimiter=" ">
+            <label variable="number-of-volumes" form="short"/>
             <number variable="number-of-volumes" form="numeric" prefix="1-"/>
           </group>
-          <group>
-            <text term="volume" form="short" suffix=" "/>
+          <group delimiter=" ">
+            <label variable="volume" form="short"/>
             <number variable="volume" form="numeric"/>
           </group>
-          <group>
+          <group delimiter=" ">
             <label variable="page" form="short"/>
-            <text variable="page" prefix=" "/>
+            <text variable="page"/>
           </group>
         </group>
       </else-if>
@@ -294,16 +300,9 @@
     </choose>
   </macro>
   <macro name="citation-locator">
-    <group>
-      <choose>
-        <if locator="chapter">
-          <label variable="locator" form="short"/>
-        </if>
-        <else>
-          <label variable="locator" form="short"/>
-        </else>
-      </choose>
-      <text variable="locator" prefix=" "/>
+    <group delimiter=" ">
+      <label variable="locator" form="short"/>
+      <text variable="locator"/>
     </group>
   </macro>
   <macro name="container-title">
@@ -325,10 +324,11 @@
       <text variable="publisher"/>
     </group>
   </macro>
-  <macro name="day-month">
+  <macro name="day-month-year">
     <date variable="issued">
       <date-part name="day" suffix=" "/>
-      <date-part name="month"/>
+      <date-part name="month" suffix=" "/>
+      <date-part name="year"/>
     </date>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true" givenname-disambiguation-rule="primary-name" collapse="year">
@@ -355,12 +355,19 @@
         <if type="article-journal article-magazine article-newspaper" match="any">
           <group delimiter=", ">
             <text macro="author"/>
-            <text macro="issued"/>
+            <choose>
+              <if type="article-newspaper">
+                <!-- Date complète affichée plus bas via day-month-year -->
+              </if>
+              <else>
+                <text macro="issued"/>
+              </else>
+            </choose>
             <text macro="title"/>
             <text macro="container-title"/>
             <choose>
               <if type="article-newspaper">
-                <text macro="day-month"/>
+                <text macro="day-month-year"/>
               </if>
             </choose>
             <text macro="locators"/>
