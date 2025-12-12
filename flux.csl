@@ -351,19 +351,29 @@
       <key macro="title"/>
     </sort>
     <layout>
-      <choose>
-        <if type="article-journal article-magazine article-newspaper" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <choose>
-              <if type="article-newspaper">
-                <!-- Date complète affichée plus bas via day-month-year -->
-              </if>
-              <else>
-                <text macro="issued"/>
-              </else>
-            </choose>
-            <text macro="title"/>
+      <group delimiter=", ">
+        <!-- Author -->
+        <text macro="author"/>
+        
+        <!-- Date (varies by type) -->
+        <choose>
+          <if type="article-newspaper">
+            <!-- Date complète pour les articles de presse (affichée après le container-title) -->
+          </if>
+          <else-if type="paper-conference">
+            <text macro="issued-year"/>
+          </else-if>
+          <else>
+            <text macro="issued"/>
+          </else>
+        </choose>
+        
+        <!-- Title -->
+        <text macro="title"/>
+        
+        <!-- Type-specific content -->
+        <choose>
+          <if type="article-journal article-magazine article-newspaper" match="any">
             <text macro="container-title"/>
             <choose>
               <if type="article-newspaper">
@@ -371,33 +381,8 @@
               </if>
             </choose>
             <text macro="locators"/>
-          </group>
-        </if>
-        <else-if type="book report" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
-            <choose>
-              <if type="book">
-                <text macro="publisher"/>
-              </if>
-            </choose>
-          </group>
-        </else-if>
-        <else-if type="book" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
-            <text macro="publisher"/>
-          </group>
-        </else-if>
-        <else-if type="chapter" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
+          </if>
+          <else-if type="chapter">
             <group delimiter=" ">
               <text term="in" font-style="italic" text-case="lowercase" suffix=" :"/>
               <group delimiter=", ">
@@ -407,40 +392,33 @@
             </group>
             <text macro="publisher"/>
             <text macro="locators"/>
-          </group>
-        </else-if>
-        <else-if type="paper-conference" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued-year"/>
-            <text macro="title"/>
+          </else-if>
+          <else-if type="paper-conference">
             <text macro="event"/>
-          </group>
-        </else-if>
-        <else-if type="report" match="any">
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
-          </group>
-        </else-if>
-        <else-if type="thesis">
-          <group delimiter=", " suffix=".">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
+          </else-if>
+          <else-if type="thesis">
             <text macro="thesis-details"/>
-          </group>
-        </else-if>
-        <else>
-          <group delimiter=", ">
-            <text macro="author"/>
-            <text macro="issued"/>
-            <text macro="title"/>
+          </else-if>
+          <else-if type="book">
             <text macro="publisher"/>
-          </group>
-        </else>
+          </else-if>
+          <else-if type="report">
+            <!-- Title already included, no additional content needed -->
+          </else-if>
+          <else>
+            <text macro="publisher"/>
+          </else>
+        </choose>
+      </group>
+      
+      <!-- Suffix for thesis -->
+      <choose>
+        <if type="thesis">
+          <text value="."/>
+        </if>
       </choose>
+      
+      <!-- Access information -->
       <text macro="access" prefix=". "/>
     </layout>
   </bibliography>
