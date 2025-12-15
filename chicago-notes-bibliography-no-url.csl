@@ -427,6 +427,8 @@
         </if>
       </choose>
       <text variable="volume"/>
+      <!-- always display number of volumes in notes without bibliography (CMOS 14.20): -->
+      <!-- <choose><if is-numeric="number-of-volumes" variable="volume"><text value="of"/><text variable="number-of-volumes"/></if></choose>-->
     </group>
   </macro>
   <macro name="label-volume-capitalized">
@@ -3053,7 +3055,7 @@
     </group>
   </macro>
   <macro name="identifier-volume-bib">
-    <!-- In notes styles, bibliography entries may be listed either under an individual volume title or its series, but the former approach is required for author-date, which is the form that this macro implements (CMOS18 14.21) -->
+    <!-- In notes styles, bibliography entries may be listed either under an individual volume title or that of the multivolume set, but the former approach is required for author-date, which is the form that this macro implements (CMOS18 14.21) -->
     <group delimiter=", ">
       <choose>
         <if variable="part-number part-title volume volume-title">
@@ -3121,46 +3123,50 @@
   </macro>
   <macro name="identifier-volume-note">
     <!-- List the general title first in the notes (CMOS18 14.20) -->
-    <choose>
-      <if match="any" variable="part-number part-title volume-title">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" variable="part-number part-title volume-title">
           <text macro="label-volume"/>
           <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="label-part-number"/>
           <text macro="title-part"/>
-        </group>
-      </if>
-      <else-if is-numeric="volume" locator="page">
-        <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` (CMOS18 14.20) -->
-        <choose>
-          <!-- check for variables that might come between the volume and page number -->
-          <if match="any" variable="collection-editor part-number part-title volume-title">
-            <text macro="label-volume"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if is-numeric="volume" variable="page">
-        <choose>
-          <if match="any" variable="collection-editor part-number part-title volume-title">
-            <text macro="label-volume"/>
-          </if>
-          <else-if variable="container-title">
-            <!-- remove condition in styles that print chapter page numbers (CMOS17/classic) -->
-            <text macro="label-volume"/>
-          </else-if>
-        </choose>
-      </else-if>
-      <else-if variable="volume">
-        <text macro="label-volume"/>
-      </else-if>
-      <!-- notes only show the number of volumes if there is no physical locator, which should include a volume number, e.g. 4:243 (CMOS18 14.20) -->
-      <else-if locator="column"/>
-      <else-if locator="folio"/>
-      <else-if locator="page"/>
-      <else>
-        <text macro="label-number-of-volumes"/>
-      </else>
-    </choose>
+        </if>
+        <else-if is-numeric="volume" locator="page">
+          <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` (CMOS18 14.20) -->
+          <choose>
+            <!-- check for variables that might come between the volume and page number -->
+            <if match="any" variable="collection-editor part-number part-title volume-title">
+              <text macro="label-volume"/>
+            </if>
+            <!-- always display number of volumes in notes without bibliography (CMOS 14.20): -->
+            <!-- <else><text macro="label-number-of-volumes"/></else>-->
+          </choose>
+        </else-if>
+        <else-if is-numeric="volume" variable="page">
+          <choose>
+            <if match="any" variable="collection-editor part-number part-title volume-title">
+              <text macro="label-volume"/>
+            </if>
+            <else-if variable="container-title">
+              <!-- remove condition in styles that print chapter page numbers (CMOS17/classic) -->
+              <text macro="label-volume"/>
+            </else-if>
+            <!-- always display number of volumes in notes without bibliography (CMOS 14.20): -->
+            <!-- <else><text macro="label-number-of-volumes"/></else>-->
+          </choose>
+        </else-if>
+        <else-if variable="volume">
+          <text macro="label-volume"/>
+        </else-if>
+        <!-- notes only show the number of volumes if there is no physical locator, which should include a volume number, e.g. 4:243; except when using notes without bibliography (CMOS18 14.20) -->
+        <else-if locator="column"/>
+        <else-if locator="folio"/>
+        <else-if locator="page"/>
+        <else>
+          <text macro="label-number-of-volumes"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="identifier-volume-monographic-bib">
     <choose>
