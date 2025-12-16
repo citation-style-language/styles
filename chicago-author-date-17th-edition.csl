@@ -789,11 +789,11 @@
           </group>
         </group>
       </if>
-      <else-if variable="available-date">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
       <else-if variable="event-date">
         <text macro="date-event-year"/>
+      </else-if>
+      <else-if variable="available-date">
+        <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="status">
         <group>
@@ -851,11 +851,11 @@
           </group>
         </group>
       </if>
-      <else-if variable="available-date">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
       <else-if variable="event-date">
         <text macro="date-event-year"/>
+      </else-if>
+      <else-if variable="available-date">
+        <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="status">
         <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
@@ -1024,18 +1024,18 @@
         <if variable="title">
           <text macro="title-bib"/>
           <text macro="description-bib"/>
-          <text macro="identifier-bib"/>
+          <text macro="identifier-bib-specific-title-first"/>
         </if>
         <else-if match="any" type="bill report">
           <!-- Bills, resolutions, and congressional reports substitute bill number if no title -->
           <!-- Congressional reports are indistinguishable from other reports -->
           <text macro="identifier-number-bib"/>
-          <text macro="identifier-bib"/>
+          <text macro="identifier-bib-specific-title-first"/>
           <text macro="description-bib"/>
         </else-if>
         <else>
           <text macro="description-bib"/>
-          <text macro="identifier-bib"/>
+          <text macro="identifier-bib-specific-title-first"/>
         </else>
       </choose>
     </group>
@@ -1059,7 +1059,7 @@
       <choose>
         <if type="broadcast" variable="container-title number title">
           <!-- Bespoke `broadcast` format (CMOS18 14.165, 14.168) -->
-          <text macro="source-monographic-title-bib"/>
+          <text macro="source-monographic-title-specific-title-first"/>
           <group delimiter=", ">
             <text macro="identifier-number-bib"/>
             <text macro="title-bib"/>
@@ -1125,7 +1125,7 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="title-monographic-bib"/>
+            <text macro="title-monographic-bib-specific-title-first"/>
           </if>
           <else>
             <!-- serial usage -->
@@ -1134,7 +1134,7 @@
         </choose>
       </else-if>
       <else>
-        <text macro="title-monographic-bib"/>
+        <text macro="title-monographic-bib-specific-title-first"/>
       </else>
     </choose>
   </macro>
@@ -1186,9 +1186,9 @@
       </group>
     </group>
   </macro>
-  <macro name="title-monographic-bib">
+  <macro name="title-monographic-bib-specific-title-first">
+    <!-- Use with author-date or notes and bibliography leading with volume title (CMOS 14.21). -->
     <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
-    <!-- There is no `title-monographic-note` as notes always open with the primary title. -->
     <choose>
       <if variable="container-title">
         <text macro="title-primary"/>
@@ -1870,7 +1870,7 @@
     </group>
   </macro>
   <!-- 3.3. Identifier (edition, contributors, volume) -->
-  <macro name="identifier-bib">
+  <macro name="identifier-bib-specific-title-first">
     <group delimiter=". ">
       <choose>
         <if type="patent">
@@ -1928,7 +1928,7 @@
           </choose>
           <text macro="identifier-volume-monographic-bib"/>
           <choose>
-            <!-- `collection-editor` supplied in `identifier-volume-monographic-bib` if there is a `part-title` or `volume-title` -->
+            <!-- `collection-editor` supplied in `identifier-volume-bib-specific-title-first` if there is a `part-title` or `volume-title` -->
             <if match="any" variable="part-title volume-title"/>
             <else-if match="any" variable="number-of-volumes part-number volume">
               <choose>
@@ -2250,8 +2250,8 @@
       </choose>
     </group>
   </macro>
-  <macro name="identifier-volume-bib">
-    <!-- In notes styles, bibliography entries may be listed either under an individual volume title or that of the multivolume set, but the former approach is required for author-date, which is the form that this macro implements (CMOS18 14.21) -->
+  <macro name="identifier-volume-bib-specific-title-first">
+    <!-- In author-date, bibliography must be listed under the individual volume title rather than the general title of the multivolume set; this is also allowable in notes styles (CMOS18 14.21) -->
     <group delimiter=", ">
       <choose>
         <if variable="part-number part-title volume volume-title">
@@ -2324,12 +2324,12 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="identifier-volume-bib"/>
+            <text macro="identifier-volume-bib-specific-title-first"/>
           </if>
         </choose>
       </else-if>
       <else>
-        <text macro="identifier-volume-bib"/>
+        <text macro="identifier-volume-bib-specific-title-first"/>
       </else>
     </choose>
   </macro>
@@ -2634,10 +2634,10 @@
                   <text macro="source-monographic-preposition-bib"/>
                 </if>
               </choose>
-              <text macro="source-monographic-title-bib"/>
+              <text macro="source-monographic-title-specific-title-first"/>
             </group>
             <text macro="source-monographic-description-bib"/>
-            <text macro="source-monographic-identifier-bib"/>
+            <text macro="source-monographic-identifier-bib-specific-title-first"/>
             <text macro="source-monographic-locator"/>
           </group>
         </if>
@@ -2720,7 +2720,7 @@
       </else>
     </choose>
   </macro>
-  <macro name="source-monographic-title-bib">
+  <macro name="source-monographic-title-specific-title-first">
     <choose>
       <if variable="part-title">
         <text macro="title-part"/>
@@ -2756,8 +2756,8 @@
     </choose>
   </macro>
   <!-- Monographic source identifier -->
-  <macro name="source-monographic-identifier-bib">
-    <!-- Based on `identifier-bib` -->
+  <macro name="source-monographic-identifier-bib-specific-title-first">
+    <!-- Based on `identifier-bib-specific-title-first` -->
     <choose>
       <if variable="container-title">
         <group delimiter=", ">
@@ -2791,7 +2791,7 @@
               <text macro="source-monographic-identifier-contributors-bib"/>
             </else>
           </choose>
-          <text macro="source-monographic-identifier-volume-bib"/>
+          <text macro="source-monographic-identifier-volume-bib-specific-title-first"/>
           <choose>
             <!-- `collection-editor` supplied in `source-monographic-identifier-volume-bib` if there is a `part-title` or `volume-title` -->
             <if match="any" variable="part-title volume-title"/>
@@ -2876,8 +2876,8 @@
       </choose>
     </group>
   </macro>
-  <macro name="source-monographic-identifier-volume-bib">
-    <!-- Mostly identical to `identifier-volume-bib` but without capitalization; giving `container-title` rather than `title-primary`; and ensuring volume number -->
+  <macro name="source-monographic-identifier-volume-bib-specific-title-first">
+    <!-- based on `identifier-volume-bib-specific-title-first` without capitalization; giving `container-title` rather than `title-primary`; and ensuring volume number -->
     <group delimiter=", ">
       <choose>
         <if variable="part-number part-title volume volume-title">
@@ -2960,6 +2960,7 @@
       <else-if locator="folio" variable="archive archive_location"/>
       <else-if locator="page" variable="archive archive_location"/>
       <else-if is-numeric="volume" locator="page">
+        <!-- separate a volume and page number with a colon (CMOS18 14.18) -->
         <group delimiter=":">
           <choose>
             <if match="none" variable="collection-editor part-number part-title volume-title">
@@ -2973,7 +2974,7 @@
         <text macro="label-locator"/>
       </else-if>
       <else-if is-numeric="volume" variable="page">
-        <!-- collapse the volume and page number if adjacent -->
+        <!-- collapse the volume and page number if adjacent (CMOS18 14.18) -->
         <group delimiter=":">
           <choose>
             <!-- check for variables that might come between the volume and page number -->
@@ -3207,7 +3208,7 @@
       </choose>
       <group delimiter=" ">
         <text macro="source-date-status-bib"/>
-        <text macro="source-date-bib"/>
+        <text macro="source-date-bib-specific-title-first"/>
       </group>
       <choose>
         <if type="broadcast" variable="URL"/>
@@ -3343,7 +3344,7 @@
     </choose>
   </macro>
   <!-- 4.6. Date -->
-  <macro name="source-date-bib">
+  <macro name="source-date-bib-specific-title-first">
     <!-- the date represents the last-mentioned title (CMOS18 14.21) -->
     <!-- there is no `source-date-note` as the date of a multivolume work is not used in note form -->
     <choose>
@@ -3381,7 +3382,7 @@
     </choose>
   </macro>
   <macro name="source-date-issued-month-day">
-    <!-- Variant for author-date styles -->
+    <!-- Use with author-date -->
     <!-- Give full date for more ephemeral types -->
     <!-- NB: any changes must also be applied to `source-date-original-month-day` -->
     <choose>
