@@ -312,15 +312,16 @@
     </group>
   </macro>
   <macro name="label-volume">
-    <!-- label a volume by rendering it in Roman numerals (NHR 18.2.7) -->
-    <choose>
-      <if is-numeric="volume">
-        <number form="roman" variable="volume"/>
-      </if>
-      <else>
-        <text variable="volume"/>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="volume">
+          <label form="short" variable="volume"/>
+        </if>
+      </choose>
+      <text variable="volume"/>
+    </group>
+    <!-- in OGS and other styles, label a volume by rendering it in Roman numerals (NHR 18.2.7): -->
+    <!-- <choose><if is-numeric="volume"><number form="roman" variable="volume"/></if><else><text variable="volume"/></else></choose>-->
   </macro>
   <!-- 1. Author -->
   <macro name="author-bib">
@@ -2175,7 +2176,7 @@
                 </if>
                 <else>
                   <text variable="volume"/>
-                  <!-- for Roman volume numbers: -->
+                  <!-- for serial Roman volume numbers: -->
                   <!-- <text macro="label-volume"/> -->
                   <text macro="label-issue"/>
                 </else>
@@ -3082,7 +3083,9 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="source-locator-subsequent-monographic"/>
+            <text macro="source-locator-subsequent-monographic-arabic-volume"/>
+            <!-- for OGS and other styles using Roman volume numbers: -->
+            <!-- <text macro="source-locator-subsequent-monographic-roman-volume"/> -->
           </if>
           <else>
             <!-- serial usage -->
@@ -3091,26 +3094,35 @@
         </choose>
       </else-if>
       <else>
-        <text macro="source-locator-subsequent-monographic"/>
+        <text macro="source-locator-subsequent-monographic-arabic-volume"/>
+        <!-- for OGS and other styles using Roman volume numbers: -->
+        <!-- <text macro="source-locator-subsequent-monographic-roman-volume"/> -->
       </else>
     </choose>
   </macro>
-  <macro name="source-locator-subsequent-monographic">
+  <macro name="source-locator-subsequent-monographic-arabic-volume">
     <group delimiter=", ">
       <choose>
         <if variable="container-title">
           <!-- Do not provide `volume` or `part-number` for defined section -->
           <text macro="label-locator"/>
         </if>
-        <!-- for OGS: -->
-        <!-- <else-if locator="column page" match="none"><text macro="label-volume"/><text macro="label-part-number"/><text macro="label-locator"/></else-if><else-if match="none" variable="part-number"><group delimiter=". "><text macro="label-volume"/><text macro="label-locator"/></group></else-if>-->
-        <else-if variable="part-number">
+        <else-if locator="page" variable="part-number">
+          <!-- label page numbers when using multiple locators (cf. CMOS18 14.50) -->
           <text macro="label-volume"/>
           <text macro="label-part-number"/>
           <text macro="label-locator-all"/>
         </else-if>
+        <else-if is-numeric="volume" locator="page">
+          <!-- separate a volume and page number with a point (NHR 17.2.5) -->
+          <group delimiter=".">
+            <text variable="volume"/>
+            <text variable="locator"/>
+          </group>
+        </else-if>
         <else>
           <text macro="label-volume"/>
+          <text macro="label-part-number"/>
           <text macro="label-locator"/>
         </else>
       </choose>
