@@ -379,10 +379,14 @@
     <group delimiter=" ">
       <choose>
         <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
-        <if is-numeric="supplement-number" variable="volume-title">
+        <if variable="issue supplement-number">
+          <!-- if there is both an issue and supplement number, do not label both as 'no.' -->
+          <text form="short" term="supplement"/>
+        </if>
+        <else-if is-numeric="supplement-number" variable="volume-title">
           <!-- if there is a volume title, it is already described as a supplement -->
           <text form="short" term="issue"/>
-        </if>
+        </else-if>
         <else-if is-numeric="supplement-number" type="periodical" variable="title">
           <text form="short" term="issue"/>
         </else-if>
@@ -1244,6 +1248,13 @@
             <text macro="source-bib"/>
           </group>
         </else-if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
+          <!-- introduction to a special issue or supplement -->
+          <group delimiter=" ">
+            <text macro="title-and-descriptions-bib"/>
+            <text macro="source-bib"/>
+          </group>
+        </else-if>
         <else>
           <text macro="title-and-descriptions-bib"/>
           <text macro="source-bib"/>
@@ -1293,6 +1304,13 @@
             </if>
             <else-if type="chapter" variable="container-title genre">
               <!-- 'introduction to', 'online appendix to' (CMOS18 14.12, 14.14) -->
+              <group delimiter=" ">
+                <text macro="title-and-descriptions-note"/>
+                <text macro="source-note"/>
+              </group>
+            </else-if>
+            <else-if type="article-journal" variable="container-title genre volume-title">
+              <!-- introduction to a special issue or supplement -->
               <group delimiter=" ">
                 <text macro="title-and-descriptions-note"/>
                 <text macro="source-note"/>
@@ -1798,6 +1816,12 @@
           <text macro="source-monographic-preposition-note"/>
           <text font-style="italic" form="short" text-case="title" variable="container-title"/>
         </if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
+          <text form="short" variable="genre"/>
+          <!-- untitled introduction to a special issue or supplement -->
+          <text macro="source-monographic-preposition-note"/>
+          <text form="short" quotes="true" text-case="title" variable="volume-title"/>
+        </else-if>
         <else-if variable="genre">
           <text form="short" variable="genre"/>
         </else-if>
@@ -2270,7 +2294,7 @@
   </macro>
   <macro name="description-serial-note">
     <group delimiter=", ">
-      <text macro="description-format-bib"/>
+      <text macro="description-format-note"/>
       <!-- `section` provides magazine departments (CMOS18 14.88) and newspaper column names (CMOS18 14.93) -->
       <text macro="label-section"/>
     </group>
@@ -3786,6 +3810,9 @@
       <if type="chapter" variable="container-title genre">
         <text value="to"/>
       </if>
+      <else-if type="article-journal" variable="container-title genre volume-title">
+        <text value="to"/>
+      </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <choose>
           <if match="any" variable="author composer">
@@ -3820,6 +3847,9 @@
       <if type="chapter" variable="container-title genre">
         <text value="to"/>
       </if>
+      <else-if type="article-journal" variable="container-title genre volume-title">
+        <text value="to"/>
+      </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <choose>
           <if match="any" variable="author composer">
