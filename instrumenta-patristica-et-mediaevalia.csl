@@ -262,10 +262,14 @@
     <group delimiter=" ">
       <choose>
         <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
-        <if is-numeric="supplement-number" variable="volume-title">
+        <if variable="issue supplement-number">
+          <!-- if there is both an issue and supplement number, do not label both as 'no.' -->
+          <text form="short" term="supplement"/>
+        </if>
+        <else-if is-numeric="supplement-number" variable="volume-title">
           <!-- if there is a volume title, it is already described as a supplement -->
           <text form="short" term="issue"/>
-        </if>
+        </else-if>
         <else-if is-numeric="supplement-number" type="periodical" variable="title">
           <text form="short" term="issue"/>
         </else-if>
@@ -882,6 +886,13 @@
                   <text macro="source"/>
                 </group>
               </if>
+              <else-if type="article-journal" variable="container-title genre volume-title">
+                <!-- introduction to a special issue or supplement -->
+                <group delimiter=" ">
+                  <text macro="title-and-descriptions"/>
+                  <text macro="source"/>
+                </group>
+              </else-if>
               <else>
                 <text macro="title-and-descriptions"/>
                 <text macro="source"/>
@@ -1305,6 +1316,12 @@
           <text macro="source-monographic-preposition"/>
           <text font-style="italic" form="short" text-case="title" variable="container-title"/>
         </if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
+          <text form="short" variable="genre"/>
+          <!-- untitled introduction to a special issue or supplement -->
+          <text macro="source-monographic-preposition"/>
+          <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+        </else-if>
         <else-if variable="genre">
           <text form="short" variable="genre"/>
         </else-if>
@@ -2119,7 +2136,7 @@
         <!-- Journal special issues (cf. CMOS18 14.77) and supplements (cf. CMOS18 14.78) -->
         <group delimiter=", ">
           <group delimiter=" ">
-            <text term="in"/>
+            <text macro="source-monographic-preposition"/>
             <text font-style="italic" text-case="title" variable="volume-title"/>
           </group>
           <text macro="source-monographic-identifier-contributors"/>
@@ -2262,6 +2279,9 @@
         <if match="any" type="broadcast entry entry-dictionary entry-encyclopedia motion_picture"/>
         <else-if type="chapter" variable="container-title genre">
           <!-- <https://www.mhra.org.uk/publications/Encounters-with-Albion/style-tutorial-2> appears to intend 'introduction to' (as CMOS18 14.12, 14.14) rather than 'introduction in' (NHR 18.2.6) -->
+          <text value="to"/>
+        </else-if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
           <text value="to"/>
         </else-if>
         <else-if type="song" variable="chapter-number title">
