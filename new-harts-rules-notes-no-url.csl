@@ -952,7 +952,7 @@
               <choose>
                 <if match="any" variable="collection-editor container-author editor editorial-director">
                   <!-- monographic usage -->
-                  <text macro="source-monographic-locator-arabic-volume"/>
+                  <text macro="source-monographic-locator"/>
                   <!-- for styles using Roman volume numbers: -->
                   <!-- <text macro="source-monographic-locator-roman-volume"/> -->
                   <!-- for OGS: -->
@@ -961,7 +961,7 @@
               </choose>
             </else-if>
             <else>
-              <text macro="source-monographic-locator-arabic-volume"/>
+              <text macro="source-monographic-locator"/>
               <!-- for styles using Roman volume numbers: -->
               <!-- <text macro="source-monographic-locator-roman-volume"/> -->
               <!-- for OGS: -->
@@ -1231,7 +1231,7 @@
       <group delimiter=": ">
         <choose>
           <!-- negotiate with `source-monographic-locator` -->
-          <if match="any" variable="part-title volume-title">
+          <if match="any" variable="part-number part-title volume-title">
             <text macro="label-volume"/>
           </if>
           <else-if locator="column page" match="any"/>
@@ -1249,7 +1249,7 @@
       <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
       <group delimiter=": ">
         <choose>
-          <if match="any" variable="part-title volume-title">
+          <if match="any" variable="part-number part-title volume-title">
             <text macro="label-part-number"/>
           </if>
           <else-if match="none" variable="locator page">
@@ -2485,12 +2485,23 @@
     </group>
   </macro>
   <!-- Monographic source locator -->
-  <macro name="source-monographic-locator-arabic-volume">
+  <macro name="source-monographic-locator">
     <choose>
       <!-- archival locators appear after the shelfmark (cf. CMOS18 14.127) -->
       <if locator="column" variable="archive archive_location"/>
       <else-if locator="folio" variable="archive archive_location"/>
       <else-if locator="page" variable="archive archive_location"/>
+      <else-if is-numeric="volume" locator="column">
+        <!-- separate a volume and column number with a point (NHR 17.2.5) -->
+        <group delimiter=".">
+          <choose>
+            <if match="none" variable="part-number part-title volume-title">
+              <text variable="volume"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </group>
+      </else-if>
       <else-if is-numeric="volume" locator="page">
         <!-- separate a volume and page number with a point (NHR 17.2.5) -->
         <group delimiter=".">
@@ -3103,7 +3114,7 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="source-locator-subsequent-monographic-arabic-volume"/>
+            <text macro="source-locator-subsequent-monographic"/>
             <!-- for OGS and other styles using Roman volume numbers: -->
             <!-- <text macro="source-locator-subsequent-monographic-roman-volume"/> -->
           </if>
@@ -3114,24 +3125,31 @@
         </choose>
       </else-if>
       <else>
-        <text macro="source-locator-subsequent-monographic-arabic-volume"/>
+        <text macro="source-locator-subsequent-monographic"/>
         <!-- for OGS and other styles using Roman volume numbers: -->
         <!-- <text macro="source-locator-subsequent-monographic-roman-volume"/> -->
       </else>
     </choose>
   </macro>
-  <macro name="source-locator-subsequent-monographic-arabic-volume">
+  <macro name="source-locator-subsequent-monographic">
     <group delimiter=", ">
       <choose>
         <if variable="container-title">
           <!-- Do not provide `volume` or `part-number` for defined section -->
           <text macro="label-locator"/>
         </if>
-        <else-if locator="page" variable="part-number">
-          <!-- label page numbers when using multiple locators (cf. CMOS18 14.50) -->
+        <else-if variable="part-number">
+          <!-- label column and page numbers when using multiple locators (cf. CMOS18 14.50) -->
           <text macro="label-volume"/>
           <text macro="label-part-number"/>
           <text macro="label-locator-all"/>
+        </else-if>
+        <else-if is-numeric="volume" locator="column">
+          <!-- separate a volume and column number with a point (NHR 17.2.5) -->
+          <group delimiter=".">
+            <text variable="volume"/>
+            <text variable="locator"/>
+          </group>
         </else-if>
         <else-if is-numeric="volume" locator="page">
           <!-- separate a volume and page number with a point (NHR 17.2.5) -->
