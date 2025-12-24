@@ -21,7 +21,7 @@
     </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
-    <updated>2025-09-10T08:31:17+00:00</updated>
+    <updated>2025-12-24T19:19:41+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt">
@@ -35,9 +35,9 @@
         <multiple>eds.</multiple>
       </term>
       <term name="accessed">acedido em</term>
+      <term name="cited" form="short">atual.</term>
       <term name="cited">consultado a</term>
       <term name="in">in</term>
-      <term name="no date" form="short">s.d.</term>
     </terms>
   </locale>
   <macro name="container-contributors">
@@ -115,7 +115,7 @@
         <names variable="translator"/>
         <choose>
           <if type="bill book graphic legal_case legislation motion_picture song patent" match="any">
-            <text variable="title" form="short" font-style="italic" font-weight="normal"/>
+            <text variable="title" form="short" font-style="italic"/>
           </if>
           <else>
             <text variable="title" form="short" quotes="false" font-style="italic"/>
@@ -141,16 +141,7 @@
     </group>
   </macro>
   <macro name="title">
-    <group>
-      <choose>
-        <if type="book manuscript patent thesis webpage report" match="any">
-          <text variable="title" form="long" font-style="italic"/>
-        </if>
-        <else>
-          <text variable="title" font-style="italic"/>
-        </else>
-      </choose>
-    </group>
+    <text variable="title" font-style="italic"/>
   </macro>
   <macro name="container-title">
     <group>
@@ -247,21 +238,22 @@
             <date-part name="month" form="short" suffix=". " text-case="lowercase"/>
             <date-part name="year" suffix=", "/>
           </date>
-          <text variable="page" prefix=" " suffix=" p."/>
+          <text macro="pages" prefix=" "/>
         </group>
       </else-if>
       <else-if match="any" type="article-journal article article-magazine">
-        <text variable="volume" prefix=" " suffix=":"/>
-        <text variable="issue" suffix=" ("/>
-        <text suffix=")" macro="issued-year"/>
-        <text variable="page" prefix=" "/>
+        <group delimiter=" ">
+          <group delimiter=":">
+            <text variable="volume" prefix=" "/>
+            <text variable="issue" suffix=" "/>
+          </group>
+          <text macro="issued-year" prefix="(" suffix=")"/>
+          <text variable="page"/>
+        </group>
       </else-if>
       <else-if match="any" type="chapter">
-        <text variable="volume" prefix="v. "/>
-        <text variable="page" prefix="p. "/>
-      </else-if>
-      <else-if type="book" match="any">
-        <text variable="page" prefix=". " suffix=" p."/>
+        <text macro="volume"/>
+        <text macro="pages"/>
       </else-if>
       <else-if type="thesis" match="any">
         <text variable="page" prefix=". " suffix=" f."/>
@@ -280,11 +272,14 @@
         <text variable="page" prefix=" "/>
       </else-if>
       <else-if type="webpage post post-weblog" match="any">
-        <date variable="issued" prefix=", atual. ">
-          <date-part name="day" suffix=" "/>
-          <date-part name="month" form="short" suffix=". " text-case="lowercase"/>
-          <date-part name="year" suffix=". "/>
-        </date>
+        <group delimiter=" " prefix=", ">
+          <text term="cited" form="short"/>
+          <date variable="issued">
+            <date-part name="day" suffix=" "/>
+            <date-part name="month" form="short" suffix=". " text-case="lowercase"/>
+            <date-part name="year" suffix=". "/>
+          </date>
+        </group>
       </else-if>
     </choose>
   </macro>
@@ -298,6 +293,18 @@
     <group delimiter=" ">
       <label plural="never" variable="page" form="short"/>
       <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="volume">
+    <group delimiter=" ">
+      <label variable="volume" form="short"/>
+      <text variable="volume"/>
+    </group>
+  </macro>
+  <macro name="collection">
+    <group delimiter="; " prefix="(" suffix=")">
+      <text variable="collection-title"/>
+      <text variable="collection-number"/>
     </group>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" collapse="year">
@@ -337,7 +344,6 @@
             <text macro="edition" prefix=". "/>
             <text macro="locators"/>
             <text macro="access" prefix=" "/>
-            <text variable="note" suffix=". "/>
           </group>
         </else-if>
         <else-if type="book">
@@ -345,7 +351,10 @@
             <text macro="author" suffix=" - "/>
             <text macro="title"/>
             <text macro="container-contributors" suffix=" "/>
-            <text variable="volume" prefix=". Vol. "/>
+            <group delimiter=" " prefix=". ">
+              <label variable="volume" form="short" text-case="capitalize-first"/>
+              <text variable="volume"/>
+            </group>
             <text macro="edition" prefix=". "/>
             <text variable="number-of-volumes" prefix=" "/>
             <text macro="publisher" prefix=". "/>
@@ -356,8 +365,7 @@
               <text variable="number-of-pages"/>
               <label plural="never" variable="number-of-pages" form="short"/>
             </group>
-            <text variable="collection-title" prefix=" (" suffix="; "/>
-            <text variable="collection-number" suffix=")."/>
+            <text macro="collection" prefix=" " suffix="."/>
           </group>
         </else-if>
         <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
@@ -369,15 +377,14 @@
             <text macro="container-contributors" suffix=" - "/>
             <text macro="translator" suffix=" "/>
             <text macro="container-title" suffix=". "/>
-            <text variable="collection-title" suffix=""/>
+            <text variable="collection-title"/>
             <text variable="volume" prefix=". "/>
             <text macro="edition" prefix=". " suffix=". "/>
             <text macro="access" prefix=" "/>
             <text macro="publisher"/>
             <text variable="ISBN" prefix="ISBN " suffix=". "/>
             <text macro="pages" suffix="."/>
-            <text variable="collection-title" prefix=" (" suffix="; "/>
-            <text variable="collection-number" suffix=")."/>
+            <text macro="collection"/>
           </group>
         </else-if>
         <else-if type="article-journal article paper-conference" match="any">
@@ -471,7 +478,7 @@
         </else-if>
         <else>
           <text variable="archive" suffix=" - "/>
-          <text variable="archive_location" suffix=""/>
+          <text variable="archive_location"/>
           <text variable="source" prefix=", " suffix=". "/>
           <text macro="title" suffix=", "/>
           <text macro="issued" suffix="."/>
