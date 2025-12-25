@@ -29,7 +29,7 @@
     <category field="sociology"/>
     <category field="theology"/>
     <summary>Chicago-style source citations (with Bluebook for legal citations), shortened author-title in-text citations (CMOS18 12.77)</summary>
-    <updated>2025-08-07T00:00:00+00:00</updated>
+    <updated>2025-10-27T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -70,7 +70,7 @@
   </locale>
   <locale xml:lang="en-GB">
     <terms>
-      <!-- ensure consistency with other `en-GB` contractions -->
+      <!-- the Bibliography of Additional Resources recommends the New Oxford Style Manual as a British English guide, which the `en-GB` locale follows -->
       <term form="short" name="collection-number">
         <single>vol.</single>
         <multiple>vols</multiple>
@@ -83,6 +83,7 @@
         <single>ed. and trans.</single>
         <multiple>eds and trans.</multiple>
       </term>
+      <term form="verb-short" name="illustrator">illus.</term>
     </terms>
   </locale>
   <!-- Contents:
@@ -282,6 +283,12 @@
       <text variable="locator"/>
     </group>
   </macro>
+  <macro name="label-locator-all">
+    <group delimiter=" ">
+      <label form="short" variable="locator"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
   <macro name="label-number-capitalized">
     <group delimiter=" ">
       <choose>
@@ -301,6 +308,12 @@
           <label form="short" variable="number-of-volumes"/>
         </if>
       </choose>
+    </group>
+  </macro>
+  <macro name="label-page">
+    <group delimiter=" ">
+      <label form="short" variable="page"/>
+      <text variable="page"/>
     </group>
   </macro>
   <macro name="label-part-number">
@@ -345,10 +358,14 @@
     <group delimiter=" ">
       <choose>
         <!-- TODO: Replace with `supplement-number` label when CSL provides one -->
-        <if is-numeric="supplement-number" variable="volume-title">
+        <if variable="issue supplement-number">
+          <!-- if there is both an issue and supplement number, do not label both as 'no.' -->
+          <text form="short" term="supplement"/>
+        </if>
+        <else-if is-numeric="supplement-number" variable="volume-title">
           <!-- if there is a volume title, it is already described as a supplement -->
           <text form="short" term="issue"/>
-        </if>
+        </else-if>
         <else-if is-numeric="supplement-number" type="periodical" variable="title">
           <text form="short" term="issue"/>
         </else-if>
@@ -395,6 +412,8 @@
         </if>
       </choose>
       <text variable="volume"/>
+      <!-- always display number of volumes in notes without bibliography (CMOS18 14.20): -->
+      <!-- <choose><if is-numeric="number-of-volumes" variable="volume"><text value="of"/><text variable="number-of-volumes"/></if></choose>-->
     </group>
   </macro>
   <macro name="label-volume-capitalized">
@@ -436,6 +455,14 @@
           </else-if>
         </choose>
         <names variable="illustrator"/>
+        <choose>
+          <!-- list an edited multivolume work with individual part titles under the name of the series editor; remove this condition for author-date or notes and bibliography leading with volume title (CMOS18 14.21) -->
+          <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+          <else-if variable="container-title"/>
+          <else-if match="any" variable="part-title volume-title">
+            <names variable="collection-editor"/>
+          </else-if>
+        </choose>
         <choose>
           <if match="none" type="standard">
             <names variable="editor-translator"/>
@@ -536,15 +563,20 @@
             </choose>
             <names variable="illustrator"/>
             <choose>
-              <!-- In multivolume works, notes list editors after the title of the part for which they are responsible (CMOS18 14.20-24); it appears also that editors should not be substituted for authors with chapters (cf. CMOS18 14.22) -->
-              <if match="any" type="chapter standard" variable="part-title volume-title"/>
-              <else-if type="book" variable="container-title"/>
-              <else>
+              <!-- list a multivolume work under the name of the series editor; remove this condition for notes and bibliography leading with volume title (CMOS18 14.21) -->
+              <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+              <else-if variable="container-title"/>
+              <else-if match="any" variable="part-title volume-title">
+                <names variable="collection-editor"/>
+              </else-if>
+            </choose>
+            <choose>
+              <if match="none" type="standard">
                 <names variable="editor-translator"/>
                 <names variable="editor"/>
                 <names variable="translator"/>
                 <names variable="collection-editor"/>
-              </else>
+              </if>
             </choose>
             <choose>
               <if type="broadcast" variable="container-title number title"/>
@@ -569,6 +601,17 @@
               </if>
             </choose>
             <names variable="curator"/>
+            <choose>
+              <!-- no Chicago definition for these shortened references; this follows the bibliography -->
+              <if type="software">
+                <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169) -->
+                <text variable="publisher"/>
+              </if>
+              <else-if type="standard">
+                <!-- `standard` listed in bibliography under organization (CMOS18 14.159) -->
+                <text variable="authority"/>
+              </else-if>
+            </choose>
             <text macro="author-title-substitute-container-short"/>
             <text macro="author-title-substitute-short"/>
             <choose>
@@ -599,25 +642,45 @@
   <macro name="author-short-and-recipient">
     <group delimiter=" ">
       <choose>
-        <!-- Inaccessible personal commmunication is cited in-text (CMOS18 14.111) -->
+        <!-- inaccessible `interview` or `personal_commmunication`: in-text citation (CMOS18 14.111) -->
         <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-          <!-- These variables indicate whether the letter is retrievable by the reader -->
-          <group delimiter=", ">
-            <names variable="author">
-              <substitute>
-                <text macro="title-and-descriptions-short"/>
-              </substitute>
-            </names>
-          </group>
           <choose>
-            <if match="none" variable="genre">
+            <if position="first">
+              <!-- at the first citation in shortened forms, give the full name -->
+              <names variable="author">
+                <name and="text"/>
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+            </if>
+            <else>
+              <names variable="author">
+                <name and="text" form="short"/>
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+            </else>
+          </choose>
+          <choose>
+            <if variable="genre"/>
+            <!-- recipient appears in the description if there is a `genre`; otherwise after `author` -->
+            <else-if position="first">
               <names variable="recipient">
                 <label form="verb" suffix=" "/>
                 <name and="text"/>
               </names>
-            </if>
+            </else-if>
+            <else>
+              <names variable="recipient">
+                <label form="verb" suffix=" "/>
+                <name and="text" form="short"/>
+              </names>
+            </else>
           </choose>
         </if>
+        <!-- accessible `interview` or `personal_communication`: standard citation -->
         <else-if variable="author recipient">
           <names variable="author">
             <label/>
@@ -695,7 +758,10 @@
   </macro>
   <macro name="author-title-substitute-container">
     <choose>
+      <!-- if there is no `container-title`, there is nothing to substitute -->
       <if match="none" variable="container-title"/>
+      <!-- no Chicago model for citing an anonymous article with an issue title in `volume-title` -->
+      <else-if variable="volume-title"/>
       <else-if match="any" type="article-magazine article-newspaper">
         <!-- Anonymous magazine and newspaper articles substitute name of publication (CMOS18 14.87, 14.97) -->
         <text macro="source-serial-name"/>
@@ -731,15 +797,15 @@
       </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <!-- Anonymous entries in reference works (CMOS18 14.130) -->
-        <text font-style="italic" text-case="title" variable="container-title"/>
+        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
       </else-if>
       <else-if type="broadcast">
         <!-- TV broadcasts and podcasts (CMOS18 14.165, 14.168) -->
-        <text font-style="italic" text-case="title" variable="container-title"/>
+        <text font-style="italic" form="short" text-case="title" variable="container-title"/>
       </else-if>
       <else-if type="webpage">
         <!-- Website title substituted in bibliography only (CMOS18 14.104) -->
-        <text text-case="title" variable="container-title"/>
+        <text form="short" text-case="title" variable="container-title"/>
       </else-if>
     </choose>
   </macro>
@@ -759,30 +825,26 @@
           </choose>
           <group>
             <choose>
-              <if match="any" type="interview personal_communication">
-                <choose>
-                  <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                    <!-- These variables indicate that the communication is retrievable by the reader. If not, then use the in-text-only personal communication format -->
-                    <text macro="date-issued-year"/>
-                  </if>
-                  <else>
-                    <text macro="date-issued-full"/>
-                  </else>
-                </choose>
-              </if>
-              <else>
+              <if match="none" type="interview personal_communication">
                 <text macro="date-issued-year"/>
+              </if>
+              <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
+              <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+                <text macro="date-issued-year"/>
+              </else-if>
+              <else>
+                <text macro="date-issued-full"/>
               </else>
             </choose>
             <text variable="year-suffix"/>
           </group>
         </group>
       </if>
-      <else-if variable="available-date">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
       <else-if variable="event-date">
         <text macro="date-event-year"/>
+      </else-if>
+      <else-if variable="available-date">
+        <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
       <else-if variable="status">
         <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
@@ -911,17 +973,23 @@
           <text macro="title-bib"/>
           <text macro="description-bib"/>
           <text macro="identifier-bib"/>
+          <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+          <!-- <text macro="identifier-bib-specific-title-first"/> -->
         </if>
         <else-if match="any" type="bill report">
           <!-- Bills, resolutions, and congressional reports substitute bill number if no title -->
           <!-- Congressional reports are indistinguishable from other reports -->
           <text macro="identifier-number-bib"/>
           <text macro="identifier-bib"/>
+          <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+          <!-- <text macro="identifier-bib-specific-title-first"/> -->
           <text macro="description-bib"/>
         </else-if>
         <else>
           <text macro="description-bib"/>
           <text macro="identifier-bib"/>
+          <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+          <!-- <text macro="identifier-bib-specific-title-first"/> -->
         </else>
       </choose>
     </group>
@@ -945,7 +1013,9 @@
       <choose>
         <if type="broadcast" variable="container-title number title">
           <!-- Bespoke `broadcast` format (CMOS18 14.165, 14.168) -->
-          <text macro="source-monographic-title-bib"/>
+          <text font-style="italic" text-case="title" variable="container-title"/>
+          <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+          <!-- <text macro="source-monographic-title-specific-title-first"/> -->
           <group delimiter=", ">
             <text macro="identifier-number-bib"/>
             <text macro="title-bib"/>
@@ -961,7 +1031,14 @@
           </choose>
         </if>
         <else-if type="chapter" variable="container-title genre">
-          <!-- 'Introduction to' etc. (CMOS18 14.12, 14.14) -->
+          <!-- 'introduction to', 'online appendix to' (CMOS18 14.12, 14.14) -->
+          <group delimiter=" ">
+            <text macro="title-and-descriptions-bib"/>
+            <text macro="source-bib"/>
+          </group>
+        </else-if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
+          <!-- introduction to a special issue or supplement -->
           <group delimiter=" ">
             <text macro="title-and-descriptions-bib"/>
             <text macro="source-bib"/>
@@ -1011,7 +1088,9 @@
         <choose>
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
-            <text macro="title-monographic-bib"/>
+            <text macro="title-primary"/>
+            <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+            <!-- <text macro="title-monographic-bib-specific-title-first"/> -->
           </if>
           <else>
             <!-- serial usage -->
@@ -1020,7 +1099,9 @@
         </choose>
       </else-if>
       <else>
-        <text macro="title-monographic-bib"/>
+        <text macro="title-primary"/>
+        <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+        <!-- <text macro="title-monographic-bib-specific-title-first"/> -->
       </else>
     </choose>
   </macro>
@@ -1072,25 +1153,6 @@
       </group>
     </group>
   </macro>
-  <macro name="title-monographic-bib">
-    <!-- For monographic items, assume `part-number` and `part-title` refer to the book/volume. -->
-    <!-- There is no `title-monographic-note` as notes always open with the primary title. -->
-    <choose>
-      <if variable="container-title">
-        <text macro="title-primary"/>
-      </if>
-      <!-- For monographic items without `container-title`, bibliography entries list `part-title` or `volume-title` first if available -->
-      <else-if variable="part-title">
-        <text macro="title-part"/>
-      </else-if>
-      <else-if variable="volume-title">
-        <text font-style="italic" text-case="title" variable="volume-title"/>
-      </else-if>
-      <else>
-        <text macro="title-primary"/>
-      </else>
-    </choose>
-  </macro>
   <macro name="title-part">
     <choose>
       <if type="patent">
@@ -1127,8 +1189,31 @@
       </else-if>
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
-        <!-- Quotes, title case -->
-        <text quotes="true" text-case="title" variable="part-title"/>
+        <choose>
+          <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+            <!-- Quotes, title case -->
+            <text quotes="true" text-case="title" variable="part-title"/>
+          </if>
+          <else-if match="any" type="interview paper-conference">
+            <choose>
+              <if match="any" variable="collection-editor compiler editor editorial-director">
+                <!-- monographic usage -->
+                <!-- Italics, title case -->
+                <text font-style="italic" text-case="title" variable="part-title"/>
+              </if>
+              <else>
+                <!-- serial usage -->
+                <!-- Quotes, title case -->
+                <text quotes="true" text-case="title" variable="part-title"/>
+              </else>
+            </choose>
+          </else-if>
+          <else>
+            <!-- monographic usage -->
+            <!-- Italics, title case -->
+            <text font-style="italic" text-case="title" variable="part-title"/>
+          </else>
+        </choose>
       </else-if>
       <else-if match="any" type="article dataset document interview manuscript paper-conference personal_communication speech thesis webpage">
         <!-- Container-like but not necessarily with `container-title` -->
@@ -1276,7 +1361,22 @@
   <macro name="description-short">
     <choose>
       <if match="any" type="interview" variable="interviewer">
-        <text macro="description-interview-short"/>
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <text macro="description-interview-short"/>
+          </if>
+          <else>
+            <!-- for an inaccessible `interview`, give a full in-text description at the first citation -->
+            <choose>
+              <if position="first">
+                <text macro="description-interview-note"/>
+              </if>
+              <else>
+                <text macro="description-interview-short"/>
+              </else>
+            </choose>
+          </else>
+        </choose>
       </if>
       <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
         <text macro="description-review-short"/>
@@ -1329,13 +1429,11 @@
       </else-if>
     </choose>
   </macro>
-  <macro name="description-format-short">
+  <macro name="description-format-note">
     <choose>
-      <if variable="genre">
+      <if variable="genre number"/>
+      <else-if variable="genre">
         <text variable="genre"/>
-      </if>
-      <else-if variable="medium">
-        <text variable="medium"/>
       </else-if>
       <else-if type="manuscript">
         <!-- 'unpublished manuscript' if no `genre` (CMOS18 14.114) -->
@@ -1346,17 +1444,61 @@
         </choose>
       </else-if>
       <else-if type="personal_communication">
-        <!-- 'pers. comm.' if no `genre` (CMOS18 14.111) -->
+        <!-- 'personal communication' if no `genre` (CMOS18 14.111) -->
         <choose>
           <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-            <text form="short" term="personal-communication"/>
+            <text term="personal-communication"/>
           </if>
         </choose>
       </else-if>
-      <else-if variable="chapter-number">
-        <text macro="label-chapter-number"/>
-      </else-if>
     </choose>
+  </macro>
+  <macro name="description-format-short">
+    <group delimiter=" ">
+      <choose>
+        <if type="chapter" variable="container-title genre">
+          <text form="short" variable="genre"/>
+          <!-- untitled introductions: cf. review model, which includes a title (CMOS18 14.101) -->
+          <text macro="source-monographic-preposition-note"/>
+          <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+        </if>
+        <else-if type="article-journal" variable="container-title genre volume-title">
+          <text form="short" variable="genre"/>
+          <!-- untitled introduction to a special issue or supplement -->
+          <text macro="source-monographic-preposition-note"/>
+          <text form="short" quotes="true" text-case="title" variable="volume-title"/>
+        </else-if>
+        <else-if variable="genre">
+          <text form="short" variable="genre"/>
+        </else-if>
+        <else-if variable="medium">
+          <text form="short" variable="medium"/>
+        </else-if>
+        <else-if type="manuscript">
+          <!-- 'unpublished manuscript' if no `genre` (CMOS18 14.114) -->
+          <choose>
+            <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+              <text term="manuscript"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if type="personal_communication">
+          <!-- 'pers. comm.' if no `genre` (CMOS18 14.111) -->
+          <choose>
+            <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+              <text form="short" term="personal-communication"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if variable="chapter-number container-title">
+          <text macro="source-monographic-preposition-note"/>
+          <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+        </else-if>
+        <else-if variable="chapter-number">
+          <text macro="label-chapter-number"/>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="description-generic-bib">
     <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
@@ -1389,7 +1531,9 @@
             <text text-case="capitalize-first" variable="genre"/>
             <group delimiter=" ">
               <text form="verb" term="container-author"/>
-              <names variable="interviewer"/>
+              <names variable="interviewer">
+                <name and="text"/>
+              </names>
             </group>
           </group>
         </else-if>
@@ -1406,12 +1550,46 @@
       <text macro="source-event-place-first"/>
     </group>
   </macro>
+  <macro name="description-interview-note">
+    <group delimiter=", ">
+      <choose>
+        <if variable="genre number">
+          <!-- `genre` printed with `number` -->
+          <names variable="interviewer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </if>
+        <else-if variable="genre">
+          <group delimiter=" ">
+            <text variable="genre"/>
+            <group delimiter=" ">
+              <text form="verb" term="container-author"/>
+              <names variable="interviewer">
+                <name and="text"/>
+              </names>
+            </group>
+          </group>
+        </else-if>
+        <else-if variable="interviewer">
+          <names variable="interviewer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </else-if>
+        <else>
+          <text macro="description-format-note"/>
+        </else>
+      </choose>
+      <text macro="source-event-place-first"/>
+    </group>
+  </macro>
   <macro name="description-interview-short">
     <choose>
       <if disambiguate="true">
         <names variable="interviewer">
           <label form="verb" suffix=" "/>
-          <name and="text"/>
+          <name and="text" form="short"/>
           <substitute>
             <text macro="description-format-short"/>
           </substitute>
@@ -1480,7 +1658,7 @@
             <text macro="description-format-short"/>
             <names variable="recipient">
               <label form="verb" suffix=" "/>
-              <name and="text"/>
+              <name and="text" form="short"/>
             </names>
           </group>
         </if>
@@ -1489,7 +1667,14 @@
         </else>
       </choose>
       <text variable="event-place"/>
-      <text macro="date-event-full"/>
+      <choose>
+        <if variable="event-date">
+          <text macro="date-event-full"/>
+        </if>
+        <else>
+          <text macro="date-issued-full"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="description-paper-conference-bib">
@@ -1623,7 +1808,7 @@
         <text macro="description-format-short"/>
       </else-if>
       <else>
-        <text variable="section"/>
+        <text form="short" variable="section"/>
       </else>
     </choose>
   </macro>
@@ -1643,6 +1828,7 @@
         </else>
       </choose>
       <names variable="author">
+        <name and="text"/>
         <substitute>
           <names variable="performer"/>
         </substitute>
@@ -1686,7 +1872,11 @@
           <text macro="identifier-edition-bib"/>
           <choose>
             <if match="any" variable="part-title volume-title">
-              <text macro="identifier-contributors-bib"/>
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS18 14.20) -->
+              <names variable="collection-editor">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
             </if>
             <else-if match="any" variable="number-of-volumes part-number volume">
               <!-- `collection-editor` belongs with `collection-title` if item is not multivolume -->
@@ -1708,7 +1898,7 @@
           </choose>
           <text macro="identifier-volume-monographic-bib"/>
           <choose>
-            <!-- `collection-editor` supplied in `identifier-volume-monographic-bib` if there is a `part-title` or `volume-title` -->
+            <!-- contributors supplied in `identifier-volume-bib` if there is a `part-title` or `volume-title` -->
             <if match="any" variable="part-title volume-title"/>
             <else-if match="any" variable="number-of-volumes part-number volume">
               <choose>
@@ -1919,11 +2109,11 @@
         <label form="verb" suffix=" " text-case="capitalize-first"/>
         <name and="text"/>
       </names>
-      <names delimiter=", " variable="compiler chair organizer curator">
+      <names delimiter=". " variable="compiler chair organizer curator">
         <label form="verb" suffix=" " text-case="capitalize-first"/>
         <name and="text"/>
       </names>
-      <names delimiter=", " variable="series-creator executive-producer">
+      <names delimiter=". " variable="series-creator executive-producer">
         <label form="verb" suffix=" " text-case="capitalize-first"/>
         <name and="text"/>
       </names>
@@ -1947,21 +2137,36 @@
   </macro>
   <macro name="identifier-edition-bib">
     <choose>
-      <if match="none" variable="original-date">
+      <!-- ensure `source-publication-history-bib` does not duplicate edition -->
+      <if variable="original-title">
         <text macro="label-edition-capitalized"/>
       </if>
-      <else-if variable="original-title">
+      <else-if variable="issued original-date"/>
+      <else>
         <text macro="label-edition-capitalized"/>
-      </else-if>
+      </else>
+    </choose>
+  </macro>
+  <macro name="identifier-edition-note">
+    <choose>
+      <!-- ensure `source-publication-history-note` does not duplicate edition -->
+      <if variable="original-title">
+        <text macro="label-edition"/>
+      </if>
+      <else-if variable="issued original-date"/>
+      <else>
+        <text macro="label-edition"/>
+      </else>
     </choose>
   </macro>
   <macro name="identifier-number-bib">
     <group delimiter=" ">
       <choose>
-        <if is-numeric="number" type="broadcast" variable="genre">
+        <if type="thesis"/>
+        <else-if is-numeric="number" type="broadcast" variable="genre">
           <text text-case="capitalize-first" variable="genre"/>
           <text variable="number"/>
-        </if>
+        </else-if>
         <else-if is-numeric="number" type="broadcast">
           <text text-case="capitalize-first" value="episode"/>
           <text variable="number"/>
@@ -2030,66 +2235,79 @@
     </group>
   </macro>
   <macro name="identifier-volume-bib">
-    <!-- In notes styles, bibliography entries may be listed either under an individual volume title or its series, but the former approach is required for author-date, which is the form that this macro implements (CMOS18 14.21) -->
+    <!-- In notes styles, bibliography entries may be listed beginning with either the general title of the multivolume set or that of the individual volume; the former approach is listed first, but the latter is required in author-date (CMOS18 14.21) -->
     <group delimiter=", ">
       <choose>
-        <if variable="part-number part-title volume volume-title">
-          <!-- part and title with individual titles -->
-          <group delimiter=" ">
-            <text macro="label-part-number-capitalized"/>
-            <text value="of"/>
-            <text font-style="italic" text-case="title" variable="volume-title"/>
-          </group>
-          <group delimiter=" ">
-            <text macro="label-volume"/>
-            <text value="of"/>
-            <group delimiter=", ">
-              <text macro="title-primary"/>
-              <names variable="collection-editor">
-                <label form="verb" suffix=" "/>
-                <name and="text"/>
-              </names>
-            </group>
-          </group>
-        </if>
-        <else-if match="any" variable="part-title volume-title">
-          <group delimiter=" ">
-            <choose>
-              <if variable="part-number volume">
-                <group delimiter=", ">
-                  <text macro="label-volume-capitalized"/>
-                  <text macro="label-part-number"/>
-                  <text value="of"/>
-                </group>
-              </if>
-              <else-if variable="part-number">
-                <text macro="label-part-number-capitalized"/>
-                <text value="of"/>
-              </else-if>
-              <else-if variable="volume">
-                <text macro="label-volume-capitalized"/>
-                <text value="of"/>
-              </else-if>
-            </choose>
-            <group delimiter=", ">
-              <text macro="title-primary"/>
-              <names variable="collection-editor">
-                <label form="verb" suffix=" "/>
-                <name and="text"/>
-              </names>
-            </group>
-          </group>
-        </else-if>
-        <else-if variable="part-number volume">
+        <if match="any" variable="volume volume-title">
+          <!-- if there is a volume or volume title, the part number is not capitalized -->
           <text macro="label-volume-capitalized"/>
+          <text font-style="italic" text-case="title" variable="volume-title"/>
           <text macro="label-part-number"/>
-        </else-if>
-        <else-if variable="part-number">
+          <text macro="title-part"/>
+        </if>
+        <else-if match="any" variable="part-number part-title">
           <text macro="label-part-number-capitalized"/>
+          <text macro="title-part"/>
+        </else-if>
+        <else>
+          <text macro="label-number-of-volumes"/>
+        </else>
+      </choose>
+      <choose>
+        <if match="any" variable="part-title volume-title">
+          <names variable="editor-translator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="identifier-volume-note">
+    <!-- List the general title first in the notes (CMOS18 14.20) -->
+    <group delimiter=", ">
+      <choose>
+        <if match="any" variable="part-number part-title volume-title">
+          <text macro="label-volume"/>
+          <text font-style="italic" text-case="title" variable="volume-title"/>
+          <text macro="label-part-number"/>
+          <text macro="title-part"/>
+        </if>
+        <else-if is-numeric="volume" locator="page">
+          <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` (CMOS18 14.20) -->
+          <choose>
+            <!-- check for variables that might come between the volume and page number -->
+            <if match="any" variable="collection-editor part-number part-title volume-title">
+              <text macro="label-volume"/>
+            </if>
+            <!-- always display number of volumes in notes without bibliography (CMOS18 14.20): -->
+            <!-- <else><text macro="label-number-of-volumes"/></else>-->
+          </choose>
+        </else-if>
+        <else-if is-numeric="volume" variable="page">
+          <choose>
+            <if match="any" variable="collection-editor part-number part-title volume-title">
+              <text macro="label-volume"/>
+            </if>
+            <else-if variable="container-title">
+              <!-- remove condition in styles that print chapter page numbers (CMOS17/classic) -->
+              <text macro="label-volume"/>
+            </else-if>
+            <!-- always display number of volumes in notes without bibliography (CMOS18 14.20): -->
+            <!-- <else><text macro="label-number-of-volumes"/></else>-->
+          </choose>
         </else-if>
         <else-if variable="volume">
-          <text macro="label-volume-capitalized"/>
+          <text macro="label-volume"/>
         </else-if>
+        <!-- notes only show the number of volumes if there is no physical locator, which should include a volume number, e.g. 4:243; except when using notes without bibliography (CMOS18 14.20) -->
+        <else-if locator="column"/>
+        <else-if locator="folio"/>
+        <else-if locator="page"/>
         <else>
           <text macro="label-number-of-volumes"/>
         </else>
@@ -2104,11 +2322,15 @@
           <if match="any" variable="collection-editor compiler editor editorial-director">
             <!-- monographic usage -->
             <text macro="identifier-volume-bib"/>
+            <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+            <!-- <text macro="identifier-volume-bib-specific-title-first"/> -->
           </if>
         </choose>
       </else-if>
       <else>
         <text macro="identifier-volume-bib"/>
+        <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+        <!-- <text macro="identifier-volume-bib-specific-title-first"/> -->
       </else>
     </choose>
   </macro>
@@ -2205,7 +2427,7 @@
       <text macro="source-serial-name"/>
       <choose>
         <!-- 'ahead of print' is placed akin to a series (CMOS18 14.75) -->
-        <if match="any" variable="available-date collection-title issue number page status supplement-number volume"/>
+        <if match="any" variable="available-date collection-title issue number page status supplement-number volume volume-title"/>
         <else-if type="article-journal" variable="DOI issued">
           <text term="advance-online-publication"/>
         </else-if>
@@ -2274,7 +2496,9 @@
               <!-- date appears first if the review `container-title` has been substituted for a missing author (CMOS18 14.87, 14.102) -->
               <choose>
                 <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                  <text macro="source-date-bib"/>
+                  <text macro="source-date-issued-or-status"/>
+                  <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+                  <!-- <text macro="source-date-bib-specific-title-first"/> -->
                   <!-- for CMOS17 author-date: -->
                   <!-- <text macro="source-date-issued-month-day"/> -->
                 </if>
@@ -2312,12 +2536,16 @@
                 <!-- date for unsigned reviews only appears here if it did not earlier (CMOS18 14.102) -->
                 <choose>
                   <if match="any" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                    <text macro="source-date-bib" prefix="(" suffix=")"/>
+                    <text macro="source-date-issued-or-status" prefix="(" suffix=")"/>
+                    <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+                    <!-- <text macro="source-date-bib-specific-title-first" prefix="(" suffix=")"/> -->
                   </if>
                 </choose>
               </if>
               <else>
-                <text macro="source-date-bib" prefix="(" suffix=")"/>
+                <text macro="source-date-issued-or-status" prefix="(" suffix=")"/>
+                <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+                <!-- <text macro="source-date-bib-specific-title-first" prefix="(" suffix=")"/> -->
               </else>
             </choose>
           </group>
@@ -2345,7 +2573,9 @@
       </choose>
       <group delimiter=" ">
         <text macro="source-date-status-bib"/>
-        <text macro="source-date-bib"/>
+        <text macro="source-date-issued-or-status"/>
+        <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+        <!-- <text macro="source-date-bib-specific-title-first"/> -->
         <!-- for CMOS17 author-date: -->
         <!-- <text macro="source-date-issued-full-serial"/> -->
       </group>
@@ -2358,7 +2588,16 @@
         <group delimiter=", ">
           <text macro="label-locator"/>
           <!-- an article ID appears alongside locators in notes (CMOS18 14.71) -->
-          <text variable="number"/>
+          <choose>
+            <!-- if there is an `archive` with no other reference, `number` appears in `source-archive-database-number` -->
+            <if match="any" variable="archive_collection archive_location archive-place">
+              <text variable="number"/>
+            </if>
+            <else-if variable="archive"/>
+            <else>
+              <text variable="number"/>
+            </else>
+          </choose>
         </group>
       </if>
       <!-- do not give pages for magazines or newspapers (CMOS18 14.87, 14.89) -->
@@ -2381,10 +2620,14 @@
                   <text macro="source-monographic-preposition-bib"/>
                 </if>
               </choose>
-              <text macro="source-monographic-title-bib"/>
+              <text font-style="italic" text-case="title" variable="container-title"/>
+              <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+              <!-- <text macro="source-monographic-title-specific-title-first"/> -->
             </group>
             <text macro="source-monographic-description-bib"/>
             <text macro="source-monographic-identifier-bib"/>
+            <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+            <!-- <text macro="source-monographic-identifier-bib-specific-title-first"/> -->
             <text macro="source-monographic-locator"/>
           </group>
         </if>
@@ -2404,6 +2647,9 @@
       <if type="chapter" variable="container-title genre">
         <text value="to"/>
       </if>
+      <else-if type="article-journal" variable="container-title genre volume-title">
+        <text value="to"/>
+      </else-if>
       <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <choose>
           <if match="any" variable="author composer">
@@ -2433,16 +2679,40 @@
       </else>
     </choose>
   </macro>
-  <macro name="source-monographic-title-bib">
+  <macro name="source-monographic-preposition-note">
     <choose>
-      <if variable="part-title">
-        <text macro="title-part"/>
+      <if type="chapter" variable="container-title genre">
+        <text value="to"/>
       </if>
-      <else-if variable="volume-title">
-        <text font-style="italic" text-case="title" variable="volume-title"/>
+      <else-if type="article-journal" variable="container-title genre volume-title">
+        <text value="to"/>
+      </else-if>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+        <choose>
+          <if match="any" variable="author composer">
+            <!-- Give preposition only for signed entries; otherwise, title is substituted -->
+            <text term="in"/>
+          </if>
+        </choose>
+      </else-if>
+      <!-- if printing chapter page numbers (CMOS17/classic):
+      <else-if variable="chapter-number page title"><text term="in"/></else-if>
+      -->
+      <else-if variable="chapter-number">
+        <group delimiter=" ">
+          <text macro="label-chapter-number"/>
+          <choose>
+            <if type="song">
+              <text term="on"/>
+            </if>
+            <else>
+              <text term="in"/>
+            </else>
+          </choose>
+        </group>
       </else-if>
       <else>
-        <text font-style="italic" text-case="title" variable="container-title"/>
+        <text term="in"/>
       </else>
     </choose>
   </macro>
@@ -2481,10 +2751,15 @@
             </if>
           </choose>
           <text macro="label-version"/>
-          <text macro="label-edition"/>
+          <!-- use note form as `edition` is not capitalized here -->
+          <text macro="identifier-edition-note"/>
           <choose>
             <if match="any" variable="part-title volume-title">
-              <text macro="source-monographic-identifier-contributors-bib"/>
+              <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS18 14.20) -->
+              <names variable="collection-editor">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
             </if>
             <else-if match="any" variable="number-of-volumes part-number volume">
               <!-- `collection-editor` belongs with `collection-title` if item is not multivolume -->
@@ -2504,10 +2779,12 @@
               <text macro="source-monographic-identifier-contributors-bib"/>
             </else>
           </choose>
-          <text macro="source-monographic-identifier-volume-bib"/>
+          <!-- use the note form for an item with `container-title` -->
+          <text macro="identifier-volume-note"/>
           <choose>
-            <!-- `collection-editor` supplied in `source-monographic-identifier-volume-bib` if there is a `part-title` or `volume-title` -->
-            <if match="any" variable="part-title volume-title"/>
+            <if match="any" variable="part-title volume-title">
+              <text macro="source-monographic-identifier-contributors-bib"/>
+            </if>
             <else-if match="any" variable="number-of-volumes part-number volume">
               <choose>
                 <if variable="collection-editor">
@@ -2589,90 +2866,15 @@
       </choose>
     </group>
   </macro>
-  <macro name="source-monographic-identifier-volume-bib">
-    <!-- Mostly identical to `identifier-volume-bib` but without capitalization; giving `container-title` rather than `title-primary`; and ensuring volume number -->
-    <group delimiter=", ">
-      <choose>
-        <if variable="part-number part-title volume volume-title">
-          <!-- part and title with individual titles -->
-          <group delimiter=" ">
-            <text macro="label-part-number"/>
-            <text value="of"/>
-            <text font-style="italic" text-case="title" variable="volume-title"/>
-          </group>
-          <group delimiter=" ">
-            <text macro="label-volume"/>
-            <text value="of"/>
-            <group delimiter=", ">
-              <text font-style="italic" text-case="title" variable="container-title"/>
-              <names variable="collection-editor">
-                <label form="verb" suffix=" "/>
-                <name and="text"/>
-              </names>
-            </group>
-          </group>
-        </if>
-        <else-if match="any" variable="part-title volume-title">
-          <group delimiter=" ">
-            <choose>
-              <if variable="part-number volume">
-                <group delimiter=", ">
-                  <text macro="label-volume"/>
-                  <text macro="label-part-number"/>
-                  <text value="of"/>
-                </group>
-              </if>
-              <else-if variable="part-number">
-                <text macro="label-part-number"/>
-                <text value="of"/>
-              </else-if>
-              <else-if variable="volume">
-                <text macro="label-volume"/>
-                <text value="of"/>
-              </else-if>
-            </choose>
-            <group delimiter=", ">
-              <text font-style="italic" text-case="title" variable="container-title"/>
-              <names variable="collection-editor">
-                <label form="verb" suffix=" "/>
-                <name and="text"/>
-              </names>
-            </group>
-          </group>
-        </else-if>
-        <else-if match="any" variable="part-number volume">
-          <choose>
-            <if is-numeric="volume" match="none">
-              <text macro="label-volume"/>
-            </if>
-            <else-if variable="container-title">
-              <!-- remove condition in styles that print chapter page numbers (CMOS17/classic) -->
-              <text macro="label-volume"/>
-            </else-if>
-            <else-if is-numeric="volume" variable="page">
-              <choose>
-                <!-- check for variables that might come between the volume and page number -->
-                <if match="any" variable="collection-editor part-number part-title volume-title">
-                  <text macro="label-volume"/>
-                </if>
-              </choose>
-            </else-if>
-            <else>
-              <text macro="label-volume"/>
-            </else>
-          </choose>
-          <text macro="label-part-number"/>
-        </else-if>
-        <else>
-          <text macro="label-number-of-volumes"/>
-        </else>
-      </choose>
-    </group>
-  </macro>
   <!-- Monographic source locator -->
   <macro name="source-monographic-locator">
     <choose>
-      <if is-numeric="volume" locator="page">
+      <!-- archival locators appear after the shelfmark (CMOS18 14.127) -->
+      <if locator="column" variable="archive archive_location"/>
+      <else-if locator="folio" variable="archive archive_location"/>
+      <else-if locator="page" variable="archive archive_location"/>
+      <else-if is-numeric="volume" locator="page">
+        <!-- separate a volume and page number with a colon (CMOS18 14.18) -->
         <group delimiter=":">
           <choose>
             <if match="none" variable="collection-editor part-number part-title volume-title">
@@ -2681,14 +2883,14 @@
           </choose>
           <text variable="locator"/>
         </group>
-      </if>
+      </else-if>
       <else-if variable="locator">
         <text macro="label-locator"/>
       </else-if>
       <!-- remove `container-title` condition in styles that print chapter page numbers (CMOS17/classic) -->
       <else-if variable="container-title"/>
       <else-if is-numeric="volume" variable="page">
-        <!-- collapse the volume and page number if adjacent -->
+        <!-- collapse the volume and page number if adjacent (CMOS18 14.18) -->
         <group delimiter=":">
           <choose>
             <!-- check for variables that might come between the volume and page number -->
@@ -2699,6 +2901,8 @@
           <text variable="page"/>
         </group>
       </else-if>
+      <!-- archival locators appear after the shelfmark (CMOS18 14.127) -->
+      <else-if variable="archive archive_location page"/>
       <else>
         <text variable="page"/>
       </else>
@@ -3025,7 +3229,9 @@
       </choose>
       <group delimiter=" ">
         <text macro="source-date-status-bib"/>
-        <text macro="source-date-bib"/>
+        <text macro="source-date-issued-or-status"/>
+        <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
+        <!-- <text macro="source-date-bib-specific-title-first"/> -->
       </group>
       <choose>
         <if type="broadcast" variable="URL"/>
@@ -3048,7 +3254,7 @@
       </else-if>
       <else-if type="thesis">
         <!-- thesis type appears with university name (CMOS18 14.113) -->
-        <text macro="description-format-bib"/>
+        <text text-case="capitalize-first" variable="genre"/>
       </else-if>
       <else-if match="any" variable="original-publisher original-publisher-place">
         <choose>
@@ -3110,7 +3316,9 @@
         <group delimiter=" ">
           <text term="original-work-published" text-case="capitalize-first"/>
           <group delimiter=", ">
-            <names variable="original-author"/>
+            <names variable="original-author">
+              <name and="text"/>
+            </names>
             <text font-style="italic" text-case="title" variable="original-title"/>
           </group>
           <group delimiter=", " prefix="(" suffix=")">
@@ -3187,24 +3395,6 @@
     </choose>
   </macro>
   <!-- 4.6. Date -->
-  <macro name="source-date-bib">
-    <!-- the date represents the last-mentioned title (CMOS18 14.21) -->
-    <!-- there is no `source-date-note` as the date of a multivolume work is not used in note form -->
-    <choose>
-      <if variable="available-date volume-title">
-        <!-- TODO: Is there a better CSL variable for a date of a multivolume work (CMOS18 14.21)? -->
-        <date date-parts="year" form="text" variable="available-date"/>
-      </if>
-      <else-if variable="available-date part-title">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
-      <else>
-        <text macro="source-date-issued-or-status"/>
-        <!-- for author-date: -->
-        <!-- <text macro="source-date-issued-month-day"/> -->
-      </else>
-    </choose>
-  </macro>
   <!-- Date elements -->
   <macro name="source-date-issued-full">
     <!-- Give full date for more ephemeral types -->
@@ -3246,12 +3436,11 @@
       <else-if variable="issued">
         <text macro="date-issued-year"/>
       </else-if>
-      <else-if variable="available-date">
-        <!-- possible recourse for multivolume series (e.g. CMOS18 14.26) -->
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
       <else-if variable="event-date">
         <text macro="date-event-year"/>
+      </else-if>
+      <else-if variable="available-date">
+        <date date-parts="year" form="text" variable="available-date"/>
       </else-if>
     </choose>
   </macro>
@@ -3460,12 +3649,14 @@
           <!-- Do not provide `volume` or `part-number` for defined section -->
           <text macro="label-locator"/>
         </if>
-        <else-if is-numeric="volume" locator="page" variable="part-number">
+        <else-if locator="page" variable="part-number">
+          <!-- label page numbers when using multiple locators (CMOS18 14.50) -->
           <text macro="label-volume"/>
           <text macro="label-part-number"/>
-          <text macro="label-locator"/>
+          <text macro="label-locator-all"/>
         </else-if>
         <else-if is-numeric="volume" locator="page">
+          <!-- separate a volume and page number with a colon (CMOS18 14.18) -->
           <group delimiter=":">
             <text variable="volume"/>
             <text variable="locator"/>
@@ -3481,8 +3672,16 @@
   </macro>
   <macro name="source-locator-subsequent-serial">
     <group delimiter=", ">
-      <text macro="label-part-number"/>
-      <text macro="label-locator"/>
+      <choose>
+        <if variable="part-number">
+          <!-- label page numbers when using multiple locators (CMOS18 14.50) -->
+          <text macro="label-part-number"/>
+          <text macro="label-locator-all"/>
+        </if>
+        <else>
+          <text macro="label-locator"/>
+        </else>
+      </choose>
     </group>
   </macro>
   <!-- 4.8. Medium -->
@@ -3493,90 +3692,114 @@
       <text variable="dimensions"/>
     </group>
   </macro>
+  <macro name="source-medium-note">
+    <group delimiter=", ">
+      <text variable="medium"/>
+      <text variable="scale"/>
+      <text variable="dimensions"/>
+    </group>
+  </macro>
   <!-- 4.9. Archival location -->
   <macro name="source-archive-bib">
-    <choose>
-      <!-- With `archive_collection` or `archive-place`: physical archives -->
-      <if type="graphic">
-        <text macro="source-archive-name-first"/>
-      </if>
-      <else-if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
-        <text macro="source-archive-location-first-bib"/>
-      </else-if>
-      <!-- Without `archive_collection` or `archive-place`: digital archives (database and identifier) -->
-      <else>
-        <text macro="source-archive-identifier"/>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if type="graphic">
+          <text macro="source-archive-reference-institution-first"/>
+        </if>
+        <else>
+          <text macro="source-archive-reference-location-first-bib"/>
+        </else>
+      </choose>
+      <text macro="source-archive-database-number" prefix="(" suffix=")"/>
+    </group>
   </macro>
   <macro name="source-archive-note">
-    <choose>
-      <!-- With `archive_collection` or `archive-place`: physical archives -->
-      <if type="graphic">
-        <text macro="source-archive-name-first"/>
-      </if>
-      <else-if match="any" type="collection document manuscript personal_communication" variable="archive_collection archive-place">
-        <text macro="source-archive-location-first-note"/>
-      </else-if>
-      <!-- Without `archive_collection` or `archive-place`: digital archives (database and identifier) -->
-      <else>
-        <text macro="source-archive-identifier"/>
-      </else>
-    </choose>
+    <group delimiter=" ">
+      <choose>
+        <if type="graphic">
+          <text macro="source-archive-reference-institution-first"/>
+        </if>
+        <else>
+          <text macro="source-archive-reference-location-first-note"/>
+        </else>
+      </choose>
+      <text macro="source-archive-database-number" prefix="(" suffix=")"/>
+    </group>
   </macro>
   <!-- Archival elements -->
-  <macro name="source-archive-identifier">
+  <macro name="source-archive-database-number">
+    <!-- database identifier, if not included elsewhere (CMOS18 14.113) -->
     <choose>
-      <if variable="archive archive_location">
-        <!-- database identifier: the only example is `thesis`, but presumably this is for all types (CMOS18 14.113) -->
-        <group delimiter=" ">
-          <text variable="archive"/>
-          <text prefix="(" suffix=")" variable="archive_location"/>
-        </group>
-      </if>
-      <else>
-        <group delimiter=", ">
-          <text variable="archive"/>
-          <text variable="archive_location"/>
-        </group>
-      </else>
+      <if match="any" variable="archive_collection archive_location archive-place"/>
+      <!-- `number` never shown elsewhere with a thesis -->
+      <else-if type="thesis">
+        <text variable="number"/>
+      </else-if>
+      <!-- `number` shown with `genre` -->
+      <else-if match="any" type="dataset entry song" variable="genre"/>
+      <else-if variable="archive">
+        <text variable="number"/>
+      </else-if>
     </choose>
   </macro>
-  <macro name="source-archive-location-first-bib">
-    <!-- Order of elements begins with the most specific (CMOS18 14.119, 14.127) -->
-    <!-- In note styles, the bibliography generally provide entries for a `collection` rather than individual items (CMOS18 14.120, 14.128) -->
-    <group delimiter=". ">
-      <group delimiter=", ">
-        <text text-case="capitalize-first" variable="archive_location"/>
-        <text variable="archive_collection"/>
-      </group>
-      <group delimiter=", ">
-        <text variable="archive"/>
-        <text variable="archive-place"/>
-      </group>
-    </group>
+  <macro name="source-archive-locator">
+    <choose>
+      <!-- physical locators with archival references appear after the shelfmark (CMOS18 14.127) -->
+      <if locator="column" variable="archive archive_location">
+        <!-- archival locators must always be labelled to avoid confusion with `archive_location` (CMOS18 14.123) -->
+        <text macro="label-locator-all"/>
+      </if>
+      <else-if locator="folio" variable="archive archive_location">
+        <text macro="label-locator-all"/>
+      </else-if>
+      <else-if locator="page" variable="archive archive_location">
+        <text macro="label-locator-all"/>
+      </else-if>
+      <else-if variable="archive archive_location page">
+        <choose>
+          <if is-numeric="page">
+            <!-- TODO: remove this conditional when `page` parsing is fixed for different locator types -->
+            <text macro="label-page"/>
+          </if>
+          <else>
+            <text variable="page"/>
+          </else>
+        </choose>
+      </else-if>
+    </choose>
   </macro>
-  <macro name="source-archive-location-first-note">
-    <!-- Order of elements begins with the most specific (CMOS18 14.119, 14.127) -->
-    <!-- In note styles, the bibliography generally provide entries for a `collection` rather than individual items (CMOS18 14.120, 14.128) -->
-    <group delimiter=", ">
-      <group delimiter=", ">
-        <text variable="archive_location"/>
-        <text variable="archive_collection"/>
-      </group>
-      <group delimiter=", ">
-        <text variable="archive"/>
-        <text variable="archive-place"/>
-      </group>
-    </group>
-  </macro>
-  <macro name="source-archive-name-first">
+  <macro name="source-archive-reference-institution-first">
     <!-- Archive (gallery) name first for art (CMOS18 14.133) -->
     <group delimiter=", ">
       <text variable="archive"/>
       <text variable="archive-place"/>
       <text variable="archive_collection"/>
       <text variable="archive_location"/>
+      <text macro="source-archive-locator"/>
+    </group>
+  </macro>
+  <macro name="source-archive-reference-location-first-bib">
+    <!-- Order of elements begins with the most specific (CMOS18 14.128) -->
+    <group delimiter=". ">
+      <group delimiter=", ">
+        <text text-case="capitalize-first" variable="archive_location"/>
+        <text macro="source-archive-locator"/>
+      </group>
+      <text variable="archive_collection"/>
+      <group delimiter=", ">
+        <text variable="archive"/>
+        <text variable="archive-place"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="source-archive-reference-location-first-note">
+    <!-- Order of elements begins with the most specific (CMOS18 14.127) -->
+    <group delimiter=", ">
+      <text variable="archive_location"/>
+      <text macro="source-archive-locator"/>
+      <text variable="archive_collection"/>
+      <text variable="archive"/>
+      <text variable="archive-place"/>
     </group>
   </macro>
   <!-- 4.10. URL or persistent identifier -->
@@ -3922,14 +4145,13 @@
         </choose>
         <text macro="citation-notes-shortened-author-title-disambiguate"/>
         <choose>
-          <if match="any" type="interview personal_communication">
-            <choose>
-              <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
-                <!-- unpublished `interview` or `personal_communication` use inline format (CMOS18 14.111) -->
-                <text macro="date-short"/>
-              </if>
-            </choose>
-          </if>
+          <if match="none" type="interview personal_communication"/>
+          <else-if match="none" position="first"/>
+          <else-if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- inaccessible `interview` or `personal_communication` uses in-text format (CMOS18 14.111): give the date at the first citation in shortened notes -->
+            <text macro="date-short"/>
+            <text macro="source-medium-note"/>
+          </else-if>
         </choose>
         <text macro="source-monographic-publication-short-unbracketed"/>
       </group>
