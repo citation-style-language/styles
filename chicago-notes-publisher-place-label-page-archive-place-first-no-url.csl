@@ -477,14 +477,19 @@
         </choose>
         <names variable="illustrator"/>
         <choose>
-          <!-- In multivolume works, notes list editors after the title of the part for which they are responsible (CMOS18 14.24) -->
-          <if match="any" variable="part-title volume-title"/>
-          <else-if match="none" type="standard">
+          <!-- list an edited multivolume work under the name of the series editor; remove this condition for notes and bibliography leading with volume title (CMOS18 14.21) -->
+          <if variable="container-title"/>
+          <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+            <names variable="collection-editor"/>
+          </else-if>
+        </choose>
+        <choose>
+          <if match="none" type="standard">
             <names variable="editor-translator"/>
             <names variable="editor"/>
             <names variable="translator"/>
             <names variable="collection-editor"/>
-          </else-if>
+          </if>
         </choose>
         <names variable="director"/>
         <choose>
@@ -600,10 +605,9 @@
             </choose>
             <names variable="illustrator"/>
             <choose>
-              <!-- list a multivolume work under the name of the series editor; remove this condition for notes and bibliography leading with volume title (CMOS18 14.21) -->
-              <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
-              <else-if variable="container-title"/>
-              <else-if match="any" variable="part-title volume-title">
+              <!-- list an edited multivolume work under the name of the series editor; remove this condition for notes and bibliography leading with volume title (CMOS18 14.21) -->
+              <if variable="container-title"/>
+              <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
                 <names variable="collection-editor"/>
               </else-if>
             </choose>
@@ -2170,7 +2174,6 @@
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
           <text macro="identifier-contributors-bib"/>
-          <text macro="identifier-volume-monographic-bib"/>
         </else-if>
         <else-if variable="container-title">
           <choose>
@@ -2190,42 +2193,26 @@
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
           <choose>
-            <if match="any" variable="part-title volume-title">
-              <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS18 14.20) -->
+            <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
               <names variable="collection-editor">
                 <label form="verb" suffix=" " text-case="capitalize-first"/>
                 <name and="text"/>
               </names>
             </if>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <!-- `collection-editor` belongs with `collection-title` if item is not multivolume -->
-              <choose>
-                <if variable="collection-editor">
-                  <names variable="collection-editor">
-                    <label form="verb" suffix=" " text-case="capitalize-first"/>
-                    <name and="text"/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="identifier-contributors-bib"/>
-                </else>
-              </choose>
-            </else-if>
-            <else>
-              <text macro="identifier-contributors-bib"/>
-            </else>
           </choose>
-          <text macro="identifier-volume-monographic-bib"/>
+          <group delimiter=", ">
+            <text macro="identifier-volume-monographic-bib"/>
+            <choose>
+              <if match="any" variable="part-number part-title volume volume-title">
+                <text macro="identifier-contributors-bib-multivolume"/>
+              </if>
+            </choose>
+          </group>
           <choose>
-            <!-- contributors supplied in `identifier-volume-bib` if there is a `part-title` or `volume-title` -->
-            <if match="any" variable="part-title volume-title"/>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <choose>
-                <if variable="collection-editor">
-                  <text macro="identifier-contributors-bib"/>
-                </if>
-              </choose>
-            </else-if>
+            <if match="none" variable="part-number part-title volume volume-title">
+              <text macro="identifier-contributors-bib"/>
+            </if>
           </choose>
         </else>
       </choose>
@@ -2246,7 +2233,6 @@
           <text macro="label-version"/>
           <text macro="identifier-edition-note"/>
           <text macro="identifier-contributors-note"/>
-          <text macro="identifier-volume-monographic-note"/>
         </else-if>
         <else-if variable="container-title">
           <choose>
@@ -2266,43 +2252,16 @@
           <text macro="label-version"/>
           <text macro="identifier-edition-note"/>
           <choose>
-            <if match="any" variable="part-title volume-title">
-              <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS18 14.20) -->
+            <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
               <names variable="collection-editor">
                 <label form="verb-short" suffix=" "/>
                 <name and="text"/>
               </names>
             </if>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <choose>
-                <if variable="collection-editor">
-                  <names variable="collection-editor">
-                    <label form="verb-short" suffix=" "/>
-                    <name and="text"/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="identifier-contributors-note"/>
-                </else>
-              </choose>
-            </else-if>
-            <else>
-              <text macro="identifier-contributors-note"/>
-            </else>
           </choose>
           <text macro="identifier-volume-monographic-note"/>
-          <choose>
-            <if match="any" variable="part-title volume-title">
-              <text macro="identifier-contributors-note"/>
-            </if>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <choose>
-                <if variable="collection-editor">
-                  <text macro="identifier-contributors-note"/>
-                </if>
-              </choose>
-            </else-if>
-          </choose>
+          <text macro="identifier-contributors-note"/>
         </else>
       </choose>
     </group>
@@ -2327,6 +2286,22 @@
       </else-if>
       <else>
         <text macro="identifier-contributors-monographic-bib"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="identifier-contributors-bib-multivolume">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director">
+            <!-- monographic usage -->
+            <text macro="identifier-contributors-monographic-bib-multivolume"/>
+          </if>
+        </choose>
+      </else-if>
+      <else>
+        <text macro="identifier-contributors-monographic-bib-multivolume"/>
       </else>
     </choose>
   </macro>
@@ -2356,167 +2331,254 @@
     <group delimiter=". ">
       <choose>
         <if match="any" type="post webpage">
-          <group delimiter=". ">
-            <names variable="container-author">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="editor-translator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names delimiter=". " variable="editor translator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="editorial-director">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="guest">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="host">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="illustrator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="narrator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names delimiter=". " variable="compiler chair organizer curator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names delimiter=". " variable="series-creator executive-producer">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="producer">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="director">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="any" type="broadcast performance">
-                <names variable="script-writer">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-            <names variable="performer">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="none" type="thesis">
-                <names variable="contributor">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <names variable="container-author">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="editor-translator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names delimiter=". " variable="editor translator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="editorial-director">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="guest">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="host">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="illustrator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="narrator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names delimiter=". " variable="compiler chair organizer curator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names delimiter=". " variable="series-creator executive-producer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="producer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="director">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="any" type="broadcast performance">
+              <names variable="script-writer">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="performer">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="none" type="thesis">
+              <names variable="contributor">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
         </if>
         <else>
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
-          <group delimiter=". ">
-            <choose>
-              <if match="none" variable="container-title">
-                <names variable="container-author">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="editor-translator">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names delimiter=". " variable="editor translator">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="editorial-director">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="guest">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="host">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-            <names variable="illustrator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <names variable="narrator">
-              <label form="verb" suffix=" " text-case="capitalize-first"/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="none" variable="container-title">
-                <names delimiter=". " variable="compiler chair organizer curator">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names delimiter=". " variable="series-creator executive-producer">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="producer">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <names variable="director">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <choose>
-                  <if match="any" type="broadcast performance">
-                    <names variable="script-writer">
-                      <label form="verb" suffix=" " text-case="capitalize-first"/>
-                      <name and="text"/>
-                    </names>
-                  </if>
-                </choose>
-                <names variable="performer">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-                <choose>
-                  <if match="none" type="song thesis">
-                    <names variable="contributor">
-                      <label form="verb" suffix=" " text-case="capitalize-first"/>
-                      <name and="text"/>
-                    </names>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-            <choose>
-              <if type="song">
-                <!-- Song contributors attached to album (CMOS18 14.163) -->
-                <names variable="contributor">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <choose>
+            <if match="none" variable="container-title">
+              <names variable="container-author">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="editor-translator">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names delimiter=". " variable="editor translator">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="editorial-director">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="guest">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="host">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="illustrator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <names variable="narrator">
+            <label form="verb" suffix=" " text-case="capitalize-first"/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="none" variable="container-title">
+              <names delimiter=". " variable="compiler chair organizer curator">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names delimiter=". " variable="series-creator executive-producer">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="producer">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <names variable="director">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <choose>
+                <if match="any" type="broadcast performance">
+                  <names variable="script-writer">
+                    <label form="verb" suffix=" " text-case="capitalize-first"/>
+                    <name and="text"/>
+                  </names>
+                </if>
+              </choose>
+              <names variable="performer">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+              <choose>
+                <if match="none" type="song thesis">
+                  <names variable="contributor">
+                    <label form="verb" suffix=" " text-case="capitalize-first"/>
+                    <name and="text"/>
+                  </names>
+                </if>
+              </choose>
+            </if>
+          </choose>
+          <choose>
+            <if type="song">
+              <!-- Song contributors attached to album (CMOS18 14.163) -->
+              <names variable="contributor">
+                <label form="verb" suffix=" " text-case="capitalize-first"/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
         </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="identifier-contributors-monographic-bib-multivolume">
+    <!-- lowercase to account for attachment to volume name -->
+    <group delimiter=", ">
+      <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
+      <choose>
+        <if match="none" variable="container-title">
+          <names variable="container-author">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="editor-translator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="editorial-director">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="guest">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="host">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </if>
+      </choose>
+      <names variable="illustrator">
+        <label form="verb" suffix=" "/>
+        <name and="text"/>
+      </names>
+      <names variable="narrator">
+        <label form="verb" suffix=" "/>
+        <name and="text"/>
+      </names>
+      <choose>
+        <if match="none" variable="container-title">
+          <names delimiter=", " variable="compiler chair organizer curator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="series-creator executive-producer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="producer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="director">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="any" type="broadcast performance">
+              <names variable="script-writer">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="performer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="none" type="song thesis">
+              <names variable="contributor">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+        </if>
+      </choose>
+      <choose>
+        <if type="song">
+          <!-- Song contributors attached to album (CMOS18 14.163) -->
+          <names variable="contributor">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </if>
       </choose>
     </group>
   </macro>
@@ -2524,181 +2586,177 @@
     <group delimiter=", ">
       <choose>
         <if match="any" type="post webpage">
-          <group delimiter=", ">
-            <names variable="container-author">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="editor-translator">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names delimiter=", " variable="editor translator">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="editorial-director">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="guest">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="host">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="illustrator">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="narrator">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="compiler">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names delimiter=", " variable="chair organizer curator">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names delimiter=", " variable="series-creator executive-producer">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="producer">
-              <!-- not abbreviated (CMOS18 14.168) -->
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names variable="director">
-              <!-- `director` is not abbreviated (CMOS18 14.165) -->
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="any" type="broadcast performance">
-                <names variable="script-writer">
-                  <!-- `script-writer` is not abbreviated (CMOS18 14.165) -->
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-            <names variable="performer">
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="none" type="thesis">
-                <names variable="contributor">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <names variable="container-author">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="editor-translator">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="editorial-director">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="guest">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="host">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="illustrator">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="narrator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="compiler">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="chair organizer curator">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="series-creator executive-producer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="producer">
+            <!-- not abbreviated (CMOS18 14.168) -->
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names variable="director">
+            <!-- `director` is not abbreviated (CMOS18 14.165) -->
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="any" type="broadcast performance">
+              <names variable="script-writer">
+                <!-- `script-writer` is not abbreviated (CMOS18 14.165) -->
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+          <names variable="performer">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="none" type="thesis">
+              <names variable="contributor">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
         </if>
         <else>
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
-          <group delimiter=", ">
-            <choose>
-              <if match="none" variable="container-title">
-                <names variable="container-author">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="editor-translator">
-                  <label form="verb-short" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names delimiter=", " variable="editor translator">
-                  <label form="verb-short" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="editorial-director">
-                  <label form="verb-short" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="guest">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="host">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-            <names delimiter=", " variable="illustrator">
-              <label form="verb-short" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <names delimiter=", " variable="narrator">
-              <!-- narrator is not abbreviated (CMOS18 14.58) -->
-              <label form="verb" suffix=" "/>
-              <name and="text"/>
-            </names>
-            <choose>
-              <if match="none" variable="container-title">
-                <names variable="compiler">
-                  <label form="verb-short" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names delimiter=", " variable="chair organizer curator">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names delimiter=", " variable="series-creator executive-producer">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="producer">
-                  <!-- not abbreviated (CMOS18 14.168) -->
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <names variable="director">
-                  <!-- `director` is not abbreviated (CMOS18 14.165) -->
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <choose>
-                  <if match="any" type="broadcast performance">
-                    <names variable="script-writer">
-                      <!-- `script-writer` is not abbreviated (CMOS18 14.165) -->
-                      <label form="verb" suffix=" "/>
-                      <name and="text"/>
-                    </names>
-                  </if>
-                </choose>
-                <names variable="performer">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-                <choose>
-                  <if match="none" type="song thesis">
-                    <names variable="contributor">
-                      <label form="verb" suffix=" "/>
-                      <name and="text"/>
-                    </names>
-                  </if>
-                </choose>
-              </if>
-            </choose>
-            <choose>
-              <if type="song">
-                <!-- Song contributors attached to album (CMOS18 14.163) -->
-                <names variable="contributor">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <choose>
+            <if match="none" variable="container-title">
+              <names variable="container-author">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="editor-translator">
+                <label form="verb-short" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names delimiter=", " variable="editor translator">
+                <label form="verb-short" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="editorial-director">
+                <label form="verb-short" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="guest">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="host">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
+          <names delimiter=", " variable="illustrator">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <names delimiter=", " variable="narrator">
+            <!-- narrator is not abbreviated (CMOS18 14.58) -->
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <choose>
+            <if match="none" variable="container-title">
+              <names variable="compiler">
+                <label form="verb-short" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names delimiter=", " variable="chair organizer curator">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names delimiter=", " variable="series-creator executive-producer">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="producer">
+                <!-- not abbreviated (CMOS18 14.168) -->
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <names variable="director">
+                <!-- `director` is not abbreviated (CMOS18 14.165) -->
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <choose>
+                <if match="any" type="broadcast performance">
+                  <names variable="script-writer">
+                    <!-- `script-writer` is not abbreviated (CMOS18 14.165) -->
+                    <label form="verb" suffix=" "/>
+                    <name and="text"/>
+                  </names>
+                </if>
+              </choose>
+              <names variable="performer">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+              <choose>
+                <if match="none" type="song thesis">
+                  <names variable="contributor">
+                    <label form="verb" suffix=" "/>
+                    <name and="text"/>
+                  </names>
+                </if>
+              </choose>
+            </if>
+          </choose>
+          <choose>
+            <if type="song">
+              <!-- Song contributors attached to album (CMOS18 14.163) -->
+              <names variable="contributor">
+                <label form="verb" suffix=" "/>
+                <name and="text"/>
+              </names>
+            </if>
+          </choose>
         </else>
       </choose>
     </group>
@@ -2903,15 +2961,15 @@
           <text macro="identifier-number-note"/>
           <text macro="label-version"/>
           <text macro="identifier-edition-note"/>
-          <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
+          <text macro="identifier-contributors-note"/>
         </else-if>
         <else>
           <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
           <text macro="label-version"/>
           <text macro="identifier-edition-note"/>
-          <text macro="identifier-contributors-note"/>
           <text macro="identifier-volume-monographic-note"/>
+          <text macro="identifier-contributors-note"/>
         </else>
       </choose>
     </group>
@@ -2935,18 +2993,6 @@
           <text macro="label-number-of-volumes"/>
         </else>
       </choose>
-      <choose>
-        <if match="any" variable="part-title volume-title">
-          <names variable="editor-translator">
-            <label form="verb" suffix=" "/>
-            <name and="text"/>
-          </names>
-          <names delimiter=", " variable="editor translator">
-            <label form="verb" suffix=" "/>
-            <name and="text"/>
-          </names>
-        </if>
-      </choose>
     </group>
   </macro>
   <macro name="identifier-volume-note">
@@ -2963,9 +3009,12 @@
           <!-- provide lone `volume` only if it does not appear in `source-monographic-locator-note` (CMOS18 14.20) -->
           <choose>
             <!-- check for variables that might come between the volume and page number -->
-            <if match="any" variable="collection-editor part-number part-title volume-title">
+            <if match="any" variable="part-number part-title volume-title">
               <text macro="label-volume"/>
             </if>
+            <else-if match="any" variable="container-author editor editor-translator translator">
+              <text macro="label-volume"/>
+            </else-if>
             <!-- always display number of volumes in notes without bibliography (CMOS18 14.20): -->
             <else>
               <text macro="label-number-of-volumes"/>
@@ -2974,9 +3023,12 @@
         </else-if>
         <else-if is-numeric="volume" variable="page">
           <choose>
-            <if match="any" variable="collection-editor part-number part-title volume-title">
+            <if match="any" variable="part-number part-title volume-title">
               <text macro="label-volume"/>
             </if>
+            <else-if match="any" variable="container-author editor editor-translator translator">
+              <text macro="label-volume"/>
+            </else-if>
             <!-- always display number of volumes in notes without bibliography (CMOS18 14.20): -->
             <else>
               <text macro="label-number-of-volumes"/>
@@ -3412,43 +3464,16 @@
           <text macro="label-version"/>
           <text macro="identifier-edition-note"/>
           <choose>
-            <if match="any" variable="part-title volume-title">
-              <!-- if there is a volume or part title, contributors follow the corresponding titles: parent title first in notes (CMOS18 14.20) -->
+            <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
               <names variable="collection-editor">
                 <label form="verb-short" suffix=" "/>
                 <name and="text"/>
               </names>
             </if>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <choose>
-                <if variable="collection-editor">
-                  <names variable="collection-editor">
-                    <label form="verb-short" suffix=" "/>
-                    <name and="text"/>
-                  </names>
-                </if>
-                <else>
-                  <text macro="source-monographic-identifier-contributors-note"/>
-                </else>
-              </choose>
-            </else-if>
-            <else>
-              <text macro="source-monographic-identifier-contributors-note"/>
-            </else>
           </choose>
           <text macro="identifier-volume-note"/>
-          <choose>
-            <if match="any" variable="part-title volume-title">
-              <text macro="source-monographic-identifier-contributors-note"/>
-            </if>
-            <else-if match="any" variable="number-of-volumes part-number volume">
-              <choose>
-                <if variable="collection-editor">
-                  <text macro="source-monographic-identifier-contributors-note"/>
-                </if>
-              </choose>
-            </else-if>
-          </choose>
+          <text macro="source-monographic-identifier-contributors-note"/>
         </group>
       </if>
     </choose>
@@ -3547,9 +3572,13 @@
         <!-- separate a volume and page number with a colon (CMOS18 14.18) -->
         <group delimiter=":">
           <choose>
-            <if match="none" variable="collection-editor part-number part-title volume-title">
+            <if match="any" variable="part-number part-title volume-title"/>
+            <else-if match="any" variable="container-author editor editor-translator translator"/>
+            <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21), check for name variables falling after the general title: -->
+            <!-- <else-if variable="collection-editor"/> -->
+            <else>
               <text variable="volume"/>
-            </if>
+            </else>
           </choose>
           <text variable="locator"/>
         </group>
@@ -3562,12 +3591,17 @@
         <group delimiter=":">
           <choose>
             <!-- check for variables that might come between the volume and page number -->
-            <if match="none" variable="collection-editor part-number part-title volume-title">
+            <if match="any" variable="part-number part-title volume-title">
+              <text macro="label-page"/>
+            </if>
+            <else-if match="any" variable="container-author editor editor-translator translator">
+              <text macro="label-page"/>
+            </else-if>
+            <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21), check for name variables falling after the general title: -->
+            <!-- <else-if variable="collection-editor"/> -->
+            <else>
               <text variable="volume"/>
               <text variable="page"/>
-            </if>
-            <else>
-              <text macro="label-page"/>
             </else>
           </choose>
         </group>
@@ -3583,22 +3617,19 @@
   <macro name="source-series-note">
     <group delimiter=", ">
       <choose>
-        <if variable="collection-editor collection-title">
-          <choose>
-            <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
-              <text macro="source-series-title"/>
-            </if>
-            <else>
-              <text text-case="title" variable="collection-title"/>
-              <names variable="collection-editor">
-                <label form="verb-short" suffix=" "/>
-                <name and="text"/>
-              </names>
-              <text macro="label-collection-number"/>
-              <text macro="label-issue"/>
-            </else>
-          </choose>
+        <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+          <text macro="source-series-title"/>
         </if>
+        <else-if variable="collection-editor collection-title">
+          <!-- `collection-editor` belongs with `collection-title` if the item is not multivolume -->
+          <text text-case="title" variable="collection-title"/>
+          <names variable="collection-editor">
+            <label form="verb-short" suffix=" "/>
+            <name and="text"/>
+          </names>
+          <text macro="label-collection-number"/>
+          <text macro="label-issue"/>
+        </else-if>
         <else>
           <text macro="source-series-title"/>
         </else>
