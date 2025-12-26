@@ -2459,9 +2459,9 @@
   </macro>
   <!-- Serial source identifier -->
   <macro name="source-serial-identifier-bib">
-    <choose>
-      <if match="any" type="article-magazine article-newspaper">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" type="article-magazine article-newspaper">
           <group delimiter=". ">
             <text macro="source-serial-identifier-volume-bib"/>
             <!-- for author-date: -->
@@ -2470,26 +2470,24 @@
             <text macro="label-edition-capitalized"/>
           </group>
           <text macro="source-serial-locator"/>
-        </group>
-      </if>
-      <else-if match="any" variable="issue supplement-number volume">
-        <group delimiter=": ">
+        </if>
+        <else-if match="any" variable="issue supplement-number volume">
+          <group delimiter=": ">
+            <text macro="source-serial-identifier-volume-bib"/>
+            <!-- for author-date: -->
+            <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
+            <text macro="source-serial-locator"/>
+          </group>
+        </else-if>
+        <else>
           <text macro="source-serial-identifier-volume-bib"/>
           <!-- for author-date: -->
           <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
           <text macro="source-serial-locator"/>
-        </group>
-      </else-if>
-      <else>
-        <group delimiter=", ">
-          <text macro="source-serial-identifier-volume-bib"/>
-          <!-- for author-date: -->
-          <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
-          <text macro="source-serial-locator"/>
-        </group>
-      </else>
-      <!-- TODO: If CSL adds `date-part` detection, add two further conditions to address CMOS18 14.74: delimiting with ":" if there is a `volume` and no month or `issue` or `supplement number`; delimiting with ", " or there is an `issue` or `supplement number` and no month -->
-    </choose>
+        </else>
+        <!-- TODO: If CSL adds `date-part` detection, add two further conditions to address CMOS18 14.74: delimiting with ":" if there is a `volume` and no month or `issue` or `supplement number`; delimiting with ", " or there is an `issue` or `supplement number` and no month -->
+      </choose>
+    </group>
   </macro>
   <macro name="source-serial-identifier-volume-bib">
     <group delimiter=", ">
@@ -3791,14 +3789,12 @@
           <group delimiter=" ">
             <text term="hearing" text-case="capitalize-first"/>
             <group delimiter=" ">
-              <group delimiter=" ">
-                <text term="on"/>
-                <text variable="number"/>
-              </group>
-              <group delimiter=" ">
-                <text value="before the"/>
-                <text variable="section"/>
-              </group>
+              <text term="on"/>
+              <text variable="number"/>
+            </group>
+            <group delimiter=" ">
+              <text value="before the"/>
+              <text variable="section"/>
             </group>
           </group>
         </group>
@@ -3807,21 +3803,21 @@
   </macro>
   <!-- 6.2.2. Legal identifier -->
   <macro name="legal-identifier">
-    <choose>
-      <if type="hearing">
-        <group delimiter=" " prefix="(" suffix=")">
+    <group delimiter=" " prefix="(" suffix=")">
+      <choose>
+        <if type="hearing">
           <!-- Use the 'verb' form of the hearing term to hold 'testimony of' -->
           <text form="verb" term="hearing"/>
           <names variable="author">
             <name and="symbol" initialize="false"/>
           </names>
-        </group>
-      </if>
-      <else-if match="any" type="bill legislation regulation">
-        <!-- For uncodified regulations, assume future code section is in `status`. -->
-        <text prefix="(" suffix=")" variable="status"/>
-      </else-if>
-    </choose>
+        </if>
+        <else-if match="any" type="bill legislation regulation">
+          <!-- For uncodified regulations, assume future code section is in `status`. -->
+          <text variable="status"/>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="legal-identifier-bill-report">
     <group delimiter=" ">
@@ -3881,19 +3877,17 @@
     <group delimiter=" ">
       <choose>
         <if variable="container-title">
-          <group delimiter=" ">
-            <text variable="volume"/>
-            <text variable="container-title"/>
-            <text macro="label-section-symbol"/>
-            <choose>
-              <if match="any" variable="page page-first">
-                <text variable="page-first"/>
-              </if>
-              <else>
-                <text value="___"/>
-              </else>
-            </choose>
-          </group>
+          <text variable="volume"/>
+          <text variable="container-title"/>
+          <text macro="label-section-symbol"/>
+          <choose>
+            <if match="any" variable="page page-first">
+              <text variable="page-first"/>
+            </if>
+            <else>
+              <text value="___"/>
+            </else>
+          </choose>
         </if>
         <else>
           <text macro="label-number-capitalized"/>
@@ -3984,58 +3978,9 @@
   <!-- Citation -->
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true" et-al-min="3" et-al-use-first="1">
     <layout delimiter="; " prefix="(" suffix=")">
-      <choose>
-        <if type="classic">
-          <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
-          <choose>
-            <if is-numeric="locator">
-              <group delimiter=", ">
-                <text macro="author-short"/>
-                <choose>
-                  <if match="none" type="bill hearing legal_case legislation regulation treaty" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                    <text macro="title-and-descriptions-short"/>
-                  </if>
-                  <else-if disambiguate="true">
-                    <text macro="title-and-descriptions-short"/>
-                  </else-if>
-                </choose>
-                <text macro="source-locator-subsequent"/>
-              </group>
-            </if>
-            <else-if locator="chapter line verse" match="any">
-              <group delimiter=" ">
-                <group delimiter=", ">
-                  <text macro="author-short"/>
-                  <choose>
-                    <if match="none" type="bill hearing legal_case legislation regulation treaty" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                      <text macro="title-and-descriptions-short"/>
-                    </if>
-                    <else-if disambiguate="true">
-                      <text macro="title-and-descriptions-short"/>
-                    </else-if>
-                  </choose>
-                </group>
-                <text macro="source-locator-subsequent"/>
-              </group>
-            </else-if>
-            <else>
-              <group delimiter=", ">
-                <text macro="author-short"/>
-                <choose>
-                  <if match="none" type="bill hearing legal_case legislation regulation treaty" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
-                    <text macro="title-and-descriptions-short"/>
-                  </if>
-                  <else-if disambiguate="true">
-                    <text macro="title-and-descriptions-short"/>
-                  </else-if>
-                </choose>
-                <text macro="source-locator-subsequent"/>
-              </group>
-            </else>
-          </choose>
-        </if>
-        <else>
-          <group delimiter=", ">
+      <group delimiter=", ">
+        <choose>
+          <if match="none" type="classic">
             <text macro="author-short"/>
             <choose>
               <if match="none" type="bill hearing legal_case legislation regulation treaty" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
@@ -4046,9 +3991,50 @@
               </else-if>
             </choose>
             <text macro="source-locator-subsequent"/>
-          </group>
-        </else>
-      </choose>
+          </if>
+          <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
+          <else-if is-numeric="locator">
+            <text macro="author-short"/>
+            <choose>
+              <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                <text macro="title-and-descriptions-short"/>
+              </if>
+              <else-if disambiguate="true">
+                <text macro="title-and-descriptions-short"/>
+              </else-if>
+            </choose>
+            <text macro="source-locator-subsequent"/>
+          </else-if>
+          <else-if locator="chapter line verse" match="any">
+            <group delimiter=" ">
+              <group delimiter=", ">
+                <text macro="author-short"/>
+                <choose>
+                  <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                    <text macro="title-and-descriptions-short"/>
+                  </if>
+                  <else-if disambiguate="true">
+                    <text macro="title-and-descriptions-short"/>
+                  </else-if>
+                </choose>
+              </group>
+              <text macro="source-locator-subsequent"/>
+            </group>
+          </else-if>
+          <else>
+            <text macro="author-short"/>
+            <choose>
+              <if match="none" variable="author chair collection-editor compiler composer curator director editor editor-translator editorial-director executive-producer guest host illustrator organizer producer series-creator translator">
+                <text macro="title-and-descriptions-short"/>
+              </if>
+              <else-if disambiguate="true">
+                <text macro="title-and-descriptions-short"/>
+              </else-if>
+            </choose>
+            <text macro="source-locator-subsequent"/>
+          </else>
+        </choose>
+      </group>
     </layout>
   </citation>
   <!-- Bibliography -->

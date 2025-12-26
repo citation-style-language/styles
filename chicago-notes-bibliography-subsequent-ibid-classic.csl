@@ -1003,73 +1003,75 @@
   </macro>
   <!-- 2. Date (CMOS18 13.102) -->
   <macro name="date-short">
-    <choose>
-      <if variable="issued">
-        <group delimiter=" ">
-          <choose>
-            <if is-uncertain-date="original-date">
-              <!-- Uncertain date already has square brackets -->
-              <text macro="date-original-year"/>
-            </if>
-            <else>
-              <text macro="date-original-year" prefix="[" suffix="]"/>
-            </else>
-          </choose>
-          <group>
+    <group delimiter="-">
+      <choose>
+        <if variable="issued">
+          <group delimiter=" ">
             <choose>
-              <if match="none" type="interview personal_communication">
-                <text macro="date-issued-year"/>
+              <if is-uncertain-date="original-date">
+                <!-- Uncertain date already has square brackets -->
+                <text macro="date-original-year"/>
               </if>
-              <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
-              <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                <text macro="date-issued-year"/>
-              </else-if>
               <else>
-                <text macro="date-issued-full"/>
+                <text macro="date-original-year" prefix="[" suffix="]"/>
               </else>
             </choose>
-            <text variable="year-suffix"/>
+            <group>
+              <choose>
+                <if match="none" type="interview personal_communication">
+                  <text macro="date-issued-year"/>
+                </if>
+                <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
+                <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+                  <text macro="date-issued-year"/>
+                </else-if>
+                <else>
+                  <text macro="date-issued-full"/>
+                </else>
+              </choose>
+              <text variable="year-suffix"/>
+            </group>
           </group>
-        </group>
-      </if>
-      <else-if variable="event-date">
-        <text macro="date-event-year"/>
-      </else-if>
-      <else-if variable="available-date">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
-      <else-if variable="status">
-        <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
-        <text text-case="lowercase" variable="status"/>
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if match="any" type="interview personal_communication">
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <!-- only give n.d. for accessible personal communication (CMOS18 14.111)-->
-            <text form="short" term="no date"/>
-          </if>
-        </choose>
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
-        <!-- do not give n.d. for archival collections (CMOS18 14.128), `classic` (CMOS18 14.143), or reference entries (CMOS18 14.131) -->
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if type="manuscript">
-        <!-- do not give n.d. with a bare shelfmark -->
-        <choose>
-          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
-            <text form="short" term="no date"/>
-            <text prefix="-" variable="year-suffix"/>
-          </if>
-        </choose>
-      </else-if>
-      <else>
-        <text form="short" term="no date"/>
-        <text prefix="-" variable="year-suffix"/>
-      </else>
-    </choose>
+        </if>
+        <else-if variable="event-date">
+          <text macro="date-event-year"/>
+        </else-if>
+        <else-if variable="available-date">
+          <date date-parts="year" form="text" variable="available-date"/>
+        </else-if>
+        <else-if variable="status">
+          <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
+          <text text-case="lowercase" variable="status"/>
+          <text variable="year-suffix"/>
+        </else-if>
+        <else-if match="any" type="interview personal_communication">
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <!-- only give n.d. for accessible personal communication (CMOS18 14.111)-->
+              <text form="short" term="no date"/>
+              <text variable="year-suffix"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
+          <!-- do not give n.d. for archival collections (CMOS18 14.128), `classic` (CMOS18 14.143), or reference entries (CMOS18 14.131) -->
+          <text variable="year-suffix"/>
+        </else-if>
+        <else-if type="manuscript">
+          <!-- do not give n.d. with a bare shelfmark -->
+          <choose>
+            <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+              <text form="short" term="no date"/>
+              <text variable="year-suffix"/>
+            </if>
+          </choose>
+        </else-if>
+        <else>
+          <text form="short" term="no date"/>
+          <text variable="year-suffix"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <!-- Date elements -->
   <macro name="date-event-full">
@@ -3497,9 +3499,9 @@
   </macro>
   <!-- Serial source identifier -->
   <macro name="source-serial-identifier-bib">
-    <choose>
-      <if match="any" type="article-magazine article-newspaper">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" type="article-magazine article-newspaper">
           <group delimiter=". ">
             <text macro="source-serial-identifier-volume-bib"/>
             <!-- for author-date: -->
@@ -3508,52 +3510,48 @@
             <text macro="label-edition-capitalized"/>
           </group>
           <text macro="source-serial-locator"/>
-        </group>
-      </if>
-      <else-if match="any" variable="issue supplement-number volume">
-        <group delimiter=": ">
+        </if>
+        <else-if match="any" variable="issue supplement-number volume">
+          <group delimiter=": ">
+            <text macro="source-serial-identifier-volume-bib"/>
+            <!-- for author-date: -->
+            <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
+            <text macro="source-serial-locator"/>
+          </group>
+        </else-if>
+        <else>
           <text macro="source-serial-identifier-volume-bib"/>
           <!-- for author-date: -->
           <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
           <text macro="source-serial-locator"/>
-        </group>
-      </else-if>
-      <else>
-        <group delimiter=", ">
-          <text macro="source-serial-identifier-volume-bib"/>
-          <!-- for author-date: -->
-          <!-- <text macro="source-serial-identifier-volume-author-date"/> -->
-          <text macro="source-serial-locator"/>
-        </group>
-      </else>
-      <!-- TODO: If CSL adds `date-part` detection, add two further conditions to address CMOS18 14.74: delimiting with ":" if there is a `volume` and no month or `issue` or `supplement number`; delimiting with ", " or there is an `issue` or `supplement number` and no month -->
-    </choose>
+        </else>
+        <!-- TODO: If CSL adds `date-part` detection, add two further conditions to address CMOS18 14.74: delimiting with ":" if there is a `volume` and no month or `issue` or `supplement number`; delimiting with ", " or there is an `issue` or `supplement number` and no month -->
+      </choose>
+    </group>
   </macro>
   <macro name="source-serial-identifier-note">
-    <choose>
-      <if match="any" type="article-magazine article-newspaper">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if match="any" type="article-magazine article-newspaper">
           <group delimiter=", ">
             <text macro="source-serial-identifier-volume-note"/>
             <!-- newspaper edition always capitalized (CMOS18 14.89) -->
             <text macro="label-edition-capitalized"/>
           </group>
           <text macro="source-serial-locator"/>
-        </group>
-      </if>
-      <else-if match="any" variable="issue supplement-number volume">
-        <group delimiter=": ">
+        </if>
+        <else-if match="any" variable="issue supplement-number volume">
+          <group delimiter=": ">
+            <text macro="source-serial-identifier-volume-note"/>
+            <text macro="source-serial-locator"/>
+          </group>
+        </else-if>
+        <else>
           <text macro="source-serial-identifier-volume-note"/>
           <text macro="source-serial-locator"/>
-        </group>
-      </else-if>
-      <else>
-        <group delimiter=", ">
-          <text macro="source-serial-identifier-volume-note"/>
-          <text macro="source-serial-locator"/>
-        </group>
-      </else>
-    </choose>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="source-serial-identifier-volume-bib">
     <group delimiter=", ">
@@ -4622,12 +4620,30 @@
   </macro>
   <macro name="source-monographic-publication-short-bracketed">
     <!-- mirrors `source-monographic-publication-note-bracketed` -->
-    <choose>
-      <if disambiguate="true">
-        <group delimiter=", " prefix="(" suffix=")">
+    <group delimiter=", " prefix="(" suffix=")">
+      <choose>
+        <if disambiguate="true" match="none"/>
+        <!-- Facts of publication with brackets for print monographic formats -->
+        <else-if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis">
           <choose>
-            <!-- Facts of publication with brackets for print monographic formats -->
-            <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis">
+            <if disambiguate="true">
+              <text macro="source-publication-publisher-note"/>
+            </if>
+          </choose>
+          <text macro="source-date-issued-or-status"/>
+        </else-if>
+        <else-if type="article" variable="genre publisher">
+          <!-- without brackets for a preprint in a repository (CMOS18 14.76), with brackets for a working paper (CMOS18 14.116) -->
+          <choose>
+            <if disambiguate="true">
+              <text macro="source-publication-publisher-note"/>
+            </if>
+          </choose>
+          <text macro="source-date-issued-or-status"/>
+        </else-if>
+        <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
+          <choose>
+            <if match="any" variable="publisher publisher-place">
               <choose>
                 <if disambiguate="true">
                   <text macro="source-publication-publisher-note"/>
@@ -4635,94 +4651,70 @@
               </choose>
               <text macro="source-date-issued-or-status"/>
             </if>
-            <else-if type="article" variable="genre publisher">
-              <!-- without brackets for a preprint in a repository (CMOS18 14.76), with brackets for a working paper (CMOS18 14.116) -->
+            <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+            <else-if match="any" variable="DOI URL"/>
+            <else>
               <choose>
                 <if disambiguate="true">
                   <text macro="source-publication-publisher-note"/>
                 </if>
               </choose>
               <text macro="source-date-issued-or-status"/>
-            </else-if>
-            <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-              <choose>
-                <if match="any" variable="publisher publisher-place">
-                  <choose>
-                    <if disambiguate="true">
-                      <text macro="source-publication-publisher-note"/>
-                    </if>
-                  </choose>
-                  <text macro="source-date-issued-or-status"/>
-                </if>
-                <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
-                <else-if match="any" variable="DOI URL"/>
-                <else>
-                  <choose>
-                    <if disambiguate="true">
-                      <text macro="source-publication-publisher-note"/>
-                    </if>
-                  </choose>
-                  <text macro="source-date-issued-or-status"/>
-                </else>
-              </choose>
-            </else-if>
-            <else-if type="motion_picture" variable="publisher">
-              <choose>
-                <if disambiguate="true">
-                  <text macro="source-publication-publisher-note"/>
-                </if>
-              </choose>
-              <text macro="source-date-issued-or-status"/>
-            </else-if>
-            <else-if type="personal_communication">
-              <choose>
-                <if match="any" variable="collection-editor compiler editor editorial-director publisher">
-                  <!-- in an edited collection -->
-                  <text macro="source-date-issued-or-status"/>
-                </if>
-              </choose>
-            </else-if>
-            <else-if is-uncertain-date="issued">
-              <!-- space before bracketed uncertain date (CMOS18 14.127)  -->
-              <text macro="source-date-issued-or-status"/>
-            </else-if>
+            </else>
           </choose>
-        </group>
-      </if>
-    </choose>
+        </else-if>
+        <else-if type="motion_picture" variable="publisher">
+          <choose>
+            <if disambiguate="true">
+              <text macro="source-publication-publisher-note"/>
+            </if>
+          </choose>
+          <text macro="source-date-issued-or-status"/>
+        </else-if>
+        <else-if type="personal_communication">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director publisher">
+              <!-- in an edited collection -->
+              <text macro="source-date-issued-or-status"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if is-uncertain-date="issued">
+          <!-- space before bracketed uncertain date (CMOS18 14.127)  -->
+          <text macro="source-date-issued-or-status"/>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="source-monographic-publication-short-unbracketed">
     <!-- mirrors `source-monographic-publication-note-unbracketed` -->
     <choose>
-      <if disambiguate="true">
+      <if disambiguate="true" match="none"/>
+      <!-- Facts of publication without brackets -->
+      <else-if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis"/>
+      <else-if type="article" variable="genre publisher"/>
+      <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
         <choose>
-          <!-- Facts of publication without brackets -->
-          <if match="any" type="book chapter classic interview musical_score pamphlet paper-conference report thesis"/>
-          <else-if type="article" variable="genre publisher"/>
-          <else-if match="any" type="entry entry-dictionary entry-encyclopedia">
-            <choose>
-              <if match="any" variable="publisher publisher-place"/>
-              <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
-              <else-if match="any" variable="DOI URL">
-                <text macro="source-date-issued-or-status"/>
-              </else-if>
-            </choose>
-          </else-if>
-          <else-if type="motion_picture" variable="publisher"/>
-          <else-if type="personal_communication">
-            <choose>
-              <if match="none" variable="collection-editor compiler editor editorial-director publisher">
-                <!-- not in an edited collection -->
-                <text macro="source-date-issued-or-status"/>
-              </if>
-            </choose>
-          </else-if>
-          <else-if is-uncertain-date="issued"/>
-          <else>
+          <if match="any" variable="publisher publisher-place"/>
+          <!-- online reference sources without a additional publisher details are unbracketed (CMOS18 14.131) -->
+          <else-if match="any" variable="DOI URL">
             <text macro="source-date-issued-or-status"/>
-          </else>
+          </else-if>
         </choose>
-      </if>
+      </else-if>
+      <else-if type="motion_picture" variable="publisher"/>
+      <else-if type="personal_communication">
+        <choose>
+          <if match="none" variable="collection-editor compiler editor editorial-director publisher">
+            <!-- not in an edited collection -->
+            <text macro="source-date-issued-or-status"/>
+          </if>
+        </choose>
+      </else-if>
+      <else-if is-uncertain-date="issued"/>
+      <else>
+        <text macro="source-date-issued-or-status"/>
+      </else>
     </choose>
   </macro>
   <macro name="source-publication-and-date-bib">
@@ -5633,14 +5625,12 @@
           <group delimiter=" ">
             <text term="hearing" text-case="capitalize-first"/>
             <group delimiter=" ">
-              <group delimiter=" ">
-                <text term="on"/>
-                <text variable="number"/>
-              </group>
-              <group delimiter=" ">
-                <text value="before the"/>
-                <text variable="section"/>
-              </group>
+              <text term="on"/>
+              <text variable="number"/>
+            </group>
+            <group delimiter=" ">
+              <text value="before the"/>
+              <text variable="section"/>
             </group>
           </group>
         </group>
@@ -5649,21 +5639,21 @@
   </macro>
   <!-- 6.2.2. Legal identifier -->
   <macro name="legal-identifier">
-    <choose>
-      <if type="hearing">
-        <group delimiter=" " prefix="(" suffix=")">
+    <group delimiter=" " prefix="(" suffix=")">
+      <choose>
+        <if type="hearing">
           <!-- Use the 'verb' form of the hearing term to hold 'testimony of' -->
           <text form="verb" term="hearing"/>
           <names variable="author">
             <name and="symbol" initialize="false"/>
           </names>
-        </group>
-      </if>
-      <else-if match="any" type="bill legislation regulation">
-        <!-- For uncodified regulations, assume future code section is in `status`. -->
-        <text prefix="(" suffix=")" variable="status"/>
-      </else-if>
-    </choose>
+        </if>
+        <else-if match="any" type="bill legislation regulation">
+          <!-- For uncodified regulations, assume future code section is in `status`. -->
+          <text variable="status"/>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="legal-identifier-bill-report">
     <group delimiter=" ">
@@ -5723,19 +5713,17 @@
     <group delimiter=" ">
       <choose>
         <if variable="container-title">
-          <group delimiter=" ">
-            <text variable="volume"/>
-            <text variable="container-title"/>
-            <text macro="label-section-symbol"/>
-            <choose>
-              <if match="any" variable="page page-first">
-                <text variable="page-first"/>
-              </if>
-              <else>
-                <text value="___"/>
-              </else>
-            </choose>
-          </group>
+          <text variable="volume"/>
+          <text variable="container-title"/>
+          <text macro="label-section-symbol"/>
+          <choose>
+            <if match="any" variable="page page-first">
+              <text variable="page-first"/>
+            </if>
+            <else>
+              <text value="___"/>
+            </else>
+          </choose>
         </if>
         <else>
           <text macro="label-number-capitalized"/>
@@ -5858,24 +5846,20 @@
           <text macro="citation-notes-shortened-author-title-item"/>
           <text macro="source-locator-subsequent"/>
         </if>
-        <else-if type="classic">
-          <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
-          <choose>
-            <if is-numeric="locator">
-              <text macro="citation-notes-shortened-author-title-item"/>
-              <text macro="source-locator-subsequent"/>
-            </if>
-            <else-if locator="chapter line verse" match="any">
-              <group delimiter=" ">
-                <text macro="citation-notes-shortened-author-title-item"/>
-                <text macro="source-locator-subsequent"/>
-              </group>
-            </else-if>
-            <else>
-              <text macro="citation-notes-shortened-author-title-item"/>
-              <text macro="source-locator-subsequent"/>
-            </else>
-          </choose>
+        <else-if match="none" type="classic">
+          <text macro="citation-notes-shortened-author-title-item"/>
+          <text macro="source-locator-subsequent"/>
+        </else-if>
+        <!-- with `classic`, a non-numeric canonical reference or identifying number is separated by a space rather than a comma (CMOS18 14.145) -->
+        <else-if is-numeric="locator">
+          <text macro="citation-notes-shortened-author-title-item"/>
+          <text macro="source-locator-subsequent"/>
+        </else-if>
+        <else-if locator="chapter line verse" match="any">
+          <group delimiter=" ">
+            <text macro="citation-notes-shortened-author-title-item"/>
+            <text macro="source-locator-subsequent"/>
+          </group>
         </else-if>
         <else>
           <text macro="citation-notes-shortened-author-title-item"/>
