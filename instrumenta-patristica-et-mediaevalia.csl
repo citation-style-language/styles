@@ -337,6 +337,13 @@
           </choose>
           <names variable="illustrator"/>
           <choose>
+            <!-- list an edited multivolume work under the name of the series editor -->
+            <if variable="container-title"/>
+            <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+              <names variable="collection-editor"/>
+            </else-if>
+          </choose>
+          <choose>
             <if match="none" type="standard">
               <names variable="editor-translator"/>
               <names variable="editor"/>
@@ -623,65 +630,67 @@
   </macro>
   <!-- 2. Date -->
   <macro name="date-short">
-    <choose>
-      <if variable="issued">
-        <group delimiter=" ">
-          <text macro="date-original-year" prefix="[" suffix="]"/>
-          <group>
-            <choose>
-              <if match="none" type="interview personal_communication">
-                <text macro="date-issued-year"/>
-              </if>
-              <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
-              <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                <text macro="date-issued-year"/>
-              </else-if>
-              <else>
-                <text macro="date-issued-full"/>
-              </else>
-            </choose>
-            <text variable="year-suffix"/>
+    <group delimiter="-">
+      <choose>
+        <if variable="issued">
+          <group delimiter=" ">
+            <text macro="date-original-year" prefix="[" suffix="]"/>
+            <group>
+              <choose>
+                <if match="none" type="interview personal_communication">
+                  <text macro="date-issued-year"/>
+                </if>
+                <!-- accessible `interview` or `personal_communication` items appear in the bibliography; inaccessible items are in-text only -->
+                <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+                  <text macro="date-issued-year"/>
+                </else-if>
+                <else>
+                  <text macro="date-issued-full"/>
+                </else>
+              </choose>
+              <text variable="year-suffix"/>
+            </group>
           </group>
-        </group>
-      </if>
-      <else-if variable="available-date">
-        <date date-parts="year" form="text" variable="available-date"/>
-      </else-if>
-      <else-if variable="event-date">
-        <text macro="date-event-year"/>
-      </else-if>
-      <else-if variable="status">
-        <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
-        <text text-case="lowercase" variable="status"/>
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if match="any" type="interview personal_communication">
-        <choose>
-          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-            <!-- only give n.d. for accessible personal communication (cf. CMOS18 14.111)-->
-            <text form="short" term="no date"/>
-          </if>
-        </choose>
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
-        <!-- do not give n.d. for archival collections (cf. CMOS18 14.128), `classic` (cf. 14.143), or reference entries (cf. 14.131) -->
-        <text prefix="-" variable="year-suffix"/>
-      </else-if>
-      <else-if type="manuscript">
-        <!-- do not give n.d. with a bare shelfmark -->
-        <choose>
-          <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
-            <text form="short" term="no date"/>
-            <text prefix="-" variable="year-suffix"/>
-          </if>
-        </choose>
-      </else-if>
-      <else>
-        <text form="short" term="no date"/>
-        <text prefix="-" variable="year-suffix"/>
-      </else>
-    </choose>
+        </if>
+        <else-if variable="available-date">
+          <date date-parts="year" form="text" variable="available-date"/>
+        </else-if>
+        <else-if variable="event-date">
+          <text macro="date-event-year"/>
+        </else-if>
+        <else-if variable="status">
+          <!-- Print the status variable rather than use generic CSL terms (`in press`, etc.) -->
+          <text text-case="lowercase" variable="status"/>
+          <text variable="year-suffix"/>
+        </else-if>
+        <else-if match="any" type="interview personal_communication">
+          <choose>
+            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+              <!-- only give n.d. for accessible personal communication (cf. CMOS18 14.111)-->
+              <text form="short" term="no date"/>
+              <text variable="year-suffix"/>
+            </if>
+          </choose>
+        </else-if>
+        <else-if match="any" type="classic collection entry entry-dictionary entry-encyclopedia">
+          <!-- do not give n.d. for archival collections (cf. CMOS18 14.128), `classic` (cf. 14.143), or reference entries (cf. 14.131) -->
+          <text variable="year-suffix"/>
+        </else-if>
+        <else-if type="manuscript">
+          <!-- do not give n.d. with a bare shelfmark -->
+          <choose>
+            <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place">
+              <text form="short" term="no date"/>
+              <text variable="year-suffix"/>
+            </if>
+          </choose>
+        </else-if>
+        <else>
+          <text form="short" term="no date"/>
+          <text variable="year-suffix"/>
+        </else>
+      </choose>
+    </group>
   </macro>
   <!-- Date elements -->
   <macro name="date-event-full">
@@ -1017,10 +1026,8 @@
   <macro name="title-and-part-title">
     <group delimiter=", ">
       <text macro="title-primary"/>
-      <group delimiter=", ">
-        <text macro="label-part-number"/>
-        <text macro="title-part"/>
-      </group>
+      <text macro="label-part-number"/>
+      <text macro="title-part"/>
     </group>
   </macro>
   <macro name="title-part">
@@ -1186,15 +1193,11 @@
   </macro>
   <macro name="title-volume">
     <group delimiter=", ">
-      <group delimiter=", ">
-        <text macro="label-volume"/>
-        <text font-style="italic" text-case="title" variable="volume-title"/>
-      </group>
+      <text macro="label-volume"/>
+      <text font-style="italic" text-case="title" variable="volume-title"/>
       <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
-      <group delimiter=", ">
-        <text macro="label-part-number"/>
-        <text macro="title-part"/>
-      </group>
+      <text macro="label-part-number"/>
+      <text macro="title-part"/>
     </group>
   </macro>
   <!-- 3.2. Description -->
@@ -1374,88 +1377,53 @@
   <macro name="description-interview">
     <!-- list the interviewer as the author and the interviewee in the description (MHRA 7.11) -->
     <group delimiter=", ">
-      <choose>
-        <if variable="interviewer">
-          <group delimiter=" ">
+      <group delimiter=" ">
+        <choose>
+          <if variable="genre number interviewer">
+            <!-- `genre` printed with `number` -->
+            <text term="interview"/>
+            <text form="verb" term="contributor"/>
             <choose>
-              <if variable="genre number interviewer">
-                <!-- `genre` printed with `number` -->
-                <text term="interview"/>
-                <text form="verb" term="contributor"/>
-                <choose>
-                  <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
-                    <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
-                    <names variable="author"/>
-                  </if>
-                  <else>
-                    <names variable="interviewer"/>
-                  </else>
-                </choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
               </if>
-              <else-if variable="genre interviewer">
-                <text variable="genre"/>
-                <text form="verb" term="contributor"/>
-                <choose>
-                  <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
-                    <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
-                    <names variable="author"/>
-                  </if>
-                  <else>
-                    <names variable="interviewer"/>
-                  </else>
-                </choose>
-              </else-if>
-              <else-if variable="interviewer">
-                <text term="interview"/>
-                <text form="verb" term="contributor"/>
-                <choose>
-                  <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
-                    <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
-                    <names variable="author"/>
-                  </if>
-                  <else>
-                    <names variable="interviewer"/>
-                  </else>
-                </choose>
-              </else-if>
               <else>
-                <text macro="description-format"/>
+                <names variable="interviewer"/>
               </else>
             </choose>
-          </group>
-        </if>
-        <else>
-          <choose>
-            <if variable="genre number">
-              <!-- `genre` printed with `number` -->
-              <names variable="interviewer">
-                <label form="verb" suffix=" "/>
-                <name font-variant="small-caps"/>
-                <et-al font-variant="normal"/>
-              </names>
-            </if>
-            <else-if variable="genre">
-              <group delimiter=" ">
-                <text variable="genre"/>
-                <group delimiter=" ">
-                  <text form="verb" term="container-author"/>
-                  <names variable="interviewer"/>
-                </group>
-              </group>
-            </else-if>
-            <else-if variable="interviewer">
-              <names variable="interviewer">
-                <label form="verb" suffix=" "/>
-                <name font-variant="small-caps"/>
-                <et-al font-variant="normal"/>
-              </names>
-            </else-if>
-            <else>
-              <text macro="description-format"/>
-            </else>
-          </choose>
-        </else>
-      </choose>
+          </if>
+          <else-if variable="genre interviewer">
+            <text variable="genre"/>
+            <text form="verb" term="contributor"/>
+            <choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
+              </if>
+              <else>
+                <names variable="interviewer"/>
+              </else>
+            </choose>
+          </else-if>
+          <else-if variable="interviewer">
+            <text term="interview"/>
+            <text form="verb" term="contributor"/>
+            <choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
+              </if>
+              <else>
+                <names variable="interviewer"/>
+              </else>
+            </choose>
+          </else-if>
+          <else>
+            <text macro="description-format"/>
+          </else>
+        </choose>
+      </group>
       <text macro="source-event-place-first"/>
     </group>
   </macro>
@@ -1468,14 +1436,12 @@
           <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
             <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
             <names variable="author">
-              <name font-variant="small-caps" form="short"/>
-              <et-al font-variant="normal"/>
+              <name form="short"/>
             </names>
           </if>
           <else>
             <names variable="interviewer">
-              <name font-variant="small-caps" form="short"/>
-              <et-al font-variant="normal"/>
+              <name form="short"/>
             </names>
           </else>
         </choose>
@@ -1589,8 +1555,8 @@
           <names variable="reviewed-author"/>
           <text macro="description-review-title"/>
           <text variable="reviewed-genre"/>
-          <text macro="source-event-place-first"/>
         </group>
+        <text macro="source-event-place-first" prefix="(" suffix=")"/>
       </group>
       <text macro="label-section"/>
     </group>
@@ -1659,8 +1625,7 @@
         </if>
       </choose>
       <names variable="author">
-        <name delimiter-precedes-last="always" font-variant="small-caps"/>
-        <et-al font-variant="normal"/>
+        <name delimiter-precedes-last="always"/>
         <substitute>
           <names variable="performer"/>
         </substitute>
@@ -1756,179 +1721,175 @@
     <group delimiter=", ">
       <choose>
         <if match="any" type="post webpage">
-          <group delimiter=", ">
-            <names variable="container-author">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="editor-translator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names delimiter=", " variable="editor translator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="editorial-director">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="host">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="guest">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names delimiter=", " variable="illustrator narrator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names delimiter=", " variable="compiler chair organizer curator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names delimiter=", " variable="series-creator executive-producer">
-              <label form="verb" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="producer">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="director">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names variable="performer">
-              <label form="verb" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <choose>
-              <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software"/>
-              <else-if type="thesis"/>
-              <else>
-                <names variable="contributor">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-              </else>
-            </choose>
-          </group>
+          <names variable="container-author">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="editor-translator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names delimiter=", " variable="editor translator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="editorial-director">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="host">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="guest">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names delimiter=", " variable="illustrator narrator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names delimiter=", " variable="compiler chair organizer curator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names delimiter=", " variable="series-creator executive-producer">
+            <label form="verb" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="producer">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="director">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names variable="performer">
+            <label form="verb" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <choose>
+            <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software"/>
+            <else-if type="thesis"/>
+            <else>
+              <names variable="contributor">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+            </else>
+          </choose>
         </if>
         <else>
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
-          <group delimiter=", ">
-            <choose>
-              <if match="none" variable="container-title">
-                <names variable="container-author">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="editor-translator">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names delimiter=", " variable="editor translator">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="editorial-director">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="host">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="guest">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-              </if>
-            </choose>
-            <names delimiter=", " variable="illustrator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <names delimiter=", " variable="narrator">
-              <label form="verb-short" suffix=" "/>
-              <name font-variant="small-caps"/>
-              <et-al font-variant="normal"/>
-            </names>
-            <choose>
-              <if match="none" variable="container-title">
-                <names delimiter=", " variable="compiler chair organizer curator">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names delimiter=", " variable="series-creator executive-producer">
-                  <label form="verb" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="producer">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="director">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <names variable="performer">
-                  <label form="verb" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-                <choose>
-                  <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software"/>
-                  <else-if type="song"/>
-                  <else-if type="thesis"/>
-                  <else>
-                    <names variable="contributor">
-                      <label form="verb-short" suffix=" "/>
-                      <name font-variant="small-caps"/>
-                      <et-al font-variant="normal"/>
-                    </names>
-                  </else>
-                </choose>
-              </if>
-            </choose>
-            <choose>
-              <if type="song">
-                <!-- Song contributors attached to album (cf. CMOS18 14.163) -->
-                <names variable="contributor">
-                  <label form="verb-short" suffix=" "/>
-                  <name font-variant="small-caps"/>
-                  <et-al font-variant="normal"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <choose>
+            <if match="none" variable="container-title">
+              <names variable="container-author">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="editor-translator">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names delimiter=", " variable="editor translator">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="editorial-director">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="host">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="guest">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+            </if>
+          </choose>
+          <names delimiter=", " variable="illustrator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <names delimiter=", " variable="narrator">
+            <label form="verb-short" suffix=" "/>
+            <name font-variant="small-caps"/>
+            <et-al font-variant="normal"/>
+          </names>
+          <choose>
+            <if match="none" variable="container-title">
+              <names delimiter=", " variable="compiler chair organizer curator">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names delimiter=", " variable="series-creator executive-producer">
+                <label form="verb" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="producer">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="director">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <names variable="performer">
+                <label form="verb" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+              <choose>
+                <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software"/>
+                <else-if type="song"/>
+                <else-if type="thesis"/>
+                <else>
+                  <names variable="contributor">
+                    <label form="verb-short" suffix=" "/>
+                    <name font-variant="small-caps"/>
+                    <et-al font-variant="normal"/>
+                  </names>
+                </else>
+              </choose>
+            </if>
+          </choose>
+          <choose>
+            <if type="song">
+              <!-- Song contributors attached to album (cf. CMOS18 14.163) -->
+              <names variable="contributor">
+                <label form="verb-short" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+            </if>
+          </choose>
         </else>
       </choose>
     </group>
@@ -2058,30 +2019,28 @@
   </macro>
   <!-- 4. Source -->
   <macro name="source">
-    <group delimiter=", ">
-      <choose>
-        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-          <!-- Serial items -->
-          <text macro="source-serial"/>
-        </if>
-        <else-if match="any" type="interview paper-conference">
-          <choose>
-            <if match="any" variable="collection-editor container-author editor editorial-director">
-              <!-- monographic usage -->
-              <text macro="source-monographic"/>
-            </if>
-            <else>
-              <!-- serial usage -->
-              <text macro="source-serial"/>
-            </else>
-          </choose>
-        </else-if>
-        <else-if match="any" type="patent post webpage"/>
-        <else>
-          <text macro="source-monographic"/>
-        </else>
-      </choose>
-    </group>
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <!-- Serial items -->
+        <text macro="source-serial"/>
+      </if>
+      <else-if match="any" type="interview paper-conference">
+        <choose>
+          <if match="any" variable="collection-editor container-author editor editorial-director">
+            <!-- monographic usage -->
+            <text macro="source-monographic"/>
+          </if>
+          <else>
+            <!-- serial usage -->
+            <text macro="source-serial"/>
+          </else>
+        </choose>
+      </else-if>
+      <else-if match="any" type="patent post webpage"/>
+      <else>
+        <text macro="source-monographic"/>
+      </else>
+    </choose>
   </macro>
   <!-- 4.1. Serial sources -->
   <macro name="source-serial">
@@ -2698,71 +2657,65 @@
   </macro>
   <macro name="source-monographic-publication-short-bracketed">
     <!-- mirrors `source-monographic-publication-bracketed` -->
-    <choose>
-      <if disambiguate="true">
-        <group delimiter=", ">
+    <group delimiter=", ">
+      <choose>
+        <if disambiguate="true" match="none"/>
+        <!-- Facts of publication with brackets for print monographic formats -->
+        <else-if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
           <choose>
-            <!-- Facts of publication with brackets for print monographic formats -->
-            <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis">
-              <choose>
-                <if disambiguate="true">
-                  <text macro="source-publication-publisher"/>
-                </if>
-              </choose>
+            <if disambiguate="true">
+              <text macro="source-publication-publisher"/>
+            </if>
+          </choose>
+          <text macro="source-date"/>
+        </else-if>
+        <else-if type="article" variable="genre publisher">
+          <!-- without brackets for a preprint in a repository (cf. CMOS18 14.76), with brackets for a working paper (cf. CMOS18 14.116) -->
+          <choose>
+            <if disambiguate="true">
+              <text macro="source-publication-publisher"/>
+            </if>
+          </choose>
+          <text macro="source-date"/>
+        </else-if>
+        <else-if type="motion_picture" variable="publisher">
+          <choose>
+            <if disambiguate="true">
+              <text macro="source-publication-publisher"/>
+            </if>
+          </choose>
+          <text macro="source-date"/>
+        </else-if>
+        <else-if type="personal_communication">
+          <choose>
+            <if match="any" variable="collection-editor compiler editor editorial-director publisher">
+              <!-- in an edited collection -->
               <text macro="source-date"/>
             </if>
-            <else-if type="article" variable="genre publisher">
-              <!-- without brackets for a preprint in a repository (cf. CMOS18 14.76), with brackets for a working paper (cf. CMOS18 14.116) -->
-              <choose>
-                <if disambiguate="true">
-                  <text macro="source-publication-publisher"/>
-                </if>
-              </choose>
-              <text macro="source-date"/>
-            </else-if>
-            <else-if type="motion_picture" variable="publisher">
-              <choose>
-                <if disambiguate="true">
-                  <text macro="source-publication-publisher"/>
-                </if>
-              </choose>
-              <text macro="source-date"/>
-            </else-if>
-            <else-if type="personal_communication">
-              <choose>
-                <if match="any" variable="collection-editor compiler editor editorial-director publisher">
-                  <!-- in an edited collection -->
-                  <text macro="source-date"/>
-                </if>
-              </choose>
-            </else-if>
           </choose>
-        </group>
-      </if>
-    </choose>
+        </else-if>
+      </choose>
+    </group>
   </macro>
   <macro name="source-monographic-publication-short-unbracketed">
     <!-- mirrors `source-monographic-publication-unbracketed` -->
     <choose>
-      <if disambiguate="true">
+      <if disambiguate="true" match="none"/>
+      <!-- Facts of publication without brackets -->
+      <else-if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
+      <else-if type="article" variable="genre publisher"/>
+      <else-if type="motion_picture" variable="publisher"/>
+      <else-if type="personal_communication">
         <choose>
-          <!-- Facts of publication without brackets -->
-          <if match="any" type="book chapter classic entry entry-dictionary entry-encyclopedia interview musical_score pamphlet paper-conference report thesis"/>
-          <else-if type="article" variable="genre publisher"/>
-          <else-if type="motion_picture" variable="publisher"/>
-          <else-if type="personal_communication">
-            <choose>
-              <if match="none" variable="collection-editor compiler editor editorial-director publisher">
-                <!-- not in an edited collection -->
-                <text macro="source-date"/>
-              </if>
-            </choose>
-          </else-if>
-          <else>
+          <if match="none" variable="collection-editor compiler editor editorial-director publisher">
+            <!-- not in an edited collection -->
             <text macro="source-date"/>
-          </else>
+          </if>
         </choose>
-      </if>
+      </else-if>
+      <else>
+        <text macro="source-date"/>
+      </else>
     </choose>
   </macro>
   <macro name="source-publication-and-date">
@@ -2808,16 +2761,16 @@
     </choose>
   </macro>
   <macro name="source-publication-history">
-    <choose>
-      <if variable="original-title">
-        <!-- `original-title` is covered in `source-publication-original-title-bib` -->
-        <group delimiter=", ">
-          <text macro="source-publication-description"/>
-          <text macro="source-publication-publisher"/>
-        </group>
-      </if>
-      <else-if match="any" variable="edition original-publisher original-publisher-place">
-        <group delimiter="; ">
+    <group delimiter="; ">
+      <choose>
+        <if variable="original-title">
+          <!-- `original-title` is covered in `source-publication-original-title-bib` -->
+          <group delimiter=", ">
+            <text macro="source-publication-description"/>
+            <text macro="source-publication-publisher"/>
+          </group>
+        </if>
+        <else-if match="any" variable="edition original-publisher original-publisher-place">
           <!-- semicolon to separate original date if `original-publisher` (cf. CMOS18 14.16) -->
           <group delimiter=", ">
             <text macro="source-publication-publisher-original"/>
@@ -2834,19 +2787,17 @@
               <text macro="source-publication-publisher"/>
             </group>
           </group>
-        </group>
-      </else-if>
-      <else>
-        <group delimiter="; ">
+        </else-if>
+        <else>
           <!-- semicolon to separate original date if no publisher (cf. CMOS18 14.165) -->
           <text macro="source-date-original"/>
           <group delimiter=", ">
             <text macro="source-publication-description"/>
             <text macro="source-publication-publisher"/>
           </group>
-        </group>
-      </else>
-    </choose>
+        </else>
+      </choose>
+    </group>
   </macro>
   <macro name="source-publication-original-title">
     <!-- Work originally published under a different title (cf. CMOS18 13.101) -->
@@ -3117,19 +3068,19 @@
     </choose>
   </macro>
   <macro name="source-locator-subsequent-monographic">
-    <group delimiter=", ">
-      <choose>
-        <if variable="container-title">
-          <!-- Do not provide `volume` or `part-number` for defined section -->
-          <text macro="label-locator"/>
-        </if>
-        <else>
+    <choose>
+      <if variable="container-title">
+        <!-- Do not provide `volume` or `part-number` for defined section -->
+        <text macro="label-locator"/>
+      </if>
+      <else>
+        <group delimiter=", ">
           <text macro="label-volume"/>
           <text macro="label-part-number"/>
           <text macro="label-locator"/>
-        </else>
-      </choose>
-    </group>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="source-locator-subsequent-serial">
     <group delimiter=", ">
