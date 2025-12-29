@@ -8,7 +8,7 @@ STYLE_ROOT = File.directory?(PULL_REQUEST) ? PULL_REQUEST : PROJECT_ROOT
 
 ISSN = Hash.new { |h,k| h[k] = [] }
 TITLES = Hash.new { |h,k| h[k] = [] }
-FILTER = YAML.safe_load(File.join(File.dirname(__FILE__), 'filters.yaml'))
+FILTER = YAML.load_file(File.join(File.dirname(__FILE__), 'filters.yaml'))
 
 EXTRA_FILES = Dir[File.join(STYLE_ROOT, '**', '*')].reject do |file|
   basedir = file.sub(STYLE_ROOT + "/","").partition("/")[0]
