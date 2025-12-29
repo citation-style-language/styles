@@ -1009,18 +1009,18 @@
         <if variable="title">
           <text macro="title-bib"/>
           <text macro="description-bib"/>
-          <text macro="identifier-bib-specific-title-first"/>
+          <text macro="identifier-bib"/>
         </if>
         <else-if match="any" type="bill report">
           <!-- Bills, resolutions, and congressional reports substitute bill number if no title -->
           <!-- Congressional reports are indistinguishable from other reports -->
           <text macro="identifier-number-bib"/>
-          <text macro="identifier-bib-specific-title-first"/>
+          <text macro="identifier-bib"/>
           <text macro="description-bib"/>
         </else-if>
         <else>
           <text macro="description-bib"/>
-          <text macro="identifier-bib-specific-title-first"/>
+          <text macro="identifier-bib"/>
         </else>
       </choose>
     </group>
@@ -1864,7 +1864,7 @@
     </group>
   </macro>
   <!-- 3.3. Identifier (edition, contributors, volume) -->
-  <macro name="identifier-bib-specific-title-first">
+  <macro name="identifier-bib">
     <group delimiter=". ">
       <choose>
         <if type="patent">
@@ -1897,19 +1897,7 @@
           </choose>
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
-          <text macro="identifier-contributors-bib"/>
-          <group delimiter=", ">
-            <text macro="identifier-volume-monographic-bib"/>
-            <choose>
-              <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
-                <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
-                <names variable="collection-editor">
-                  <label form="verb" suffix=" "/>
-                  <name and="text"/>
-                </names>
-              </if>
-            </choose>
-          </group>
+          <text macro="identifier-contributors-and-volume-bib"/>
         </else>
       </choose>
     </group>
@@ -2127,6 +2115,48 @@
       </names>
     </group>
   </macro>
+  <macro name="identifier-contributors-and-volume-bib">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <!-- serial types -->
+        <text macro="identifier-contributors-serial-bib"/>
+      </if>
+      <else-if match="any" variable="collection-editor compiler editor editorial-director">
+        <!-- monographic types -->
+        <text macro="identifier-contributors-and-volume-monographic-bib-specific-title-first"/>
+      </else-if>
+      <else-if match="any" type="interview paper-conference">
+        <!-- serial types -->
+        <text macro="identifier-contributors-serial-bib"/>
+      </else-if>
+      <else>
+        <!-- monographic types -->
+        <text macro="identifier-contributors-and-volume-monographic-bib-specific-title-first"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="identifier-contributors-and-volume-monographic-bib-specific-title-first">
+    <group delimiter=". ">
+      <text macro="identifier-contributors-monographic-bib"/>
+      <group delimiter=", ">
+        <text macro="identifier-volume-bib-specific-title-first"/>
+        <choose>
+          <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+            <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
+            <names variable="collection-editor">
+              <label form="verb" suffix=" "/>
+              <name and="text"/>
+            </names>
+          </if>
+        </choose>
+      </group>
+      <choose>
+        <if match="none" variable="part-number part-title volume volume-title">
+          <text macro="label-number-of-volumes"/>
+        </if>
+      </choose>
+    </group>
+  </macro>
   <macro name="identifier-edition-bib">
     <choose>
       <!-- ensure `source-publication-history-bib` does not duplicate edition -->
@@ -2213,15 +2243,13 @@
           <text macro="identifier-number-bib"/>
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
-          <text macro="identifier-contributors-bib"/>
-          <text macro="identifier-volume-monographic-bib"/>
+          <text macro="identifier-contributors-and-volume-bib"/>
         </else-if>
         <else>
           <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
-          <text macro="identifier-contributors-bib"/>
-          <text macro="identifier-volume-monographic-bib"/>
+          <text macro="identifier-contributors-and-volume-bib"/>
         </else>
       </choose>
     </group>
@@ -2275,27 +2303,8 @@
         <else-if variable="volume">
           <text macro="label-volume-capitalized"/>
         </else-if>
-        <else>
-          <text macro="label-number-of-volumes"/>
-        </else>
       </choose>
     </group>
-  </macro>
-  <macro name="identifier-volume-monographic-bib">
-    <choose>
-      <!-- omit serial types -->
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
-      <else-if match="any" variable="collection-editor compiler editor editorial-director">
-        <!-- monographic types -->
-        <text macro="identifier-volume-bib-specific-title-first"/>
-      </else-if>
-      <!-- omit serial types -->
-      <else-if match="any" type="interview paper-conference"/>
-      <else>
-        <!-- monographic types -->
-        <text macro="identifier-volume-bib-specific-title-first"/>
-      </else>
-    </choose>
   </macro>
   <!-- 4. Source -->
   <macro name="source-bib">
@@ -2602,7 +2611,7 @@
               <text macro="source-monographic-title-specific-title-first"/>
             </group>
             <text macro="source-monographic-description-bib"/>
-            <text macro="source-monographic-identifier-bib-specific-title-first"/>
+            <text macro="source-monographic-identifier-bib"/>
             <text macro="source-monographic-locator"/>
           </group>
         </if>
@@ -2726,8 +2735,8 @@
     </choose>
   </macro>
   <!-- Monographic source identifier -->
-  <macro name="source-monographic-identifier-bib-specific-title-first">
-    <!-- Based on `identifier-bib-specific-title-first` -->
+  <macro name="source-monographic-identifier-bib">
+    <!-- Based on `identifier-bib` -->
     <choose>
       <if variable="container-title">
         <group delimiter=", ">
@@ -2740,17 +2749,7 @@
           <text macro="label-version"/>
           <!-- use note form as `edition` is not capitalized here -->
           <text macro="identifier-edition-note"/>
-          <text macro="source-monographic-identifier-contributors-bib"/>
-          <text macro="source-monographic-identifier-volume-bib-specific-title-first"/>
-          <choose>
-            <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
-              <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
-              <names variable="collection-editor">
-                <label form="verb" suffix=" "/>
-                <name and="text"/>
-              </names>
-            </if>
-          </choose>
+          <text macro="source-monographic-identifier-contributors-and-volume-bib-specific-title-first"/>
         </group>
       </if>
     </choose>
@@ -2824,6 +2823,28 @@
       </choose>
     </group>
   </macro>
+  <macro name="source-monographic-identifier-contributors-and-volume-bib-specific-title-first">
+    <group delimiter=", ">
+      <text macro="source-monographic-identifier-contributors-bib"/>
+      <text macro="source-monographic-identifier-volume-bib-specific-title-first"/>
+      <choose>
+        <if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+          <!-- cite multivolume `collection-editor`; otherwise it belongs with `collection-title` -->
+          <names variable="collection-editor">
+            <label form="verb" suffix=" "/>
+            <name and="text"/>
+          </names>
+        </if>
+      </choose>
+      <choose>
+        <if match="any" variable="part-number part-title volume volume-title"/>
+        <else-if variable="page"/>
+        <else>
+          <text macro="label-number-of-volumes"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
   <macro name="source-monographic-identifier-volume-bib-specific-title-first">
     <!-- based on `identifier-volume-bib-specific-title-first` without capitalization; giving `container-title` rather than `title-primary`; and ensuring volume number -->
     <group delimiter=", ">
@@ -2882,9 +2903,6 @@
           </choose>
           <text macro="label-part-number"/>
         </else-if>
-        <else>
-          <text macro="label-number-of-volumes"/>
-        </else>
       </choose>
     </group>
   </macro>
