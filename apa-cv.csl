@@ -504,13 +504,10 @@
                 <!-- Many video and audio examples in manual give full dates. Err on the side of too much information. -->
                 <text macro="date-issued-month-day"/>
               </if>
+              <!-- Only show the month and day for an unpublished `interview` or `paper-conference` -->
+              <else-if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume"/>
               <else-if match="any" type="interview paper-conference">
-                <!-- Determine whether published and serial or monographic -->
-                <choose>
-                  <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
-                    <text macro="date-issued-month-day"/>
-                  </if>
-                </choose>
+                <text macro="date-issued-month-day"/>
               </else-if>
               <!-- Only year: article article-journal book chapter classic
                    entry entry-dictionary entry-encyclopedia dataset figure graphic
@@ -538,9 +535,9 @@
         <date date-parts="year" form="numeric" variable="issued"/>
       </if>
       <else-if type="paper-conference">
-        <!-- Capture `speech` stored as `paper-conference` -->
+        <!-- Determine whether published and serial or monographic -->
         <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
+          <if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume">
             <date date-parts="year" form="numeric" variable="issued"/>
           </if>
           <else>
@@ -655,20 +652,15 @@
         <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
         <text font-style="italic" macro="title-and-part-filter-review"/>
       </if>
-      <!-- Other types are italicized based on presence of `container-title`. Assume that review and review-book are published either in a serial or on a webpage (APA example 69) -->
+      <!-- Other types are italicized based on presence of `container-title`. Assume that `review` and `review-book` are published either in a serial or on a webpage (APA example 69) -->
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="title-serial"/>
       </else-if>
+      <else-if match="any" variable="collection-editor compiler editor editorial-director">
+        <text macro="title-monographic"/>
+      </else-if>
       <else-if match="any" type="interview paper-conference">
-        <!-- Treat as monographic with an editor; otherwise as serial -->
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <text macro="title-monographic"/>
-          </if>
-          <else>
-            <text macro="title-serial"/>
-          </else>
-        </choose>
+        <text macro="title-serial"/>
       </else-if>
       <else>
         <text macro="title-monographic"/>
@@ -832,15 +824,11 @@
       <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="identifier-contributors-serial"/>
       </if>
+      <else-if match="any" variable="collection-editor compiler editor editorial-director">
+        <text macro="identifier-contributors-monographic"/>
+      </else-if>
       <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <text macro="identifier-contributors-monographic"/>
-          </if>
-          <else>
-            <text macro="identifier-contributors-serial"/>
-          </else>
-        </choose>
+        <text macro="identifier-contributors-serial"/>
       </else-if>
       <else>
         <text macro="identifier-contributors-monographic"/>
@@ -944,17 +932,18 @@
   <macro name="identifier-monographic">
     <group delimiter=", ">
       <choose>
+        <!-- omit serial types -->
         <if match="any" type="article-journal article-magazine article-newspaper broadcast event patent performance periodical post post-weblog review review-book speech webpage"/>
-        <else-if match="any" type="interview paper-conference">
-          <choose>
-            <if match="any" variable="collection-editor compiler editor editorial-director">
-              <text macro="label-version"/>
-              <text macro="label-edition"/>
-              <text macro="identifier-volume"/>
-            </if>
-          </choose>
+        <else-if match="any" variable="collection-editor compiler editor editorial-director">
+          <!-- monographic types -->
+          <text macro="label-version"/>
+          <text macro="label-edition"/>
+          <text macro="identifier-volume"/>
         </else-if>
+        <!-- omit serial types -->
+        <else-if match="any" type="interview paper-conference"/>
         <else>
+          <!-- monographic types -->
           <text macro="label-version"/>
           <text macro="label-edition"/>
           <text macro="identifier-volume"/>
@@ -989,14 +978,14 @@
   <macro name="identifier-part-serial">
     <choose>
       <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <!-- serial types -->
         <text macro="identifier-part"/>
       </if>
+      <!-- omit monographic types -->
+      <else-if match="any" variable="collection-editor compiler editor editorial-director"/>
       <else-if match="any" type="interview paper-conference">
-        <choose>
-          <if match="none" variable="collection-editor compiler editor editorial-director">
-            <text macro="identifier-part"/>
-          </if>
-        </choose>
+        <!-- serial types -->
+        <text macro="identifier-part"/>
       </else-if>
     </choose>
   </macro>
@@ -1060,34 +1049,30 @@
         <else-if type="personal_communication">
           <text macro="description-letter"/>
         </else-if>
-        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-          <text macro="description-serial"/>
-        </else-if>
         <else-if type="song" variable="composer">
           <text macro="description-song"/>
         </else-if>
         <else-if type="thesis">
           <text macro="description-thesis"/>
         </else-if>
+        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+          <text macro="description-serial"/>
+        </else-if>
         <else-if match="none" variable="container-title">
           <!-- Other description -->
           <text macro="description-format"/>
         </else-if>
-        <else>
-          <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
+        <!-- For unpublished conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
+        <else-if match="any" type="event paper-conference performance speech">
           <choose>
-            <if match="any" type="event paper-conference performance speech">
-              <choose>
-                <if match="any" variable="collection-editor compiler editor editorial-director issue page volume">
-                  <text macro="description-format"/>
-                </if>
-              </choose>
-            </if>
-            <else-if match="any" type="document report software standard"/>
-            <else>
+            <if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume">
               <text macro="description-format"/>
-            </else>
+            </if>
           </choose>
+        </else-if>
+        <else-if match="any" type="document report software standard"/>
+        <else>
+          <text macro="description-format"/>
         </else>
       </choose>
     </group>
@@ -1350,21 +1335,16 @@
   <macro name="source">
     <group delimiter=". ">
       <choose>
-        <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <if match="any" type="post webpage"/>
+        <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
           <text macro="source-serial"/>
-        </if>
-        <else-if match="any" type="interview paper-conference">
-          <!-- Determine whether serial or monographic -->
-          <choose>
-            <if match="any" variable="collection-editor container-author editor editorial-director">
-              <text macro="source-monographic"/>
-            </if>
-            <else>
-              <text macro="source-serial"/>
-            </else>
-          </choose>
         </else-if>
-        <else-if match="any" type="post webpage"/>
+        <else-if match="any" variable="collection-editor compiler editor editorial-director">
+          <text macro="source-monographic"/>
+        </else-if>
+        <else-if match="any" type="interview paper-conference">
+          <text macro="source-serial"/>
+        </else-if>
         <else>
           <text macro="source-monographic"/>
         </else>
@@ -1496,20 +1476,17 @@
   <macro name="source-monographic-description">
     <group prefix="[" suffix="]">
       <choose>
-        <if match="any" type="event paper-conference performance speech">
-          <!-- Conference presentations should describe the session unless published in a proceedings -->
-          <choose>
-            <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
-              <text macro="description-format"/>
-            </if>
-          </choose>
-        </if>
-        <else-if type="software">
+        <if type="software">
           <!-- For entries in mobile app reference works, place description after `container-title` -->
           <text macro="description-format"/>
-        </else-if>
+        </if>
         <else-if match="any" type="document report standard">
           <!-- For chapters in report, standards, and generic documents, place description after `container-title` -->
+          <text macro="description-format"/>
+        </else-if>
+        <else-if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume"/>
+        <else-if match="any" type="event paper-conference performance speech">
+          <!-- unpublished conference presentations should describe the session -->
           <text macro="description-format"/>
         </else-if>
       </choose>
@@ -1526,21 +1503,21 @@
           </if>
         </choose>
       </if>
-      <else-if match="any" type="interview paper-conference">
-        <!-- Only print publisher if monographic -->
-        <choose>
-          <if match="any" variable="collection-editor compiler editor editorial-director">
-            <text variable="publisher"/>
-          </if>
-          <else-if type="interview">
-            <!-- publisher always possible with an interview -->
-            <text variable="publisher"/>
-          </else-if>
-        </choose>
-      </else-if>
-      <else-if match="none" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+      <!-- omit serial types -->
+      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book"/>
+      <else-if match="any" variable="collection-editor compiler editor editorial-director">
+        <!-- monographic types -->
         <text variable="publisher"/>
       </else-if>
+      <else-if type="interview">
+        <!-- give publisher for a broadcast `interview` handled as a serial type -->
+        <text variable="publisher"/>
+      </else-if>
+      <!-- omit serial `paper-conference` -->
+      <else-if type="paper-conference"/>
+      <else>
+        <text variable="publisher"/>
+      </else>
     </choose>
   </macro>
   <!-- 4.4. Database and archive sources (APA 9.30) -->
@@ -1576,7 +1553,7 @@
         <choose>
           <if type="paper-conference">
             <choose>
-              <if match="none" variable="collection-editor compiler editor editorial-director issue page volume">
+              <if match="none" variable="collection-editor compiler editor editorial-director issue page supplement-number volume">
                 <!-- Don't print event info for conference papers published in a proceedings -->
                 <text macro="source-location-title-place-date"/>
               </if>
@@ -1666,21 +1643,10 @@
               <group delimiter=" ">
                 <text term="original-work-published" text-case="capitalize-first"/>
                 <group delimiter=", ">
-                  <choose>
-                    <if variable="original-title">
-                      <group delimiter=" ">
-                        <text value="as"/>
-                        <choose>
-                          <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-                            <text variable="original-title"/>
-                          </if>
-                          <else>
-                            <text font-style="italic" variable="original-title"/>
-                          </else>
-                        </choose>
-                      </group>
-                    </if>
-                  </choose>
+                  <group delimiter=" ">
+                    <text value="as"/>
+                    <text font-style="italic" variable="original-title"/>
+                  </group>
                   <text macro="date-original-year"/>
                   <text variable="original-publisher"/>
                 </group>
