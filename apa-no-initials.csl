@@ -618,12 +618,12 @@
               <choose>
                 <if match="any" type="interview personal_communication">
                   <choose>
-                    <if match="none" variable="archive archive-place container-title DOI number publisher references URL">
+                    <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
                       <!-- These variables indicate that the communication is retrievable by the reader. If not, then use the in-text-only personal communication format -->
-                      <text macro="date-issued-full"/>
+                      <text macro="date-issued-year"/>
                     </if>
                     <else>
-                      <text macro="date-issued-year"/>
+                      <text macro="date-issued-full"/>
                     </else>
                   </choose>
                 </if>
@@ -892,9 +892,10 @@
           <text text-case="capitalize-first" variable="part-title"/>
         </group>
       </if>
-      <else-if is-numeric="part-number" match="none">
+      <else-if is-numeric="part-number"/>
+      <else>
         <text macro="label-part-number"/>
-      </else-if>
+      </else>
     </choose>
   </macro>
   <macro name="title-serial">
@@ -910,29 +911,36 @@
     </choose>
   </macro>
   <macro name="title-volume">
-    <group delimiter=": ">
+    <group delimiter=", ">
       <choose>
+        <!-- Assume that `part-number` and `part-title` of monographic items refer to the source book/volume -->
         <if variable="volume-title">
-          <group delimiter=". ">
-            <text macro="label-volume"/>
-            <text variable="volume-title"/>
-          </group>
-          <!-- Assume that `part-number` and `part-title` of monographic items refer to the source book/volume -->
-          <text macro="title-part"/>
-        </if>
-        <else-if variable="part-title volume">
-          <group delimiter=", ">
-            <text macro="label-volume"/>
+          <group delimiter=": ">
+            <group delimiter=". ">
+              <text macro="label-volume"/>
+              <text variable="volume-title"/>
+            </group>
             <text macro="title-part"/>
           </group>
-        </else-if>
-        <else-if is-numeric="volume" match="none">
+        </if>
+        <else-if variable="part-title">
           <text macro="label-volume"/>
           <text macro="title-part"/>
         </else-if>
-        <else-if is-numeric="part-number" match="none">
-          <text macro="title-part"/>
+        <!-- if there is no `part-title` or `volume title`, `part-number` and `volume` appear in `identifier` if numeric -->
+        <else-if is-numeric="part-number volume"/>
+        <else-if is-numeric="part-number" variable="volume">
+          <text macro="label-volume"/>
         </else-if>
+        <else-if is-numeric="volume" variable="part-number">
+          <text macro="label-part-number"/>
+        </else-if>
+        <else-if is-numeric="part-number"/>
+        <else-if is-numeric="volume"/>
+        <else>
+          <text macro="label-volume"/>
+          <text macro="label-part-number"/>
+        </else>
       </choose>
     </group>
   </macro>
@@ -946,18 +954,18 @@
         </if>
         <else-if type="report">
           <choose>
-            <if match="none" variable="title">
-              <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
+            <if variable="container-title">
+              <!-- If the report is a chapter in a larger report, then most identifying information is printed in the source. -->
               <text macro="identifier-contributors"/>
-              <text macro="identifier-monographic"/>
             </if>
-            <!-- If the report is a chapter in a larger report, then most identifying information is printed in the source. -->
-            <else-if variable="container-title">
-              <text macro="identifier-contributors"/>
-            </else-if>
-            <else>
+            <else-if variable="title">
               <text macro="identifier-contributors"/>
               <text macro="identifier-number"/>
+              <text macro="identifier-monographic"/>
+            </else-if>
+            <else>
+              <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
+              <text macro="identifier-contributors"/>
               <text macro="identifier-monographic"/>
             </else>
           </choose>
@@ -1128,14 +1136,13 @@
   <macro name="identifier-number">
     <group delimiter=" ">
       <choose>
-        <if match="none" variable="number"/>
-        <else-if type="thesis" variable="genre">
+        <if type="thesis" variable="genre">
           <!-- `genre` provided with thesis description (APA example 65) -->
           <text text-case="capitalize-first" value="publication"/>
-        </else-if>
-        <else>
+        </if>
+        <else-if variable="number">
           <text text-case="title" variable="genre"/>
-        </else>
+        </else-if>
       </choose>
       <text macro="label-number"/>
     </group>
@@ -1237,6 +1244,7 @@
           <text macro="description-format"/>
         </else-if>
         <!-- For unpublished conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
+        <else-if match="any" type="document report software standard"/>
         <else-if match="any" type="event paper-conference performance speech">
           <choose>
             <if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume">
@@ -1244,7 +1252,6 @@
             </if>
           </choose>
         </else-if>
-        <else-if match="any" type="document report software standard"/>
         <else>
           <text macro="description-format"/>
         </else>
@@ -1749,14 +1756,10 @@
   <macro name="source-monographic-description">
     <group prefix="[" suffix="]">
       <choose>
-        <if type="software">
-          <!-- For entries in mobile app reference works, place description after `container-title` -->
+        <if match="any" type="document report software standard">
+          <!-- place description after `container-title` -->
           <text macro="description-format"/>
         </if>
-        <else-if match="any" type="document report standard">
-          <!-- For chapters in report, standards, and generic documents, place description after `container-title` -->
-          <text macro="description-format"/>
-        </else-if>
         <else-if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume"/>
         <else-if match="any" type="event paper-conference performance speech">
           <!-- unpublished conference presentations should describe the session -->
