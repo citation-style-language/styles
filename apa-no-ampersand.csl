@@ -624,17 +624,13 @@
             <text macro="date-original-year"/>
             <group>
               <choose>
-                <if match="any" type="interview personal_communication">
-                  <choose>
-                    <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-                      <!-- These variables indicate that the communication is retrievable by the reader. If not, then use the in-text-only personal communication format -->
-                      <text macro="date-issued-year"/>
-                    </if>
-                    <else>
-                      <text macro="date-issued-full"/>
-                    </else>
-                  </choose>
+                <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+                  <text macro="date-issued-year"/>
                 </if>
+                <else-if match="any" type="interview personal_communication">
+                  <!-- use the in-text-only format for inaccessible personal communications -->
+                  <text macro="date-issued-full"/>
+                </else-if>
                 <else>
                   <text macro="date-issued-year"/>
                 </else>
@@ -960,28 +956,24 @@
         <if type="patent">
           <text macro="identifier-patent"/>
         </if>
-        <else-if type="report">
-          <choose>
-            <if variable="container-title">
-              <!-- If the report is a chapter in a larger report, then most identifying information is printed in the source. -->
-              <text macro="identifier-contributors"/>
-            </if>
-            <else-if variable="title">
-              <text macro="identifier-contributors"/>
-              <text macro="identifier-number"/>
-              <text macro="identifier-monographic"/>
-            </else-if>
-            <else>
-              <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
-              <text macro="identifier-contributors"/>
-              <text macro="identifier-monographic"/>
-            </else>
-          </choose>
-        </else-if>
         <else-if match="any" type="post webpage">
           <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
           <text macro="identifier-contributors"/>
           <text macro="identifier-number"/>
+          <text macro="identifier-monographic"/>
+        </else-if>
+        <else-if type="report" variable="container-title">
+          <!-- If the report is a chapter in a larger report, then most identifying information is printed in the source. -->
+          <text macro="identifier-contributors"/>
+        </else-if>
+        <else-if type="report" variable="title">
+          <text macro="identifier-contributors"/>
+          <text macro="identifier-number"/>
+          <text macro="identifier-monographic"/>
+        </else-if>
+        <else-if type="report">
+          <!-- If there is no `title`, then `genre` and `number` are already printed as the title. -->
+          <text macro="identifier-contributors"/>
           <text macro="identifier-monographic"/>
         </else-if>
         <else-if variable="container-title">
@@ -1109,14 +1101,13 @@
       <if variable="page">
         <text macro="label-page"/>
       </if>
-      <else-if variable="chapter-number">
-        <choose>
-          <if match="any" variable="genre title">
-            <!-- `chapter-number` appears earlier in `identifier` if there is no `title` or `genre` -->
-            <text macro="label-chapter-number"/>
-          </if>
-        </choose>
+      <else-if variable="chapter-number genre">
+        <text macro="label-chapter-number"/>
       </else-if>
+      <else-if variable="chapter-number title">
+        <text macro="label-chapter-number"/>
+      </else-if>
+      <!-- `chapter-number` appears earlier in `identifier` if there is no `title` or `genre` -->
     </choose>
   </macro>
   <macro name="identifier-monographic">
@@ -1909,13 +1900,10 @@
         <else>
           <!-- Print `status` here for "retracted" etc. if it's not printed elsewhere. -->
           <choose>
-            <if variable="issued">
-              <choose>
-                <if match="any" variable="collection-title issue number page supplement-number volume">
-                  <text text-case="capitalize-first" variable="status"/>
-                </if>
-              </choose>
-            </if>
+            <if match="none" variable="issued"/>
+            <else-if match="any" variable="collection-title issue number page supplement-number volume">
+              <text text-case="capitalize-first" variable="status"/>
+            </else-if>
           </choose>
           <choose>
             <if variable="references">
@@ -2294,14 +2282,11 @@
     </sort>
     <layout>
       <choose>
-        <if match="any" type="interview personal_communication">
-          <!-- an inaccessible `interview` or `personal_communication` is cited in-text only (APA 8.9) -->
-          <choose>
-            <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
-              <text macro="bibliography"/>
-            </if>
-          </choose>
+        <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+          <text macro="bibliography"/>
         </if>
+        <!-- an inaccessible `interview` or `personal_communication` is cited in-text only (APA 8.9) -->
+        <else-if match="any" type="interview personal_communication"/>
         <else>
           <text macro="bibliography"/>
         </else>
