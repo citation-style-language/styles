@@ -25,6 +25,10 @@
   <locale>
     <terms>
       <term name="et-al">and others</term>
+      <term form="short" name="first-reference-note-number">
+        <single>n.</single>
+        <multiple>nn.</multiple>
+      </term>
       <term form="short" name="section">
         <single>s</single>
         <multiple>ss</multiple>
@@ -35,6 +39,53 @@
       </term>
     </terms>
   </locale>
+  <!-- Variable labels -->
+  <macro name="label-edition">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="edition">
+          <number form="ordinal" variable="edition"/>
+          <label form="short" strip-periods="true" variable="edition"/>
+        </if>
+        <else>
+          <text variable="edition"/>
+        </else>
+      </choose>
+    </group>
+  </macro>
+  <macro name="label-first-reference-note-number">
+    <group delimiter=" ">
+      <label form="short" strip-periods="true" variable="first-reference-note-number"/>
+      <text variable="first-reference-note-number"/>
+    </group>
+  </macro>
+  <macro name="label-locator">
+    <group delimiter=" ">
+      <choose>
+        <if locator="page"/>
+        <else>
+          <label form="short" strip-periods="true" variable="locator"/>
+        </else>
+      </choose>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="label-locator-all">
+    <group delimiter=" ">
+      <label form="short" strip-periods="true" variable="locator"/>
+      <text variable="locator"/>
+    </group>
+  </macro>
+  <macro name="label-volume">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="volume">
+          <label form="short" strip-periods="true" variable="volume"/>
+        </if>
+      </choose>
+      <text variable="volume"/>
+    </group>
+  </macro>
   <!--Authors and Persons-->
   <macro name="author-note">
     <!--for bills & hearing this should start with jurisdiction once available-->
@@ -179,8 +230,8 @@
   </macro>
   <macro name="editor">
     <choose>
-      <if match="none" type="chapter paper-conference entry-encyclopedia">
-        <names delimiter=", " variable="editor translator container-author">
+      <if match="none" type="chapter entry-encyclopedia paper-conference">
+        <names delimiter=", " variable="container-author editor translator">
           <name and="text" delimiter=", " delimiter-precedes-last="never" initialize="false" initialize-with=""/>
           <label form="short" prefix=" " strip-periods="true"/>
         </names>
@@ -190,7 +241,7 @@
   <macro name="editor-chapter">
     <group delimiter=" ">
       <text term="in"/>
-      <names delimiter=", " variable="editor translator container-author">
+      <names delimiter=", " variable="container-author editor translator">
         <name and="text" delimiter=", " delimiter-precedes-last="never" initialize="false" initialize-with=""/>
         <label form="short" prefix=" (" strip-periods="true" suffix=")"/>
       </names>
@@ -222,14 +273,7 @@
         <text form="short" variable="title"/>
       </else-if>
       <else-if type="legal_case">
-        <choose>
-          <if variable="title-short">
-            <text font-style="italic" variable="title-short"/>
-          </if>
-          <else>
-            <text font-style="italic" variable="title"/>
-          </else>
-        </choose>
+        <text font-style="italic" form="short" variable="title"/>
       </else-if>
       <else>
         <text form="short" quotes="true" text-case="title" variable="title"/>
@@ -245,146 +289,117 @@
   </macro>
   <macro name="date-parenthesis">
     <choose>
-      <if match="any" type="legal_case article-journal article-magazine">
+      <if match="any" type="article-journal article-magazine legal_case">
         <choose>
-          <if match="all" variable="number authority">
+          <if variable="authority number">
             <text macro="issued-year" prefix="[" suffix="]"/>
           </if>
           <else-if variable="volume">
             <text macro="issued-year" prefix="(" suffix=")"/>
           </else-if>
-          <else-if match="any" variable="container-title volume number">
+          <else-if match="any" variable="container-title number volume">
             <!--no year in square brackets for unreported case w/o medium neutral citation-->
             <text macro="issued-year" prefix="[" suffix="]"/>
           </else-if>
         </choose>
       </if>
-      <else-if match="any" type="legislation bill">
+      <else-if match="any" type="bill legislation">
         <text macro="issued-year"/>
       </else-if>
     </choose>
   </macro>
   <!--publication info -->
   <macro name="publisher">
-    <choose>
-      <if match="any" type="book chapter broadcast personal_communication manuscript paper-conference article-newspaper report legislation motion_picture speech interview thesis entry-encyclopedia webpage post-weblog article">
-        <group delimiter=" ">
-          <group delimiter=", " prefix="(" suffix=")">
+    <group delimiter=" ">
+      <group delimiter=", " prefix="(" suffix=")">
+        <choose>
+          <if match="none" type="article article-newspaper book broadcast chapter entry-encyclopedia interview legislation manuscript motion_picture paper-conference personal_communication post-weblog report speech thesis webpage"/>
+          <else-if type="article-newspaper">
+            <text strip-periods="true" variable="publisher-place"/>
+            <date form="text" variable="issued"/>
+          </else-if>
+          <else-if match="any" type="broadcast personal_communication treaty">
+            <date form="text" variable="issued"/>
+          </else-if>
+          <else-if match="any" type="bill legislation">
+            <!--this should be jurisdiction we use code instead-->
+            <text strip-periods="true" variable="container-title"/>
+          </else-if>
+          <else>
+            <names variable="director">
+              <label form="verb" suffix=" " text-case="capitalize-first"/>
+              <name and="text" delimiter=", " delimiter-precedes-last="never" initialize="false" initialize-with=""/>
+            </names>
+            <text macro="editor"/>
             <choose>
-              <if type="article-newspaper">
-                <text strip-periods="true" variable="publisher-place"/>
-                <date form="text" variable="issued"/>
+              <!--if none of these, this we don't want edition either. Might be Loose-Leaf-->
+              <if match="any" variable="container-title genre issued publisher">
+                <text macro="label-edition"/>
               </if>
-              <else-if match="any" type="broadcast personal_communication treaty">
-                <date form="text" variable="issued"/>
+            </choose>
+            <choose>
+              <if type="speech">
+                <text variable="event"/>
+                <text variable="event-place"/>
+                <text macro="issued-full"/>
+              </if>
+              <else-if type="thesis">
+                <text strip-periods="true" variable="genre"/>
+                <group delimiter=" ">
+                  <text strip-periods="true" variable="publisher"/>
+                  <text macro="issued-year"/>
+                </group>
               </else-if>
-              <else-if match="any" type="legislation bill">
-                <!--this should be jurisdiction we use code instead-->
-                <text strip-periods="true" variable="container-title"/>
+              <else-if match="any" type="post-weblog webpage">
+                <text font-style="italic" variable="container-title"/>
+                <text macro="issued-full"/>
+              </else-if>
+              <else-if type="interview">
+                <text macro="issued-full"/>
+              </else-if>
+              <else-if type="article">
+                <text strip-periods="true" variable="publisher"/>
+                <text macro="issued-full"/>
               </else-if>
               <else>
-                <names variable="director">
-                  <label form="verb" suffix=" " text-case="capitalize-first"/>
-                  <name and="text" delimiter=", " delimiter-precedes-last="never" initialize="false" initialize-with=""/>
-                </names>
-                <text macro="editor"/>
-                <choose>
-                  <!--if none of these, this we don't want edition either. Might be Loose-Leaf-->
-                  <if match="any" variable="publisher issued genre container-title">
-                    <text macro="edition"/>
-                  </if>
-                </choose>
-                <choose>
-                  <if type="speech">
-                    <text variable="event"/>
-                    <text variable="event-place"/>
-                    <text macro="issued-full"/>
-                  </if>
-                  <else-if match="any" type="thesis">
-                    <text strip-periods="true" variable="genre"/>
-                    <group delimiter=" ">
-                      <text strip-periods="true" variable="publisher"/>
-                      <text macro="issued-year"/>
-                    </group>
-                  </else-if>
-                  <else-if match="any" type="webpage post-weblog">
-                    <text font-style="italic" variable="container-title"/>
-                    <text macro="issued-full"/>
-                  </else-if>
-                  <else-if match="any" type="interview">
-                    <text macro="issued-full"/>
-                  </else-if>
-                  <else-if match="any" type="article">
-                    <text strip-periods="true" variable="publisher"/>
-                    <text macro="issued-full"/>
-                  </else-if>
-                  <else>
-                    <group delimiter=" ">
-                      <text strip-periods="true" variable="publisher"/>
-                      <text macro="issued-year"/>
-                    </group>
-                  </else>
-                </choose>
+                <group delimiter=" ">
+                  <text strip-periods="true" variable="publisher"/>
+                  <text macro="issued-year"/>
+                </group>
               </else>
             </choose>
-          </group>
-          <choose>
-            <if match="any" type="report interview manuscript">
-              <group delimiter=" ">
-                <text strip-periods="true" variable="genre"/>
-                <text variable="number"/>
-              </group>
-            </if>
-          </choose>
-        </group>
-      </if>
-    </choose>
+          </else>
+        </choose>
+      </group>
+      <choose>
+        <if match="any" type="interview manuscript report">
+          <text strip-periods="true" variable="genre"/>
+          <text variable="number"/>
+        </if>
+      </choose>
+    </group>
   </macro>
   <macro name="looseleaf-note">
     <choose>
-      <if type="book">
-        <choose>
-          <if match="none" variable="publisher issued">
-            <choose>
-              <if variable="locator">
-                <group delimiter=" ">
-                  <label form="short" strip-periods="true" variable="locator"/>
-                  <text variable="locator"/>
-                  <text prefix="(" suffix=")" variable="edition"/>
-                </group>
-              </if>
-            </choose>
-          </if>
-        </choose>
-      </if>
+      <if match="any" variable="issued publisher"/>
+      <else-if type="book" variable="locator">
+        <group delimiter=" ">
+          <text macro="label-locator-all"/>
+          <text prefix="(" suffix=")" variable="edition"/>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="volume-book">
     <choose>
       <if match="any" type="book chapter report">
-        <group delimiter=" ">
-          <label form="short" strip-periods="true" variable="volume"/>
-          <text variable="volume"/>
-        </group>
+        <text macro="label-volume"/>
       </if>
-    </choose>
-  </macro>
-  <macro name="edition">
-    <choose>
-      <if is-numeric="edition">
-        <group delimiter=" ">
-          <number form="ordinal" variable="edition"/>
-          <label form="short" strip-periods="true" variable="edition"/>
-        </group>
-      </if>
-      <else>
-        <text strip-periods="true" variable="edition"/>
-      </else>
     </choose>
   </macro>
   <macro name="book-container">
     <choose>
-      <if match="any" type="chapter paper-conference entry-encyclopedia">
+      <if match="any" type="chapter entry-encyclopedia paper-conference">
         <group delimiter=", ">
           <text macro="editor-chapter"/>
           <text font-style="italic" variable="container-title"/>
@@ -394,7 +409,7 @@
   </macro>
   <macro name="broadcast-container">
     <choose>
-      <if match="any" type="broadcast">
+      <if type="broadcast">
         <text font-style="italic" variable="container-title"/>
       </if>
     </choose>
@@ -412,7 +427,7 @@
         <group delimiter=", ">
           <!--Assume that only cases with a Medium Neutral Citation have a docket number -->
           <choose>
-            <if match="all" variable="authority number">
+            <if variable="authority number">
               <group delimiter=" ">
                 <text form="short" strip-periods="true" variable="authority"/>
                 <text variable="number"/>
@@ -422,12 +437,8 @@
           <group delimiter=" ">
             <text variable="volume"/>
             <choose>
-              <if type="legal_case">
-                <choose>
-                  <if variable="container-title">
-                    <text form="short" strip-periods="true" variable="container-title"/>
-                  </if>
-                </choose>
+              <if type="legal_case" variable="container-title">
+                <text form="short" strip-periods="true" variable="container-title"/>
               </if>
               <else-if match="any" type="article-magazine article-newspaper">
                 <text font-style="italic" variable="container-title"/>
@@ -450,85 +461,58 @@
   </macro>
   <macro name="court">
     <choose>
-      <if type="legal_case">
-        <choose>
-          <if match="none" variable="number">
-            <text prefix="(" strip-periods="true" suffix=")" variable="authority"/>
-          </if>
-        </choose>
-      </if>
+      <if variable="number"/>
+      <else-if type="legal_case">
+        <text prefix="(" strip-periods="true" suffix=")" variable="authority"/>
+      </else-if>
     </choose>
   </macro>
   <macro name="locator-basic">
     <choose>
-      <if type="legal_case">
-        <choose>
-          <if locator="paragraph">
-            <text prefix="[" suffix="]" variable="locator"/>
-          </if>
-          <else-if match="all" variable="number container-title volume page"/>
-          <else-if variable="authority">
-            <text variable="locator"/>
-          </else-if>
-        </choose>
+      <if locator="paragraph" type="legal_case">
+        <text prefix="[" suffix="]" variable="locator"/>
       </if>
+      <else-if type="legal_case" variable="container-title number page volume"/>
+      <else-if type="legal_case" variable="authority">
+        <text variable="locator"/>
+      </else-if>
       <else>
-        <text macro="locator-subsequent"/>
+        <text macro="label-locator"/>
       </else>
     </choose>
   </macro>
-  <macro name="locator-subsequent">
-    <group delimiter=" ">
-      <choose>
-        <if locator="page" match="none">
-          <label form="short" strip-periods="true" variable="locator"/>
-        </if>
-      </choose>
-      <text variable="locator"/>
-    </group>
-  </macro>
   <macro name="locator-space">
     <choose>
-      <if type="legal_case">
-        <choose>
-          <if locator="paragraph">
-            <text prefix="[" suffix="]" variable="locator"/>
-          </if>
-          <else-if match="all" variable="number container-title volume page"/>
-          <else-if variable="authority">
-            <text variable="locator"/>
-          </else-if>
-        </choose>
+      <if locator="paragraph" type="legal_case">
+        <text prefix="[" suffix="]" variable="locator"/>
       </if>
-      <else-if match="none" type="legislation book article-journal article-magazine">
+      <else-if type="legal_case" variable="container-title number page volume"/>
+      <else-if type="legal_case" variable="authority">
+        <text variable="locator"/>
+      </else-if>
+      <else-if type="book" variable="issued">
         <text macro="locator-basic"/>
       </else-if>
-      <else-if type="book">
-        <choose>
-          <if match="any" variable="issued publisher">
-            <text macro="locator-basic"/>
-          </if>
-        </choose>
+      <else-if type="book" variable="publisher">
+        <text macro="locator-basic"/>
       </else-if>
+      <else-if match="any" type="article-journal article-magazine book legislation"/>
+      <else>
+        <text macro="locator-basic"/>
+      </else>
     </choose>
   </macro>
   <macro name="locator-comma">
     <choose>
-      <if type="legal_case">
-        <choose>
-          <if locator="paragraph" match="none">
-            <choose>
-              <if match="none" variable="authority">
-                <text variable="locator"/>
-              </if>
-              <else-if match="all" variable="number container-title volume page">
-                <text variable="locator"/>
-              </else-if>
-            </choose>
-          </if>
-        </choose>
-      </if>
-      <else-if match="any" type="legislation article-journal article-magazine">
+      <if locator="paragraph" type="legal_case"/>
+      <else-if type="legal_case" variable="container-title number page volume">
+        <text variable="locator"/>
+      </else-if>
+      <else-if type="legal_case" variable="authority"/>
+      <else-if type="legal_case">
+        <text variable="locator"/>
+      </else-if>
+      <else-if match="any" type="article-journal article-magazine legislation">
         <text macro="locator-basic"/>
       </else-if>
     </choose>
@@ -543,19 +527,16 @@
   </macro>
   <macro name="URL">
     <choose>
-      <if match="none" type="legal_case legislation bill">
-        <choose>
-          <if variable="URL">
-            <group delimiter=" ">
-              <text prefix="&lt;" suffix="&gt;" variable="URL"/>
-              <group delimiter=" ">
-                <text term="accessed"/>
-                <date form="text" variable="accessed"/>
-              </group>
-            </group>
-          </if>
-        </choose>
-      </if>
+      <if match="any" type="bill legal_case legislation"/>
+      <else-if variable="URL">
+        <group delimiter=" ">
+          <text prefix="&lt;" suffix="&gt;" variable="URL"/>
+          <group delimiter=" ">
+            <text term="accessed"/>
+            <date form="text" variable="accessed"/>
+          </group>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="author-count">
@@ -567,28 +548,13 @@
     </names>
   </macro>
   <macro name="sort-type">
-    <!--This should just sort secondary sources first. I'm leaving the rest from AGLC for simplicity-->
+    <!-- sort secondary sources first -->
     <choose>
-      <if match="any" type="book chapter paper-conference article-magazine article-newspaper article-journal manuscript report speech entry-encyclopedia">
+      <if match="any" type="bill hearing legal_case legislation regulation treaty">
         <text value="1"/>
       </if>
-      <else-if type="legal_case">
-        <text value="2"/>
-        <text variable="title"/>
-      </else-if>
-      <else-if match="any" type="bill legislation">
-        <text value="3"/>
-        <choose>
-          <if type="legislation">
-            <text variable="title"/>
-          </if>
-        </choose>
-      </else-if>
-      <else-if type="treaty">
-        <text value="4"/>
-      </else-if>
       <else>
-        <text value="1"/>
+        <text value="0"/>
       </else>
     </choose>
   </macro>
@@ -597,7 +563,7 @@
       <choose>
         <if position="subsequent">
           <choose>
-            <if match="any" type="bill legal_case legislation treaty">
+            <if match="any" type="bill hearing legal_case legislation regulation treaty">
               <!--don't use short form and above note for legal citations -->
               <group delimiter=" ">
                 <text macro="author-note"/>
@@ -605,13 +571,10 @@
                 <text macro="looseleaf-note"/>
                 <choose>
                   <if match="none" type="legislation">
-                    <group delimiter=" " prefix="(" suffix=")">
-                      <text form="short" strip-periods="true" term="note"/>
-                      <text variable="first-reference-note-number"/>
-                    </group>
+                    <text macro="label-first-reference-note-number" prefix="(" suffix=")"/>
                   </if>
                 </choose>
-                <text macro="locator-subsequent"/>
+                <text macro="label-locator"/>
               </group>
             </if>
             <else>
@@ -625,10 +588,7 @@
                     </if>
                   </choose>
                 </group>
-                <group delimiter=" " prefix="(" suffix=")">
-                  <text form="short" strip-periods="true" term="note"/>
-                  <text variable="first-reference-note-number"/>
-                </group>
+                <text macro="label-first-reference-note-number" prefix="(" suffix=")"/>
                 <text macro="locator-basic"/>
               </group>
             </else>
