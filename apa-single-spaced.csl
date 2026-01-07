@@ -778,7 +778,7 @@
   <macro name="title">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
+        <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
         <text font-style="italic" macro="title-and-part-filter-review"/>
       </if>
       <!-- Other types are italicized based on presence of `container-title`. Assume that `review` and `review-book` are published either in a serial or on a webpage (APA example 69) -->
@@ -949,7 +949,7 @@
           <text macro="identifier-patent"/>
         </if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
+          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
           <text macro="identifier-contributors"/>
           <text macro="identifier-number"/>
           <text macro="identifier-monographic"/>
@@ -981,13 +981,13 @@
               <text macro="identifier-number"/>
             </if>
           </choose>
-          <text macro="identifier-part-serial"/>
+          <text macro="identifier-serial"/>
         </else-if>
         <else>
           <text macro="identifier-contributors"/>
           <text macro="identifier-number"/>
           <text macro="identifier-monographic"/>
-          <text macro="identifier-part-serial"/>
+          <text macro="identifier-serial"/>
         </else>
       </choose>
     </group>
@@ -1021,7 +1021,7 @@
       </choose>
       <choose>
         <if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` as `publisher` -->
+          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
           <names variable="container-author">
             <label form="verb-short" suffix=" " text-case="title"/>
             <name and="symbol"/>
@@ -1103,25 +1103,31 @@
     </choose>
   </macro>
   <macro name="identifier-monographic">
+    <choose>
+      <!-- omit serial types -->
+      <if match="any" type="article-journal article-magazine article-newspaper broadcast event patent performance periodical post post-weblog review review-book speech webpage"/>
+      <else-if match="any" variable="collection-editor compiler editor editorial-director">
+        <!-- monographic types -->
+        <text macro="identifier-monographic-item"/>
+      </else-if>
+      <!-- omit serial types -->
+      <else-if match="any" type="interview paper-conference"/>
+      <else>
+        <!-- monographic types -->
+        <text macro="identifier-monographic-item"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="identifier-monographic-item">
     <group delimiter=", ">
-      <choose>
-        <!-- omit serial types -->
-        <if match="any" type="article-journal article-magazine article-newspaper broadcast event patent performance periodical post post-weblog review review-book speech webpage"/>
-        <else-if match="any" variable="collection-editor compiler editor editorial-director">
-          <!-- monographic types -->
-          <text macro="label-version"/>
-          <text macro="label-edition"/>
-          <text macro="identifier-volume"/>
-        </else-if>
-        <!-- omit serial types -->
-        <else-if match="any" type="interview paper-conference"/>
-        <else>
-          <!-- monographic types -->
-          <text macro="label-version"/>
-          <text macro="label-edition"/>
-          <text macro="identifier-volume"/>
-        </else>
-      </choose>
+      <text macro="label-version"/>
+      <text macro="label-edition"/>
+      <text macro="identifier-series"/>
+      <text macro="label-supplement-number"/>
+      <text macro="identifier-number-volume"/>
+      <text macro="identifier-number-part"/>
+      <text macro="label-issue"/>
+      <text macro="identifier-locators"/>
     </group>
   </macro>
   <macro name="identifier-number">
@@ -1138,27 +1144,28 @@
       <text macro="label-number"/>
     </group>
   </macro>
-  <macro name="identifier-part">
+  <macro name="identifier-number-part">
     <choose>
-      <!-- Non-numeric part numbers are already printed as part of the book title -->
+      <!-- Part number printed with part title -->
       <if variable="part-title"/>
+      <!-- Non-numeric part numbers are already printed as part of the title -->
       <else-if is-numeric="part-number">
         <text macro="label-part-number"/>
       </else-if>
     </choose>
   </macro>
-  <macro name="identifier-part-serial">
+  <macro name="identifier-number-volume">
     <choose>
-      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
-        <!-- serial types -->
-        <text macro="identifier-part"/>
-      </if>
-      <!-- omit monographic types -->
-      <else-if match="any" variable="collection-editor compiler editor editorial-director"/>
-      <else-if match="any" type="interview paper-conference">
-        <!-- serial types -->
-        <text macro="identifier-part"/>
+      <!-- Volume number printed with volume/part title -->
+      <if variable="volume volume-title"/>
+      <else-if variable="part-title volume"/>
+      <!-- Non-numeric volumes printed as part of the book title -->
+      <else-if is-numeric="volume">
+        <text macro="label-volume"/>
       </else-if>
+      <else>
+        <text macro="label-number-of-volumes"/>
+      </else>
     </choose>
   </macro>
   <macro name="identifier-patent">
@@ -1176,6 +1183,20 @@
       <text macro="label-number"/>
     </group>
   </macro>
+  <macro name="identifier-serial">
+    <choose>
+      <if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <!-- serial types -->
+        <text macro="identifier-number-part"/>
+      </if>
+      <!-- omit monographic types -->
+      <else-if match="any" variable="collection-editor compiler editor editorial-director"/>
+      <else-if match="any" type="interview paper-conference">
+        <!-- serial types -->
+        <text macro="identifier-number-part"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="identifier-series">
     <!-- Series given only for report-like types (APA example 52) -->
     <choose>
@@ -1186,27 +1207,6 @@
         </group>
       </if>
     </choose>
-  </macro>
-  <macro name="identifier-volume">
-    <group delimiter=", ">
-      <text macro="identifier-series"/>
-      <text macro="label-supplement-number"/>
-      <choose>
-        <!-- Volume number printed with volume/part title -->
-        <if variable="volume volume-title"/>
-        <else-if variable="part-title volume"/>
-        <!-- Non-numeric volumes printed as part of the book title -->
-        <else-if is-numeric="volume">
-          <text macro="label-volume"/>
-        </else-if>
-        <else>
-          <text macro="label-number-of-volumes"/>
-        </else>
-      </choose>
-      <text macro="identifier-part"/>
-      <text macro="label-issue"/>
-      <text macro="identifier-locators"/>
-    </group>
   </macro>
   <!-- 3.3. Description [in square brackets] (APA 9.21) -->
   <macro name="description">
