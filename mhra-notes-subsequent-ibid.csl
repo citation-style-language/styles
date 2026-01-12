@@ -404,6 +404,7 @@
     </group>
   </macro>
   <macro name="author-short">
+    <!-- this macro follows `author-bib`; although it 'may be more appropriate' to give only the title (MHRA 7.12), CSL cannot replicate the examples shown, which require knowing whether an author's name is part of the title and being able to redirect a chapter citation to the parent volume -->
     <choose>
       <if match="any" type="interview personal_communication">
         <text macro="author-short-and-recipient"/>
@@ -420,12 +421,47 @@
             </choose>
             <names variable="author"/>
             <names variable="host"/>
-            <names variable="illustrator"/>
+            <names variable="guest"/>
             <choose>
               <if type="song">
                 <names variable="performer"/>
               </if>
             </choose>
+            <choose>
+              <if type="classic">
+                <!-- editors in author position only for an edited collection (MHRA 8.3) -->
+                <text macro="author-title-substitute-short"/>
+              </if>
+            </choose>
+            <names variable="illustrator"/>
+            <choose>
+              <!-- list an edited multivolume work under the name of the series editor -->
+              <if variable="container-title"/>
+              <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+                <names variable="collection-editor"/>
+              </else-if>
+            </choose>
+            <choose>
+              <if match="none" type="standard">
+                <names variable="editor-translator"/>
+                <names variable="editor"/>
+                <names variable="translator"/>
+                <names variable="collection-editor"/>
+              </if>
+            </choose>
+            <names variable="director"/>
+            <names variable="producer"/>
+            <names variable="executive-producer"/>
+            <names variable="series-creator"/>
+            <names variable="editorial-director"/>
+            <names variable="compiler"/>
+            <choose>
+              <if match="any" type="event performance speech">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
+            <names variable="curator"/>
             <choose>
               <if type="software">
                 <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
@@ -436,6 +472,8 @@
                 <text variable="authority"/>
               </else-if>
             </choose>
+            <text macro="author-review-unsigned"/>
+            <text macro="author-title-substitute-short"/>
             <choose>
               <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place"/>
               <else-if type="manuscript">
@@ -571,6 +609,31 @@
       </else-if>
       <else>
         <!-- If an item has no `title`, substitute with descriptions. -->
+        <text macro="title-and-descriptions"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="author-title-substitute-short">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-genre` or `reviewed-title`, assume that `title` contains the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-genre title">
+            <text macro="title-short"/>
+          </if>
+          <else-if variable="reviewed-genre reviewed-title title">
+            <text macro="title-short"/>
+          </else-if>
+          <else>
+            <text macro="title-and-descriptions-short"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="title">
+        <text macro="title-short"/>
+      </else-if>
+      <else>
+        <!-- If an item has no `title`, substitute with descriptions and capitalize -->
         <text macro="title-and-descriptions"/>
       </else>
     </choose>
