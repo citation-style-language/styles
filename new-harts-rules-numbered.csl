@@ -368,14 +368,20 @@
           </choose>
           <names variable="curator"/>
           <choose>
-            <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (NHR 18.8.5) -->
+            <if match="any" type="software webpage">
+              <!-- list under a publisher, developer, or owner/sponsor name (NHR 18.8.5) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
               <!-- `standard` listed in bibliography under organization, but note omits this (cf. CMOS18 14.159) -->
               <text variable="authority"/>
             </else-if>
+          </choose>
+          <choose>
+            <if type="webpage">
+              <!-- website title substituted if no `publisher` (NHR 18.8.5) -->
+              <text text-case="title" variable="container-title"/>
+            </if>
           </choose>
           <text macro="author-title-substitute"/>
           <choose>
@@ -420,7 +426,7 @@
     <choose>
       <if is-uncertain-date="issued">
         <choose>
-          <if type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard">
+          <if type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference post report software song standard webpage">
             <group prefix="[" suffix="]">
               <date form="text" suffix="?" variable="event-date"/>
             </group>
@@ -439,7 +445,7 @@
     <choose>
       <if is-uncertain-date="issued">
         <choose>
-          <if type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard">
+          <if type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference post report software song standard webpage">
             <group prefix="[" suffix="]">
               <date date-parts="year" form="numeric" suffix="?" variable="event-date"/>
             </group>
@@ -651,7 +657,7 @@
   <macro name="title">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post` or `webpage` in manner of `publisher` -->
+        <!-- part number/title always at the analytic level -->
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
@@ -741,6 +747,10 @@
       <else-if type="post">
         <!-- Quotes, sentence case -->
         <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="webpage">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
@@ -1070,7 +1080,7 @@
           <text macro="identifier-report"/>
         </else-if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (NHR 18.8.5, cf. CMOS18 14.104-106) -->
           <text macro="identifier-number"/>
           <text macro="label-version"/>
           <text macro="identifier-edition"/>
@@ -1205,7 +1215,7 @@
           </choose>
         </if>
         <else>
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (NHR 18.8.5, cf. CMOS18 14.104-106) -->
           <choose>
             <if match="none" variable="container-title">
               <names variable="container-author">
@@ -1449,7 +1459,11 @@
   <!-- 4. Source -->
   <macro name="source">
     <choose>
-      <if match="any" type="patent post webpage"/>
+      <if type="patent"/>
+      <else-if match="any" type="post webpage">
+        <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (NHR 18.8.5, cf. CMOS18 14.104-106) -->
+        <text text-case="title" variable="container-title"/>
+      </else-if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="source-serial"/>
       </else-if>
@@ -2070,7 +2084,7 @@
   <macro name="source-monographic-publication-bracketed">
     <!-- Facts of publication with brackets for print monographic formats -->
     <choose>
-      <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard">
+      <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference post report software song standard webpage">
         <text macro="source-monographic-publication" prefix="(" suffix=")"/>
       </if>
       <else-if type="article" variable="genre publisher">
@@ -2097,7 +2111,7 @@
   <macro name="source-monographic-publication-unbracketed">
     <!-- Facts of publication without brackets -->
     <choose>
-      <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference report software song standard"/>
+      <if match="any" type="book broadcast chapter classic entry interview motion_picture musical_score pamphlet paper-conference post report software song standard webpage"/>
       <else-if type="article" variable="genre publisher"/>
       <else-if type="entry-dictionary" variable="publisher"/>
       <else-if type="entry-encyclopedia" variable="publisher"/>
@@ -2116,12 +2130,6 @@
   </macro>
   <macro name="source-publication-and-date">
     <group delimiter=", ">
-      <choose>
-        <if match="any" type="post webpage">
-          <!-- `container-title` functions like a publisher with social media and website sources (cf. CMOS18 14.104-106) -->
-          <text text-case="title" variable="container-title"/>
-        </if>
-      </choose>
       <text macro="source-publication-history"/>
       <group delimiter=" ">
         <text macro="source-date-status"/>
