@@ -485,8 +485,8 @@
         </choose>
         <names variable="curator"/>
         <choose>
-          <if type="software">
-            <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169) -->
+          <if match="any" type="software webpage">
+            <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169); `webpage` listed under a site owner or sponsor (CMOS18 14.104) -->
             <text variable="publisher"/>
           </if>
           <else-if type="standard">
@@ -585,13 +585,13 @@
             <names variable="curator"/>
             <choose>
               <!-- no Chicago definition for these shortened references; this follows the bibliography -->
-              <if type="software">
-                <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169) -->
-                <text variable="publisher"/>
+              <if match="any" type="software webpage">
+                <!-- `software` listed under the name of the publisher or developer (CMOS18 14.169); `webpage` listed under a site owner or sponsor (CMOS18 14.104) -->
+                <text form="short" variable="publisher"/>
               </if>
               <else-if type="standard">
                 <!-- `standard` listed in bibliography under organization (CMOS18 14.159) -->
-                <text variable="authority"/>
+                <text form="short" variable="authority"/>
               </else-if>
             </choose>
             <text macro="author-title-substitute-container-short"/>
@@ -756,7 +756,7 @@
         <text font-style="italic" text-case="title" variable="container-title"/>
       </else-if>
       <else-if type="webpage">
-        <!-- Website title substituted in bibliography only (CMOS18 14.104) -->
+        <!-- list a webpage under the website title if there is no owner or sponsor (CMOS18 14.104) -->
         <text text-case="title" variable="container-title"/>
       </else-if>
     </choose>
@@ -780,7 +780,7 @@
         <text font-style="italic" form="short" text-case="title" variable="container-title"/>
       </else-if>
       <else-if type="webpage">
-        <!-- Website title substituted in bibliography only (CMOS18 14.104) -->
+        <!-- list a webpage under the website title if there is no owner or sponsor (CMOS18 14.104) -->
         <text form="short" text-case="title" variable="container-title"/>
       </else-if>
     </choose>
@@ -978,7 +978,7 @@
   <macro name="title-bib">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post` or `webpage` in manner of `publisher` -->
+        <!-- part number/title always at the analytic level -->
         <text macro="title-and-part-filter-review-bib"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
@@ -1083,6 +1083,10 @@
       <else-if type="post">
         <!-- Quotes, sentence case -->
         <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="webpage">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
@@ -1713,7 +1717,7 @@
           <text macro="identifier-report-bib"/>
         </else-if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (CMOS18 14.104-106) -->
           <text macro="identifier-number-bib"/>
           <text macro="label-version-capitalized"/>
           <text macro="identifier-edition-bib"/>
@@ -1832,7 +1836,7 @@
           </choose>
         </if>
         <else>
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (CMOS18 14.104-106) -->
           <choose>
             <if match="none" variable="container-title">
               <names variable="container-author">
@@ -1925,7 +1929,7 @@
   <macro name="identifier-contributors-monographic-bib-multivolume">
     <!-- lowercase for attachment to volume; otherwise identical to `identifier-contributors-monographic-bib` -->
     <group delimiter=", ">
-      <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+      <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (CMOS18 14.104-106) -->
       <choose>
         <if match="none" variable="container-title">
           <names variable="container-author">
@@ -2456,8 +2460,8 @@
         <else>
           <text variable="collection-title"/>
           <choose>
-            <if type="interview">
-              <!-- publisher possible with `interview` (CMOS18 14.110) -->
+            <if match="any" type="interview post-weblog">
+              <!-- publisher possible with broadcast `interview` (CMOS18 14.110) or `post-weblog` (CMOS18 14.105) -->
               <text variable="publisher"/>
             </if>
           </choose>
@@ -2520,11 +2524,7 @@
         <if variable="container-title">
           <group delimiter=", ">
             <group delimiter=" ">
-              <choose>
-                <if match="none" type="broadcast motion_picture">
-                  <text macro="source-monographic-preposition-bib"/>
-                </if>
-              </choose>
+              <text macro="source-monographic-preposition-bib"/>
               <text font-style="italic" text-case="title" variable="container-title"/>
               <!-- for author-date or notes and bibliography leading with volume title (CMOS18 14.21): -->
               <!-- <text macro="source-monographic-title-specific-title-first"/> -->
@@ -2547,9 +2547,10 @@
   <!-- Monographic source title -->
   <macro name="source-monographic-preposition-bib">
     <choose>
-      <if type="chapter" variable="container-title genre">
+      <if match="any" type="broadcast motion_picture"/>
+      <else-if type="chapter" variable="container-title genre">
         <text value="to"/>
-      </if>
+      </else-if>
       <else-if type="article-journal" variable="container-title genre volume-title">
         <text value="to"/>
       </else-if>
@@ -2584,9 +2585,10 @@
   </macro>
   <macro name="source-monographic-preposition-note">
     <choose>
-      <if type="chapter" variable="container-title genre">
+      <if match="any" type="broadcast motion_picture"/>
+      <else-if type="chapter" variable="container-title genre">
         <text value="to"/>
-      </if>
+      </else-if>
       <else-if type="article-journal" variable="container-title genre volume-title">
         <text value="to"/>
       </else-if>
@@ -2991,7 +2993,7 @@
     <group delimiter=", ">
       <choose>
         <if match="any" type="post webpage">
-          <!-- `container-title` functions like a publisher with social media and website sources (CMOS18 14.104-106) -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` (CMOS18 14.104-106) -->
           <text text-case="title" variable="container-title"/>
         </if>
       </choose>
@@ -3336,9 +3338,22 @@
       <else-if variable="issued status">
         <!-- `status` specifies date type, e.g. 'effective', 'last modified', 'approved' (CMOS18 14.104 for `webpage`; CMOS18 14.159 for `standard`) -->
         <choose>
-          <if match="any" variable="original-date original-publisher original-publisher-place original-title publisher">
+          <if type="webpage" variable="container-title">
             <text variable="status"/>
           </if>
+          <else-if type="webpage" variable="author publisher">
+            <text variable="status"/>
+          </else-if>
+          <else-if type="webpage" variable="translator publisher">
+            <text variable="status"/>
+          </else-if>
+          <else-if type="webpage">
+            <!-- capitalize `status` if there is nothing else after the `title` (either no website title or substituted publisher) -->
+            <text text-case="capitalize-first" variable="status"/>
+          </else-if>
+          <else-if match="any" variable="original-date original-publisher original-publisher-place original-title publisher">
+            <text variable="status"/>
+          </else-if>
           <else>
             <text text-case="capitalize-first" variable="status"/>
           </else>
