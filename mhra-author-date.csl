@@ -375,8 +375,8 @@
           </choose>
           <names variable="curator"/>
           <choose>
-            <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
+            <if match="any" type="software webpage">
+              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8); an anonymous `webpage` also usually treats this as equivalent to a group author (cf. CMOS18 14.104) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
@@ -456,8 +456,8 @@
             </choose>
             <names variable="curator"/>
             <choose>
-              <if type="software">
-                <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
+              <if match="any" type="software webpage">
+                <!-- `software` listed under the name of the publisher or developer (MHRA 7.8); an anonymous `webpage` also usually treats this as equivalent to a group author (cf. CMOS18 14.104) -->
                 <text variable="publisher"/>
               </if>
               <else-if type="standard">
@@ -967,7 +967,7 @@
   <macro name="title">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post` or `webpage` in manner of `publisher` -->
+        <!-- part number/title always at the analytic level -->
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
@@ -1063,6 +1063,10 @@
       <else-if type="post">
         <!-- Quotes, sentence case -->
         <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="webpage">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
@@ -1840,7 +1844,7 @@
           <text macro="identifier-report"/>
         </else-if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
           <text macro="identifier-number"/>
           <text macro="identifier-contributors"/>
         </else-if>
@@ -1970,7 +1974,7 @@
           </choose>
         </if>
         <else>
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
           <choose>
             <if match="none" variable="container-title">
               <names variable="container-author">
@@ -2175,7 +2179,11 @@
   <!-- 4. Source -->
   <macro name="source">
     <choose>
-      <if match="any" type="patent post webpage"/>
+      <if type="patent"/>
+      <else-if match="any" type="post webpage">
+        <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
+        <text text-case="title" variable="container-title"/>
+      </else-if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="source-serial"/>
       </else-if>
@@ -2299,8 +2307,8 @@
         </else-if>
         <else>
           <choose>
-            <if type="interview">
-              <!-- publisher possible with `interview` (cf. CMOS18 14.110) -->
+            <if match="any" type="interview post-weblog">
+              <!-- publisher possible with broadcast `interview` (cf. CMOS18 14.110) or `post-weblog` (cf. CMOS18 14.105) -->
               <text variable="publisher"/>
             </if>
           </choose>
@@ -2530,7 +2538,12 @@
   <!-- Monographic source locator -->
   <macro name="source-monographic-locator">
     <group delimiter=", ">
-      <text macro="source-monographic-locator-volume"/>
+      <choose>
+        <if match="none" type="post webpage">
+          <!-- part number/title always at the analytic level -->
+          <text macro="source-monographic-locator-volume"/>
+        </if>
+      </choose>
       <choose>
         <!-- archival locators appear after the shelfmark (MHRA 7.7) -->
         <if locator="column" variable="archive archive_location page"/>
@@ -2774,12 +2787,6 @@
   </macro>
   <macro name="source-publication-and-date">
     <group delimiter=", ">
-      <choose>
-        <if match="any" type="post webpage">
-          <!-- `container-title` functions like a publisher with social media and website sources (cf. CMOS18 14.104-106) -->
-          <text text-case="title" variable="container-title"/>
-        </if>
-      </choose>
       <text macro="source-publication-history"/>
       <group delimiter=" ">
         <text macro="source-date-status"/>
