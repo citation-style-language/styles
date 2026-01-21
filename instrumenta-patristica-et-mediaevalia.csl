@@ -1439,16 +1439,25 @@
     <group delimiter=" ">
       <choose>
         <if type="chapter" variable="container-title genre">
-          <text form="short" variable="genre"/>
           <!-- untitled introductions: cf. abbreviated review model, which does not print `genre` on its own (MHRA 7.12) -->
-          <text macro="source-monographic-preposition"/>
-          <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+          <text form="short" variable="genre"/>
+          <choose>
+            <if match="none" position="ibid ibid-with-locator">
+              <!-- leave out title in repeated references -->
+              <text macro="source-monographic-preposition"/>
+              <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+            </if>
+          </choose>
         </if>
         <else-if type="article-journal" variable="container-title genre volume-title">
-          <text form="short" variable="genre"/>
           <!-- untitled introduction to a special issue or supplement -->
-          <text macro="source-monographic-preposition"/>
-          <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+          <text form="short" variable="genre"/>
+          <choose>
+            <if match="none" position="ibid ibid-with-locator">
+              <text macro="source-monographic-preposition"/>
+              <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+            </if>
+          </choose>
         </else-if>
         <else-if variable="genre">
           <text form="short" variable="genre"/>
@@ -1789,21 +1798,19 @@
   </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text term="review-of"/>
       <choose>
-        <if variable="reviewed-author">
+        <if match="any" position="ibid ibid-with-locator">
+          <text term="review"/>
+        </if>
+        <else-if variable="reviewed-author">
           <!-- cite under author if available (MHRA 7.12) -->
+          <text term="review-of"/>
           <names variable="reviewed-author"/>
           <!-- use full name, not short -->
-        </if>
-        <else-if match="any" variable="reviewed-genre reviewed-title">
-          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
-          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
-          <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
         </else-if>
         <else>
-          <!-- Assume title is title of reviewed work -->
-          <text font-style="italic" form="short" text-case="title" variable="title"/>
+          <text term="review-of"/>
+          <text macro="description-review-title-short"/>
         </else>
       </choose>
     </group>
@@ -1818,6 +1825,19 @@
       <else>
         <!-- Assume title is title of reviewed work -->
         <text font-style="italic" text-case="title" variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="description-review-title-short">
+    <choose>
+      <if match="any" variable="reviewed-genre reviewed-title">
+        <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+        <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+        <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
+      </if>
+      <else>
+        <!-- Assume title is title of reviewed work -->
+        <text font-style="italic" form="short" text-case="title" variable="title"/>
       </else>
     </choose>
   </macro>
