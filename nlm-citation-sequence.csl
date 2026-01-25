@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" initialize-with-hyphen="false" page-range-format="minimal">
   <info>
-    <title>Vancouver (author-date)</title>
-    <id>http://www.zotero.org/styles/vancouver-author-date</id>
-    <link href="http://www.zotero.org/styles/vancouver-author-date" rel="self"/>
-    <link href="http://www.zotero.org/styles/vancouver" rel="template"/>
-    <link href="http://www.zotero.org/styles/cell" rel="template"/>
-    <link href="http://www.nlm.nih.gov/bsd/uniform_requirements.html" rel="documentation"/>
-    <link href="https://www.icmje.org/recommendations/browse/manuscript-preparation/preparing-for-submission.html#g" rel="documentation"/>
+    <title>NLM Style Guide (Vancouver): Citing Medicine 2nd edition (citation-sequence)</title>
+    <title-short>National Library of Medicine, ANSI/NISO Z39.29-2005 (R2010), ICMJE Recommendations/URMs (C-S)</title-short>
+    <id>http://www.zotero.org/styles/nlm-citation-sequence</id>
+    <link href="http://www.zotero.org/styles/nlm-citation-sequence" rel="self"/>
+    <link href="https://www.nlm.nih.gov/citingmedicine" rel="documentation"/>
+    <link href="https://www.nlm.nih.gov/bsd/uniform_requirements.html" rel="documentation"/>
+    <link href="https://www.icmje.org/recommendations/" rel="documentation"/>
     <author>
-      <name>Charles Parnot</name>
-      <email>charles.parnot@gmail.com</email>
-      <uri>http://twitter.com/cparnot</uri>
+      <name>Michael Berkowitz</name>
+      <email>mberkowi@gmu.edu</email>
     </author>
-    <category citation-format="author-date"/>
+    <contributor>
+      <name>Sean Takats</name>
+      <email>stakats@gmu.edu</email>
+    </contributor>
+    <contributor>
+      <name>Sebastian Karcher</name>
+    </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <uri>https://orcid.org/0000-0003-0464-5036</uri>
+    </contributor>
+    <category citation-format="numeric"/>
+    <category field="generic-base"/>
     <category field="medicine"/>
-    <summary>Vancouver style as outlined by International Committee of Medical Journal Editors Uniform Requirements for Manuscripts Submitted to Biomedical Journals: Sample References</summary>
-    <updated>2022-07-19T10:42:37+02:00</updated>
+    <summary>Citing Medicine: The NLM Style Guide for Authors, Editors, and Publishers, 2nd edition (2015), based on ANSI/NISO Z39.29-2005 (R2010); citation-sequence system.</summary>
+    <updated>2026-01-25T16:16:24-06:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -33,6 +44,10 @@
       <term name="presented at">presented at</term>
       <term name="available at">available from</term>
       <term name="section" form="short">sect.</term>
+      <!-- always use three-letter abbreviations for months -->
+      <term name="month-06" form="short">Jun.</term>
+      <term name="month-07" form="short">Jul.</term>
+      <term name="month-09" form="short">Sep.</term>
     </terms>
   </locale>
   <locale xml:lang="fr">
@@ -47,17 +62,8 @@
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
       <substitute>
+        <text macro="webpage-title"/>
         <names variable="editor"/>
-        <text variable="title" form="short"/>
-      </substitute>
-    </names>
-  </macro>
-  <macro name="author-short">
-    <names variable="author">
-      <name form="short" and="text"/>
-      <substitute>
-        <names variable="editor"/>
-        <text variable="title" form="short"/>
       </substitute>
     </names>
   </macro>
@@ -71,6 +77,17 @@
     <choose>
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <text term="in" text-case="capitalize-first"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="webpage-title">
+    <!--If a webpage has a container, we're assuming the citation is "part of a website" as per ch. 25 Citing Medicine https://www.ncbi.nlm.nih.gov/books/NBK7274/?report=reader -->
+    <choose>
+      <if type="webpage" variable="container-title" match="all">
+        <group delimiter=" ">
+          <text variable="container-title"/>
+          <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -171,16 +188,21 @@
     </choose>
   </macro>
   <macro name="title">
-    <text variable="title"/>
     <choose>
-      <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
+      <if type="webpage" variable="container-title" match="all"/>
+      <else>
+        <text variable="title"/>
         <choose>
-          <if variable="URL">
-            <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+          <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
+            <choose>
+              <if variable="URL">
+                <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
+              </if>
+            </choose>
+            <text macro="edition" prefix=". "/>
           </if>
         </choose>
-        <text macro="edition" prefix=". "/>
-      </if>
+      </else>
     </choose>
     <choose>
       <if type="thesis">
@@ -225,6 +247,31 @@
           <date-part name="year"/>
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
+        <text macro="accessed-date" prefix=" "/>
+      </else-if>
+      <else-if type="patent">
+        <group suffix=".">
+          <group delimiter=", ">
+            <text variable="number"/>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
+          <text macro="accessed-date" prefix=" "/>
+        </group>
+      </else-if>
+      <else-if type="speech">
+        <group delimiter="; ">
+          <group delimiter=" ">
+            <date variable="issued" delimiter=" ">
+              <date-part name="year"/>
+              <date-part name="month" form="short" strip-periods="true"/>
+              <date-part name="day"/>
+            </date>
+            <text macro="accessed-date"/>
+          </group>
+          <text variable="event-place"/>
+        </group>
       </else-if>
       <else>
         <group suffix=".">
@@ -241,6 +288,14 @@
       <if type="article-journal article-magazine article-newspaper review review-book" match="any">
         <text variable="page" prefix=":"/>
       </if>
+      <else-if type="book" match="any">
+        <text variable="number-of-pages" prefix=" "/>
+        <choose>
+          <if is-numeric="number-of-pages">
+            <label variable="number-of-pages" form="short" prefix=" " plural="never"/>
+          </if>
+        </choose>
+      </else-if>
       <else>
         <group prefix=" " delimiter=" ">
           <label variable="page" form="short" plural="never"/>
@@ -257,40 +312,14 @@
       </if>
     </choose>
   </macro>
-  <macro name="report-details">
+  <macro name="webpage-part">
     <choose>
-      <if type="report">
-        <text variable="number" prefix="Report No.: "/>
+      <if type="webpage" variable="container-title" match="all">
+        <text variable="title"/>
       </if>
     </choose>
   </macro>
-  <macro name="issued">
-    <date variable="issued">
-      <date-part name="year"/>
-    </date>
-  </macro>
-  <macro name="point-locators">
-    <group delimiter=" ">
-      <label plural="never" variable="locator" form="short"/>
-      <text variable="locator"/>
-    </group>
-  </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year">
-    <sort>
-      <key macro="issued"/>
-      <key macro="author-short"/>
-    </sort>
-    <layout prefix="(" suffix=")" delimiter="; ">
-      <group delimiter=", ">
-        <group delimiter=" ">
-          <text macro="author-short"/>
-          <text macro="issued"/>
-        </group>
-        <text macro="point-locators"/>
-      </group>
-    </layout>
-  </citation>
-  <macro name="series-details">
+  <macro name="collection-details">
     <choose>
       <if type="article-journal article-magazine article-newspaper review review-book" match="none">
         <choose>
@@ -313,13 +342,24 @@
       </if>
     </choose>
   </macro>
-  <bibliography et-al-min="7" et-al-use-first="6" hanging-indent="true">
+  <macro name="report-details">
+    <choose>
+      <if type="report">
+        <text variable="number" prefix="Report No.: "/>
+      </if>
+    </choose>
+  </macro>
+  <citation collapse="citation-number">
     <sort>
-      <key macro="author"/>
-      <key macro="issued"/>
-      <key variable="title"/>
+      <key variable="citation-number"/>
     </sort>
+    <layout prefix="(" suffix=")" delimiter=",">
+      <text variable="citation-number"/>
+    </layout>
+  </citation>
+  <bibliography et-al-min="7" et-al-use-first="6" second-field-align="flush">
     <layout>
+      <text variable="citation-number" suffix="."/>
       <group delimiter=". " suffix=". ">
         <text macro="author"/>
         <text macro="title"/>
@@ -338,8 +378,9 @@
           <text macro="journal-location"/>
           <text macro="pages"/>
         </group>
+        <text macro="webpage-part"/>
       </group>
-      <text macro="series-details" suffix=". "/>
+      <text macro="collection-details" suffix=". "/>
       <text macro="report-details" suffix=". "/>
       <text macro="access"/>
     </layout>
