@@ -4,23 +4,25 @@
     <title>Nature (brackets, no superscript)</title>
     <id>http://www.zotero.org/styles/nature-brackets</id>
     <link href="http://www.zotero.org/styles/nature-brackets" rel="self"/>
-    <link href="http://www.nature.com/srep/publish/guidelines#references" rel="documentation"/>
+    <link href="https://www.nature.com/nature/for-authors/formatting-guide" rel="documentation"/>
     <author>
       <name>Michael Berkowitz</name>
       <email>mberkowi@gmu.edu</email>
     </author>
+    <contributor>
+      <name>Michael Berkowitz</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="science"/>
     <category field="generic-base"/>
-    <updated>2022-07-02T11:44:17+00:00</updated>
+    <updated>2025-09-10T18:46:58+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="title">
     <choose>
       <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-        <text variable="title" font-style="italic"/>
+        <text variable="title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="chapter" match="any"/>
       <else>
         <text variable="title"/>
       </else>
@@ -35,24 +37,30 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="volume" type="article" match="any"/>
+      <if variable="volume" type="article dataset software" match="any"/>
       <else-if variable="DOI">
         <text variable="DOI" prefix="doi:"/>
       </else-if>
-      <else-if variable="URL">
-        <text term="at"/>
-        <text variable="URL" prefix=" &lt;" suffix="&gt;"/>
-      </else-if>
+    </choose>
+  </macro>
+  <macro name="access-data">
+    <choose>
+      <if type="dataset software" match="any">
+        <text variable="DOI" prefix="https://doi.org/"/>
+      </if>
     </choose>
   </macro>
   <macro name="issuance">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song chapter paper-conference" match="any">
-        <group delimiter=", " prefix="(" suffix=").">
-          <text variable="publisher" form="long"/>
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
+      <if type="bill book graphic legal_case legislation motion_picture song thesis chapter paper-conference" match="any">
+        <group delimiter="; " suffix=".">
+          <group delimiter=", " prefix="(" suffix=")">
+            <text variable="publisher" form="long"/>
+            <text variable="publisher-place"/>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
         </group>
       </if>
       <else-if type="article">
@@ -62,7 +70,7 @@
               <text variable="genre" text-case="capitalize-first"/>
             </if>
             <else>
-              <text term="article" text-case="capitalize-first"/>
+              <text term="preprint" text-case="capitalize-first"/>
             </else>
           </choose>
           <text term="at"/>
@@ -77,10 +85,50 @@
           <date date-parts="year" form="text" variable="issued" prefix="(" suffix=")"/>
         </group>
       </else-if>
+      <else-if type="dataset software" match="any">
+        <group delimiter=" ">
+          <text variable="publisher"/>
+          <text macro="access-data"/>
+          <date date-parts="year" form="text" variable="issued" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
+      <else-if type="report webpage post post-weblog" match="any">
+        <group delimiter=" ">
+          <text variable="URL"/>
+          <date date-parts="year" form="text" variable="issued" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
+      <else-if type="article-journal" match="any">
+        <group delimiter=" ">
+          <choose>
+            <if match="none" variable="volume page">
+              <choose>
+                <if match="any" variable="DOI">
+                  <text variable="DOI" prefix="https://doi.org/"/>
+                </if>
+                <else>
+                  <text variable="URL"/>
+                </else>
+              </choose>
+            </if>
+          </choose>
+          <date date-parts="year" form="text" variable="issued" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
       <else>
-        <date prefix="(" suffix=")." variable="issued">
+        <date variable="issued" prefix="(" suffix=")">
           <date-part name="year"/>
         </date>
+      </else>
+    </choose>
+  </macro>
+  <macro name="container-title">
+    <choose>
+      <if type="article-journal">
+        <text variable="container-title" font-style="italic" form="short"/>
+      </if>
+      <else>
+        <text variable="container-title" font-style="italic"/>
       </else>
     </choose>
   </macro>
@@ -94,6 +142,19 @@
       </if>
     </choose>
   </macro>
+  <macro name="volume">
+    <choose>
+      <if type="article-journal" match="any">
+        <text variable="volume" font-weight="bold" suffix=","/>
+      </if>
+      <else>
+        <group delimiter=" ">
+          <label variable="volume" form="short"/>
+          <text variable="volume"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -103,21 +164,19 @@
     </layout>
   </citation>
   <bibliography et-al-min="6" et-al-use-first="1" second-field-align="flush" entry-spacing="0" line-spacing="2">
-    <layout>
+    <layout suffix=".">
       <text variable="citation-number" suffix="."/>
       <group delimiter=" ">
         <text macro="author" suffix="."/>
         <text macro="title" suffix="."/>
         <choose>
           <if type="chapter paper-conference" match="any">
-            <text term="in" form="long" plural="false"/>
+            <text term="in"/>
           </if>
         </choose>
-        <text variable="container-title" font-style="italic" form="short"/>
+        <text macro="container-title"/>
         <text macro="editor"/>
-        <group font-weight="bold">
-          <text variable="volume" suffix=","/>
-        </group>
+        <text macro="volume"/>
         <text variable="page"/>
         <text macro="issuance"/>
         <text macro="access"/>
