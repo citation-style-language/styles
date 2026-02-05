@@ -2,30 +2,60 @@
 
 Before submitting your style to the CSL style repository, please make sure it follows our requirements:
 
-##### 1 - Title Abbreviations
+## 1 - Title
 
-The style name in `<title/>` should provide the full title of the style manual, journal, or publisher that issues the guidance.
-To store a title abbreviation (not typically displayed but helpful for searchability), use the `<title-short/>` element, for example:
+The style name in `<title/>` should provide the official title of the style manual, journal, or publisher that issues the guidance. Where a style guide provides multiple referencing systems or variants, add the variant in parentheses:
 
 ```xml
-   <info>
-     <title>New Hart's Rules 2nd edition (notes)</title>
-     <title-short>NHR</title-short>
-   </info>
+<title>MHRA Style Guide 4th edition (author-date)</title>
 ```
 
-Where a style guide provides multiple referencing systems or variants, add the variant in parentheses, such as "Chicago Manual of Style 18th edition (author-date)".
+```xml
+<title>MHRA Style Guide 4th edition (notes)</title>
+```
 
-For university department styles (and other institutional styles), always put the name of the institution before the name of the department.
-Institutional styles may also mention the name of a style (e.g. "Vancouver" or "APA") in the title.
-Use hyphens to separate these elements, e.g. "University of Oxford - Faculty of History - New Hart's Rules".
+Store a title abbreviation and terms for which users are likely to search in the `<title-short/>` element:
 
-##### 2 - Title Diacritics
+```xml
+<title>Chicago Manual of Style 18th edition (author-date, without URLs)</title>
+<title-short>CMOS with Bluebook (author-date/AD [13.102], no URLs [13.6])</title-short>
+```
+
+The keywords provided here mean, for example, that a search in the repository for `Chicago AD` will return this style.
+
+### Journal Styles
+
+The title of a journal style should be the publication's full name, including any subtitles.
+
+```xml
+<title>Hortus Artium Medievalium: Journal of the International Research Center for Late Antiquity and Middle Ages</title>
+<title-short>HAM</title-short>
+```
+
+### Institutional Styles
+
+A style for a specific publisher or university should include the institution name, any department name, and the title of the parent style (such as "APA" or "MLA"), separated by hyphens:
+
+```xml
+<title>Université de Montréal - APA (Français - Canada)</title>
+```
+
+If an organization publishes independent style sheets for different citation systems, use the same convention as for a style guide with multiple variants:
+
+```xml
+<title>Uludağ Üniversitesi - Sosyal Bilimler Enstitüsü (author-date, Türkçe)</title>
+```
+
+```xml
+<title>Uludağ Üniversitesi - Sosyal Bilimler Enstitüsü (full note, Türkçe)</title>
+```
+
+## 2 - Title Diacritics
 
 Don't remove diacritics from the style title.
 For example, use `<title>Associação Brasileira de Normas Técnicas</title>` instead of `<title>Associacao Brasileira de Normas Tecnicas</title>`.
 
-##### 3 - Style Locale
+## 3 - Style Locale
 
 If your style is meant to be used in one particular language, set the `default-locale` attribute on `<style/>` to the appropriate locale code.
 For example, CSL styles for English-language journals should typically be set to US English (`en-US`) or British English (`en-GB`).
@@ -53,7 +83,7 @@ Two examples:
    </style>
 ```
 
-##### 4 - File Name
+## 4 - File Name
 
 The file name of a style should be based on its title.
 However, file names may only contain lowercase roman letters (a-z), digits (0-9), and single hyphens (-), and must end with the `.csl` extension.
@@ -69,7 +99,7 @@ To create the file name from the title:
 
 You can use a 'slugify' tool like https://blog.tersmitten.nl/slugify/ to quickly lowercase titles and replace spaces by hyphens, although you may have to make some more changes by hand.
 
-##### 5 - Style ID
+## 5 - Style ID
 
 The style ID must be `http://www.zotero.org/styles/file-name`, with `file-name` representing the style's file name without the `.csl` extension.
 For example, the style ID for `chicago-notes.csl` is `http://www.zotero.org/styles/chicago-notes`:
@@ -80,7 +110,7 @@ For example, the style ID for `chicago-notes.csl` is `http://www.zotero.org/styl
    </info>
 ```
 
-##### 6 - `self` Link
+## 6 - `self` Link
 
 The style's `self` link, which tells where the style will available online, must be `http://www.zotero.org/styles/file-name`, with `file-name` representing the style's file name without the `.csl` extension.
 For example, `http://www.zotero.org/styles/chicago-notes` for `chicago-notes.csl`:
@@ -91,7 +121,7 @@ For example, `http://www.zotero.org/styles/chicago-notes` for `chicago-notes.csl
    </info>
 ```
 
-##### 7 - License
+## 7 - License
 
 The style must be licensed under the Creative Commons Attribution-ShareAlike 3.0 License.
 Use the exact text below, without any hard line breaks for `<rights/>`:
@@ -102,7 +132,7 @@ Use the exact text below, without any hard line breaks for `<rights/>`:
    </info>
 ```
 
-##### 8 - `template` Link
+## 8 - `template` Link
 
 If you started from another CSL style, delete the original style authors and contributors, and point to the original style with a `template` link:
 
@@ -112,7 +142,7 @@ If you started from another CSL style, delete the original style authors and con
    </info>
 ```
 
-##### 9 - ISSN and eISSN
+## 9 - ISSN and eISSN
 
 Journal styles should list the journal's print ISSN (``<issn/>``) and online ISSN (``<eissn/>``), if available:
 
@@ -123,7 +153,7 @@ Journal styles should list the journal's print ISSN (``<issn/>``) and online ISS
    </info>
 ```
 
-##### 10 - `documentation` Link
+## 10 - `documentation` Link
 
 Independent styles should have a `documentation` link that points to a description of the style's citation format.
 For journals, this is typically the "instructions to authors" webpage.
@@ -135,7 +165,7 @@ If a style guide is only available in print, provide a URL that allows us to loc
    </info>
 ```
 
-##### 11 - Categories
+## 11 - Categories
 
 Adding [CSL subject categories](https://docs.citationstyles.org/en/stable/specification.html#appendix-i-categories) to your style enables users to find it more easily.
 For example, if your style is for a journal in the field of history, add:
@@ -147,7 +177,7 @@ For example, if your style is for a journal in the field of history, add:
 
 The `generic-base` category is for styles used across multiple institutions and publishers, such as APA or Chicago, and should be removed from derivative styles.
 
-##### 12 - Authors and Contributors
+## 12 - Authors and Contributors
 
 If you are the creator of a new style or have made significant changes to it, add yourself as an author in the `<author/>` element.
 If you are not the original author or have made minor changes, add yourself as a contributor in the `<contributor/>` element.
@@ -165,13 +195,13 @@ Consider including a permanent identifier such as an ORCID ID in the `<uri/>` el
    </contributor>
 ```
 
-##### 12 - XML Indentation
+## 13 - XML Indentation
 
 Indent the style's XML with 2 spaces per level.
 Some text editors support automatic indentation of XML.
 Alternatively, use our [style formatter](http://formatter.citationstyles.org/) tool.
 
-##### 13 - Validation
+## 14 - Validation
 
 Make sure your finished style [validates](https://github.com/citation-style-language/styles/blob/master/STYLE_DEVELOPMENT.md#validation) against the CSL schema.
 
