@@ -195,13 +195,13 @@ Consider including a permanent identifier such as an ORCID ID in the `<uri/>` el
    </contributor>
 ```
 
-## 12 - XML Indentation
+## 13 - XML Indentation
 
 Indent the style's XML with 2 spaces per level.
 Some text editors support automatic indentation of XML.
 Alternatively, use our [style formatter](http://formatter.citationstyles.org/) tool.
 
-## 13 - Validation
+## 14 - Validation
 
 Make sure your finished style [validates](https://github.com/citation-style-language/styles/blob/master/STYLE_DEVELOPMENT.md#validation) against the CSL schema.
 
