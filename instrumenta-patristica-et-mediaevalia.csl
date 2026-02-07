@@ -117,6 +117,19 @@
       <text variable="chapter-number"/>
     </group>
   </macro>
+  <macro name="label-chapter-number-long-capitalized">
+    <group delimiter=" ">
+      <choose>
+        <if is-numeric="chapter-number" type="song">
+          <text text-case="capitalize-first" value="track"/>
+        </if>
+        <else-if is-numeric="chapter-number">
+          <label text-case="capitalize-first" variable="chapter-number"/>
+        </else-if>
+      </choose>
+      <text text-case="capitalize-first" variable="chapter-number"/>
+    </group>
+  </macro>
   <macro name="label-edition">
     <group delimiter=" ">
       <choose>
@@ -358,8 +371,8 @@
           </choose>
           <names variable="curator"/>
           <choose>
-            <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
+            <if match="any" type="software webpage">
+              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8); an anonymous `webpage` also usually treats this as equivalent to a group author (cf. CMOS18 14.104) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
@@ -411,8 +424,8 @@
           </choose>
           <!-- do not list editors or translators as authors (MHRA 7.3) -->
           <choose>
-            <if type="software">
-              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
+            <if match="any" type="software webpage">
+              <!-- `software` listed under the name of the publisher or developer (MHRA 7.8); an anonymous `webpage` also usually treats this as equivalent to a group author (cf. CMOS18 14.104) -->
               <text variable="publisher"/>
             </if>
             <else-if type="standard">
@@ -421,12 +434,20 @@
             </else-if>
           </choose>
           <text macro="author-review-unsigned"/>
+          <text macro="author-title-substitute"/>
+          <choose>
+            <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place"/>
+            <else-if type="manuscript">
+              <text macro="source-archive"/>
+            </else-if>
+          </choose>
         </substitute>
       </names>
       <text macro="author-contributors"/>
     </group>
   </macro>
   <macro name="author-short">
+    <!-- this macro follows `author-bib`; although it 'may be more appropriate' to give only the title (MHRA 7.12), CSL cannot replicate the examples shown, which require knowing whether an author's name is part of the title and being able to redirect a chapter citation to the parent volume -->
     <choose>
       <if match="any" type="interview personal_communication">
         <text macro="author-short-and-recipient"/>
@@ -453,15 +474,50 @@
               </else>
             </choose>
             <names variable="host"/>
-            <names variable="illustrator"/>
+            <names variable="guest"/>
             <choose>
               <if type="song">
                 <names variable="performer"/>
               </if>
             </choose>
             <choose>
-              <if type="software">
-                <!-- `software` listed under the name of the publisher or developer (MHRA 7.8) -->
+              <if type="classic">
+                <!-- editors in author position only for an edited collection (MHRA 8.3) -->
+                <text macro="author-title-substitute-short"/>
+              </if>
+            </choose>
+            <names variable="illustrator"/>
+            <choose>
+              <!-- list an edited multivolume work under the name of the series editor -->
+              <if variable="container-title"/>
+              <else-if match="any" variable="number-of-volumes part-number part-title volume volume-title">
+                <names variable="collection-editor"/>
+              </else-if>
+            </choose>
+            <choose>
+              <if match="none" type="standard">
+                <names variable="editor-translator"/>
+                <names variable="editor"/>
+                <names variable="translator"/>
+                <names variable="collection-editor"/>
+              </if>
+            </choose>
+            <names variable="director"/>
+            <names variable="producer"/>
+            <names variable="executive-producer"/>
+            <names variable="series-creator"/>
+            <names variable="editorial-director"/>
+            <names variable="compiler"/>
+            <choose>
+              <if match="any" type="event performance speech">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
+            <names variable="curator"/>
+            <choose>
+              <if match="any" type="software webpage">
+                <!-- `software` listed under the name of the publisher or developer (MHRA 7.8); an anonymous `webpage` also usually treats this as equivalent to a group author (cf. CMOS18 14.104) -->
                 <text variable="publisher"/>
               </if>
               <else-if type="standard">
@@ -469,6 +525,8 @@
                 <text variable="authority"/>
               </else-if>
             </choose>
+            <text macro="author-review-unsigned"/>
+            <text macro="author-title-substitute-short"/>
             <choose>
               <if match="any" variable="container-title event-date event-place event-title genre title publisher publisher-place"/>
               <else-if type="manuscript">
@@ -608,8 +666,39 @@
         <text macro="title"/>
       </else-if>
       <else>
-        <!-- If an item has no `title`, substitute with descriptions. -->
-        <text macro="title-and-descriptions"/>
+        <!-- if an item has no `title`, substitute with descriptions and capitalize -->
+        <group delimiter=", ">
+          <text macro="description-capitalized"/>
+          <text macro="identifier"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="author-title-substitute-short">
+    <choose>
+      <if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <!-- If a review has no `reviewed-genre` or `reviewed-title`, assume that `title` contains the title of the reviewed work; the description provides it. -->
+        <choose>
+          <if variable="reviewed-genre title">
+            <text macro="title-short"/>
+          </if>
+          <else-if variable="reviewed-genre reviewed-title title">
+            <text macro="title-short"/>
+          </else-if>
+          <else>
+            <text macro="title-and-descriptions-short"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="title">
+        <text macro="title-short"/>
+      </else-if>
+      <else>
+        <!-- if an item has no `title`, substitute with descriptions and capitalize -->
+        <group delimiter=", ">
+          <text macro="description-capitalized"/>
+          <text macro="identifier"/>
+        </group>
       </else>
     </choose>
   </macro>
@@ -915,13 +1004,14 @@
         <text macro="source-medium"/>
         <text macro="source-archive"/>
       </group>
+      <text macro="source-accessed"/>
     </group>
   </macro>
   <!-- 3.1. Title -->
   <macro name="title">
     <choose>
       <if match="any" type="post webpage">
-        <!-- Handle `container-title` on `post` or `webpage` in manner of `publisher` -->
+        <!-- part number/title always at the analytic level -->
         <text macro="title-and-part-filter-review"/>
       </if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
@@ -1017,6 +1107,10 @@
       <else-if type="post">
         <!-- Quotes, sentence case -->
         <text quotes="true" variable="part-title"/>
+      </else-if>
+      <else-if type="webpage">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="part-title"/>
       </else-if>
       <!-- Other types are formatted based on presence of `container-title` -->
       <else-if variable="container-title">
@@ -1146,13 +1240,16 @@
     </choose>
   </macro>
   <macro name="title-volume">
-    <group delimiter=", ">
-      <text macro="label-volume"/>
-      <text font-style="italic" text-case="title" variable="volume-title"/>
-      <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
-      <text macro="label-part-number"/>
-      <text macro="title-part"/>
-    </group>
+    <choose>
+      <if type="manuscript">
+        <!-- Quotes, title case -->
+        <text quotes="true" text-case="title" variable="volume-title"/>
+      </if>
+      <else>
+        <!-- Italics, title case -->
+        <text font-style="italic" text-case="title" variable="volume-title"/>
+      </else>
+    </choose>
   </macro>
   <!-- 3.2. Description -->
   <macro name="description">
@@ -1192,6 +1289,46 @@
       </else-if>
       <else>
         <text macro="description-format"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="description-capitalized">
+    <choose>
+      <if match="any" type="interview" variable="interviewer">
+        <text macro="description-interview-capitalized"/>
+      </if>
+      <else-if match="any" type="review review-book" variable="reviewed-author reviewed-genre reviewed-title">
+        <text macro="description-review-capitalized"/>
+      </else-if>
+      <else-if type="personal_communication">
+        <text macro="description-letter-capitalized"/>
+      </else-if>
+      <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
+        <text macro="description-serial-capitalized"/>
+      </else-if>
+      <else-if type="paper-conference">
+        <text macro="description-paper-conference-capitalized"/>
+      </else-if>
+      <else-if type="song" variable="composer">
+        <text macro="description-song-capitalized"/>
+      </else-if>
+      <!-- thesis type appears with university name (cf. CMOS18 14.113) -->
+      <else-if type="thesis"/>
+      <else-if match="none" variable="container-title">
+        <!-- Other description -->
+        <text macro="description-format-capitalized"/>
+      </else-if>
+      <!-- For conference presentations/performances/events, chapters in reports/standards/generic documents, software, place description within the source element -->
+      <else-if match="any" type="document report software standard"/>
+      <else-if match="any" type="event paper-conference performance speech">
+        <choose>
+          <if match="any" variable="collection-editor compiler editor editorial-director issue page supplement-number volume">
+            <text macro="description-format-capitalized"/>
+          </if>
+        </choose>
+      </else-if>
+      <else>
+        <text macro="description-format-capitalized"/>
       </else>
     </choose>
   </macro>
@@ -1269,20 +1406,58 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="description-format-capitalized">
+    <choose>
+      <if variable="genre number"/>
+      <else-if variable="genre">
+        <text text-case="capitalize-first" variable="genre"/>
+      </else-if>
+      <else-if variable="chapter-number title"/>
+      <else-if variable="chapter-number">
+        <text macro="label-chapter-number-long-capitalized"/>
+      </else-if>
+      <else-if type="personal_communication">
+        <choose>
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <!-- 'letter' if no `genre` (MHRA 7.11) -->
+            <text term="letter" text-case="capitalize-first"/>
+          </if>
+          <else>
+            <text term="personal-communication" text-case="capitalize-first"/>
+          </else>
+        </choose>
+      </else-if>
+      <!-- generic labels if unpublished -->
+      <else-if match="any" variable="archive archive-place container-title DOI number publisher references URL"/>
+      <else-if type="manuscript">
+        <!-- 'unpublished manuscript' if no `genre` (cf. CMOS18 14.114) -->
+        <text term="manuscript" text-case="capitalize-first"/>
+      </else-if>
+    </choose>
+  </macro>
   <macro name="description-format-short">
     <group delimiter=" ">
       <choose>
         <if type="chapter" variable="container-title genre">
-          <text form="short" variable="genre"/>
           <!-- untitled introductions: cf. abbreviated review model, which does not print `genre` on its own (MHRA 7.12) -->
-          <text macro="source-monographic-preposition"/>
-          <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+          <text form="short" variable="genre"/>
+          <choose>
+            <if match="none" position="ibid ibid-with-locator">
+              <!-- leave out title in repeated references -->
+              <text macro="source-monographic-preposition"/>
+              <text font-style="italic" form="short" text-case="title" variable="container-title"/>
+            </if>
+          </choose>
         </if>
         <else-if type="article-journal" variable="container-title genre volume-title">
-          <text form="short" variable="genre"/>
           <!-- untitled introduction to a special issue or supplement -->
-          <text macro="source-monographic-preposition"/>
-          <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+          <text form="short" variable="genre"/>
+          <choose>
+            <if match="none" position="ibid ibid-with-locator">
+              <text macro="source-monographic-preposition"/>
+              <text font-style="italic" form="short" text-case="title" variable="volume-title"/>
+            </if>
+          </choose>
         </else-if>
         <else-if variable="genre">
           <text form="short" variable="genre"/>
@@ -1364,6 +1539,59 @@
       <text macro="source-event-place-first"/>
     </group>
   </macro>
+  <macro name="description-interview-capitalized">
+    <!-- list the interviewer as the author and the interviewee in the description (MHRA 7.11) -->
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <choose>
+          <if variable="genre number interviewer">
+            <!-- `genre` printed with `number` -->
+            <text term="interview" text-case="capitalize-first"/>
+            <text form="verb" term="contributor"/>
+            <choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
+              </if>
+              <else>
+                <names variable="interviewer"/>
+              </else>
+            </choose>
+          </if>
+          <else-if variable="genre interviewer">
+            <text text-case="capitalize-first" variable="genre"/>
+            <text form="verb" term="contributor"/>
+            <choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
+              </if>
+              <else>
+                <names variable="interviewer"/>
+              </else>
+            </choose>
+          </else-if>
+          <else-if variable="interviewer">
+            <text term="interview" text-case="capitalize-first"/>
+            <text form="verb" term="contributor"/>
+            <choose>
+              <if match="any" variable="container-title DOI issue number publisher publisher-place references URL volume">
+                <!-- interviewee appears in the description of a published interview only (MHRA 7.11) -->
+                <names variable="author"/>
+              </if>
+              <else>
+                <names variable="interviewer"/>
+              </else>
+            </choose>
+          </else-if>
+          <else>
+            <text macro="description-format-capitalized"/>
+          </else>
+        </choose>
+      </group>
+      <text macro="source-event-place-first"/>
+    </group>
+  </macro>
   <macro name="description-interview-short">
     <choose>
       <if disambiguate="true">
@@ -1433,6 +1661,39 @@
       </else>
     </choose>
   </macro>
+  <macro name="description-letter-capitalized">
+    <choose>
+      <if variable="recipient">
+        <group delimiter=", ">
+          <choose>
+            <if variable="genre number">
+              <!-- `genre` appears with `number` -->
+              <names variable="recipient">
+                <label form="verb" suffix=" "/>
+                <name font-variant="small-caps"/>
+                <et-al font-variant="normal"/>
+              </names>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <text macro="description-format-capitalized"/>
+                <names variable="recipient">
+                  <label form="verb" suffix=" "/>
+                  <name font-variant="small-caps"/>
+                  <et-al font-variant="normal"/>
+                </names>
+              </group>
+            </else>
+          </choose>
+          <text variable="event-place"/>
+          <text macro="date-event-full"/>
+        </group>
+      </if>
+      <else>
+        <text macro="description-format-capitalized"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="description-letter-short">
     <!-- shortened notes ideally give author, recipient, place, and date (cf. CMOS18 14.13) -->
     <group delimiter=", ">
@@ -1476,6 +1737,21 @@
       </else>
     </choose>
   </macro>
+  <macro name="description-paper-conference-capitalized">
+    <choose>
+      <if match="any" variable="collection-editor compiler editor editorial-director">
+        <!-- monographic types -->
+        <text macro="description-format-capitalized"/>
+      </if>
+      <else>
+        <!-- serial types -->
+        <group delimiter=", ">
+          <text macro="description-serial-capitalized"/>
+          <text macro="source-event"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <macro name="description-review">
     <group delimiter=", ">
       <group delimiter=" ">
@@ -1498,23 +1774,43 @@
       <text macro="label-section"/>
     </group>
   </macro>
+  <macro name="description-review-capitalized">
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <choose>
+          <if variable="genre">
+            <!-- assume that `genre` is entered as 'Review of the book' or similar -->
+            <text text-case="capitalize-first" variable="genre"/>
+          </if>
+          <else>
+            <text term="review-of" text-case="capitalize-first"/>
+          </else>
+        </choose>
+        <group delimiter=", ">
+          <names variable="reviewed-author"/>
+          <text macro="description-review-title"/>
+          <text variable="reviewed-genre"/>
+          <text macro="source-event-place-first"/>
+        </group>
+      </group>
+      <text macro="label-section"/>
+    </group>
+  </macro>
   <macro name="description-review-short">
     <group delimiter=" ">
-      <text term="review-of"/>
       <choose>
-        <if variable="reviewed-author">
+        <if match="any" position="ibid ibid-with-locator">
+          <text term="review"/>
+        </if>
+        <else-if variable="reviewed-author">
           <!-- cite under author if available (MHRA 7.12) -->
+          <text term="review-of"/>
           <names variable="reviewed-author"/>
           <!-- use full name, not short -->
-        </if>
-        <else-if match="any" variable="reviewed-genre reviewed-title">
-          <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
-          <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
-          <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
         </else-if>
         <else>
-          <!-- Assume title is title of reviewed work -->
-          <text font-style="italic" form="short" text-case="title" variable="title"/>
+          <text term="review-of"/>
+          <text macro="description-review-title-short"/>
         </else>
       </choose>
     </group>
@@ -1532,7 +1828,27 @@
       </else>
     </choose>
   </macro>
+  <macro name="description-review-title-short">
+    <choose>
+      <if match="any" variable="reviewed-genre reviewed-title">
+        <!-- Not possible to distinguish TV series episode from other reviewed works without a reviewed source title -->
+        <!-- Adapt for `reviewed-container-title` or similar if it becomes available -->
+        <text font-style="italic" form="short" text-case="title" variable="reviewed-title"/>
+      </if>
+      <else>
+        <!-- Assume title is title of reviewed work -->
+        <text font-style="italic" form="short" text-case="title" variable="title"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="description-serial">
+    <group delimiter=", ">
+      <text macro="description-format"/>
+      <!-- `section` provides magazine departments (cf. CMOS18 14.88) and newspaper column names (cf. CMOS18 14.93) -->
+      <text macro="label-section"/>
+    </group>
+  </macro>
+  <macro name="description-serial-capitalized">
     <group delimiter=", ">
       <text macro="description-format"/>
       <!-- `section` provides magazine departments (cf. CMOS18 14.88) and newspaper column names (cf. CMOS18 14.93) -->
@@ -1562,6 +1878,26 @@
         </if>
       </choose>
       <names variable="author">
+        <name delimiter-precedes-last="always" font-variant="small-caps"/>
+        <et-al font-variant="normal"/>
+        <substitute>
+          <names variable="performer"/>
+        </substitute>
+      </names>
+    </group>
+  </macro>
+  <macro name="description-song-capitalized">
+    <!-- Performer of classical music works -->
+    <!-- TODO: remove when Zotero fixes mapping of performer to `author` -->
+    <group delimiter=" ">
+      <!-- Based on `description-format` macro -->
+      <choose>
+        <if variable="genre">
+          <text text-case="capitalize-first" variable="genre"/>
+          <text form="verb" term="performer"/>
+        </if>
+      </choose>
+      <names variable="author">
         <name delimiter-precedes-last="always"/>
         <substitute>
           <names variable="performer"/>
@@ -1580,7 +1916,7 @@
           <text macro="identifier-report"/>
         </else-if>
         <else-if match="any" type="post webpage">
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
           <text macro="identifier-number"/>
           <text macro="identifier-contributors"/>
         </else-if>
@@ -1725,7 +2061,7 @@
           </choose>
         </if>
         <else>
-          <!-- Handle `container-title` on `post` or `webpage` akin to `publisher` -->
+          <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
           <choose>
             <if match="none" variable="container-title">
               <names variable="container-author">
@@ -1952,7 +2288,11 @@
   <!-- 4. Source -->
   <macro name="source">
     <choose>
-      <if match="any" type="patent post webpage"/>
+      <if type="patent"/>
+      <else-if match="any" type="post webpage">
+        <!-- print `container-title` on `post` or `webpage` in the same way as `publisher` -->
+        <text text-case="title" variable="container-title"/>
+      </else-if>
       <else-if match="any" type="article-journal article-magazine article-newspaper periodical post-weblog review review-book">
         <text macro="source-serial"/>
       </else-if>
@@ -2021,7 +2361,7 @@
         <group delimiter=", ">
           <group delimiter=" ">
             <text macro="source-monographic-preposition"/>
-            <text font-style="italic" text-case="title" variable="volume-title"/>
+            <text macro="title-volume"/>
           </group>
           <text macro="source-monographic-identifier-contributors"/>
         </group>
@@ -2076,8 +2416,8 @@
         </else-if>
         <else>
           <choose>
-            <if type="interview">
-              <!-- publisher possible with `interview` (cf. CMOS18 14.110) -->
+            <if match="any" type="interview post-weblog">
+              <!-- publisher possible with broadcast `interview` (cf. CMOS18 14.110) or `post-weblog` (cf. CMOS18 14.105) -->
               <text variable="publisher"/>
             </if>
           </choose>
@@ -2320,7 +2660,12 @@
   <!-- Monographic source locator -->
   <macro name="source-monographic-locator">
     <group delimiter=", ">
-      <text macro="source-monographic-locator-volume"/>
+      <choose>
+        <if match="none" type="post webpage">
+          <!-- part number/title always at the analytic level -->
+          <text macro="source-monographic-locator-volume"/>
+        </if>
+      </choose>
       <choose>
         <!-- archival locators appear after the shelfmark (MHRA 7.7) -->
         <if locator="column" variable="archive archive_location page"/>
@@ -2347,7 +2692,11 @@
   <macro name="source-monographic-locator-volume">
     <group delimiter=", ">
       <group delimiter=", ">
+        <text macro="label-volume"/>
         <text macro="title-volume"/>
+        <!-- `part-number` and `part-title` of monographic items refer to the source book/volume -->
+        <text macro="label-part-number"/>
+        <text macro="title-part"/>
         <choose>
           <if type="broadcast">
             <text macro="identifier-number"/>
@@ -2637,12 +2986,6 @@
   </macro>
   <macro name="source-publication-and-date">
     <group delimiter=", ">
-      <choose>
-        <if match="any" type="post webpage">
-          <!-- `container-title` functions like a publisher with social media and website sources (cf. CMOS18 14.104-106) -->
-          <text text-case="title" variable="container-title"/>
-        </if>
-      </choose>
       <text macro="source-publication-history"/>
       <group delimiter=" ">
         <text macro="source-date-status"/>
@@ -3086,6 +3429,19 @@
     </group>
   </macro>
   <!-- 4.10. DOI or URL -->
+  <macro name="source-accessed">
+    <!-- provide an access date when URLs are not printed and no other date is available -->
+    <choose>
+      <if variable="DOI"/>
+      <else-if match="any" variable="available-date event-date issued status"/>
+      <else-if variable="URL">
+        <group delimiter=" " prefix="[" suffix="]">
+          <text term="accessed"/>
+          <date form="text" variable="accessed"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
   <!-- Citation -->
   <macro name="citation-notes-shortened-author-title-item">
     <group delimiter=" ">
@@ -3135,20 +3491,18 @@
   </macro>
   <citation disambiguate-add-givenname="true" disambiguate-add-names="true">
     <layout delimiter="; " suffix=".">
-      <choose>
-        <if position="subsequent">
-          <group delimiter=", ">
+      <group delimiter=", ">
+        <choose>
+          <if position="subsequent">
             <text macro="citation-notes-shortened-author-title-item"/>
             <text macro="source-locator-subsequent"/>
-          </group>
-        </if>
-        <else>
-          <group delimiter=", ">
+          </if>
+          <else>
             <text macro="author-note"/>
             <text macro="title-and-source"/>
-          </group>
-        </else>
-      </choose>
+          </else>
+        </choose>
+      </group>
     </layout>
   </citation>
   <!-- Bibliography -->

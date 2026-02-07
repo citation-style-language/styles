@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" initialize-with-hyphen="false" page-range-format="minimal">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" page-range-format="minimal" demote-non-dropping-particle="sort-only">
+  <!-- Polyglot; journal publishes in English, and Spanish. -->
   <info>
-    <title>Vancouver</title>
-    <id>http://www.zotero.org/styles/vancouver</id>
-    <link href="http://www.zotero.org/styles/vancouver" rel="self"/>
-    <link href="http://www.nlm.nih.gov/bsd/uniform_requirements.html" rel="documentation"/>
+    <title>Medical Education &amp; Clinical Practice</title>
+    <title-short>MECP</title-short>
+    <id>http://www.zotero.org/styles/medical-education-and-clinical-practice</id>
+    <link href="http://www.zotero.org/styles/medical-education-and-clinical-practice" rel="self"/>
+    <link href="http://www.zotero.org/styles/nlm-citation-sequence" rel="template"/>
+    <link href="https://revistas.cientifica.edu.pe/index.php/mecp/instructions" rel="documentation"/>
     <author>
-      <name>Michael Berkowitz</name>
-      <email>mberkowi@gmu.edu</email>
+      <name>Akram Hernández-Vásquez</name>
+      <email>akram.hernandez.v@gmail.com</email>
     </author>
-    <contributor>
-      <name>Sean Takats</name>
-      <email>stakats@gmu.edu</email>
-    </contributor>
-    <contributor>
-      <name>Sebastian Karcher</name>
-    </contributor>
     <category citation-format="numeric"/>
-    <category field="generic-base"/>
     <category field="medicine"/>
-    <summary>Vancouver style as outlined by International Committee of Medical Journal Editors Uniform Requirements for Manuscripts Submitted to Biomedical Journals: Sample References</summary>
-    <updated>2022-09-28T11:33:04+00:00</updated>
+    <issn>3084-8008</issn>
+    <updated>2026-01-19T15:30:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="es">
+    <date form="text" delimiter=" de ">
+      <date-part name="day"/>
+      <date-part name="month" strip-periods="false"/>
+      <date-part name="year"/>
+    </date>
+    <terms>
+      <term name="collection-editor" form="long">
+        <single>editor</single>
+        <multiple>editores</multiple>
+      </term>
+      <term name="section" form="short">secc.</term>
+      <term name="cited">citado el</term>
+    </terms>
+  </locale>
   <locale xml:lang="en">
     <date form="text" delimiter=" ">
       <date-part name="year"/>
@@ -37,21 +47,14 @@
       <term name="presented at">presented at</term>
       <term name="available at">available from</term>
       <term name="section" form="short">sect.</term>
+      <term name="number" form="long">Report No.</term>
     </terms>
-  </locale>
-  <locale xml:lang="fr">
-    <date form="text" delimiter=" ">
-      <date-part name="day"/>
-      <date-part name="month" form="short" strip-periods="true"/>
-      <date-part name="year"/>
-    </date>
   </locale>
   <macro name="author">
     <names variable="author">
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
       <substitute>
-        <text macro="webpage-title"/>
         <names variable="editor"/>
       </substitute>
     </names>
@@ -69,25 +72,13 @@
       </if>
     </choose>
   </macro>
-  <macro name="webpage-title">
-    <!--If a webpage has a container, we're assuming the citation is "part of a website" as per ch. 25 Citing Medicine https://www.ncbi.nlm.nih.gov/books/NBK7274/?report=reader -->
-    <choose>
-      <if type="webpage" variable="container-title" match="all">
-        <group delimiter=" ">
-          <text variable="container-title"/>
-          <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
-        </group>
-      </if>
-    </choose>
-  </macro>
   <macro name="publisher">
     <choose>
-      <!--discard publisher info for articles-->
       <if type="article-journal article-magazine article-newspaper" match="none">
         <group delimiter=": " suffix=";">
           <choose>
             <if type="thesis">
-              <text variable="publisher-place" prefix="[" suffix="]"/>
+              <text variable="publisher-place"/>
             </if>
             <else-if type="speech"/>
             <else>
@@ -101,21 +92,28 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="URL">
+      <if match="any" variable="DOI">
+        <text variable="DOI" prefix="doi: "/>
+      </if>
+      <else-if match="any" variable="URL">
         <group delimiter=": ">
           <text term="available at" text-case="capitalize-first"/>
           <text variable="URL"/>
         </group>
-      </if>
+      </else-if>
     </choose>
   </macro>
   <macro name="accessed-date">
     <choose>
       <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
-          <text term="cited" text-case="lowercase"/>
-          <date variable="accessed" form="text"/>
-        </group>
+        <choose>
+          <if variable="DOI" match="none">
+            <group prefix="[" suffix="]" delimiter=" ">
+              <text term="cited" text-case="lowercase"/>
+              <date form="text" variable="accessed"/>
+            </group>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -133,13 +131,16 @@
           </choose>
           <choose>
             <if variable="URL">
-              <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+              <choose>
+                <if variable="DOI" match="none">
+                  <text term="internet" prefix="[" suffix="]" text-case="capitalize-first"/>
+                </if>
+              </choose>
             </if>
           </choose>
         </group>
         <text macro="edition" prefix=" "/>
       </if>
-      <!--add event-name and event-place once they become available-->
       <else-if type="bill legislation" match="any">
         <group delimiter=", ">
           <group delimiter=". ">
@@ -177,21 +178,20 @@
     </choose>
   </macro>
   <macro name="title">
+    <text variable="title"/>
     <choose>
-      <if type="webpage" variable="container-title" match="all"/>
-      <else>
-        <text variable="title"/>
+      <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia thesis" match="none">
         <choose>
-          <if type="article-journal article-magazine chapter paper-conference article-newspaper review review-book entry-dictionary entry-encyclopedia" match="none">
+          <if variable="URL">
             <choose>
-              <if variable="URL">
+              <if variable="DOI" match="none">
                 <text term="internet" prefix=" [" suffix="]" text-case="capitalize-first"/>
               </if>
             </choose>
-            <text macro="edition" prefix=". "/>
           </if>
         </choose>
-      </else>
+        <text macro="edition" prefix=". "/>
+      </if>
     </choose>
     <choose>
       <if type="thesis">
@@ -216,7 +216,7 @@
     <choose>
       <if type="article-journal article-magazine article-newspaper review review-book" match="any">
         <group suffix=";" delimiter=" ">
-          <date variable="issued" form="text"/>
+          <date date-parts="year" form="numeric" variable="issued"/>
           <text macro="accessed-date"/>
         </group>
       </if>
@@ -232,21 +232,23 @@
         </group>
       </else-if>
       <else-if type="report">
-        <date variable="issued" delimiter=" ">
-          <date-part name="year"/>
-          <date-part name="month" form="short" strip-periods="true"/>
-        </date>
-        <text macro="accessed-date" prefix=" "/>
+        <group delimiter=" ">
+          <date variable="issued" delimiter=" ">
+            <date-part name="year"/>
+            <date-part name="month" form="short" strip-periods="true"/>
+          </date>
+          <text macro="accessed-date"/>
+        </group>
       </else-if>
       <else-if type="patent">
-        <group suffix=".">
+        <group suffix=". ">
           <group delimiter=", ">
             <text variable="number"/>
             <date variable="issued">
               <date-part name="year"/>
             </date>
           </group>
-          <text macro="accessed-date" prefix=" "/>
+          <text macro="accessed-date"/>
         </group>
       </else-if>
       <else-if type="speech">
@@ -263,11 +265,11 @@
         </group>
       </else-if>
       <else>
-        <group suffix=".">
+        <group suffix="." delimiter=" ">
           <date variable="issued">
             <date-part name="year"/>
           </date>
-          <text macro="accessed-date" prefix=" "/>
+          <text macro="accessed-date"/>
         </group>
       </else>
     </choose>
@@ -278,12 +280,10 @@
         <text variable="page" prefix=":"/>
       </if>
       <else-if type="book" match="any">
-        <text variable="number-of-pages" prefix=" "/>
-        <choose>
-          <if is-numeric="number-of-pages">
-            <label variable="number-of-pages" form="short" prefix=" " plural="never"/>
-          </if>
-        </choose>
+        <group delimiter=" ">
+          <text variable="number-of-pages" prefix=" "/>
+          <label variable="number-of-pages" form="short" plural="never"/>
+        </group>
       </else-if>
       <else>
         <group prefix=" " delimiter=" ">
@@ -298,13 +298,6 @@
       <if type="article-journal article-magazine review review-book" match="any">
         <text variable="volume"/>
         <text variable="issue" prefix="(" suffix=")"/>
-      </if>
-    </choose>
-  </macro>
-  <macro name="webpage-part">
-    <choose>
-      <if type="webpage" variable="container-title" match="all">
-        <text variable="title"/>
       </if>
     </choose>
   </macro>
@@ -334,7 +327,10 @@
   <macro name="report-details">
     <choose>
       <if type="report">
-        <text variable="number" prefix="Report No.: "/>
+        <group delimiter=": ">
+          <label variable="number" form="long"/>
+          <text variable="number"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -342,36 +338,37 @@
     <sort>
       <key variable="citation-number"/>
     </sort>
-    <layout prefix="(" suffix=")" delimiter=",">
+    <layout vertical-align="sup" delimiter="," prefix="[" suffix="]">
       <text variable="citation-number"/>
     </layout>
   </citation>
   <bibliography et-al-min="7" et-al-use-first="6" second-field-align="flush">
     <layout>
-      <text variable="citation-number" suffix="."/>
-      <group delimiter=". " suffix=". ">
-        <text macro="author"/>
-        <text macro="title"/>
-      </group>
-      <group delimiter=" " suffix=". ">
-        <group delimiter=": ">
-          <text macro="chapter-marker"/>
-          <group delimiter=" ">
-            <text macro="editor"/>
-            <text macro="container-title"/>
+      <text variable="citation-number" suffix=". "/>
+      <group delimiter=". ">
+        <group delimiter=". ">
+          <text macro="author"/>
+          <text macro="title"/>
+        </group>
+        <group delimiter=" " suffix=". ">
+          <group delimiter=": ">
+            <text macro="chapter-marker"/>
+            <group delimiter=" ">
+              <text macro="editor"/>
+              <text macro="container-title"/>
+            </group>
+          </group>
+          <text macro="publisher"/>
+          <group>
+            <text macro="date"/>
+            <text macro="journal-location"/>
+            <text macro="pages"/>
           </group>
         </group>
-        <text macro="publisher"/>
-        <group>
-          <text macro="date"/>
-          <text macro="journal-location"/>
-          <text macro="pages"/>
-        </group>
-        <text macro="webpage-part"/>
+        <text macro="collection-details"/>
+        <text macro="report-details"/>
+        <text macro="access"/>
       </group>
-      <text macro="collection-details" suffix=". "/>
-      <text macro="report-details" suffix=". "/>
-      <text macro="access"/>
     </layout>
   </bibliography>
 </style>
