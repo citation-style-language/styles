@@ -13,20 +13,20 @@
     <updated>2026-01-20T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  
+  <locale xml:lang="en">
+  <terms>
+    <term name="available at">Available online</term>
+	<term name="number" form="short">No.</term>
+  </terms>
+</locale>
+
   <!-- ===== Conference papers ===== -->
   <macro name="doi-url-both">
-    <group delimiter=", ">
-      <choose>
-        <if variable="DOI">
-          <text variable="DOI" prefix="https://doi.org/"/>
-        </if>
-      </choose>
-      <choose>
-        <if variable="URL">
-          <text variable="URL"/>
-        </if>
-      </choose>
-    </group>
+  <group delimiter=", ">
+    <text macro="doi-url"/>
+    <text macro="url"/>
+  </group>
   </macro>
   <!-- ===== Dates ===== -->
   <macro name="issued-year">
@@ -38,37 +38,42 @@
     </group>
   </macro>
   <macro name="accessed-long">
-    <date variable="accessed">
-      <date-part name="day" suffix=" "/>
-      <date-part name="month" form="long" suffix=" "/>
-      <date-part name="year"/>
-    </date>
-  </macro>
+  <date variable="accessed" delimiter=" ">
+    <date-part name="day"/>
+    <date-part name="month" form="long"/>
+    <date-part name="year"/>
+  </date>
+</macro>
   <!-- ===== DOI / URL ===== -->
-  <macro name="doi-url">
-    <choose>
-      <if variable="DOI">
-        <text variable="DOI" prefix="https://doi.org/"/>
-      </if>
-    </choose>
-  </macro>
-  <macro name="url">
-    <text variable="URL"/>
-  </macro>
-  <macro name="available-online">
-    <group delimiter="">
-      <text value="Available online: "/>
-      <text macro="url"/>
-      <choose>
-        <if variable="accessed">
-          <text value=" (accessed on "/>
-          <text macro="accessed-long"/>
-          <text value=")"/>
-        </if>
-      </choose>
-    </group>
-  </macro>
-  <!-- ===== Names ===== -->
+	<macro name="doi-url">
+	  <text variable="DOI" prefix="https://doi.org/"/>
+	</macro>
+	<macro name="url">
+	 <text variable="URL"/>
+	</macro>
+    
+<macro name="available-online">
+  <choose>
+    <if variable="URL">
+      <group delimiter=" ">
+	  <group delimiter=": ">
+		<text term="available at" text-case="capitalize-first"/>
+		<text macro="url"/>
+	  </group>
+        <choose>
+          <if variable="accessed">
+            <group prefix="(" suffix=")" delimiter=" ">
+              <text term="accessed" text-case="lowercase"/>
+              <text term="on"/>
+              <text macro="accessed-long"/>
+            </group>
+          </if>
+        </choose>
+      </group>
+    </if>
+  </choose>
+</macro>
+
   <!-- Bibliography: max 10 authors; if >10 then first 3 + et al. -->
   <macro name="author-bib">
     <names variable="author" delimiter=", ">
@@ -123,14 +128,9 @@
     <text variable="page"/>
   </macro>
   <!-- volume, issue, pages: 45, 6, e351&#8211;e359 -->
-  <macro name="vol-issue-pages">
+  <macro name="vol-pages">
     <group delimiter=", ">
       <text variable="volume"/>
-      <choose>
-        <if variable="issue">
-          <text variable="issue"/>
-        </if>
-      </choose>
       <text macro="pages"/>
     </group>
   </macro>
@@ -158,7 +158,7 @@
   </macro>
   <macro name="bib-sort-author">
     <choose>
-      <if type="webpage post-weblog" match="any">
+      <if type="webpage post-weblog post" match="any">
         <choose>
           <if variable="container-title">
             <text variable="container-title"/>
@@ -194,14 +194,11 @@
           <text variable="year-suffix"/>
         </group>
       </else-if>
-      <else>
-        <text value="n.d."/>
-      </else>
     </choose>
   </macro>
   <macro name="cite-who">
     <choose>
-      <if type="webpage post-weblog" match="any">
+      <if type="webpage post-weblog post" match="any">
         <text macro="author-cite-web"/>
       </if>
       <else>
@@ -211,7 +208,7 @@
   </macro>
   <macro name="cite-year">
     <choose>
-      <if type="webpage post-weblog" match="any">
+      <if type="webpage post-weblog post" match="any">
         <text macro="web-year"/>
       </if>
       <else>
@@ -239,18 +236,116 @@
         <text variable="publisher"/>
       </else>
     </choose>
+
   </macro>
+  		<macro name="event-title-place">
+		  <group delimiter=". " suffix=". ">
+			<text variable="event-title"/>
+			<text variable="event-place"/>
+		  </group>
+		</macro>
+		<macro name="pages-labeled">
+		  <choose>
+			<if variable="page">
+			  <group delimiter=" ">
+				<label variable="page" form="short" plural="always"/>
+				<text variable="page"/>
+			  </group>
+			</if>
+		  </choose>
+		</macro>
+		
+		<macro name="collection-title-number">
+		  <choose>
+			<if variable="collection-title">
+			  <group delimiter=" " suffix=". ">
+				<text variable="collection-title"/>
+				<choose>
+				  <if variable="number">
+					<group delimiter=" ">
+					  <text term="number" form="short" text-case="capitalize-first"/>
+					  <text variable="number"/>
+					</group>
+				  </if>
+				</choose>
+			  </group>
+			</if>
+		  </choose>
+		</macro>
+		<macro name="bib-author-year">
+		  <group delimiter=", ">
+			<text macro="author-bib"/>
+			<text macro="issued-year"/>
+		  </group>
+		</macro>
+		<macro name="publisher-place-chapter">
+		  <choose>
+			<if variable="publisher publisher-place" match="all">
+			  <group delimiter=". ">
+				<text variable="publisher"/>
+				<text variable="publisher-place"/>
+			  </group>
+			</if>
+			<else-if variable="publisher">
+			  <text variable="publisher"/>
+			</else-if>
+			<else-if variable="publisher-place">
+			  <text variable="publisher-place"/>
+			</else-if>
+		  </choose>
+		</macro>
+		
+		<macro name="issued-year-only">
+		  <date variable="issued">
+			<date-part name="year"/>
+		  </date>
+		</macro>
+
+		<macro name="web-year-only">
+		  <choose>
+			<if variable="issued">
+			  <date variable="issued"><date-part name="year"/></date>
+			</if>
+			<else-if variable="accessed">
+			  <date variable="accessed"><date-part name="year"/></date>
+			</else-if>
+		  </choose>
+		</macro>
+
+		<macro name="cite-year-sort">
+		  <choose>
+			<if type="webpage post-weblog post" match="any">
+			  <text macro="web-year-only"/>
+			</if>
+			<else>
+			  <text macro="issued-year-only"/>
+			</else>
+		  </choose>
+		</macro>		
+		
+		<macro name="bib-year-sort">
+		  <choose>
+			<if type="webpage post-weblog post" match="any">
+			  <text macro="web-year-only"/>
+			</if>
+			<else>
+			  <text macro="issued-year-only"/>
+			</else>
+		  </choose>
+		</macro>
+		
   <!-- ===== Citation ===== -->
   <!-- et-al options set here as inheritable name options -->
   <citation et-al-min="3" et-al-use-first="1" delimiter-precedes-et-al="never" disambiguate-add-year-suffix="true">
-    <sort>
-      <key macro="cite-year"/>
-      <key macro="cite-who"/>
-      <key variable="title"/>
-    </sort>
+	<sort>
+	  <key macro="cite-year-sort"/>
+	  <key macro="cite-who"/>
+	  <key variable="year-suffix"/>
+	  <key variable="title"/>
+	</sort>
     <layout prefix="(" suffix=")" delimiter="; ">
       <choose>
-        <if type="webpage post-weblog" match="any">
+        <if type="webpage post-weblog post" match="any">
           <group delimiter=", ">
             <text macro="author-cite-web"/>
             <text macro="web-year"/>
@@ -270,140 +365,117 @@
   <bibliography hanging-indent="true" entry-spacing="0" line-spacing="2" et-al-min="11" et-al-use-first="3" delimiter-precedes-et-al="never">
     <sort>
       <key macro="bib-sort-author"/>
-      <key variable="issued"/>
-      <key variable="year-suffix"/>
+      <key macro="bib-year-sort"/>
       <key variable="title"/>
     </sort>
     <layout>
       <choose>
         <!-- Journal articles -->
         <if type="article-journal">
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
+          <text macro="bib-author-year" suffix=". "/>
           <text macro="title" suffix=". "/>
           <text macro="container-title-short-or-long" suffix=" "/>
           <group delimiter=", ">
-            <text macro="vol-issue-pages"/>
+            <text macro="vol-pages"/>
             <text macro="doi-url"/>
           </group>
         </if>
         <!-- Chapters / proceedings papers -->
-        <else-if type="chapter paper-conference" match="any">
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
-          <text macro="title" suffix=". "/>
-          <text value="In: "/>
-          <text macro="editors-in" suffix=". "/>
-          <text variable="container-title" suffix=". "/>
-          <choose>
-            <if variable="event-title">
-              <text variable="event-title" suffix=". "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="event-place">
-              <text variable="event-place" suffix=". "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="collection-title">
-              <group delimiter=" " suffix=". ">
-                <text variable="collection-title"/>
-                <choose>
-                  <if variable="number">
-                    <text value="No. "/>
-                    <text variable="number"/>
-                  </if>
-                </choose>
-              </group>
-            </if>
-          </choose>
-          <choose>
-            <if variable="publisher">
-              <choose>
-                <if variable="publisher-place">
-                  <text variable="publisher" suffix=". "/>
-                  <text variable="publisher-place" suffix=", "/>
-                </if>
-                <else>
-                  <text variable="publisher" suffix=", "/>
-                </else>
-              </choose>
-            </if>
-          </choose>
-          <choose>
-            <if variable="page">
-              <text variable="page" prefix="pp. "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="DOI URL" match="any">
-              <text macro="doi-url-both" prefix=", "/>
-            </if>
-          </choose>
-        </else-if>
+		<else-if type="chapter paper-conference" match="any">
+		  <text macro="bib-author-year" suffix=". "/>
+		  <text macro="title" suffix=". "/>
+
+		  <group delimiter=": " suffix=". ">
+			<text term="in" text-case="capitalize-first"/>
+			<text macro="editors-in"/>
+		  </group>
+
+		  <text variable="container-title" suffix=". "/>
+		  <text macro="event-title-place"/>
+		  <text macro="collection-title-number"/>
+
+		  <text macro="chapter-tail"/>
+		</else-if>
         <!-- Software / Datasets -->
         <else-if type="software dataset" match="any">
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
+          <text macro="bib-author-year" suffix=". "/>
           <text macro="title"/>
           <choose>
-            <if variable="version">
-              <text variable="version" prefix=". Version "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="publisher">
-              <text variable="publisher" prefix=". "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="DOI">
-              <text macro="doi-url" prefix=", "/>
-            </if>
-            <else-if variable="URL">
-              <text macro="url" prefix=", "/>
-            </else-if>
-          </choose>
+			 <if variable="version">
+			 <group prefix=". " delimiter=" ">
+			 <text term="version" text-case="capitalize-first"/>
+		     <text variable="version"/>
+		    </group>
+		   </if>
+		  </choose>
+			<choose>
+			  <if variable="publisher publisher-place DOI URL" match="any">
+				<group prefix=". " delimiter=", ">
+					<group delimiter=", ">
+					  <text variable="publisher"/>
+					  <text variable="publisher-place"/>
+					</group>				  
+					<choose>
+					<if variable="DOI"><text macro="doi-url"/></if>
+					<else-if variable="URL"><text macro="url"/></else-if>
+				  </choose>
+				</group>
+			  </if>
+			</choose>
         </else-if>
-        <!-- Books / edited volumes -->
-        <else-if type="book">
-          <choose>
-            <if variable="author">
-              <text macro="author-bib" suffix=", "/>
-            </if>
-            <else-if variable="editor">
-              <text macro="editors-bib-head" suffix=", "/>
-            </else-if>
-            <else-if variable="publisher">
-              <text variable="publisher" suffix=", "/>
-            </else-if>
-          </choose>
-          <text macro="issued-year" suffix=". "/>
-          <text variable="title"/>
-          <choose>
-            <if variable="publisher">
-              <text variable="publisher" prefix=". "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="publisher-place">
-              <text variable="publisher-place" prefix=". "/>
-            </if>
-          </choose>
-          <choose>
-            <if variable="DOI">
-              <text macro="doi-url" prefix=", "/>
-            </if>
-            <else-if variable="URL">
-              <text macro="url" prefix=", "/>
-            </else-if>
-          </choose>
-        </else-if>
+		<!-- Books / edited volumes -->
+		<else-if type="book">
+		  <choose>
+			<if variable="author">
+			  <text macro="author-bib" suffix=", "/>
+			</if>
+			<else-if variable="editor">
+			  <text macro="editors-bib-head" suffix=", "/>
+			</else-if>
+			<else-if variable="publisher">
+			  <text variable="publisher" suffix=", "/>
+			</else-if>
+		  </choose>
+
+		  <text macro="issued-year" suffix=". "/>
+		  <text variable="title"/>
+
+		  <choose>
+			<if variable="publisher publisher-place DOI URL" match="any">
+			  <group prefix=". " delimiter=", ">
+				<!-- Publisher + place with DOT (JAFS) -->
+				<choose>
+				  <if variable="publisher publisher-place" match="all">
+					<group delimiter=". ">
+					  <text variable="publisher"/>
+					  <text variable="publisher-place"/>
+					</group>
+				  </if>
+				  <else-if variable="publisher">
+					<text variable="publisher"/>
+				  </else-if>
+				  <else-if variable="publisher-place">
+					<text variable="publisher-place"/>
+				  </else-if>
+				</choose>
+
+				<!-- DOI preferred, otherwise URL -->
+				<choose>
+				  <if variable="DOI">
+					<text macro="doi-url"/>
+				  </if>
+				  <else-if variable="URL">
+					<text macro="url"/>
+				  </else-if>
+				</choose>
+			  </group>
+			</if>
+		  </choose>
+		</else-if>
+
         <!-- Thesis -->
         <else-if type="thesis">
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
+          <text macro="bib-author-year" suffix=". "/>
           <text macro="title" suffix=". "/>
           <choose>
             <if variable="genre">
@@ -421,31 +493,39 @@
             </if>
           </choose>
         </else-if>
-        <!-- Reports / institutional documents -->
-        <else-if type="report">
-          <choose>
-            <if variable="author">
-              <text macro="author-bib" suffix=", "/>
-            </if>
-          </choose>
-          <text macro="issued-year" suffix=". "/>
-          <text macro="title" suffix=". "/>
-          <group delimiter=", ">
-            <text variable="publisher"/>
-            <choose>
-              <if variable="DOI">
-                <text macro="doi-url"/>
-              </if>
-              <else-if variable="URL">
-                <text macro="url"/>
-              </else-if>
-            </choose>
-          </group>
-        </else-if>
+		<!-- Reports / institutional documents -->
+		<else-if type="report">
+		  <choose>
+			<if variable="author">
+			  <text macro="author-bib" suffix=", "/>
+			</if>
+			<else-if variable="publisher">
+			  <text variable="publisher" suffix=", "/>
+			</else-if>
+			<else-if variable="title">
+			  <!-- awaryjnie, gdy nie ma ani author ani publisher -->
+			  <text variable="title" suffix=", "/>
+			</else-if>
+		  </choose>
+
+		  <text macro="issued-year" suffix=". "/>
+		  <text macro="title" suffix=". "/>
+
+		  <group delimiter=", ">
+			<text variable="publisher"/>
+			<choose>
+			  <if variable="DOI">
+				<text macro="doi-url"/>
+			  </if>
+			  <else-if variable="URL">
+				<text macro="url"/>
+			  </else-if>
+			</choose>
+		  </group>
+		</else-if>
         <!-- Legislation -->
         <else-if type="legislation">
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
+          <text macro="bib-author-year" suffix=". "/>
           <text macro="title" suffix=". "/>
           <group delimiter=", ">
             <text variable="container-title"/>
@@ -462,15 +542,23 @@
           </group>
         </else-if>
         <!-- Web pages -->
-        <else-if type="webpage post-weblog" match="any">
-          <text macro="web-bib-head" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
-          <text macro="available-online"/>
-        </else-if>
+		<else-if type="webpage post-weblog post" match="any">
+		  <choose>
+			<if variable="issued accessed" match="any">
+			  <group delimiter=", " suffix=". ">
+				<text macro="web-bib-head"/>
+				<text macro="web-year"/>
+			  </group>
+			</if>
+			<else>
+			  <text macro="web-bib-head" suffix=". "/>
+			</else>
+		  </choose>
+		  <text macro="available-online"/>
+		</else-if>
         <!-- Fallback -->
         <else>
-          <text macro="author-bib" suffix=", "/>
-          <text macro="issued-year" suffix=". "/>
+          <text macro="bib-author-year" suffix=". "/>
           <text macro="title" suffix=". "/>
           <group delimiter=", ">
             <text variable="container-title"/>
