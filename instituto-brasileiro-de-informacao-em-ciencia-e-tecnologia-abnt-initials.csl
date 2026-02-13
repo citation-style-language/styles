@@ -38,25 +38,14 @@
     </contributor>
     <category citation-format="author-date"/>
     <summary>The Brazilian Standard Style by IBICT</summary>
-    <updated>2025-11-12T00:00:00+00:00</updated>
+    <updated>2026-02-02T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <locale xml:lang="pt-BR">
+  <locale xml:lang="pt">
     <terms>
-      <term name="composer">
-        <single>compositor</single>
-        <multiple>compositores</multiple>
-      </term>
       <term name="in">in</term>
-      <term name="interviewer">
-        <single>entrevistador</single>
-        <multiple>entrevistadores</multiple>
-      </term>
       <term name="ordinal">.</term>
-      <term name="recipient">
-        <single>destinatário</single>
-        <multiple>destinatários</multiple>
-      </term>
+      <term name="no-publisher" form="short">s.n.</term>
     </terms>
   </locale>
   <macro name="access">
@@ -167,7 +156,7 @@
   </macro>
   <macro name="container-contributors">
     <choose>
-      <if type="chapter entry-dictionary entry-encyclopedia" match="any">
+      <if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=": ">
           <text term="in" font-style="italic" text-case="capitalize-first"/>
           <names variable="container-author" delimiter=", ">
@@ -178,6 +167,7 @@
             <et-al font-style="italic"/>
             <label form="short" prefix=" (" suffix=".)"/>
             <substitute>
+              <names variable="organizer"/>
               <names variable="editor"/>
               <names variable="collection-editor"/>
               <names variable="container-author"/>
@@ -282,10 +272,17 @@
   <macro name="event">
     <choose>
       <if type="paper-conference" match="any">
-        <group delimiter=": ">
-          <text term="in" font-style="italic" text-case="capitalize-first"/>
-          <text variable="event" text-case="uppercase"/>
-        </group>
+        <choose>
+          <if variable="organizer editor container-author" match="any">
+            <text variable="event" text-case="uppercase"/>
+          </if>
+          <else>
+            <group delimiter=": ">
+              <text term="in" font-style="italic" text-case="capitalize-first"/>
+              <text variable="event" text-case="uppercase"/>
+            </group>
+          </else>
+        </choose>
       </if>
       <else>
         <text variable="event"/>
@@ -294,17 +291,22 @@
     </choose>
   </macro>
   <macro name="guest">
-    <names variable="guest">
-      <label form="long" text-case="capitalize-first" suffix=": "/>
-      <name delimiter=", " sort-separator=" " delimiter-precedes-last="always">
-        <name-part name="given"/>
-        <name-part name="family"/>
-      </name>
-      <et-al font-style="italic"/>
-      <substitute>
+    <choose>
+      <if variable="guest" match="any">
+        <names variable="guest">
+          <label form="long" text-case="capitalize-first" suffix=": "/>
+          <name delimiter=", " sort-separator=" " delimiter-precedes-last="always">
+            <name-part name="given"/>
+            <name-part name="family"/>
+          </name>
+          <et-al font-style="italic"/>
+        </names>
+      </if>
+      <else-if variable="author" match="any"/>
+      <else>
         <text variable="title" text-case="uppercase"/>
-      </substitute>
-    </names>
+      </else>
+    </choose>
   </macro>
   <macro name="issued">
     <choose>
@@ -409,7 +411,7 @@
     </choose>
   </macro>
   <macro name="performer">
-    <text term="performer" form="long" text-case="capitalize-first" suffix=": "/>
+    <text term="performer" form="verb" text-case="capitalize-first" suffix=": "/>
     <names variable="author">
       <name delimiter=", " sort-separator=" " delimiter-precedes-last="always">
         <name-part name="given"/>
@@ -484,9 +486,19 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="article article-newspaper article-magazine article-journal bill chapter entry-dictionary entry-encyclopedia paper-conference webpage" match="any">
+      <if type="article article-newspaper article-magazine article-journal bill chapter paper-conference webpage" match="any">
         <text variable="title"/>
       </if>
+      <else-if type="entry-dictionary entry-encyclopedia" match="any">
+        <choose>
+          <if variable="author container-author collection-editor editor organizer contributor" match="any">
+            <text variable="title" font-weight="bold"/>
+          </if>
+          <else>
+            <text variable="title" text-case="uppercase"/>
+          </else>
+        </choose>
+      </else-if>
       <else-if type="motion_picture song" match="any">
         <text variable="title" text-case="uppercase"/>
       </else-if>
@@ -530,7 +542,7 @@
     </sort>
     <layout suffix=".">
       <choose>
-        <if type="article" match="any">
+        <if type="article">
           <group delimiter=". ">
             <text macro="author"/>
             <text macro="title"/>
@@ -588,51 +600,21 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="broadcast">
+        <else-if type="chapter entry-dictionary entry-encyclopedia" match="any">
           <group delimiter=". ">
             <text macro="author"/>
             <text macro="title"/>
-            <text macro="contributor"/>
-            <text macro="guest"/>
-            <group delimiter=", ">
-              <group delimiter=": ">
-                <text macro="place"/>
-                <!-- Note: Use the Zotero Extra field to insert the place, e.g., Place: Rio de Janeiro. -->
-                <text variable="collection-title"/>
-                <!-- Note: Use the Zotero Series Title field to insert the podcast title or name. -->
-              </group>
-              <text macro="issued"/>
-            </group>
-            <group delimiter=" ">
-              <text macro="medium"/>
-              <text macro="dimensions"/>
-            </group>
-            <text macro="access"/>
-          </group>
-        </else-if>
-        <else-if type="chapter">
-          <group delimiter=". ">
-            <text macro="author"/>
-            <text macro="title"/>
-            <text macro="container-contributors"/>
+            <choose>
+              <if type="chapter" match="any">
+                <text macro="container-contributors"/>
+              </if>
+            </choose>
             <text macro="container-title"/>
-            <text macro="translator"/>
-            <text macro="edition"/>
-            <group delimiter=", ">
-              <text macro="publisher"/>
-              <text macro="issued"/>
-            </group>
-            <text macro="locators"/>
-            <text macro="collection-info"/>
-            <text macro="access"/>
-          </group>
-        </else-if>
-        <else-if type="entry-dictionary entry-encyclopedia" match="any">
-          <group delimiter=". ">
-            <text macro="author"/>
-            <text macro="title"/>
-            <text macro="container-contributors"/>
-            <text macro="container-title"/>
+            <choose>
+              <if type="chapter" match="any">
+                <text macro="translator"/>
+              </if>
+            </choose>
             <text macro="edition"/>
             <group delimiter=", ">
               <text macro="publisher"/>
@@ -655,17 +637,49 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="interview">
+        <else-if type="broadcast">
           <group delimiter=". ">
             <text macro="author"/>
             <text macro="title"/>
             <text macro="contributor"/>
+            <choose>
+              <if variable="guest" match="any">
+                <text macro="guest"/>
+              </if>
+            </choose>
+            <group delimiter=", ">
+              <group delimiter=": ">
+                <text macro="place"/>
+                <text variable="collection-title"/>
+              </group>
+              <text macro="issued"/>
+            </group>
+            <group delimiter=" ">
+              <text macro="medium"/>
+              <text macro="dimensions"/>
+            </group>
+            <text macro="access"/>
+          </group>
+        </else-if>
+        <else-if type="interview software" match="any">
+          <group delimiter=". ">
+            <text macro="author"/>
+            <text macro="title"/>
+            <choose>
+              <if type="interview">
+                <text macro="contributor"/>
+              </if>
+            </choose>
+            <choose>
+              <if type="software">
+                <text macro="locators"/>
+              </if>
+            </choose>
             <group delimiter=", ">
               <text macro="publisher"/>
               <text macro="issued"/>
             </group>
-            <!-- Note: Use the Zotero Extra field to insert the publisher and the place, in case they are available. E.g., Place: Rio de Janeiro. -->
-            <text variable="medium"/>
+            <text macro="medium"/>
             <text macro="access"/>
           </group>
         </else-if>
@@ -696,16 +710,23 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="motion_picture">
+        <else-if type="motion_picture song" match="any">
           <group delimiter=". ">
             <text macro="title"/>
-            <text macro="director"/>
-            <text macro="producer"/>
+            <choose>
+              <if type="motion_picture">
+                <text macro="director"/>
+                <text macro="producer"/>
+              </if>
+              <else>
+                <text macro="composer"/>
+                <text macro="performer"/>
+              </else>
+            </choose>
             <group delimiter=", ">
               <text macro="publisher"/>
               <text macro="issued"/>
             </group>
-            <!-- Note: Use the Zotero Extra field to insert the publisher and the place, in case they are available. E.g., Publisher: Universal; Place: Rio de Janeiro. -->
             <group delimiter=" ">
               <text variable="medium"/>
               <text macro="dimensions"/>
@@ -717,6 +738,7 @@
           <group delimiter=". ">
             <text macro="author"/>
             <text macro="title"/>
+            <text macro="container-contributors"/>
             <text macro="event"/>
             <text macro="issued"/>
             <text macro="container-title"/>
@@ -728,60 +750,18 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="patent">
-          <group delimiter=". ">
-            <text macro="author"/>
-            <text macro="title"/>
-            <text macro="container-contributors"/>
-            <text macro="contributor"/>
-            <text macro="submitted"/>
-            <text macro="issued"/>
-            <text macro="locators"/>
-            <text macro="access"/>
-          </group>
-        </else-if>
         <else-if type="personal_communication">
           <group delimiter=". " suffix=", ">
             <text macro="author"/>
             <text macro="title"/>
             <text macro="contributor"/>
             <text macro="place"/>
-            <!-- Note: Use the Zotero Extra field to insert the publisher and the place, in case they are available. E.g., Place: Rio de Janeiro. -->
           </group>
           <group delimiter=". " suffix=". ">
             <text macro="issued"/>
             <text variable="genre"/>
           </group>
           <text macro="access"/>
-        </else-if>
-        <else-if type="software">
-          <group delimiter=". ">
-            <text macro="author"/>
-            <text macro="title"/>
-            <text macro="locators"/>
-            <group delimiter=", ">
-              <text macro="publisher"/>
-              <text macro="issued"/>
-            </group>
-            <text macro="medium"/>
-            <text macro="access"/>
-          </group>
-        </else-if>
-        <else-if type="song">
-          <group delimiter=". ">
-            <text macro="title"/>
-            <text macro="composer"/>
-            <text macro="performer"/>
-            <group delimiter=", ">
-              <text macro="publisher"/>
-              <text macro="issued"/>
-            </group>
-            <group delimiter=" ">
-              <text variable="medium"/>
-              <text macro="dimensions"/>
-            </group>
-            <text macro="access"/>
-          </group>
         </else-if>
         <else-if type="thesis">
           <group delimiter=". " suffix=". ">
@@ -800,12 +780,24 @@
           </group>
           <text macro="access"/>
         </else-if>
-        <else-if type="webpage post post-weblog">
+        <else-if type="webpage post post-weblog" match="any">
           <group delimiter=". ">
             <text macro="author"/>
             <text macro="title"/>
             <text macro="issued"/>
             <text macro="container-title"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+        <else-if type="patent">
+          <group delimiter=". ">
+            <text macro="author"/>
+            <text macro="title"/>
+            <text macro="container-contributors"/>
+            <text macro="contributor"/>
+            <text macro="submitted"/>
+            <text macro="issued"/>
+            <text macro="locators"/>
             <text macro="access"/>
           </group>
         </else-if>
