@@ -18,10 +18,10 @@ Store a title abbreviation and terms for which users are likely to search in the
 
 ```xml
 <title>Chicago Manual of Style 18th edition (author-date, without URLs)</title>
-<title-short>CMOS with Bluebook (author-date/AD [13.102], no URLs [13.6])</title-short>
+<title-short>CMOS/CMS with Bluebook (author-date/AD [13.102], no URLs [13.6])</title-short>
 ```
 
-The keywords provided here mean, for example, that a search in the repository for `Chicago AD` will return this style.
+The keywords provided here mean, for example, that a search in the repository for `Chicago AD`, `CMOS 13.102`, or `CMS URL` will return this style.
 
 ### Journal Styles
 
