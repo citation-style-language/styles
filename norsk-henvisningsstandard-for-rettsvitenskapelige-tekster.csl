@@ -349,6 +349,115 @@
       </choose>
     </group>
   </macro>
+  <macro name="article-journal-bib">
+    <group delimiter=", ">
+      <text macro="author-full"/>
+      <group delimiter=" ">
+        <text macro="title"/>
+        <text variable="container-title" font-style="italic"/>
+        <text macro="issued-no-parenthesis"/>
+      </group>
+      <group delimiter=" ">
+        <choose>
+          <!-- For journals with continuous issue numbers, with page numbers restarting for each issue (MarIus etc.) -->
+          <if variable="number" match="any">
+            <label variable="number" form="short"/>
+            <text variable="number"/>
+          </if>
+        </choose>
+      </group>
+      <group delimiter=" ">
+        <label variable="page" form="short"/>
+        <text variable="page"/>
+      </group>
+    </group>
+    <text macro="DOI"/>
+    <text macro="retrieved-from"/>
+  </macro>
+  <macro name="article-newspaper-magazine-weblog-bib">
+    <group delimiter=", ">
+      <text macro="author-full"/>
+      <text macro="title"/>
+      <text font-style="italic" variable="container-title"/>
+      <choose>
+        <if variable="issued" match="any">
+          <text macro="issued-full-date"/>
+        </if>
+      </choose>
+      <group delimiter=" ">
+        <choose>
+          <if variable="page" match="any">
+            <label variable="page" form="short"/>
+            <text variable="page"/>
+          </if>
+        </choose>
+        <choose>
+          <if variable="DOI" match="any">
+            <text macro="DOI"/>
+          </if>
+          <else-if variable="URL" match="any">
+            <text variable="URL"/>
+            <text macro="accessed-date"/>
+          </else-if>
+        </choose>
+      </group>
+    </group>
+  </macro>
+  <macro name="webpage-post-bib">
+    <group delimiter=", ">
+      <text macro="author-full"/>
+      <text macro="title"/>
+      <choose>
+        <if variable="URL" match="any">
+          <group>
+            <text variable="URL"/>
+            <text macro="accessed-date"/>
+          </group>
+        </if>
+      </choose>
+    </group>
+  </macro>
+  <macro name="thesis-bib">
+    <group suffix=".">
+      <group delimiter=", ">
+        <text macro="author-full"/>
+        <text macro="title"/>
+        <text macro="volume"/>
+        <text macro="edition-short"/>
+        <text variable="publisher"/>
+        <text macro="issued-full-date"/>
+      </group>
+      <text macro="DOI"/>
+    </group>
+  </macro>
+  <macro name="chapter-encyclopediaentry-conferencepaper-bib">
+    <group delimiter=", ">
+      <text macro="author-full"/>
+      <text macro="title"/>
+      <group delimiter=" ">
+        <text term="in"/>
+        <text variable="container-title" font-style="italic"/>
+      </group>
+      <text macro="editor"/>
+      <text macro="volume"/>
+      <text macro="edition-short"/>
+      <group delimiter=" ">
+        <text variable="publisher"/>
+        <text macro="issued-no-parenthesis"/>
+      </group>
+    </group>
+    <choose>
+      <if variable="DOI" match="any">
+        <text macro="DOI"/>
+      </if>
+      <else-if variable="URL" match="any">
+        <group delimiter=" " prefix=", ">
+          <text variable="URL"/>
+          <text macro="accessed-date"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
   <citation disambiguate-add-givenname="true" givenname-disambiguation-rule="primary-name" disambiguate-add-year-suffix="true" et-al-min="4" et-al-use-first="1">
     <sort>
       <key macro="author-short"/>
@@ -415,6 +524,9 @@
               </else>
             </choose>
           </else-if>
+          <else-if type="webpage post" match="any">
+            <text macro="webpage-post-bib"/>
+          </else-if>
           <else>
             <text variable="title"/>
           </else>
@@ -435,117 +547,19 @@
     <layout>
       <choose>
         <if type="article-journal">
-          <group suffix=".">
-            <group delimiter=", ">
-              <text macro="author-full"/>
-              <group delimiter=" ">
-                <text macro="title"/>
-                <text variable="container-title" font-style="italic"/>
-                <text macro="issued-no-parenthesis"/>
-              </group>
-              <group delimiter=" ">
-                <choose>
-                  <!-- For journals with continous issue numbers, with page numbers restarting for each issue (MarIus etc.) -->
-                  <if variable="number" match="any">
-                    <label variable="number" form="short"/>
-                    <text variable="number"/>
-                  </if>
-                </choose>
-              </group>
-              <group delimiter=" ">
-                <label variable="page" form="short"/>
-                <text variable="page"/>
-              </group>
-            </group>
-            <text macro="DOI"/>
-            <text macro="retrieved-from"/>
-          </group>
+          <text macro="article-journal-bib" suffix="."/>
         </if>
         <else-if type="article-newspaper article-magazine post-weblog" match="any">
-          <group delimiter=", " suffix=".">
-            <text macro="author-full"/>
-            <text macro="title"/>
-            <text font-style="italic" variable="container-title"/>
-            <choose>
-              <if variable="issued" match="any">
-                <text macro="issued-full-date"/>
-              </if>
-            </choose>
-            <group delimiter=" ">
-              <choose>
-                <if variable="page" match="any">
-                  <label variable="page" form="short"/>
-                  <text variable="page"/>
-                </if>
-              </choose>
-              <choose>
-                <if variable="DOI" match="any">
-                  <text macro="DOI"/>
-                </if>
-                <else-if variable="URL" match="any">
-                  <text variable="URL"/>
-                  <text macro="accessed-date"/>
-                </else-if>
-              </choose>
-            </group>
-          </group>
+          <text macro="article-newspaper-magazine-weblog-bib" suffix="."/>
         </else-if>
         <else-if type="webpage post" match="any">
-          <group suffix="." delimiter=", ">
-            <text macro="author-full"/>
-            <text macro="title"/>
-            <choose>
-              <if variable="URL" match="any">
-                <group>
-                  <text variable="URL"/>
-                  <text macro="accessed-date"/>
-                </group>
-              </if>
-            </choose>
-          </group>
+          <text macro="webpage-post-bib" suffix="."/>
         </else-if>
         <else-if type="thesis" match="any">
-          <group suffix=".">
-            <group delimiter=", " suffix=".">
-              <text macro="author-full"/>
-              <text macro="title"/>
-              <text macro="volume"/>
-              <text macro="edition-short"/>
-              <text variable="publisher"/>
-              <text macro="issued-full-date"/>
-            </group>
-            <text macro="DOI"/>
-          </group>
+          <text macro="thesis-bib" suffix="."/>
         </else-if>
         <else-if type="chapter entry-encyclopedia paper-conference" match="any">
-          <group suffix=".">
-            <group delimiter=", ">
-              <text macro="author-full"/>
-              <text macro="title"/>
-              <group delimiter=" ">
-                <text term="in"/>
-                <text variable="container-title" font-style="italic"/>
-              </group>
-              <text macro="editor"/>
-              <text macro="volume"/>
-              <text macro="edition-short"/>
-              <group delimiter=" ">
-                <text variable="publisher"/>
-                <text macro="issued-no-parenthesis"/>
-              </group>
-            </group>
-            <choose>
-              <if variable="DOI" match="any">
-                <text macro="DOI"/>
-              </if>
-              <else-if variable="URL" match="any">
-                <group delimiter=" " prefix=", ">
-                  <text variable="URL"/>
-                  <text macro="accessed-date"/>
-                </group>
-              </else-if>
-            </choose>
-          </group>
+          <text macro="chapter-encyclopediaentry-conferencepaper-bib" suffix="."/>
         </else-if>
         <else-if type="legislation regulation" match="any">
           <group suffix=".">
