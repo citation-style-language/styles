@@ -191,7 +191,7 @@ The style title and ID are stored within the `<title/>` and `<id/>` elements nea
 For example:
 
 ```xml
-<title>American Psychological Association 6th edition</title>
+<title>APA Style 6th edition</title>
 <title-short>APA</title-short>
 <id>http://www.zotero.org/styles/apa</id>
 ```
@@ -199,7 +199,7 @@ For example:
 can be changed to:
 
 ```xml
-<title>American Psychological Association 6th edition - Modified</title>
+<title>APA Style 6th edition - Modified</title>
 <title-short>APA - modified</title-short>
 <id>http://www.zotero.org/styles/apa-modified</id>
 ```
