@@ -30,7 +30,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>The Bluebook legal citation style for law reviews.</summary>
-    <updated>2026-03-14T00:00:00+00:00</updated>
+    <updated>2026-03-29T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale>
@@ -128,11 +128,7 @@
               <text macro="container"/>
               <text variable="page-first"/>
             </group>
-            <choose>
-              <if variable="locator">
-                <text variable="locator"/>
-              </if>
-            </choose>
+            <text variable="locator"/>
           </group>
           <choose>
             <if variable="status">
@@ -153,29 +149,46 @@
         <text macro="statute-citation"/>
       </else-if>
       <else-if type="bill">
-        <group delimiter=", ">
-          <text variable="title"/>
-          <group delimiter=" ">
-            <text value="Pub. L. No."/>
-            <text variable="number"/>
-          </group>
-          <group prefix="§ ">
-            <text variable="section"/>
-          </group>
-          <group delimiter=" ">
-            <text variable="volume"/>
-            <text macro="container"/>
+        <choose>
+          <if variable="number">
             <group delimiter=", ">
-              <text variable="page-first"/>
-              <text variable="locator"/>
+              <text variable="title"/>
+              <group delimiter=" ">
+                <text value="Pub. L. No."/>
+                <text variable="number"/>
+              </group>
+              <text variable="section" prefix="§ "/>
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text macro="container"/>
+                <group delimiter=", ">
+                  <text variable="page-first"/>
+                  <text variable="locator"/>
+                </group>
+              </group>
             </group>
-          </group>
-        </group>
-        <text macro="consec-periodical-issuance" prefix=" (" suffix=")"/>
+            <text macro="consec-periodical-issuance" prefix=" (" suffix=")"/>
+          </if>
+          <else>
+            <text macro="statute-citation"/>
+          </else>
+        </choose>
       </else-if>
       <else-if type="book">
         <text variable="title" text-case="title" font-variant="small-caps"/>
-        <text variable="locator" prefix=" "/>
+        <choose>
+          <if locator="page" match="any">
+            <!-- Page: bare number, no label (Bluebook never uses "p." for books) -->
+            <text variable="locator" prefix=" "/>
+          </if>
+          <else-if variable="locator">
+            <!-- Non-page locator: prefix with appropriate label (§, ch., col., ¶, etc.) -->
+            <group prefix=" ">
+              <label variable="locator" form="short" suffix=" "/>
+              <text variable="locator"/>
+            </group>
+          </else-if>
+        </choose>
         <text macro="issuance" prefix=" (" suffix=")"/>
       </else-if>
       <else-if type="manuscript">
@@ -199,20 +212,32 @@
           <text macro="legal-case-issuance"/>
         </group>
       </else-if>
-      <else-if type="article-newspaper article-magazine thesis" match="any">
+      <else-if type="article-newspaper article-magazine" match="any">
         <group delimiter=", ">
           <text variable="title" text-case="title" font-style="italic"/>
           <text macro="container"/>
           <text macro="periodical-issuance"/>
           <group delimiter=" ">
-            <text value="at"/>
+            <text term="at"/>
             <text variable="page-first"/>
           </group>
-          <choose>
-            <if variable="locator">
-              <text variable="locator"/>
-            </if>
-          </choose>
+          <text variable="locator"/>
+        </group>
+      </else-if>
+      <else-if type="thesis">
+        <!-- Bluebook Rule 17.2.2: Author, Title (year) (Type, Institution). -->
+        <group delimiter=" ">
+          <text variable="title" font-style="italic"/>
+          <text variable="locator" prefix=" "/>
+          <group prefix="(" suffix=")">
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
+          <group prefix="(" suffix=")" delimiter=", ">
+            <text variable="genre"/>
+            <text variable="publisher"/>
+          </group>
         </group>
       </else-if>
       <else-if type="chapter paper-conference" match="any">
@@ -233,19 +258,39 @@
         </group>
       </else-if>
       <else-if type="report">
-        <group delimiter=" ">
-          <text variable="title" text-case="title" font-variant="small-caps"/>
-          <group prefix="§ " delimiter=" ">
-            <text variable="number"/>
-            <text variable="locator"/>
-          </group>
-          <group prefix="(" suffix=")" delimiter=" ">
-            <text variable="publisher"/>
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
+        <group delimiter=", ">
+          <text variable="title"/>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text macro="container"/>
+            <group delimiter=", ">
+              <text variable="page-first"/>
+              <text variable="locator"/>
+            </group>
           </group>
         </group>
+        <choose>
+          <if variable="status">
+            <group prefix=" (" suffix=")">
+              <text variable="status" suffix=" "/>
+              <date variable="issued">
+                <date-part name="month" form="short" suffix=" "/>
+                <date-part name="day" suffix=", "/>
+                <date-part name="year"/>
+              </date>
+            </group>
+          </if>
+          <else-if variable="issued">
+            <group prefix=" (" suffix=")">
+              <date variable="issued">
+                <date-part name="month" form="short" suffix=" "/>
+                <date-part name="day" suffix=", "/>
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else-if>
+        </choose>
+        <text variable="note" prefix=" (" suffix=")"/>
       </else-if>
       <else>
         <group delimiter=" ">
@@ -350,7 +395,7 @@
   </macro>
   <macro name="at_page">
     <group delimiter=" ">
-      <text value="at"/>
+      <text term="at"/>
       <text variable="locator"/>
     </group>
   </macro>
@@ -403,15 +448,9 @@
                 <text macro="author-short"/>
                 <group>
                   <text value="supra" font-style="italic" suffix=" "/>
-                  <text value="note" suffix=" "/>
+                  <text term="note" suffix=" "/>
                   <text variable="first-reference-note-number"/>
-                  <group>
-                    <choose>
-                      <if match="any" variable="locator">
-                        <text variable="locator" prefix=" at "/>
-                      </if>
-                    </choose>
-                  </group>
+                  <text variable="locator" prefix=" at "/>
                 </group>
               </group>
             </if>
@@ -431,11 +470,24 @@
               </group>
             </else-if>
             <else-if type="report" match="any">
-              <group delimiter=" ">
-                <text macro="author-short"/>
-                <group prefix="§ " delimiter=" ">
-                  <text variable="number"/>
-                  <text variable="locator"/>
+              <!-- Short cite: Title, vol Container at locator/page -->
+              <!-- e.g., Importation of Fruits and Vegetables, 60 Fed. Reg. at 50381 -->
+              <group delimiter=", ">
+                <text variable="title"/>
+                <group delimiter=" ">
+                  <text variable="volume"/>
+                  <text macro="container"/>
+                  <group>
+                    <text term="at" suffix=" "/>
+                    <choose>
+                      <if variable="locator">
+                        <text variable="locator"/>
+                      </if>
+                      <else>
+                        <text variable="page-first"/>
+                      </else>
+                    </choose>
+                  </group>
                 </group>
               </group>
             </else-if>
@@ -456,7 +508,7 @@
                         <text variable="volume" suffix=" "/>
                         <text variable="container-title"/>
                         <group>
-                          <text value="at" prefix=" " suffix=" "/>
+                          <text term="at" prefix=" " suffix=" "/>
                           <choose>
                             <if match="any" variable="locator">
                               <text variable="locator"/>
@@ -470,7 +522,7 @@
                     </if>
                     <else>
                       <text value="supra" font-style="italic"/>
-                      <text value="note"/>
+                      <text term="note"/>
                       <text variable="first-reference-note-number"/>
                       <text macro="at_page"/>
                     </else>
@@ -492,9 +544,7 @@
             </group>
             <group delimiter="">
               <text macro="source"/>
-              <group>
-                <text macro="access"/>
-              </group>
+              <text macro="access"/>
             </group>
           </group>
         </else>
