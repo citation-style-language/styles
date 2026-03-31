@@ -61,13 +61,6 @@ jobs:
           ruby-version: 3.3.6
           bundler-cache: true
 
-      - name: Check if the user is a contributor
-        run: |
-          contributors=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/contributors" | jq -r '.[].login')
-          if echo "$contributors" | grep -q "${{ github.event.sender.login }}"; then
-            echo "contributor=--contributor" >> $GITHUB_ENV
-          fi
-
       - name: Welcome to a new PR
         if: github.event.action == 'opened' && steps.changed.outputs.style == 'true'
         run: bundle exec sheldon --token=$GITHUB_TOKEN --welcome
@@ -76,8 +69,8 @@ jobs:
         run: bundle exec rake
 
       - name: report
-        if: (failure() || success()) && steps.changed.outputs.style == 'true'
-        run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose ${{ env.contributor }}
+        if: always() && steps.changed.outputs.style == 'true'
+        run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose ${{ contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association) && '--contributor' || '' }}
 
       - name: commit reindented styles
         if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true'
