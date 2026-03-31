@@ -1,0 +1,44 @@
+name: Validate XML
+
+on:
+  pull_request:
+    paths:
+      - "**/*.csl"
+  push:
+    branches:
+      - master
+    paths:
+      - "**/*.csl"
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-xml:
+    if: github.event_name != 'schedule' || github.repository == 'citation-style-language/styles'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate changed CSL styles
+        if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+        uses: adunning/xml-model-validator@v2
+        with:
+          changed_files_only: true
+          xml_model_rule_extension: csl
+          xml_model_declarations: |
+            href="https://raw.githubusercontent.com/citation-style-language/schema/refs/heads/master/schemas/styles/csl-repository.rnc" type="application/relax-ng-compact-syntax"
+            href="https://raw.githubusercontent.com/citation-style-language/schema/refs/heads/master/schemas/styles/csl.sch" schematypens="http://purl.oclc.org/dsdl/schematron"
+
+      - name: Validate full CSL repository
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: adunning/xml-model-validator@v2
+        with:
+          xml_model_rule_extension: csl
+          xml_model_declarations: |
+            href="https://raw.githubusercontent.com/citation-style-language/schema/refs/heads/master/schemas/styles/csl-repository.rnc" type="application/relax-ng-compact-syntax"
+            href="https://raw.githubusercontent.com/citation-style-language/schema/refs/heads/master/schemas/styles/csl.sch" schematypens="http://purl.oclc.org/dsdl/schematron"
