@@ -36,10 +36,13 @@
       <name>Andrew Dunning</name>
       <uri>https://orcid.org/0000-0003-0464-5036</uri>
     </contributor>
+    <contributor>
+      <name>Matthew B. Quintana</name>
+    </contributor>
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2025-05-09T12:18:25+00:00</updated>
+    <updated>2026-04-01T12:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -441,7 +444,8 @@
   <macro name="collection-title">
     <choose>
       <if variable="volume number-of-volumes" match="any">
-        <!-- Presence of Volume info indicates multivolume work rather than series -->
+        <!-- Presence of volume/number-of-volumes: series renders plain (not italic). -->
+        <!-- volume-title is handled in locators-note; only series output here. -->
         <choose>
           <!--This section required here rather than in title-note because the group delimiter inserts an unneeded comma otherwise-->
           <if type="chapter" variable="container-title" match="all">
@@ -456,7 +460,8 @@
             </group>
           </else-if>
         </choose>
-        <text variable="collection-title" form="short" text-case="title" font-style="italic"/>
+        <!-- Render series plain (no italics) when volume info is present -->
+        <text variable="collection-title" form="short" text-case="title"
         <text variable="collection-number" prefix=" "/>
       </if>
       <else>
@@ -468,7 +473,8 @@
   <macro name="collection-title-note">
     <choose>
       <if variable="volume number-of-volumes" match="any">
-        <!-- Presence of Volume info indicates multivolume work rather than series -->
+        <!-- Presence of volume/number-of-volumes: series renders plain (not italic). -->
+        <!-- volume-title is handled in the locators macro; only series output here. -->
         <choose>
           <!-- This section required here rather than in title-note because the group delimiter inserts an unneeded comma otherwise-->
           <if type="chapter paper-conference" match="any">
@@ -479,7 +485,8 @@
             </choose>
           </if>
         </choose>
-        <text variable="collection-title" form="short" text-case="title" font-style="italic"/>
+        <!-- Render series plain (no italics) when volume info is present -->
+        <text variable="collection-title" form="short" text-case="title"
         <text variable="collection-number" prefix=" "/>
       </if>
       <else>
@@ -507,6 +514,17 @@
                 </if>
               </choose>
             </if>
+            <!-- Scenario B: chapter in multivolume container, no volume-title. 
+            Prepend "vol. N of" before the italic container title in the bibliography. See SBLHS 6.2.22 -->
+            <else-if type="chapter" variable="volume container-title" match="all">
+              <choose>
+                <if variable="volume-title" match="none">
+                  <text term="volume" form="short" suffix=" "/>
+                  <number variable="volume"/>
+                  <text value="of" suffix=" "/>
+                </if>
+              </choose>
+            </else-if>
           </choose>
         </group>
       </if>
@@ -558,20 +576,41 @@
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group delimiter=", ">
-          <!--Repositioned Edition to proceed volume-->
-          <text macro="edition-note"/>
           <choose>
             <if variable="volume">
               <!--If volume-->
               <choose>
-                <if type="book" variable="collection-title" match="all">
-                  <!--SBL 6.2.21-->
+                <if type="book" variable="volume-title" match="all">
+                  <!-- Scenario A: book with individual volume title in a multivolume set.
+                      Render: vol. N of *Volume Title* — series follows separately via collection-title-note. -->
+                  <group>
+                    <text term="volume" form="short" suffix=" "/>
+                    <number variable="volume" form="numeric"/>
+                    <text value=" of "/>
+                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  </group>
+                </if>
+                <else-if type="book" variable="collection-title" match="all">
+                  <!--SBL 6.2.21: book vol. N of *Series* — now series is plain, emitted by collection-title-note -->
                   <group>
                     <text term="volume" form="short" suffix=" "/>
                     <number variable="volume" form="numeric"/>
                     <text value=" of"/>
                   </group>
-                </if>
+                </else-if>
+                <else-if type="chapter" variable="volume-title" match="all">
+                  <!-- Scenario A variant for chapter: vol. N of *Volume Title* -->
+                  <group>
+                    <text term="volume" form="short" suffix=" "/>
+                    <number variable="volume" form="numeric"/>
+                    <text value=" of "/>
+                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  </group>
+                </else-if>
+                <else-if type="chapter" variable="container-title" match="all">
+                  <!-- Scenario B: chapter in a multivolume container, no volume-title.
+                      Suppress "vol. N of" here — volume number moves to paginate pages. -->
+                </else-if>
                 <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
                   <group>
@@ -588,12 +627,25 @@
                 </else-if>
               </choose>
             </if>
-            <else>
-              <group>
-                <number variable="number-of-volumes" form="numeric"/>
-                <text term="volume" form="short" prefix=" " plural="true"/>
-              </group>
-            </else>
+          </choose>
+          <text macro="edition-note"/>
+          <choose>
+            <if variable="number-of-volumes">
+              <choose>
+                <if variable="volume" match="none">
+                  <group>
+                    <number variable="number-of-volumes" form="numeric"/>
+                    <text term="volume" form="short" prefix=" " plural="true"/>
+                  </group>
+                </if>
+                <else-if type="book" variable="volume-title" match="all">
+                  <group>
+                    <number variable="number-of-volumes" form="numeric"/>
+                    <text term="volume" form="short" prefix=" " plural="true"/>
+                  </group>
+                </else-if>
+              </choose>
+            </if>
           </choose>
         </group>
       </if>
@@ -609,20 +661,41 @@
       </if>
       <else-if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="any">
         <group prefix=". " delimiter=". ">
-          <!--Repositioned Edition to proceed volume-->
-          <text macro="edition"/>
           <choose>
             <if variable="volume">
               <!--If volume-->
               <choose>
-                <if type="book" variable="collection-title" match="all">
-                  <!--SBL 6.2.21-->
+                <if type="book" variable="volume-title" match="all">
+                  <!-- Scenario A: book with individual volume title.
+                      Render: Vol. N of *Volume Title* — series follows separately. -->
+                  <group>
+                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                    <number variable="volume" form="numeric"/>
+                    <text value=" of "/>
+                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  </group>
+                </if>
+                <else-if type="book" variable="collection-title" match="all">
+                  <!--SBL 6.2.21: book vol. N of *Series* — series now plain, emitted by collection-title -->
                   <group>
                     <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
                     <number variable="volume" form="numeric"/>
                     <text value=" of"/>
                   </group>
-                </if>
+                </else-if>
+                <else-if type="chapter" variable="volume-title" match="all">
+                  <!-- Scenario A variant for chapter: Vol. N of *Volume Title* -->
+                  <group>
+                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                    <number variable="volume" form="numeric"/>
+                    <text value=" of "/>
+                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  </group>
+                </else-if>
+                <else-if type="chapter" variable="container-title" match="all">
+                  <!-- Scenario B: chapter in multivolume container, no volume-title.
+                      Suppress here — "vol. N of" is prepended to container-title in the bib layout. -->
+                </else-if>
                 <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
                   <group>
@@ -639,12 +712,25 @@
                 </else-if>
               </choose>
             </if>
-            <else>
-              <group>
-                <number variable="number-of-volumes" form="numeric"/>
-                <text term="volume" form="short" prefix=" " plural="true"/>
-              </group>
-            </else>
+          </choose>
+          <text macro="edition"/>
+          <choose>
+            <if variable="number-of-volumes">
+              <choose>
+                <if variable="volume" match="none">
+                  <group>
+                    <number variable="number-of-volumes" form="numeric"/>
+                    <text term="volume" form="short" prefix=" " plural="true"/>
+                  </group>
+                </if>
+                <else-if type="book" variable="volume-title" match="all">
+                  <group>
+                    <number variable="number-of-volumes" form="numeric"/>
+                    <text term="volume" form="short" prefix=" " plural="true"/>
+                  </group>
+                </else-if>
+              </choose>
+            </if>
           </choose>
         </group>
       </else-if>
@@ -959,8 +1045,19 @@
           <if variable="volume">
             <choose>
               <if type="chapter" variable="container-title" match="all">
-                <!--Filter SBL 6.2.23-->
-                <text variable="page" prefix=", "/>
+                <!-- Scenario B: chapter in a multivolume container.
+                     If volume-title is absent, volume number paginates the pages as vol:pages.
+                     If volume-title is present (Scenario A variant), revert to plain page. -->
+                <choose>
+                  <if variable="volume-title">
+                    <text variable="page" prefix=", "/>
+                  </if>
+                  <else>
+                    <!-- vol:pages format per SBL 6.2.22 for multivolume container chapters -->
+                    <number variable="volume" prefix=", " suffix=":"/>
+                    <text variable="page"/>
+                  </else>
+                </choose>
               </if>
               <else-if type="chapter" variable="collection-title" position="subsequent" match="all">
                 <!--Filter SBL 6.2.22-->
@@ -1240,8 +1337,8 @@
             <choose>
               <if variable="volume collection-title" match="all">
                 <!--If Volume # and collection-title -->
-                <group delimiter=" ">
-                  <!--Added group to prevent comma between vol # of...and collection-title-->
+                <group delimiter=", ">
+                  <!--Use comma between locator phrase and series title (vol # of ..., collection-title). Necessary for citing a multivolume work that along belongs to a series-->
                   <text macro="locators-note"/>
                   <text macro="collection-title-note"/>
                 </group>
@@ -1298,9 +1395,9 @@
           </group>
           <choose>
             <if variable="volume collection-title" match="all">
-              <!--If Volume # and collection-title -->
+              <!--If Volume # and collection-title, use period between locator phrase and series title (Vol # of ... . collection-title). Necessary for citing a multivolume work that along belongs to a series -->
               <text macro="locators"/>
-              <text macro="collection-title" text-case="title" prefix=" "/>
+              <text macro="collection-title" text-case="title" prefix=". "/>
             </if>
             <else>
               <text macro="locators"/>
