@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" page-range-format="chicago" default-locale="en-US">
   <info>
-    <title>SBL Handbook of Style 2nd edition (notes)</title>
-    <title-short>Society of Biblical Literature (SBLHS)</title-short>
-    <id>http://www.zotero.org/styles/society-of-biblical-literature-fullnote-bibliography</id>
+    <title>SBL Handbook of Style 2nd edition (notes)-xyz</title>
+    <title-short>Society of Biblical Literature (SBLHS)-xyz</title-short>
+    <id>http://www.zotero.org/styles/society-of-biblical-literature-fullnote-bibliography-xyz</id>
     <link href="http://www.zotero.org/styles/society-of-biblical-literature-fullnote-bibliography" rel="self"/>
     <link href="http://www.zotero.org/styles/chicago-notes-bibliography" rel="template"/>
     <link href="https://sblhs2.com" rel="documentation"/>
@@ -38,11 +38,12 @@
     </contributor>
     <contributor>
       <name>Matthew B. Quintana</name>
+      <email>matt.quintana7@gmail.com</email>
     </contributor>
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2026-04-01T12:00:00+00:00</updated>
+    <updated>2026-04-21T12:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -153,18 +154,32 @@
     </names>
   </macro>
   <macro name="collection-editor-note">
-    <names variable="collection-editor">
-      <label form="verb-short" suffix=" "/>
-      <name and="text" sort-separator=", " delimiter=", "/>
-    </names>
+    <choose>
+      <if type="book chapter" variable="volume-title collection-editor" match="all">
+        <!-- Suppress here: for book + volume-title cases, collection-editor is emitted inside locators-note -->
+      </if>
+      <else>
+        <names variable="collection-editor">
+          <label form="verb-short" suffix=" "/>
+          <name and="text" sort-separator=", " delimiter=", "/>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="collection-editor">
-    <group delimiter=", " prefix=". ">
-      <names variable="collection-editor" delimiter=", ">
-        <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
-        <name and="text" delimiter=", "/>
-      </names>
-    </group>
+    <choose>
+      <if type="book chapter" variable="volume-title collection-editor" match="all">
+        <!-- Suppress here: for book + volume-title cases, collection-editor is emitted inside locators -->
+      </if>
+      <else>
+        <group delimiter=", " prefix=". ">
+          <names variable="collection-editor" delimiter=", ">
+            <label form="verb" prefix=" " text-case="capitalize-first" suffix=" "/>
+            <name and="text" delimiter=", "/>
+          </names>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="translator-note">
     <names variable="translator">
@@ -453,10 +468,10 @@
           </if>
           <else-if type="chapter" variable="collection-title" match="all">
             <!--Filter SBL 6.2.22-->
-            <group>
-              <text term="volume" form="short" suffix=" "/>
+            <group delimiter=" ">
+              <label variable="volume" form="short"/>
               <number variable="volume" form="numeric"/>
-              <text value=" of "/>
+              <text value="of"/>
             </group>
           </else-if>
         </choose>
@@ -495,33 +510,39 @@
       </else>
     </choose>
   </macro>
-  <macro name="container-title">
+<macro name="container-title">
     <choose>
       <!-- Added dictionary and encyclopedia to get page and volume information-->
       <if type="chapter paper-conference entry-dictionary entry-encyclopedia" match="any">
         <group delimiter=" " suffix=" ">
-          <label variable="page" form="long" text-case="capitalize-first"/>
-          <text variable="page"/>
+          <group delimiter=" ">
+            <label variable="page" form="long" text-case="capitalize-first"/>
+            <text variable="page"/>
+          </group>
           <text term="in"/>
           <choose>
             <!-- Added dictionary and encyclopedia to get volume information-->
             <if type="entry-dictionary entry-encyclopedia" match="any">
               <choose>
                 <if match="any" variable="volume">
-                  <label suffix=" " variable="volume" form="short"/>
-                  <number variable="volume"/>
-                  <text value="of" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short"/>
+                    <number variable="volume"/>
+                    <text value="of"/>
+                  </group>
                 </if>
               </choose>
             </if>
-            <!-- Scenario B: chapter in multivolume container, no volume-title. 
+            <!-- Scenario B: chapter in multivolume container, no volume-title.
             Prepend "vol. N of" before the italic container title in the bibliography. See SBLHS 6.2.22 -->
             <else-if type="chapter" variable="volume container-title" match="all">
               <choose>
                 <if variable="volume-title" match="none">
-                  <text term="volume" form="short" suffix=" "/>
-                  <number variable="volume"/>
-                  <text value="of" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short"/>
+                    <number variable="volume"/>
+                    <text value="of"/>
+                  </group>
                 </if>
               </choose>
             </else-if>
@@ -582,46 +603,59 @@
               <choose>
                 <if type="book" variable="volume-title" match="all">
                   <!-- Scenario A: book with individual volume title in a multivolume set.
-                      Render: vol. N of *Volume Title* &#8212; series follows separately via collection-title-note. -->
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                    <text value=" of "/>
-                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                      Render: vol. N of *Volume Title*; if present, collection-editor follows here;
+                      total number of volumes follows after that. -->
+                  <group delimiter=", ">
+                    <group delimiter=" ">
+                      <label variable="volume" form="short"/>
+                      <number variable="volume" form="numeric"/>
+                      <text value="of"/>
+                      <text variable="volume-title" font-style="italic" text-case="title"/>
+                    </group>
+                    <names variable="collection-editor">
+                      <label form="verb-short" suffix=" "/>
+                      <name and="text" sort-separator=", " delimiter=", "/>
+                    </names>
                   </group>
                 </if>
                 <else-if type="book" variable="collection-title" match="all">
-                  <!--SBL 6.2.21: book vol. N of *Series* &#8212; now series is plain, emitted by collection-title-note -->
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
+                  <!--SBL 6.2.21: book vol. N of *Series* — series is plain, emitted by collection-title-note -->
+                  <group delimiter=" ">
+                    <label variable="volume" form="short"/>
                     <number variable="volume" form="numeric"/>
-                    <text value=" of"/>
+                    <text value="of"/>
                   </group>
                 </else-if>
                 <else-if type="chapter" variable="volume-title" match="all">
                   <!-- Scenario A variant for chapter: vol. N of *Volume Title* -->
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                    <text value=" of "/>
-                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  <group delimiter=", ">
+                    <group delimiter=" ">
+                      <label variable="volume" form="short"/>
+                      <number variable="volume" form="numeric"/>
+                      <text value="of"/>
+                      <text variable="volume-title" font-style="italic" text-case="title"/>
+                    </group>
+                    <names variable="collection-editor">
+                      <label form="verb-short" suffix=" "/>
+                      <name and="text" sort-separator=", " delimiter=", "/>
+                    </names>
                   </group>
                 </else-if>
                 <else-if type="chapter" variable="container-title" match="all">
                   <!-- Scenario B: chapter in a multivolume container, no volume-title.
-                      Suppress "vol. N of" here &#8212; volume number moves to paginate pages. -->
+                      Suppress "vol. N of" here — volume number moves to paginate pages. -->
                 </else-if>
                 <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short"/>
                     <number variable="volume" form="numeric"/>
-                    <text value=" of"/>
+                    <text value="of"/>
                   </group>
                 </else-if>
                 <else-if variable="locator page" match="none">
-                  <group>
-                    <text term="volume" form="short" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short"/>
                     <number variable="volume" form="numeric"/>
                   </group>
                 </else-if>
@@ -633,15 +667,15 @@
             <if variable="number-of-volumes">
               <choose>
                 <if variable="volume" match="none">
-                  <group>
+                  <group delimiter=" ">
                     <number variable="number-of-volumes" form="numeric"/>
-                    <text term="volume" form="short" prefix=" " plural="true"/>
+                    <label variable="number-of-volumes" form="short" plural="always"/>
                   </group>
                 </if>
                 <else-if type="book" variable="volume-title" match="all">
-                  <group>
+                  <group delimiter=" ">
                     <number variable="number-of-volumes" form="numeric"/>
-                    <text term="volume" form="short" prefix=" " plural="true"/>
+                    <label variable="number-of-volumes" form="short" plural="always"/>
                   </group>
                 </else-if>
               </choose>
@@ -667,46 +701,61 @@
               <choose>
                 <if type="book" variable="volume-title" match="all">
                   <!-- Scenario A: book with individual volume title.
-                      Render: Vol. N of *Volume Title* &#8212; series follows separately. -->
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                    <text value=" of "/>
-                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                      Render: Vol. N of *Volume Title*; if present, collection-editor follows here;
+                      total number of volumes follows after that. -->
+                  <group delimiter=". ">
+                    <group delimiter=". ">
+                      <group delimiter=" ">
+                        <label variable="volume" form="short" text-case="capitalize-first"/>
+                        <number variable="volume" form="numeric"/>
+                        <text value="of"/>
+                        <text variable="volume-title" font-style="italic" text-case="title"/>
+                      </group>
+                      <names variable="collection-editor">
+                        <label form="verb" text-case="capitalize-first" suffix=" "/>
+                        <name and="text" delimiter=", "/>
+                      </names>
+                    </group>
                   </group>
                 </if>
                 <else-if type="book" variable="collection-title" match="all">
-                  <!--SBL 6.2.21: book vol. N of *Series* &#8212; series now plain, emitted by collection-title -->
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                  <!--SBL 6.2.21: book vol. N of *Series* — series now plain, emitted by collection-title -->
+                  <group delimiter=" ">
+                    <label variable="volume" form="short" text-case="capitalize-first"/>
                     <number variable="volume" form="numeric"/>
-                    <text value=" of"/>
+                    <text value="of"/>
                   </group>
                 </else-if>
                 <else-if type="chapter" variable="volume-title" match="all">
                   <!-- Scenario A variant for chapter: Vol. N of *Volume Title* -->
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-                    <number variable="volume" form="numeric"/>
-                    <text value=" of "/>
-                    <text variable="volume-title" font-style="italic" text-case="title"/>
+                  <group delimiter=". ">
+                    <group delimiter=" ">
+                      <label variable="volume" form="short" text-case="capitalize-first"/>
+                      <number variable="volume" form="numeric"/>
+                      <text value="of"/>
+                      <text variable="volume-title" font-style="italic" text-case="title"/>
+                    </group>
+                    <names variable="collection-editor">
+                      <label form="verb" text-case="capitalize-first" suffix=" "/>
+                      <name and="text" delimiter=", "/>
+                    </names>
                   </group>
                 </else-if>
                 <else-if type="chapter" variable="container-title" match="all">
                   <!-- Scenario B: chapter in multivolume container, no volume-title.
-                      Suppress here &#8212; "vol. N of" is prepended to container-title in the bib layout. -->
+                      Suppress here — "vol. N of" is prepended to container-title in the bib layout. -->
                 </else-if>
                 <else-if type="chapter" variable="collection-title" match="all">
                   <!--SBL 6.2.23-->
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short" text-case="capitalize-first"/>
                     <number variable="volume" form="numeric"/>
-                    <text value=" of"/>
+                    <text value="of"/>
                   </group>
                 </else-if>
                 <else-if variable="locator page" match="none">
-                  <group>
-                    <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
+                  <group delimiter=" ">
+                    <label variable="volume" form="short" text-case="capitalize-first"/>
                     <number variable="volume" form="numeric"/>
                   </group>
                 </else-if>
@@ -718,15 +767,15 @@
             <if variable="number-of-volumes">
               <choose>
                 <if variable="volume" match="none">
-                  <group>
+                  <group delimiter=" ">
                     <number variable="number-of-volumes" form="numeric"/>
-                    <text term="volume" form="short" prefix=" " plural="true"/>
+                    <label variable="number-of-volumes" form="short" plural="always"/>
                   </group>
                 </if>
                 <else-if type="book" variable="volume-title" match="all">
-                  <group>
+                  <group delimiter=" ">
                     <number variable="number-of-volumes" form="numeric"/>
-                    <text term="volume" form="short" prefix=" " plural="true"/>
+                    <label variable="number-of-volumes" form="short" plural="always"/>
                   </group>
                 </else-if>
               </choose>
@@ -736,9 +785,9 @@
       </else-if>
       <!-- Added dictionary and encyclopedia to properly display volume information-->
       <else-if type="entry-dictionary entry-encyclopedia" match="any">
-        <group prefix=". ">
+        <group prefix=". " delimiter=" ">
           <number variable="number-of-volumes" form="numeric"/>
-          <text term="volume" form="short" prefix=" " plural="true"/>
+          <label variable="number-of-volumes" form="short" plural="always"/>
         </group>
       </else-if>
     </choose>
