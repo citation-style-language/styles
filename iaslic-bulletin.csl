@@ -30,32 +30,32 @@
         <single>Ed.</single>
         <multiple>Ed.</multiple>
       </term>
+      <term name="edition" form="short">ed.</term>
       <term name="page" form="short">p</term>
       <term name="number-of-pages" form="short">p</term>
     </terms>
   </locale>
-  <macro name="author">
-    <choose>
-      <if variable="author">
-        <names variable="author">
-          <name delimiter=", " and="text" name-as-sort-order="all">
-            <name-part name="family" text-case="uppercase"/>
-            <name-part name="given" prefix=" (" suffix=")"/>
-          </name>
-          <label form="short" prefix=" (" suffix=")"/>
-        </names>
-      </if>
-      <else-if variable="editor">
-        <names variable="editor">
-          <name delimiter=", " and="text" name-as-sort-order="all">
-            <name-part name="family" text-case="uppercase"/>
-            <name-part name="given" prefix=" (" suffix=")"/>
-          </name>
-        </names>
-        <text term="editor" form="short" prefix=", " font-style="italic"/>
-      </else-if>
-    </choose>
-  </macro>
+ <macro name="author">
+  <names variable="author">
+    <name delimiter=", " and="text" name-as-sort-order="all">
+      <name-part name="family" text-case="uppercase"/>
+      <name-part name="given" prefix=" (" suffix=")"/>
+    </name>
+    <substitute>
+      <names variable="editor"/>
+    </substitute>
+  </names>
+</macro>
+  <macro name="retrieved-date">
+  <group font-style="italic">
+    <text term="retrieved" prefix="(" suffix=" "/>
+    <date variable="accessed" suffix=").">
+      <date-part name="month" form="short"/>
+      <date-part name="day" prefix=" "/>
+      <date-part name="year" prefix=", "/>
+    </date>
+  </group>
+</macro>
   <macro name="editor">
     <names variable="editor">
       <name form="long" name-as-sort-order="all" delimiter=" and ">
@@ -70,16 +70,10 @@
       <if type="book article-newspaper entry-dictionary entry-encyclopedia" match="any">
         <text variable="title" font-style="italic"/>
       </if>
-      <else-if type="chapter paper-conference" match="any">
-        <text variable="title"/>
-      </else-if>
       <else>
         <text variable="title"/>
       </else>
     </choose>
-  </macro>
-  <macro name="container-title">
-    <text variable="container-title" font-style="italic"/>
   </macro>
   <macro name="issued">
     <date variable="issued">
@@ -87,17 +81,20 @@
     </date>
   </macro>
   <macro name="edition">
-    <text variable="edition" suffix=" ed."/>
+    <group delimiter=" ">
+      <text variable="edition"/>
+      <label variable="edition" form="short"/>
+    </group>
   </macro>
   <macro name="in-book-iaslic">
-    <text value="In : " font-style="italic"/>
+   <text term="in" text-case="capitalize-first" font-style="italic" suffix=" : "/>
     <names variable="editor" suffix=", ">
       <name form="long" name-as-sort-order="all" delimiter=" and ">
         <name-part name="family" text-case="uppercase"/>
         <name-part name="given" prefix=" (" suffix=")"/>
       </name>
+      <label form="short" plural="never" prefix=", " text-case="capitalize-first" font-style="italic"/>
     </names>
-    <text term="editor" form="short" text-case="capitalize-first" font-style="italic"/>
     <text variable="container-title" font-style="italic" prefix=" " suffix=". "/>
     <text macro="volume"/>
     <text macro="issued" prefix=" " suffix=". "/>
@@ -112,15 +109,21 @@
     </group>
   </macro>
   <macro name="pages">
-    <choose>
-      <if variable="number-of-pages">
-        <text variable="number-of-pages" prefix="p" suffix="."/>
-      </if>
-      <else>
-        <text variable="page" prefix="p" suffix="."/>
-      </else>
-    </choose>
-  </macro>
+  <choose>
+    <if variable="number-of-pages">
+      <group delimiter="">
+        <label variable="number-of-pages" form="short" plural="never" suffix=""/>
+        <text variable="number-of-pages" suffix="."/>
+      </group>
+    </if>
+    <else>
+      <group delimiter="">
+        <label variable="page" form="short" plural="never" suffix=""/>
+        <text variable="page" suffix="."/>
+      </group>
+    </else>
+  </choose>
+</macro>
   <macro name="volume">
     <label variable="volume" form="short"/>
     <text variable="volume" suffix="."/>
@@ -200,7 +203,7 @@
           <else-if type="article-journal">
             <group delimiter=" ">
               <text variable="title" suffix=". "/>
-              <text macro="container-title" font-style="italic" suffix=". "/>
+              <text variable="container-title" font-style="italic" suffix=". "/>
               <group delimiter=", ">
                 <text variable="volume"/>
                 <text variable="issue" suffix=";"/>
@@ -256,14 +259,7 @@
               </date>
               <text variable="genre" font-style="italic" prefix="(" suffix="). "/>
               <text variable="URL" prefix="URI " suffix="."/>
-              <group font-style="italic">
-                <text term="retrieved" prefix="(" suffix=" "/>
-                <date variable="accessed" suffix=").">
-                  <date-part name="month" form="long"/>
-                  <date-part name="day" prefix=" "/>
-                  <date-part name="year" prefix=", "/>
-                </date>
-              </group>
+              <text macro="retrieved-date"/>
             </group>
           </else-if>
           <else-if type="thesis">
@@ -275,14 +271,14 @@
                 <date-part name="year" suffix=", "/>
               </date>
               <group delimiter="">
-                <label variable="page" form="short"/>
-                <text variable="page"/>
+                <label variable="page" form="short" plural="never" suffix=""/>
+                <text variable="page" suffix="."/>
               </group>
               <group delimiter="">
-                <label variable="number-of-pages" form="short"/>
-                <text variable="number-of-pages"/>
+                <label variable="number-of-pages" form="short" plural="never" suffix=""/>
+                <text variable="number-of-pages" suffix="."/>
               </group>
-              <text value="unpublished" font-style="italic" prefix="(" suffix=")."/>
+             <text value="unpublished" text-case="lowercase" font-style="italic" prefix="(" suffix=")."/>
             </group>
           </else-if>
           <else-if type="report">
@@ -334,14 +330,7 @@
                 <date-part name="year" prefix=", "/>
               </date>
               <text variable="URL" suffix=". "/>
-              <group font-style="italic">
-                <text term="retrieved" prefix="(" suffix=" "/>
-                <date variable="accessed" suffix=").">
-                  <date-part name="month" form="short"/>
-                  <date-part name="day" prefix=" "/>
-                  <date-part name="year" prefix=", "/>
-                </date>
-              </group>
+              <text macro="retrieved-date"/>
             </group>
           </else-if>
           <else-if type="motion_picture">
@@ -360,14 +349,7 @@
                 <date-part name="year" prefix=", "/>
               </date>
               <text variable="URL" suffix=". "/>
-              <group font-style="italic">
-                <text term="retrieved" prefix="(" suffix=" "/>
-                <date variable="accessed" suffix=").">
-                  <date-part name="month" form="short"/>
-                  <date-part name="day" prefix=" "/>
-                  <date-part name="year" prefix=", "/>
-                </date>
-              </group>
+              <text macro="retrieved-date"/>
             </group>
           </else-if>
           <else-if type="personal_communication">
@@ -385,7 +367,7 @@
           <else>
             <group delimiter=" ">
               <text macro="title" font-style="italic" suffix="."/>
-              <text macro="container-title" suffix=". "/>
+              <text variable="container-title" font-style="italic" suffix=". "/>
               <text macro="issued" suffix=". "/>
               <text variable="URL" suffix="."/>
             </group>
