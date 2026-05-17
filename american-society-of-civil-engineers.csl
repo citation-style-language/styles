@@ -5,8 +5,7 @@
     <title-short>ASCE</title-short>
     <id>http://www.zotero.org/styles/american-society-of-civil-engineers</id>
     <link href="http://www.zotero.org/styles/american-society-of-civil-engineers" rel="self"/>
-    <link href="https://ascelibrary.org/doi/book/10.1061/9780784479018" rel="documentation"/>
-    <link href="https://ascelibrary.org/doi/pdf/10.1061/9780784479018" rel="documentation"/>
+    <link href="https://ascelibrary.org/author-center/journal#peer-review-process" rel="documentation"/>
     <author>
       <name>Rintze Zelle</name>
       <uri>http://twitter.com/rintzezelle</uri>
@@ -17,15 +16,15 @@
     <category citation-format="author-date"/>
     <category field="engineering"/>
     <summary>A style for American Society of Civil Engineers publications</summary>
-    <updated>2022-02-04T18:00:42+00:00</updated>
+    <updated>2025-11-14T09:39:51+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="container-contributors">
     <choose>
       <if type="chapter paper-conference" match="any">
         <names variable="editor translator" delimiter=", ">
+          <label form="verb" suffix=" "/>
           <name and="text" initialize-with=". " delimiter=", "/>
-          <label form="short" prefix=", "/>
         </names>
       </if>
     </choose>
@@ -33,9 +32,9 @@
   <macro name="secondary-contributors">
     <choose>
       <if type="chapter paper-conference" match="none">
-        <names variable="editor translator" delimiter=", " prefix=" (" suffix=")">
+        <names variable="editor translator" delimiter=", ">
+          <label form="verb" text-case="capitalize-first" suffix=" "/>
           <name and="text" initialize-with=". " delimiter=", "/>
-          <label form="short" prefix=", "/>
         </names>
       </if>
     </choose>
@@ -43,10 +42,9 @@
   <macro name="author">
     <names variable="author">
       <name and="text" delimiter-precedes-last="always" initialize-with=". " name-as-sort-order="first"/>
-      <label form="short" prefix=" (" suffix=")" text-case="capitalize-first"/>
+      <label form="short" prefix=", "/>
       <substitute>
         <names variable="editor"/>
-        <names variable="translator"/>
         <text macro="title"/>
       </substitute>
     </names>
@@ -68,9 +66,22 @@
       </substitute>
     </names>
   </macro>
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <label variable="edition" form="short"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="title">
     <choose>
-      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+      <if type="bill book graphic legal_case legislation motion_picture report song standard" match="any">
         <text variable="title" font-style="italic"/>
       </if>
       <else>
@@ -80,15 +91,31 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="article-magazine article-newspaper" match="none">
-        <group delimiter=". ">
+      <if type="thesis" match="any">
+        <group delimiter=", ">
           <text variable="genre"/>
+          <text variable="publisher"/>
+        </group>
+      </if>
+      <else-if type="article-magazine article-newspaper" match="none">
+        <group delimiter=". ">
+          <choose>
+            <if type="standard" match="any">
+              <group delimiter=" ">
+                <text variable="authority"/>
+                <text variable="number"/>
+              </group>
+            </if>
+            <else-if variable="genre">
+              <text variable="genre"/>
+            </else-if>
+          </choose>
           <group delimiter=": ">
             <text variable="publisher-place"/>
             <text variable="publisher"/>
           </group>
         </group>
-      </if>
+      </else-if>
     </choose>
   </macro>
   <macro name="issued">
@@ -152,6 +179,16 @@
       <else-if type="article-journal" match="any">
         <text variable="DOI" prefix="https://doi.org/"/>
       </else-if>
+      <else-if type="thesis" match="any">
+        <choose>
+          <if variable="DOI">
+            <text variable="DOI" prefix="https://doi.org/"/>
+          </if>
+          <else>
+            <text variable="URL"/>
+          </else>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year-suffix">
@@ -178,12 +215,23 @@
         <text macro="issued"/>
         <text macro="title"/>
         <group delimiter=", ">
-          <text variable="container-title" form="short" font-style="italic"/>
+          <choose>
+            <if type="paper-conference" match="any">
+              <group delimiter=": ">
+                <text term="in" text-case="capitalize-first"/>
+                <text variable="container-title" form="short" font-style="italic"/>
+              </group>
+            </if>
+            <else>
+              <text variable="container-title" font-style="italic"/>
+            </else>
+          </choose>
           <text variable="collection-title"/>
           <text macro="container-contributors"/>
-          <text macro="secondary-contributors"/>
           <text macro="locators"/>
         </group>
+        <text macro="secondary-contributors"/>
+        <text macro="edition"/>
         <text macro="publisher"/>
       </group>
       <text macro="access" prefix=". "/>

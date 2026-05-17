@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+General format
+  [author(s)], [publication year], [title]:
+
+Monographs
+  [author(s)], [publication year], [title]: [city, state], [publisher], xx p.
+
+Serials
+  [author(s)], [publication year], [title]: [journal name], v. xx, no. xx. p. xx-xx.
+  [author(s)], [publication year], [title]: [journal name], v. xx, no. xx. article xxxxx, x p. accessed [Month DD, YYYY], at [DOI URL or other web address].
+
+Theses and dissertations
+  [author(s)], [publication year], [title]: [city, state], [institution], Ph.D. dissertation, xx p.
+
+USGS products
+  [author(s)], [publication year], [title]: U.S. Geological Survey [series] xxxx, xx p.
+  [author(s)], [publication year], [title]: U.S. Geological Survey data release, accessed [Month DD, YYYY], at [DOI URL or other web address].
+  [author(s)], [publication year], [title]: U.S. Geological Survey software release, accessed [Month DD, YYYY], at [DOI URL or other web address].
+  
+Online sources
+
+  Use a URL based on a Digital Object Identifier (DOI) when available. Use a non-DOI URL only when a DOI is not provided. Convert DOIs to URL format:https://doi.org/1O.xxxx/
+
+  [author(s) or information provider], [publication year], [title]: [publisher information] [publication series and number, if applicable, or publication type], [number of pages or page range, if applicable], accessed [date accessed], at [DOI URL or other web address]
+
+-->
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
   <info>
     <title>U.S. Geological Survey</title>
     <id>http://www.zotero.org/styles/us-geological-survey</id>
     <link href="http://www.zotero.org/styles/us-geological-survey" rel="self"/>
-    <link href="http://www.nwrc.usgs.gov/techrpt/sta28.pdf" rel="documentation"/>
+    <link href="https://atthecore.usgs.gov/media/files/suggestions-authors-reports-us-geological-survey-official-style-guide-us-geological" rel="documentation"/>
     <author>
       <name>Rintze Zelle</name>
       <uri>http://twitter.com/rintzezelle</uri>
@@ -15,9 +41,12 @@
     <contributor>
       <name>Jason Bellino</name>
     </contributor>
+    <contributor>
+      <name>Brad Aagaard</name>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="geology"/>
-    <updated>2017-05-05T11:43:00+00:00</updated>
+    <updated>2025-03-20T10:17:30+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor-translator">
@@ -93,93 +122,103 @@
             <group delimiter=" ">
               <text variable="title" suffix=":"/>
               <text variable="publisher"/>
-              <text variable="collection-title"/>
+              <text variable="genre"/>
               <text variable="number"/>
             </group>
-            <group>
-              <text variable="page" suffix=" "/>
-              <label variable="page" form="short" plural="never"/>
+            <text variable="page" suffix=" pp."/>
+            <group delimiter=" ">
+              <choose>
+                <if variable="accessed">
+                  <text term="accessed"/>
+                  <date variable="accessed">
+                    <date-part name="month" form="long" suffix=" "/>
+                    <date-part name="day" form="numeric" suffix=", "/>
+                    <date-part name="year" form="long"/>
+                  </date>
+                </if>
+              </choose>
             </group>
-            <group prefix=" ">
-              <text term="accessed"/>
-              <group prefix=" " suffix=",">
-                <date variable="accessed">
-                  <date-part name="month" form="long" suffix=" "/>
-                  <date-part name="day" form="numeric" suffix=", "/>
-                  <date-part name="year" form="long"/>
-                </date>
-              </group>
-              <group prefix=" ">
-                <text term="at"/>
-                <text variable="container-title" prefix=" "/>
-              </group>
-              <group prefix=" ">
-                <text term="at"/>
-                <text variable="URL" prefix=" "/>
-              </group>
+            <group delimiter=" ">
+              <choose>
+                <if variable="container-title">
+                  <text term="at" prefix=" "/>
+                  <text variable="container-title"/>
+                </if>
+              </choose>
+            </group>
+            <group>
+              <choose>
+                <if variable="DOI">
+                  <text variable="DOI" prefix=" at https://doi.org/"/>
+                </if>
+                <else>
+                  <text term="at" prefix=" "/>
+                  <text variable="URL" prefix=" "/>
+                </else>
+              </choose>
             </group>
           </group>
         </if>
-        <else-if variable="version" type="book" match="all">
-          <group prefix=" " delimiter=", ">
-            <!--
-                -This is a hack until we have a computer program type
-                -->
-            <text variable="title"/>
-            <group prefix=" " delimiter=" ">
-              <text term="version"/>
-              <text variable="version"/>
-            </group>
-            <text variable="URL"/>
-          </group>
-        </else-if>
         <else-if type="bill book graphic legal_case legislation motion_picture song" match="any">
-          <group suffix=":">
-            <text variable="title" prefix=" "/>
-            <text macro="editor-translator" prefix=" "/>
-          </group>
+          <choose>
+            <if variable="title">
+              <group prefix=" " suffix=":">
+                <text variable="title"/>
+                <text variable="edition" prefix=", "/>
+                <text macro="editor-translator" prefix=" "/>
+              </group>
+            </if>
+          </choose>
           <group prefix=" " suffix="." delimiter=", ">
             <text variable="collection-title"/>
             <text macro="publisher"/>
-            <text variable="number-of-pages" suffix=" p."/>
+            <text variable="number-of-pages" suffix=" pp."/>
           </group>
         </else-if>
         <else-if type="webpage">
-          <group prefix=" " delimiter=", ">
-            <text variable="title"/>
-            <group delimiter=" ">
-              <text term="accessed"/>
-              <date variable="accessed">
-                <date-part name="month" form="long" suffix=" "/>
-                <date-part name="day" form="numeric" suffix=", "/>
-                <date-part name="year" form="long"/>
-              </date>
+          <group>
+            <choose>
+              <if variable="title">
+                <text variable="title" prefix=" " suffix=":"/>
+                <text variable="container-title" prefix=" " suffix=","/>
+              </if>
+              <else>
+                <text variable="container-title" prefix=" " suffix=":"/>
+              </else>
+            </choose>
+            <group delimiter=", ">
+              <choose>
+                <if variable="accessed">
+                  <group delimiter=" ">
+                    <text term="accessed" prefix=" "/>
+                    <date variable="accessed">
+                      <date-part name="month" form="long" suffix=" "/>
+                      <date-part name="day" form="numeric" suffix=", "/>
+                      <date-part name="year" form="long"/>
+                    </date>
+                  </group>
+                </if>
+              </choose>
             </group>
             <group delimiter=" ">
-              <group delimiter=" ">
-                <text term="at"/>
-                <text variable="container-title"/>
-              </group>
-              <group delimiter=" ">
-                <text term="at"/>
-                <text variable="URL"/>
-              </group>
+              <text term="at" prefix=" "/>
+              <text variable="URL"/>
             </group>
           </group>
         </else-if>
         <else-if type="chapter paper-conference" match="any">
           <text variable="title" prefix=" "/>
-          <group prefix=", ">
-            <text term="in" font-style="italic"/>
+          <group>
+            <text term="in" prefix=", " font-style="italic"/>
             <names variable="editor translator" prefix=" " suffix="," delimiter=", ">
               <name and="text" sort-separator=", " initialize-with="." name-as-sort-order="all"/>
               <et-al term="and others"/>
               <label form="short" prefix=" "/>
             </names>
-            <text variable="event" prefix=" " suffix=" &#8211;"/>
-            <text variable="container-title" prefix=" " suffix=":"/>
             <group suffix=".">
-              <text macro="publisher" prefix=" "/>
+              <text variable="event-title" prefix=" " suffix=":"/>
+              <text variable="container-title" prefix=" "/>
+              <text macro="publisher" prefix=": "/>
               <group prefix=", ">
                 <text variable="page" prefix="p. "/>
               </group>
@@ -192,9 +231,105 @@
           <text variable="scale" prefix=", scale "/>
         </else-if>
         <else-if type="speech">
+          <group delimiter=": ">
+            <text variable="title" prefix=" "/>
+            <group delimiter=", ">
+              <group delimiter=", ">
+                <text variable="event-title"/>
+                <text variable="event-place"/>
+              </group>
+              <choose>
+                <if variable="URL">
+                  <group>
+                    <choose>
+                      <if variable="accessed">
+                        <text term="accessed"/>
+                        <group prefix=" " suffix=", ">
+                          <date variable="accessed">
+                            <date-part name="month" form="long" suffix=" "/>
+                            <date-part name="day" form="numeric" suffix=", "/>
+                            <date-part name="year" form="long"/>
+                          </date>
+                        </group>
+                      </if>
+                    </choose>
+                    <text variable="URL" prefix="at "/>
+                  </group>
+                </if>
+              </choose>
+            </group>
+          </group>
+        </else-if>
+        <else-if type="dataset">
           <text variable="title" prefix=" " suffix=":"/>
-          <text variable="event" prefix=" "/>
-          <text variable="event-place" prefix=", "/>
+          <text variable="publisher" prefix=" " suffix=", "/>
+          <group delimiter=", ">
+            <choose>
+              <if variable="accessed">
+                <group delimiter=" ">
+                  <text term="accessed" prefix=" "/>
+                  <date variable="accessed">
+                    <date-part name="month" form="long" suffix=" "/>
+                    <date-part name="day" form="numeric" suffix=", "/>
+                    <date-part name="year" form="long"/>
+                  </date>
+                </group>
+              </if>
+            </choose>
+            <choose>
+              <if variable="container-title">
+                <text term="at"/>
+                <text variable="container-title" prefix=" "/>
+              </if>
+            </choose>
+            <choose>
+              <if variable="DOI">
+                <text variable="DOI" prefix="at https://doi.org/"/>
+              </if>
+              <else>
+                <text term="at"/>
+                <text variable="URL" prefix=" "/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
+        <else-if type="software">
+          <choose>
+            <if variable="title">
+              <group suffix=":">
+                <text variable="title" prefix=" "/>
+                <choose>
+                  <if variable="version">
+                    <text variable="version" prefix=" (version " suffix=")"/>
+                  </if>
+                </choose>
+              </group>
+            </if>
+          </choose>
+          <text variable="publisher" prefix=" " suffix=","/>
+          <group delimiter=" ">
+            <choose>
+              <if variable="accessed">
+                <text term="accessed" prefix=" "/>
+                <date variable="accessed">
+                  <date-part name="month" form="long" suffix=" "/>
+                  <date-part name="day" form="numeric" suffix=", "/>
+                  <date-part name="year" form="long"/>
+                </date>
+              </if>
+            </choose>
+          </group>
+          <group>
+            <choose>
+              <if variable="DOI">
+                <text variable="DOI" prefix="at https://doi.org/"/>
+              </if>
+              <else>
+                <text term="at" prefix=" "/>
+                <text variable="URL" prefix=" "/>
+              </else>
+            </choose>
+          </group>
         </else-if>
         <else>
           <group suffix=":">
@@ -208,6 +343,22 @@
               <text variable="issue" prefix="no. "/>
             </group>
             <text variable="page" prefix="p. "/>
+            <group prefix="accessed " suffix=",">
+              <date variable="accessed">
+                <date-part name="month" form="long" suffix=" "/>
+                <date-part name="day" form="numeric" suffix=", "/>
+                <date-part name="year" form="long"/>
+              </date>
+            </group>
+            <choose>
+              <if variable="DOI">
+                <text variable="DOI" prefix="at https://doi.org/"/>
+              </if>
+              <else>
+                <text term="at"/>
+                <text variable="URL" prefix=" "/>
+              </else>
+            </choose>
           </group>
         </else>
       </choose>

@@ -50,18 +50,18 @@
       <name>Leticia Strehl</name>
       <uri>http://www.mendeley.com/profiles/leticia-strehl/</uri>
     </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
+      <uri>https://citationstyler.com/</uri>
+    </contributor>
     <category citation-format="author-date"/>
     <category field="generic-base"/>
     <summary>The Brazilian Standard Style in accordance with ABNT-NBR 10520.2023 and ABNT-NBR 6023.2018</summary>
-    <updated>2023-10-20T04:11:24+00:00</updated>
+    <updated>2025-09-25T02:00:08+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="pt-BR">
     <terms>
-      <term name="editor" form="short">org</term>
-      <!-- ABNT 6023:2018 - 8.1.1.4 sempre no singular -->
-      <term name="collection-editor" form="short">ed</term>
-      <!-- usando editor de coleção para quando for editor do livro -->
       <term name="accessed">acesso</term>
       <term name="available at">disponível em</term>
       <term name="composer">compositor</term>
@@ -71,11 +71,8 @@
       <term name="translator">tradução</term>
       <term name="in">in</term>
       <term name="elocation" form="short">local.</term>
-      <term name="volume" form="short">
-        <single>v.</single>
-        <multiple>v.</multiple>
-      </term>
-      <term name="issue" form="short">n.</term>
+      <term name="no-place" form="short">s. l.</term>
+      <term name="no date" form="short">s. d.</term>
     </terms>
   </locale>
   <macro name="container-contributors">
@@ -117,7 +114,7 @@
         <!-- para transmissões é apresentador -->
         <text value="Apresentado por "/>
         <names variable="author">
-          <name delimiter=" e ">
+          <name and="text">
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
@@ -127,7 +124,7 @@
         <!-- para filmes é o diretor -->
         <text term="director" suffix=": "/>
         <names variable="author">
-          <name delimiter=" e ">
+          <name and="text">
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
@@ -137,7 +134,7 @@
         <!-- para músicas é o intérprete -->
         <text value="Intérprete: "/>
         <names variable="author">
-          <name delimiter=" e ">
+          <name and="text">
             <name-part name="given"/>
             <name-part name="family"/>
           </name>
@@ -203,7 +200,7 @@
     <!-- Macro responsavel por mostrar o nome do entrevistador -->
     <text term="interviewer" suffix=": "/>
     <names variable="interviewer" delimiter="; ">
-      <name delimiter=" e " sort-separator=" " delimiter-precedes-last="always"/>
+      <name and="text" sort-separator=" " delimiter-precedes-last="always"/>
       <et-al font-style="italic"/>
     </names>
   </macro>
@@ -211,7 +208,7 @@
     <!-- Macro responsavel por mostrar o nome do destinatário -->
     <text term="recipient" suffix=": "/>
     <names variable="recipient" delimiter="; ">
-      <name delimiter=" e " sort-separator=" " delimiter-precedes-last="always"/>
+      <name and="text" sort-separator=" " delimiter-precedes-last="always"/>
       <et-al font-style="italic"/>
     </names>
   </macro>
@@ -327,20 +324,22 @@
     <!-- Macro responsável por mostrar o título de evento -->
     <choose>
       <if type="paper-conference" match="any">
-        <group suffix=". ">
-          <text term="in" text-case="capitalize-first" prefix=" " suffix=": " font-style="italic"/>
-          <choose>
-            <if variable="event" match="any">
-              <text variable="event" text-case="uppercase"/>
-            </if>
-            <else>
-              <text variable="title-short" text-case="uppercase"/>
-              <!-- title-short utilizado para nome do evento no Mendeley -->
-            </else>
-          </choose>
-          <text variable="number" prefix=", " suffix="."/>
-          <text macro="issued-year" prefix=", "/>
-          <text macro="event-place" prefix=", "/>
+        <group delimiter=", " prefix=" " suffix=". ">
+          <group delimiter=": ">
+            <text term="in" text-case="capitalize-first" font-style="italic"/>
+            <choose>
+              <if variable="event" match="any">
+                <text variable="event" text-case="uppercase"/>
+              </if>
+              <else>
+                <text variable="title-short" text-case="uppercase"/>
+                <!-- title-short utilizado para nome do evento no Mendeley -->
+              </else>
+            </choose>
+          </group>
+          <text variable="number" suffix="."/>
+          <text macro="issued-year"/>
+          <text macro="event-place"/>
         </group>
       </if>
     </choose>
@@ -386,42 +385,39 @@
   </macro>
   <macro name="publisher">
     <!-- Macro responsável por mostrar os responsáveis pela publicação. No caso de ausência deles, incluir expressões para sem local ou sem editor -->
-    <choose>
-      <if variable="publisher-place publisher" match="any">
+    <group delimiter=", ">
+      <group delimiter=": " suffix=",">
         <choose>
           <if variable="publisher-place">
             <text variable="publisher-place"/>
           </if>
           <else>
-            <text value="s. l." font-style="italic" prefix="[" suffix="]" text-case="capitalize-first"/>
+            <text term="no-place" form="short" text-case="capitalize-first" font-style="italic" prefix="[" suffix="]"/>
           </else>
         </choose>
-        <group prefix=": " suffix=",">
-          <choose>
-            <if variable="publisher">
-              <text variable="publisher"/>
-            </if>
-            <else>
-              <text value="s. n." font-style="italic" prefix="[" suffix="]"/>
-            </else>
-          </choose>
-        </group>
-        <text macro="issued" prefix=" "/>
-      </if>
-      <else>
-        <text value="s. l.: s. n." font-style="italic" prefix="[" suffix="]" text-case="capitalize-first"/>
-        <text macro="issued" prefix=", "/>
-      </else>
-    </choose>
+        <choose>
+          <if variable="publisher">
+            <text variable="publisher"/>
+          </if>
+          <else>
+            <text term="no date" form="short" font-style="italic" prefix="[" suffix="]"/>
+          </else>
+        </choose>
+      </group>
+      <text macro="issued" prefix=" "/>
+    </group>
   </macro>
   <macro name="issued">
     <!-- Macro responsável por mostrar a data completa de um documento -->
     <group suffix=". ">
       <choose>
         <if is-uncertain-date="issued">
-          <date variable="issued">
-            <date-part name="year" prefix="[ca. " suffix="]"/>
-          </date>
+          <group delimiter=" " prefix="[" suffix="]">
+            <text term="circa" form="short"/>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </group>
         </if>
         <else-if variable="issued" match="any">
           <choose>
@@ -450,7 +446,7 @@
               <text variable="status" font-style="italic"/>
             </if>
             <else>
-              <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+              <text term="no date" form="short" font-style="italic" prefix="[" suffix="]"/>
             </else>
           </choose>
         </else>
@@ -480,7 +476,7 @@
           </choose>
         </else-if>
         <else>
-          <text value="s. d." font-style="italic" prefix="[" suffix="]"/>
+          <text term="no date" form="short" font-style="italic" prefix="[" suffix="]"/>
         </else>
       </choose>
     </group>
@@ -528,10 +524,7 @@
         <group prefix=". " delimiter=", ">
           <text macro="issued"/>
           <text macro="section"/>
-          <group>
-            <text term="page" form="short" suffix=" "/>
-            <text variable="page" suffix="."/>
-          </group>
+          <text macro="pages"/>
         </group>
       </if>
       <else-if match="any" type="article-journal article-magazine">
@@ -546,10 +539,7 @@
             <text variable="issue"/>
           </group>
           <text variable="collection-title"/>
-          <group>
-            <text term="page" form="short" suffix=" "/>
-            <text variable="page"/>
-          </group>
+          <text macro="pages"/>
         </group>
       </else-if>
       <else-if type="article-newspaper" match="any">
@@ -566,24 +556,18 @@
           <group delimiter=", " suffix=".">
             <text variable="section"/>
             <text variable="collection-title"/>
-            <group>
-              <text term="page" form="short" suffix=" "/>
-              <text variable="page"/>
-            </group>
+            <text macro="pages"/>
           </group>
         </group>
       </else-if>
       <else-if match="any" type="book chapter">
         <!-- Se for livro ou capítulo, utiliza os termos padrões para volume e página -->
         <group delimiter=", ">
-          <group>
-            <text term="volume" form="short" suffix=" "/>
+          <group delimiter=" ">
+            <text term="volume" form="short"/>
             <text variable="volume"/>
           </group>
-          <group>
-            <text term="page" form="short" suffix=" "/>
-            <text variable="page"/>
-          </group>
+          <text macro="pages"/>
         </group>
       </else-if>
     </choose>
@@ -591,7 +575,10 @@
   <macro name="collection-title">
     <!-- Macro responsável por mostrar os dados de coleção para livro e capítulo -->
     <text variable="collection-title"/>
-    <text variable="collection-number" prefix=", v. "/>
+    <group delimiter=" " prefix=", ">
+      <label variable="collection-number" form="short"/>
+      <text variable="collection-number"/>
+    </group>
   </macro>
   <macro name="genre">
     <!-- Macro responsável por mostrar as informações de tipo para carta, e-mail e mensagem -->
@@ -608,9 +595,9 @@
   </macro>
   <macro name="citation-locator">
     <!-- Macro responsável por mostrar os localizadores (página, seção, capítulo, etc.) em uma citação  -->
-    <group>
+    <group delimiter=" ">
       <label variable="locator" form="short"/>
-      <text variable="locator" prefix=" "/>
+      <text variable="locator"/>
     </group>
   </macro>
   <macro name="place">
@@ -622,14 +609,32 @@
       <else>
         <choose>
           <if type="graphic post webpage" match="any">
-            <text value="s. l." prefix="[" suffix="], " font-style="italic" text-case="capitalize-first"/>
+            <text term="no-place" form="short" prefix="[" suffix="], " font-style="italic" text-case="capitalize-first"/>
           </if>
           <else>
-            <text value="s. l." prefix="[" suffix="], " font-style="italic"/>
+            <text term="no-place" form="short" prefix="[" suffix="], " font-style="italic"/>
           </else>
         </choose>
       </else>
     </choose>
+  </macro>
+  <macro name="pages">
+    <group delimiter=" ">
+      <label variable="page" form="short"/>
+      <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="number">
+    <group delimiter=" ">
+      <label variable="number" form="short"/>
+      <text variable="number"/>
+    </group>
+  </macro>
+  <macro name="volume">
+    <group delimiter=" ">
+      <label variable="number" form="short"/>
+      <text variable="number"/>
+    </group>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" givenname-disambiguation-rule="by-cite" collapse="year" delimiter-precedes-et-al="never">
     <!-- CITAÇÃO: uso de sufixo para desambiguação de anos e de prenome ativos -->
@@ -740,9 +745,9 @@
                 <text macro="section" prefix="Seção " suffix=", "/>
                 <text variable="publisher-place" suffix=", "/>
                 <text variable="publisher" suffix=", "/>
-                <text variable="volume" prefix="v. " suffix=", "/>
-                <text variable="number" prefix="n. " suffix=", "/>
-                <text variable="page" prefix="p. " suffix=", "/>
+                <text macro="volume" suffix=", "/>
+                <text variable="number" suffix=", "/>
+                <text variable="page" suffix=", "/>
                 <text macro="issued-legislation" suffix=". "/>
                 <text variable="genre" suffix=". "/>
                 <text macro="access"/>
@@ -808,12 +813,15 @@
                   <text variable="abstract"/>
                 </group>
                 <text macro="container-title" suffix=", "/>
-                <text macro="section" prefix="Seção " suffix=", "/>
+                <group delimiter=" ">
+                  <text term="section" text-case="capitalize-first"/>
+                  <text macro="section" suffix=", "/>
+                </group>
                 <text variable="publisher-place" suffix=", "/>
                 <text variable="publisher" suffix=", "/>
-                <text variable="volume" prefix="v. " suffix=", "/>
-                <text variable="number" prefix="n. " suffix=", "/>
-                <text variable="page" prefix="p. " suffix=", "/>
+                <text macro="volume" suffix=", "/>
+                <text macro="number" suffix=", "/>
+                <text macro="pages" suffix=", "/>
                 <text macro="issued-legislation" suffix=". "/>
                 <text variable="genre" suffix=". "/>
                 <text macro="access"/>
@@ -897,7 +905,7 @@
             <text macro="container-contributors" suffix="."/>
             <text macro="container-title" prefix=" " suffix=". "/>
             <text macro="publisher"/>
-            <text variable="page" prefix=" p. " suffix=". "/>
+            <text macro="pages" suffix=". "/>
             <text macro="access"/>
           </group>
         </else-if>
@@ -940,18 +948,12 @@
             <text macro="container-title" suffix=", "/>
             <text variable="publisher-place" suffix=", "/>
             <group delimiter=", " suffix=", ">
-              <group>
-                <text term="volume" form="short" suffix=" "/>
-                <text variable="volume"/>
-              </group>
+              <text macro="volume"/>
               <group>
                 <text term="issue" form="short" suffix=" "/>
                 <text variable="number"/>
               </group>
-              <group>
-                <text term="page" form="short"/>
-                <text variable="page"/>
-              </group>
+              <text macro="pages"/>
             </group>
             <text macro="issued-legislation" suffix=". "/>
             <text macro="access"/>
@@ -972,8 +974,8 @@
                 <text variable="chapter-number" suffix=", "/>
                 <text variable="publisher-place" suffix=", "/>
                 <text variable="volume" suffix=", "/>
-                <text variable="number" prefix="n. " suffix=", "/>
-                <text variable="page" prefix="p. " suffix=", "/>
+                <text macro="number" suffix=", "/>
+                <text macro="pages" suffix=", "/>
                 <text macro="issued-legislation" suffix="."/>
                 <text macro="access"/>
               </group>
@@ -1059,7 +1061,7 @@
           <text macro="container-title"/>
           <text macro="locators"/>
           <text macro="publisher"/>
-          <text variable="page" prefix=" p. " suffix="."/>
+          <text macro="pages" suffix="."/>
           <text macro="access"/>
         </else-if>
         <else-if type="patent">

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" page-range-format="chicago" default-locale="en-US">
   <info>
-    <title>Society of Biblical Literature 2nd edition (full note)</title>
-    <title-short>SBL (2nd edition)</title-short>
+    <title>SBL Handbook of Style 2nd edition (notes)</title>
+    <title-short>Society of Biblical Literature (SBLHS)</title-short>
     <id>http://www.zotero.org/styles/society-of-biblical-literature-fullnote-bibliography</id>
     <link href="http://www.zotero.org/styles/society-of-biblical-literature-fullnote-bibliography" rel="self"/>
-    <link href="http://www.zotero.org/styles/chicago-fullnote-bibliography" rel="template"/>
-    <link href="http://www.sbl-site.org/publications/SBLHandbookofStyle.aspx" rel="documentation"/>
+    <link href="http://www.zotero.org/styles/chicago-notes-bibliography" rel="template"/>
+    <link href="https://sblhs2.com" rel="documentation"/>
+    <link href="https://doi.org/10.2307/j.ctt14bs6ct" rel="documentation"/>
+    <link href="https://archive.org/details/sblhandbookofsty0000unse_g7i4" rel="documentation"/>
     <author>
       <name>Julian Onions</name>
       <email>julian.onions@gmail.com</email>
@@ -30,10 +32,14 @@
       <email>david@jdavidstark.com</email>
       <uri>https://www.jdavidstark.com/</uri>
     </contributor>
+    <contributor>
+      <name>Andrew Dunning</name>
+      <uri>https://orcid.org/0000-0003-0464-5036</uri>
+    </contributor>
     <category citation-format="note"/>
     <category field="theology"/>
     <summary>Society of Biblical Literature format with full notes and bibliography</summary>
-    <updated>2022-07-02T02:53:27+00:00</updated>
+    <updated>2025-05-09T12:18:25+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-US">
@@ -91,30 +97,10 @@
       <text macro="editor-translator-verb-short-comma"/>
     </group>
   </macro>
-  <macro name="container-author-reviewed-author-and-editor-translator-short">
-    <group delimiter=", ">
-      <choose>
-        <if variable="container-author reviewed-author" match="any">
-          <names variable="container-author reviewed-author" delimiter=", ">
-            <label form="verb-short" suffix=" "/>
-            <name form="short" and="text" delimiter=", "/>
-          </names>
-        </if>
-      </choose>
-      <text macro="editor-translator-verb-short-comma"/>
-    </group>
-  </macro>
   <macro name="secondary-contributors-note">
     <choose>
       <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
         <text macro="container-author-reviewed-author-and-editor-translator"/>
-      </if>
-    </choose>
-  </macro>
-  <macro name="secondary-contributors-short">
-    <choose>
-      <if type="bill book chapter graphic legal_case legislation motion_picture paper-conference report song" match="none">
-        <text macro="container-author-reviewed-author-and-editor-translator-short"/>
       </if>
     </choose>
   </macro>
@@ -409,7 +395,11 @@
   <macro name="description-note">
     <group delimiter=", ">
       <text macro="interviewer-note"/>
-      <text variable="medium"/>
+      <choose>
+        <if type="book" match="none">
+          <text variable="medium"/>
+        </if>
+      </choose>
       <choose>
         <if variable="title" match="none"/>
         <else-if type="thesis speech" match="any"/>
@@ -718,10 +708,18 @@
   </macro>
   <macro name="originally-published">
     <group delimiter=", ">
-      <group delimiter=": ">
-        <text variable="original-publisher-place"/>
-        <text variable="original-publisher"/>
-      </group>
+      <choose>
+        <if variable="original-publisher">
+          <group delimiter=": ">
+            <!-- place of publication no longer included: <https://sblhs2.com/2025/12/05/publisher-locations/> -->
+            <!-- <text variable="original-publisher-place"/> -->
+            <text variable="original-publisher"/>
+          </group>
+        </if>
+        <else>
+          <text variable="original-publisher-place"/>
+        </else>
+      </choose>
       <choose>
         <if is-uncertain-date="original-date">
           <date variable="original-date" form="numeric" date-parts="year" prefix="[" suffix="?]"/>
@@ -737,8 +735,8 @@
     <choose>
       <if variable="original-date issued" match="all">
         <choose>
-          <!--for whatever reason in notes, when we have both original and new publishers, reprint doesn't appear-->
-          <if variable="original-publisher original-publisher-place" match="none">
+          <!--Omission of the reprint abbreviation in notes is incorrect. See SBLHS2 §6.2.17&#8211;18.-->
+          <if variable="original-publisher original-publisher-place" match="any">
             <text value="repr."/>
           </if>
         </choose>
@@ -755,14 +753,18 @@
   </macro>
   <macro name="publisher">
     <choose>
-      <if type="thesis">
+      <if type="thesis" variable="publisher">
         <text variable="publisher"/>
       </if>
-      <else>
+      <else-if variable="publisher">
         <group delimiter=": ">
-          <text variable="publisher-place"/>
+          <!-- place of publication no longer included: <https://sblhs2.com/2025/12/05/publisher-locations/> -->
+          <!-- <text variable="publisher-place"/> -->
           <text variable="publisher"/>
         </group>
+      </else-if>
+      <else>
+        <text variable="publisher-place"/>
       </else>
     </choose>
   </macro>
@@ -772,8 +774,9 @@
         <choose>
           <if type="graphic report" match="any">
             <date variable="issued">
+              <!-- Use day month year format per SBLHS2 §4.3.7.1. -->
+              <date-part name="day" suffix=" "/>
               <date-part name="month" suffix=" "/>
-              <date-part name="day" suffix=", "/>
               <date-part name="year"/>
             </date>
           </if>
@@ -1032,13 +1035,13 @@
                 <text macro="originally-published" suffix="; "/>
                 <group delimiter=", ">
                   <text macro="reprint-note"/>
-                  <text macro="publisher"/>
                   <choose>
                     <if variable="title" match="none"/>
                     <else-if type="thesis" match="any">
                       <text variable="genre"/>
                     </else-if>
                   </choose>
+                  <text macro="publisher"/>
                 </group>
                 <text macro="issued" prefix=", "/>
               </group>
@@ -1138,7 +1141,8 @@
   <macro name="unsigned-dictionary-note">
     <group delimiter=", ">
       <group>
-        <text variable="container-title" font-style="italic" text-case="uppercase"/>
+        <!-- Removed uppercase per https://sblhs2.com/2017/05/16/citing-reference-works-8-english-language-dictionaries/ -->
+        <text variable="container-title" font-style="italic"/>
         <number variable="volume" prefix=" "/>
         <text variable="collection-title" text-case="uppercase"/>
         <text variable="collection-number" prefix=" "/>
@@ -1219,10 +1223,8 @@
         <else-if position="subsequent">
           <group delimiter=", ">
             <text macro="contributors-short"/>
-            <group>
-              <text macro="title-short"/>
-              <text macro="secondary-contributors-short" prefix=" (" suffix=")"/>
-            </group>
+            <text macro="title-short"/>
+            <!-- Exclude secondary contributors in subsequent citations per SBLHS2 §6. -->
             <text macro="disambiguate-chapter"/>
             <text macro="point-locators-subsequent"/>
           </group>
@@ -1252,6 +1254,11 @@
             <text macro="collection-editor-note"/>
           </group>
           <text macro="issue-note"/>
+          <choose>
+            <if type="book" match="any">
+              <text variable="medium" prefix=", "/>
+            </if>
+          </choose>
           <text macro="locators-newspaper" prefix=", "/>
           <text macro="point-locators"/>
           <text macro="access-note" prefix=", "/>
@@ -1304,6 +1311,11 @@
           <text macro="issue"/>
           <text macro="locators-newspaper" prefix=", "/>
           <text macro="locators-journal"/>
+          <choose>
+            <if type="book" match="any">
+              <text variable="medium" prefix=". "/>
+            </if>
+          </choose>
           <text macro="access" prefix=". "/>
         </else>
       </choose>
