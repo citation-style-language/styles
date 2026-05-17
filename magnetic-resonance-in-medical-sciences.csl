@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" et-al-min="7" et-al-use-first="3" demote-non-dropping-particle="sort-only" default-locale="en-US">
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" et-al-min="7" et-al-use-first="3" demote-non-dropping-particle="sort-only" page-range-format="expanded" default-locale="en-US">
   <info>
     <title>Magnetic Resonance in Medical Sciences</title>
     <title-short>Magn Reson Med Sci</title-short>
     <id>http://www.zotero.org/styles/magnetic-resonance-in-medical-sciences</id>
     <link href="http://www.zotero.org/styles/magnetic-resonance-in-medical-sciences" rel="self"/>
-    <link href="https://www.jsmrm.jp/uploads/files/journal/19-3%20MRMS_Instruction%20for%20Authors%20(002).pdf" rel="documentation"/>
+    <link href="https://www.jsmrm.jp/modules/mrms/index.php?content_id=6" rel="documentation"/>
     <contributor>
       <name>Satoshi Funayama</name>
       <email>akchan.acts@gmail.com</email>
@@ -14,9 +14,14 @@
     <category field="medicine"/>
     <issn>1347-3182</issn>
     <eissn>1880-2206</eissn>
-    <updated>2021-07-07T09:28:13+00:00</updated>
+    <updated>2026-05-17T02:42:52+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  <locale xml:lang="en">
+    <terms>
+      <term name="page-range-delimiter">-</term>
+    </terms>
+  </locale>
   <macro name="author">
     <group suffix=".">
       <names variable="author">
@@ -29,20 +34,24 @@
       </names>
     </group>
   </macro>
+  <macro name="editor">
+    <names variable="editor" suffix=".">
+      <name name-as-sort-order="all" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="always"/>
+      <label form="short" prefix=", "/>
+    </names>
+  </macro>
   <macro name="access">
     <choose>
-      <if type="article-journal" match="none">
-        <choose>
-          <if variable="DOI">
-            <text value="doi:"/>
-            <text variable="DOI"/>
-          </if>
-          <else-if variable="URL">
-            <text value="" suffix=" "/>
-          </else-if>
-        </choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="https://doi.org/"/>
       </if>
     </choose>
+  </macro>
+  <macro name="publisher">
+    <group delimiter=":">
+      <text variable="publisher-place"/>
+      <text variable="publisher"/>
+    </group>
   </macro>
   <macro name="title">
     <choose>
@@ -73,18 +82,12 @@
       <text macro="title" prefix=" " suffix=". "/>
       <choose>
         <if type="webpage" match="any">
-          <group prefix="; " suffix=".">
-            <date variable="issued">
-              <date-part name="year"/>
-            </date>
-            <text variable="page" prefix=":"/>
-          </group>
           <group delimiter=" ">
             <text variable="URL"/>
             <group prefix="(" suffix=")">
               <text term="accessed" text-case="capitalize-first" suffix=": "/>
               <date variable="accessed">
-                <date-part name="month" form="short" suffix=" "/>
+                <date-part name="month" form="short" strip-periods="true" suffix=" "/>
                 <date-part name="day" suffix=", "/>
                 <date-part name="year"/>
               </date>
@@ -93,10 +96,44 @@
           <text macro="access" prefix=" "/>
         </if>
         <else-if type="paper-conference" match="any">
-          <text variable="container-title" suffix=", "/>
-          <text variable="publisher-place" suffix=", "/>
-          <date date-parts="year" form="text" variable="issued" suffix="; "/>
-          <text variable="page"/>
+          <group prefix=" " suffix="." delimiter="; ">
+            <group delimiter=", ">
+              <text variable="container-title"/>
+              <text variable="publisher-place"/>
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </group>
+            <text variable="page"/>
+          </group>
+          <text macro="access" prefix=" "/>
+        </else-if>
+        <else-if type="chapter" match="any">
+          <group prefix=" " delimiter=" ">
+            <text term="in" text-case="capitalize-first" suffix=":"/>
+            <text macro="editor"/>
+            <text variable="container-title" suffix="."/>
+          </group>
+          <group prefix=" " suffix=".">
+            <text macro="publisher"/>
+            <group prefix=", " delimiter="; ">
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+              <text variable="page"/>
+            </group>
+          </group>
+          <text macro="access" prefix=" "/>
+        </else-if>
+        <else-if type="book" match="any">
+          <group prefix=" " suffix=".">
+            <text macro="publisher"/>
+            <date variable="issued" prefix=", ">
+              <date-part name="year"/>
+            </date>
+            <text variable="page" prefix="; "/>
+          </group>
+          <text macro="access" prefix=" "/>
         </else-if>
         <else>
           <group prefix=" ">
@@ -111,6 +148,7 @@
             </group>
             <text variable="page" prefix=":" suffix="."/>
           </group>
+          <text macro="access" prefix=" "/>
         </else>
       </choose>
     </layout>
