@@ -170,7 +170,7 @@ A generic structure could then look like:
 </citation>
 ```
 
-If a case is missing in your style, you can add a new case and specify how information should be rendered in that case (e.g. see [Chicago (full note)](https://www.zotero.org/styles/chicago-fullnote-bibliography?source=1) for an example).
+If a case is missing in your style, you can add a new case and specify how information should be rendered in that case (e.g. see [Chicago (notes and bibliography)](https://www.zotero.org/styles/chicago-notes-bibliography?source=1) for an example).
 
 #### Note: Updating from Older CSL Versions
 
@@ -191,7 +191,7 @@ The style title and ID are stored within the `<title/>` and `<id/>` elements nea
 For example:
 
 ```xml
-<title>American Psychological Association 6th edition</title>
+<title>APA Style 6th edition</title>
 <title-short>APA</title-short>
 <id>http://www.zotero.org/styles/apa</id>
 ```
@@ -199,7 +199,7 @@ For example:
 can be changed to:
 
 ```xml
-<title>American Psychological Association 6th edition - Modified</title>
+<title>APA Style 6th edition - Modified</title>
 <title-short>APA - modified</title-short>
 <id>http://www.zotero.org/styles/apa-modified</id>
 ```
