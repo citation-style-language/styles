@@ -515,6 +515,96 @@
       </else>
     </choose>
   </macro>
+  <!-- Narrative (in-text) form of the author, identical to `author-short` but with
+       the conjunction rendered as the word "and" rather than the ampersand "&",
+       per APA 8.17 (e.g. "Smith and Jones (2020)" vs "(Smith & Jones, 2020)"). -->
+  <macro name="author-intext">
+    <choose>
+      <if match="any" type="bill hearing legal_case legislation regulation treaty">
+        <text macro="title-and-descriptions-short"/>
+      </if>
+      <else-if match="any" type="interview personal_communication">
+        <choose>
+          <!-- These variables indicate that the letter is retrievable by the reader. If not, use the APA in-text-only personal communication format. -->
+          <if match="any" variable="archive archive-place container-title DOI number publisher references URL">
+            <names variable="author">
+              <name and="text" form="short"/>
+              <substitute>
+                <text macro="title-and-descriptions-short"/>
+              </substitute>
+            </names>
+          </if>
+          <else>
+            <group delimiter=", ">
+              <names variable="author">
+                <name and="text"/>
+                <substitute>
+                  <text macro="title-and-descriptions-short"/>
+                </substitute>
+              </names>
+              <text term="personal-communication"/>
+            </group>
+          </else>
+        </choose>
+      </else-if>
+      <else>
+        <names variable="composer">
+          <!-- et-al options match the citation element; they must be set on the name
+               here because they are not inherited from the cs:intext element. -->
+          <name and="text" et-al-min="3" et-al-use-first="1" form="short"/>
+          <substitute>
+            <names variable="author"/>
+            <names variable="illustrator"/>
+            <choose>
+              <if type="broadcast">
+                <!-- TODO: Collapse variables when that becomes available. -->
+                <!-- Ideally combine as `script-writer director` -->
+                <names variable="script-writer"/>
+              </if>
+            </choose>
+            <names variable="director"/>
+            <!-- TODO: Collapse variables when that becomes available. -->
+            <names variable="guest host"/>
+            <names variable="producer"/>
+            <choose>
+              <if match="any" type="entry-dictionary entry-encyclopedia">
+                <text variable="publisher"/>
+              </if>
+            </choose>
+            <choose>
+              <if match="none" variable="container-title"/>
+              <else-if match="any" type="book classic entry entry-dictionary entry-encyclopedia">
+                <text macro="title-and-descriptions-short"/>
+              </else-if>
+            </choose>
+            <names variable="executive-producer"/>
+            <names variable="series-creator"/>
+            <names variable="editor"/>
+            <names variable="editorial-director"/>
+            <names variable="compiler"/>
+            <choose>
+              <if match="any" type="event performance speech">
+                <names variable="chair"/>
+                <names variable="organizer"/>
+              </if>
+            </choose>
+            <names variable="curator"/>
+            <names variable="collection-editor"/>
+            <choose>
+              <if match="any" type="software webpage">
+                <!-- `software` (APA 10.10) and `webpage` (APA 10.16) can be cited under "name of group": likely in `publisher` if no `author` -->
+                <text form="short" variable="publisher"/>
+              </if>
+              <else-if type="standard">
+                <text form="short" variable="authority"/>
+              </else-if>
+            </choose>
+            <text macro="title-and-descriptions-short"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
+  </macro>
   <macro name="author-sort">
     <choose>
       <if match="any" type="bill hearing legal_case legislation regulation treaty">
@@ -2221,6 +2311,15 @@
       </group>
     </layout>
   </citation>
+  <!-- Narrative citations: the author rendered in running text, e.g. "Smith and
+       Jones (2020)". The processor pairs this author-only output with the
+       suppress-author form of the citation ("(2020)") to assemble the full
+       narrative citation. -->
+  <intext et-al-min="3" et-al-use-first="1">
+    <layout>
+      <text macro="author-intext"/>
+    </layout>
+  </intext>
   <!-- Bibliography -->
   <macro name="bibliography">
     <group delimiter=" ">
