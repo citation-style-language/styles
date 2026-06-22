@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Navajanje po pravilih FDV (APA7) — Slovenian CSL style for Zotero
+  Based on: https://vodici.fdv.uni-lj.si/subjects/guide.php?subject=apa
+  Generated: June 2026
+
+  COVERAGE (fully automatic):
+    Books, e-books, book chapters, edited volumes, multi-volume works
+    Journal articles (with and without DOI), newspaper/magazine articles
+    Theses and dissertations (institutional, commercial repositories)
+    Conference papers and proceedings
+    Reports (technical, research, organisational)
+    Webpages, blogs, forum posts
+    Audio-visual (film, broadcast, podcast, YouTube, music)
+    Maps, standards, patents
+    Legal documents: court decisions, legislation, treaties, EU acts,
+                     government/executive documents
+
+  KNOWN LIMITATIONS (manual fix in Zotero needed):
+    - "Pridobljeno [date] na [URL]" is shown when the "Accessed" field is
+      filled in Zotero. For sources that do NOT change (most websites),
+      leave the Accessed field empty.
+    - Legal/primary source types use approximations (legal_case →
+      legislation → treaty). Complex formatting (e.g. case numbers,
+      court names) must be entered in the "extra" field or adjusted manually.
+    - Gender of "in drugi" is grammatically masculine. For all-female
+      author groups FDV recommends "in druge" — adjust manually.
+    - Conference papers cited without proceedings use the "paper-conference"
+      type; enter the conference name in the "event" field.
+    - Entry-types not covered by CSL (e.g. annotated Wikipedia entry,
+      data archive, software) fall back to the generic template; check
+      the result against the FDV guide for that type.
+-->
+<style xmlns="http://purl.org/net/xbiblio/csl"
+       class="in-text"
+       version="1.0"
+       demote-non-dropping-particle="never"
+       default-locale="sl-SI">
+
+  <info>
+    <title>Navajanje po pravilih FDV (APA7)</title>
+    <title-short>FDV APA7</title-short>
+    <id>urn:fdv-apa7-sl</id>
+    <link href="https://vodici.fdv.uni-lj.si/subjects/guide.php?subject=apa"
+          rel="documentation"/>
+    <category citation-format="author-date"/>
+    <category field="social_science"/>
+    <summary>Slovenian FDV adaptation of APA 7th edition (Fakulteta za
+    družbene vede, Univerza v Ljubljani). Key differences from standard
+    APA 7: "in" instead of "&amp;", "in drugi" instead of "et al.",
+    "ur." for editors, "str." for pages, "zv." for volumes, "b. d." for
+    no date, full Slovenian date format.</summary>
+    <updated>2026-06-22T00:00:00+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">
+      This work is licensed under a Creative Commons Attribution-ShareAlike
+      3.0 License
+    </rights>
+  </info>
+
+  <!-- =================================================================
+       SLOVENIAN LOCALE OVERRIDES
+       ================================================================= -->
+  <locale xml:lang="sl">
+    <terms>
+      <!-- Core conjunctions and labels -->
+      <term name="et-al">in drugi</term>
+      <term name="and">in</term>
+      <term name="editor" form="short">
+        <single>ur.</single>
+        <multiple>ur.</multiple>
+      </term>
+      <term name="translator" form="short">
+        <single>prev.</single>
+        <multiple>prev.</multiple>
+      </term>
+      <term name="edition" form="short">izd.</term>
+      <term name="volume" form="short">
+        <single>zv.</single>
+        <multiple>zv.</multiple>
+      </term>
+      <term name="page" form="short">
+        <single>str.</single>
+        <multiple>str.</multiple>
+      </term>
+      <term name="no date" form="short">b. d.</term>
+      <term name="in press">v tisku</term>
+      <term name="retrieved">Pridobljeno</term>
+      <term name="from">na</term>
+      <!-- Slovenian month names — nominative (as used in FDV examples) -->
+      <term name="month-01">januar</term>
+      <term name="month-02">februar</term>
+      <term name="month-03">marec</term>
+      <term name="month-04">april</term>
+      <term name="month-05">maj</term>
+      <term name="month-06">junij</term>
+      <term name="month-07">julij</term>
+      <term name="month-08">avgust</term>
+      <term name="month-09">september</term>
+      <term name="month-10">oktober</term>
+      <term name="month-11">november</term>
+      <term name="month-12">december</term>
+    </terms>
+  </locale>
+
+  <!-- =================================================================
+       MACROS
+       ================================================================= -->
+
+  <!--
+    CONTRIBUTORS (bibliography)
+    All names rendered as "Surname, I." (name-as-sort-order).
+    Falls back to editor, then title if no author.
+  -->
+  <macro name="contributors">
+    <names variable="author">
+      <name name-as-sort-order="all"
+            and="text"
+            sort-separator=", "
+            initialize-with=". "
+            delimiter=", "
+            delimiter-precedes-last="always"/>
+      <label form="short" prefix=" (" suffix=")"/>
+      <substitute>
+        <names variable="editor"/>
+        <choose>
+          <if type="book motion_picture report broadcast" match="any">
+            <text variable="title" font-style="italic"/>
+          </if>
+          <else>
+            <text variable="title"/>
+          </else>
+        </choose>
+      </substitute>
+    </names>
+  </macro>
+
+  <!--
+    CONTAINER CONTRIBUTORS
+    Editor names in natural order (I. Surname) for use inside
+    "V I. Surname (ur.), *Book*" pattern.
+  -->
+  <macro name="container-contributors">
+    <names variable="editor">
+      <name initialize-with=". "
+            and="text"
+            delimiter=", "
+            delimiter-precedes-last="always"/>
+      <label form="short" prefix=" (" suffix=")"/>
+    </names>
+  </macro>
+
+  <!--
+    AUTHOR SHORT (in-text)
+    Surname only; "in drugi" for ≥3 authors.
+  -->
+  <macro name="author-short">
+    <names variable="author">
+      <name form="short"
+            and="text"
+            et-al-min="3"
+            et-al-use-first="1"/>
+      <et-al term="et-al"/>
+      <substitute>
+        <names variable="editor"/>
+        <choose>
+          <if type="book motion_picture report" match="any">
+            <text variable="title" font-style="italic" form="short"/>
+          </if>
+          <else>
+            <text variable="title" quotes="true" form="short"/>
+          </else>
+        </choose>
+      </substitute>
+    </names>
+  </macro>
+
+  <!--
+    DATE (bibliography)
+    Most sources: year only.
+    Newspapers, blogs, web pages, broadcasts: year, day. month
+  -->
+  <macro name="date">
+    <choose>
+      <if variable="issued">
+        <choose>
+          <if type="article-newspaper article-magazine post-weblog
+                    webpage post broadcast" match="any">
+            <date variable="issued">
+              <date-part name="year" suffix=", "/>
+              <date-part name="day" suffix=". "/>
+              <date-part name="month" form="long"/>
+            </date>
+          </if>
+          <else>
+            <date variable="issued">
+              <date-part name="year"/>
+            </date>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="status">
+        <text variable="status"/>
+      </else-if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!--
+    DATE IN-TEXT (year only)
+  -->
+  <macro name="date-in-text">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else-if variable="status">
+        <text variable="status"/>
+      </else-if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!--
+    ACCESS (DOI or URL)
+    If the "Accessed" date is filled in Zotero, shows:
+      "Pridobljeno D. M. YYYY na URL"
+    Otherwise shows just the URL (or DOI).
+    DOI is always formatted as https://doi.org/...
+  -->
+  <macro name="access">
+    <choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="https://doi.org/"/>
+      </if>
+      <else-if variable="URL">
+        <text variable="URL"/>
+      </else-if>
+    </choose>
+  </macro>
+
+  <!--
+    EDITION
+    Numeric editions rendered as ordinal + "izd." (e.g. "11. izd.")
+    Text editions passed through as-is.
+  -->
+  <macro name="edition">
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <text term="edition" form="short"/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!--
+    PAGES — prefixed with "str."
+  -->
+  <macro name="pages">
+    <group delimiter=" ">
+      <label variable="page" form="short"/>
+      <text variable="page"/>
+    </group>
+  </macro>
+
+  <!-- =================================================================
+       IN-TEXT CITATION
+       et-al kicks in at ≥3 authors (shows first 1 + "in drugi")
+       Year-suffix disambiguation, collapse same-author years.
+       ================================================================= -->
+  <citation et-al-min="3"
+            et-al-use-first="1"
+            disambiguate-add-year-suffix="true"
+            disambiguate-add-names="true"
+            disambiguate-add-givenname="true"
+            givenname-disambiguation-rule="primary-name"
+            collapse="year">
+    <sort>
+      <key macro="author-short"/>
+      <key macro="date-in-text"/>
+    </sort>
+    <layout prefix="(" suffix=")" delimiter="; ">
+      <group delimiter=", ">
+        <text macro="author-short"/>
+        <text macro="date-in-text"/>
+        <choose>
+          <if variable="locator">
+            <group delimiter=" ">
+              <label variable="locator" form="short"/>
+              <text variable="locator"/>
+            </group>
+          </if>
+        </choose>
+      </group>
+    </layout>
+  </citation>
+
+  <!-- =================================================================
+       BIBLIOGRAPHY
+       Hanging indent, double line-spacing.
+       ≥21 authors → show first 19, then "…", then last author.
+       ================================================================= -->
+  <bibliography hanging-indent="true"
+                et-al-min="21"
+                et-al-use-first="19"
+                et-al-use-last="true"
+                entry-spacing="0"
+                line-spacing="2">
+    <sort>
+      <key macro="contributors"/>
+      <key macro="date-in-text"/>
+      <key variable="title"/>
+    </sort>
+    <layout suffix=".">
+
+      <!-- ── Author / editor / title block ── -->
+      <text macro="contributors"/>
+
+      <!-- ── Date in parentheses ── -->
+      <group prefix=" (" suffix=").">
+        <text macro="date"/>
+      </group>
+
+      <!-- ── Source-type-specific content ── -->
+      <choose>
+
+        <!-- ═══ JOURNAL ARTICLE ═══
+             Zajc, D. (1992). Odnos ... *Vestnik za javno upravo, 28*(3/4),
+             str. 239–242.
+        -->
+        <if type="article-journal">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" suffix="."/>
+            <group>
+              <group font-style="italic">
+                <text variable="container-title"/>
+                <text value=", "/>
+                <text variable="volume"/>
+              </group>
+              <text variable="issue" prefix="(" suffix=")"/>
+              <text macro="pages" prefix=", "/>
+            </group>
+            <text macro="access"/>
+          </group>
+        </if>
+
+        <!-- ═══ NEWSPAPER / MAGAZINE ═══
+             Slabe, D. (2017, 25. maj). Evropa ... *Delo*, str. 3.
+        -->
+        <else-if type="article-newspaper article-magazine" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" suffix="."/>
+            <text variable="container-title" font-style="italic" suffix=","/>
+            <text macro="pages" suffix="."/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ BOOK (monograph, e-book, reference work) ═══
+             Oblak Črnič, T. (2020). *Mladost na zaslonu*. Založba FDV.
+             Harlow, L. L. (ur.). (1997). *What if ...?* Erlbaum.
+             Koch, S. (ur.). (1959–1963). *Psychology* (zv. 1–6). McGraw.
+        -->
+        <else-if type="book" match="any">
+          <group prefix=" " delimiter=" ">
+            <!-- Title only when there IS an author (else title already
+                 rendered in the contributor substitute above) -->
+            <choose>
+              <if variable="author">
+                <text variable="title" font-style="italic"/>
+              </if>
+            </choose>
+            <!-- Edition, if present -->
+            <text macro="edition" prefix="(" suffix=")"/>
+            <!-- Volume range, if present -->
+            <choose>
+              <if variable="volume">
+                <group prefix="(" suffix=")">
+                  <text term="volume" form="short" suffix=" "/>
+                  <text variable="volume"/>
+                </group>
+              </if>
+            </choose>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ CHAPTER IN EDITED BOOK ═══
+             Kustec Lipicer, S. in Doupona Topić, M. (2015). Sport clubs
+             in Slovenia. V C. Breuer (ur.), *Sport clubs in Europe*
+             (str. 369–380). Springer. https://doi.org/...
+        -->
+        <else-if type="chapter" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" suffix="."/>
+            <group suffix=".">
+              <text value="V "/>
+              <text macro="container-contributors"/>
+              <text variable="container-title" font-style="italic" prefix=", "/>
+              <group prefix=" (" suffix=")">
+                <text macro="pages"/>
+              </group>
+            </group>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ CONFERENCE PAPER / PROCEEDING ═══
+             With proceedings editor:
+               Koleša, I. in Jaklič, A. (2016). Managing ...
+               V A. S. Sitar ... (ur.), *Corporate Governance ...* (str. 132–158).
+               Slovenian Academy of Management.
+
+             Without proceedings (stand-alone abstract/paper):
+               Cugmas, M. in Ferligoj, A. (2015, 16.–18. oktober).
+               *Comparing partitions ...* [prispevek na konferenci].
+               20th Young Statisticians Meeting, Vorau, Austria. URL
+
+             Note: enter conference name in Zotero's "Event" field.
+        -->
+        <else-if type="paper-conference" match="any">
+          <group prefix=" " delimiter=" ">
+            <choose>
+              <if variable="editor">
+                <!-- Published in proceedings -->
+                <text variable="title" suffix="."/>
+                <group suffix=".">
+                  <text value="V "/>
+                  <text macro="container-contributors"/>
+                  <text variable="container-title" font-style="italic" prefix=", "/>
+                  <group prefix=" (" suffix=")">
+                    <text macro="pages"/>
+                  </group>
+                </group>
+                <text variable="publisher"/>
+              </if>
+              <else>
+                <!-- Stand-alone conference presentation -->
+                <text variable="title" font-style="italic"/>
+                <text value="[prispevek na konferenci]."/>
+                <text variable="event"/>
+              </else>
+            </choose>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ THESIS / DISSERTATION ═══
+             Popović, D. (2016). *Onstran ideologije dela ...* [doktorska
+             disertacija, Univerza v Ljubljani, FDV]. URL
+
+             In Zotero: Type = Thesis; Genre = "doktorska disertacija";
+             Publisher = "Univerza v Ljubljani, FDV"
+        -->
+        <else-if type="thesis" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" font-style="italic"/>
+            <group prefix="[" suffix="]." delimiter=", ">
+              <text variable="genre"/>
+              <text variable="publisher"/>
+            </group>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ REPORT (technical, research, organisational) ═══
+             Abram, A. ... (2014). *Hidrotermalna ...* (IJS, delovno
+             poročilo, 11719). Institut "Jožef Stefan".
+
+             In Zotero: Report Type = genre; Report Number = number
+        -->
+        <else-if type="report" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" font-style="italic"/>
+            <group prefix="(" suffix=")." delimiter=", ">
+              <text variable="genre"/>
+              <text variable="number"/>
+            </group>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ WEBPAGE / BLOG / POST ═══
+             Schaeffer, K. (2021, 1. oktober). *What we know ...*.
+             Pew Research Center. URL
+
+             Damijan, J. P. (2017, 19. julij). *Demokracija po ameriško ...*
+             [blog]. URL
+
+             In Zotero: set Genre/Extra to "[blog]", "[komentar ...]" etc.
+             for non-standard types; leave blank for plain web pages.
+        -->
+        <else-if type="webpage post-weblog post" match="any">
+          <group prefix=" " delimiter=" ">
+            <!-- Title only when there IS an author -->
+            <choose>
+              <if variable="author">
+                <text variable="title" font-style="italic"/>
+              </if>
+            </choose>
+            <text variable="genre" prefix="[" suffix="]."/>
+            <text variable="container-title" suffix="."/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ BROADCAST (TV / Radio) ═══
+             Ratej, M. ... (2023, 23. februar). *Frekvenca X: ...*
+             [radijska oddaja]. Radio Slovenija, Val 202. URL
+        -->
+        <else-if type="broadcast" match="any">
+          <group prefix=" " delimiter=" ">
+            <choose>
+              <if variable="author">
+                <text variable="title" font-style="italic"/>
+              </if>
+            </choose>
+            <text variable="genre" prefix="[" suffix="]."/>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ MOTION PICTURE / FILM ═══
+             Gale, J. (režiser) in Ribič, I. (scenarist). (1963).
+             *Srečno, Kekec!* [film]. Viba film, Eyeline productions.
+        -->
+        <else-if type="motion_picture" match="any">
+          <group prefix=" " delimiter=" ">
+            <choose>
+              <if variable="author">
+                <text variable="title" font-style="italic"/>
+              </if>
+            </choose>
+            <text variable="genre" prefix="[" suffix="]."/>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ MUSICAL RECORDING / SONG ═══
+             Mlakar, I. (1994). Puntarska [skladba].
+             V *Štorije in baldorije*. RTV Slovenija.
+        -->
+        <else-if type="song" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title"/>
+            <text variable="genre" prefix="[" suffix="]."/>
+            <text value="V"/>
+            <text variable="container-title" font-style="italic" suffix="."/>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ LEGAL CASE (court decision / sodba) ═══
+             Sklep Ustavnega sodišča (2016). Št. U-I-85/16, Up-398/16.
+             Republika Slovenija, Ustavno sodišče, 14. julij. URL
+
+             Use Zotero type: Legal Case.
+             Case Number → number; Court → authority; Date → issued (full).
+             For international cases: title is italicised.
+        -->
+        <else-if type="legal_case" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title" font-style="italic"/>
+            <text variable="number" prefix="Št. " suffix="."/>
+            <text variable="authority" suffix=","/>
+            <date variable="issued">
+              <date-part name="day" suffix=". "/>
+              <date-part name="month" form="long" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+            <text value="."/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ LEGISLATION (zakoni, uredbe, odločitve MVO) ═══
+             Zakon o delovnih razmerjih – ZDR-1. (2013).
+             Sprejet v Državnem zboru ..., v veljavi od 12. aprila. URL
+
+             Uredba (EU) št. 604/2013 ... (Dublinska uredba). URL
+
+             Use Zotero type: Bill / Statute.
+             Title → title (full official title incl. abbreviation).
+             Extra info (enacting body, date of entry into force) →
+             enter in the "Extra" Zotero field; it will NOT appear
+             automatically — add it manually after export.
+        -->
+        <else-if type="legislation bill" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ TREATY (mednarodna pogodba) ═══
+             Pogodba o Evropski uniji, podpisana 7. februarja 1992 ...
+             URL
+
+             Entire citation is usually typed manually in Zotero's
+             "Extra" / title field; this template provides basic output.
+        -->
+        <else-if type="treaty" match="any">
+          <group prefix=" " delimiter=" ">
+            <text variable="title"/>
+            <text macro="access"/>
+          </group>
+        </else-if>
+
+        <!-- ═══ FALLBACK / GENERIC ═══
+             Used for: software, datasets, maps, standards, patents,
+             AI tools, and any type not explicitly handled above.
+             Check the result against the FDV guide for that source type.
+        -->
+        <else>
+          <group prefix=" " delimiter=" ">
+            <choose>
+              <if variable="author">
+                <text variable="title" font-style="italic"/>
+              </if>
+            </choose>
+            <text variable="genre" prefix="[" suffix="]."/>
+            <text variable="publisher"/>
+            <text macro="access"/>
+          </group>
+        </else>
+
+      </choose>
+    </layout>
+  </bibliography>
+
+</style>
