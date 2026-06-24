@@ -11,11 +11,16 @@
       <email>adhemar.zerlotini@embrapa.br</email>
       <uri>http://github.com/azneto</uri>
     </author>
+    <contributor>
+      <name>Josua Carl</name>
+      <email>josua.carl@uni-tuebingen.de</email>
+      <uri>http://github.com/JosuaCarl</uri>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="biology"/>
     <category field="medicine"/>
     <eissn>2047-217X</eissn>
-    <updated>2020-08-10T15:37:01+00:00</updated>
+    <updated>2026-06-24T14:27:20+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -62,17 +67,34 @@
     </group>
   </macro>
   <macro name="publisher">
-    <group delimiter=": " suffix=";">
-      <choose>
-        <if type="thesis">
-          <text variable="publisher-place" prefix="[" suffix="]"/>
-        </if>
-        <else>
-          <text variable="publisher-place"/>
-        </else>
-      </choose>
-      <text variable="publisher"/>
-    </group>
+    <choose>
+      <if type="software">
+        <group delimiter=": ">
+          <choose>
+            <if type="thesis">
+              <text variable="publisher-place" prefix="[" suffix="]"/>
+            </if>
+            <else>
+              <text variable="publisher-place"/>
+            </else>
+          </choose>
+          <text variable="publisher"/>
+        </group>
+      </if>
+      <else>
+        <group delimiter=": " suffix=";">
+          <choose>
+            <if type="thesis">
+              <text variable="publisher-place" prefix="[" suffix="]"/>
+            </if>
+            <else>
+              <text variable="publisher-place"/>
+            </else>
+          </choose>
+          <text variable="publisher"/>
+        </group>
+      </else>
+    </choose>
   </macro>
   <macro name="access">
     <choose>
@@ -165,6 +187,13 @@
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
       </else-if>
+      <else-if type="software">
+        <date variable="issued" delimiter=" " prefix="(" suffix=")">
+          <date-part name="year" suffix=","/>
+          <date-part name="month" form="long" strip-periods="true"/>
+          <date-part name="day"/>
+        </date>
+      </else-if>
     </choose>
   </macro>
   <macro name="pages">
@@ -194,6 +223,37 @@
       </if>
     </choose>
   </macro>
+  <macro name="version">
+    <choose>
+      <if type="software">
+        <text variable="version" prefix="(Version " suffix=")"/>
+      </if>
+    </choose>
+  </macro>
+  <macro name="identifier">
+    <group prefix=" " delimiter=". ">
+      <choose>
+        <if type="software" match="any">
+          <text variable="source"/>
+        </if>
+      </choose>
+      <choose>
+        <if type="article-journal" match="any">
+          <text variable="DOI" prefix="doi: " suffix="."/>
+        </if>
+        <else-if type="software">
+          <choose>
+            <if variable="DOI">
+              <text variable="DOI" prefix="doi: " suffix="."/>
+            </if>
+            <else>
+              <text variable="URL"/>
+            </else>
+          </choose>
+        </else-if>
+      </choose>
+    </group>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -208,6 +268,11 @@
       <group suffix=". ">
         <text macro="author"/>
         <choose>
+          <if type="software" match="any">
+            <text macro="date"/>
+          </if>
+        </choose>
+        <choose>
           <if type="webpage" match="any">
             <text value=": "/>
           </if>
@@ -221,6 +286,7 @@
         <text macro="editor"/>
         <text macro="container-title"/>
         <text macro="publisher"/>
+        <text macro="version"/>
         <group>
           <choose>
             <if match="none" variable="DOI">
@@ -228,16 +294,16 @@
               <text macro="pages"/>
             </if>
           </choose>
-          <text macro="date"/>
+          <choose>
+            <if type="software" match="none">
+              <text macro="date"/>
+            </if>
+          </choose>
         </group>
       </group>
       <text macro="access"/>
       <text macro="report-details" suffix=". "/>
-      <choose>
-        <if type="article-journal" match="any">
-          <text variable="DOI" prefix="doi: " suffix="."/>
-        </if>
-      </choose>
+      <text macro="identifier"/>
     </layout>
   </bibliography>
 </style>
