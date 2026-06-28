@@ -4,6 +4,7 @@
 - Style has documentation link (click on the link to make sure it's actually the new documentation rather than the link left in from the template)
   - Where no public documentation is available, we offer people to upload it to github (though be mindful of copyright) and then link to the github post. We rarely make exceptions to this requirement
 - Style has template link _or_ submitter credibly states that they started from scratch (you can tell by macro names & structure, typically)
+- Style includes [CSL subject categories](https://docs.citationstyles.org/en/stable/specification.html#appendix-i-categories), while removing the `generic-base` category from derivatives of generic styles (such as APA or Chicago)
 
 ### Journal styles 
   - Have all ISSNs used for the journal (check https://portal.issn.org/ )

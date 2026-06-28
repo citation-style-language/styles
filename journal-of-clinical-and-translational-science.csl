@@ -8,12 +8,12 @@
     <link href="http://www.zotero.org/styles/epidemiology-and-infection" rel="template"/>
     <link href="https://www.cambridge.org/core/journals/journal-of-clinical-and-translational-science/information/instructions-contributors#submissionofmanuscripts" rel="documentation"/>
     <author>
-      <name>Patrick O'Brien</name>
+      <name>Bethany Laursen</name>
     </author>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <eissn>2059-8661</eissn>
-    <updated>2021-08-09T08:45:09+00:00</updated>
+    <updated>2025-07-15T12:44:26+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -50,8 +50,8 @@
   <macro name="publisher">
     <group delimiter=": " suffix=",">
       <choose>
-        <if type="thesis">
-          <text variable="publisher-place" prefix="[" suffix="]"/>
+        <if type="thesis book chapter report">
+          <text variable="publisher-place"/>
         </if>
         <else>
           <text variable="publisher-place"/>
@@ -133,11 +133,21 @@
           <date-part name="year"/>
         </date>
       </else-if>
+      <else-if type="webpage post-weblog post" match="any">
+        <date variable="issued">
+          <date-part name="month" form="short" strip-periods="true" suffix=" "/>
+          <date-part name="day" suffix=", "/>
+          <date-part name="year"/>
+        </date>
+      </else-if>
       <else-if type="report">
         <date variable="issued" delimiter=" ">
           <date-part name="year"/>
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
+      </else-if>
+      <else-if type="chapter paper-conference" match="any">
+        <date date-parts="year" form="text" variable="issued" suffix=":"/>
       </else-if>
       <else>
         <date variable="issued">
@@ -147,26 +157,7 @@
     </choose>
   </macro>
   <macro name="pages">
-    <choose>
-      <if type="article-journal article-magazine article-newspaper" match="any">
-        <choose>
-          <if match="any" variable="page">
-            <text variable="page" prefix=": "/>
-          </if>
-          <else>
-            <text term="online" text-case="capitalize-first" suffix=": "/>
-            <date form="text" variable="issued" suffix="."/>
-            <text variable="DOI" prefix="doi:"/>
-          </else>
-        </choose>
-      </if>
-      <else>
-        <group delimiter=" " prefix=", ">
-          <label variable="page" form="short"/>
-          <text variable="page"/>
-        </group>
-      </else>
-    </choose>
+    <text variable="page"/>
   </macro>
   <macro name="journal-location">
     <choose>
@@ -204,18 +195,19 @@
         <text macro="publisher"/>
         <group>
           <text macro="date"/>
-          <text macro="journal-location"/>
+          <text macro="journal-location" suffix=": "/>
           <text macro="pages"/>
           <choose>
-            <if type="webpage post-weblog" match="any">
-              <group delimiter=". " prefix=" ">
-                <group delimiter=" " prefix="[" suffix="]">
-                  <text term="cited"/>
-                  <date form="text" variable="accessed"/>
-                </group>
+            <if type="webpage post-weblog post" match="any">
+              <group delimiter=" " prefix=", ">
                 <text variable="URL" prefix="(" suffix=")"/>
+                <text term="accessed" text-case="capitalize-first"/>
+                <date form="text" variable="accessed"/>
               </group>
             </if>
+            <else-if type="article-journal" match="any">
+              <text variable="DOI" prefix=". doi: "/>
+            </else-if>
           </choose>
         </group>
       </group>
