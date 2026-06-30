@@ -15,18 +15,30 @@
     <category field="humanities"/>
     <category field="history"/>
     <summary>Basato sul vademecum di I. Falbo Ph.D.</summary>
-    <updated>2026-06-24T13:00:00+02:00</updated>
+    <updated>2026-06-30T13:00:00+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
-  <!-- Locale: n. e nn. for issueno -->
   <locale xml:lang="it">
     <terms>
+      <!-- issue no as n. instead of fasc. -->
       <term name="issue" form="short">
         <single>n.</single>
         <multiple>nn.</multiple>
       </term>
       <term name="open-quote">«</term>
       <term name="close-quote">»</term>
+      <!-- collection no as s. instead of fasc. -->
+      <term name="collection-number" form="short">s.</term>
+      <term name="ibid" form="short">ivi</term>
+      <!-- anonymous as ignoto instead of anonimo -->
+      <term name="anonymous">ignoto</term>
+      <term name="author">autore</term>
+      <!-- data di ultima consultazione instead of consultato -->
+      <term name="accessed" form="verb">data di ultima consultazione</term>
+      <term name="timestamp" form="short">ore</term>
+      <!-- atti del convegno -->
+      <term name="paper-conference">atti del convegno</term>
+      <term name="cited" form="short">cit.</term>
     </terms>
   </locale>
   <!-- Macros author -->
@@ -34,7 +46,6 @@
   <macro name="author-firstcitation">
     <names variable="author">
       <name delimiter=", " font-variant="small-caps" initialize-with=". "/>
-      <label form="short" prefix=", " strip-periods="true"/>
       <substitute>
         <text macro="title"/>
       </substitute>
@@ -44,28 +55,30 @@
   <macro name="author-subsequent">
     <names variable="author">
       <name form="short" delimiter=", " font-variant="small-caps"/>
-      <label form="short" prefix=", " strip-periods="true"/>
       <substitute>
         <text macro="title-short-cit"/>
       </substitute>
     </names>
   </macro>
-  <!-- (Lastname Name) -->
+  <!-- (Bibliography) -->
   <macro name="author-bib">
     <choose>
+      <!-- (Name Lastname for art) -->
       <if type="graphic" match="any">
         <names variable="author">
           <name delimiter=", " font-variant="small-caps" sort-separator=" "/>
-          <label form="short" prefix=", " strip-periods="true"/>
           <substitute>
-            <text macro="title"/>
+            <group delimiter=" ">
+              <text term="anonymous"/>
+              <text term="author"/>
+            </group>
           </substitute>
         </names>
       </if>
+      <!-- (Lastname Name) -->
       <else>
         <names variable="author">
           <name delimiter=", " font-variant="small-caps" name-as-sort-order="all" sort-separator=" "/>
-          <label form="short" prefix=", " strip-periods="true"/>
           <substitute>
             <text macro="title"/>
           </substitute>
@@ -87,28 +100,14 @@
       <!-- Journals-->
       <if type="article-journal" match="any">
         <group delimiter=", ">
-          <choose>
-            <if variable="collection-number">
-              <group delimiter=" ">
-                <label variable="collection-number" form="short"/>
-                <number variable="collection-number" form="roman" text-case="uppercase"/>
-              </group>
-            </if>
-            <else-if variable="collection-title">
-              <group delimiter=" ">
-                <text value="s."/>
-                <text variable="collection-title" text-case="uppercase"/>
-              </group>
-            </else-if>
-          </choose>
-          <choose>
-            <if variable="volume">
-              <group delimiter=" ">
-                <label variable="volume" form="short"/>
-                <number variable="volume" form="roman" text-case="uppercase"/>
-              </group>
-            </if>
-          </choose>
+          <group delimiter=" ">
+            <text term="collection-number" form="short"/>
+            <number variable="collection-number" form="roman" text-case="uppercase"/>
+          </group>
+          <group delimiter=" ">
+            <label variable="volume" form="short"/>
+            <number variable="volume" form="roman" text-case="uppercase"/>
+          </group>
         </group>
       </if>
       <else>
@@ -141,7 +140,8 @@
       <!-- "voce in" for dictionaries -->
       <if type="entry-encyclopedia entry-dictionary" match="any">
         <group delimiter=" ">
-          <text term="in" prefix="voce "/>
+          <text term="entry"/>
+          <text term="in"/>
           <text variable="container-title" font-style="italic"/>
         </group>
       </if>
@@ -167,7 +167,8 @@
           <if variable="container-title" match="any">
             <group delimiter=", ">
               <group delimiter=" ">
-                <text term="in" suffix=" atti del convegno "/>
+                <text term="in"/>
+                <text term="paper-conference"/>
                 <group prefix="(" suffix=")" delimiter=", ">
                   <!-- This could cause lack of variables in extra input -->
                   <text variable="event-place"/>
@@ -178,7 +179,8 @@
           </if>
           <else>
             <!-- Citing entire conference papers -->
-            <group delimiter=" " prefix="atti del convegno ">
+            <group delimiter=" ">
+              <text term="paper-conference"/>
               <text variable="event-title"/>
               <group prefix="(" suffix=")" delimiter=", ">
                 <!-- This could cause lack of variables in extra input -->
@@ -196,7 +198,9 @@
     <choose>
       <!-- Must be saved as book or chapters -->
       <if type="book chapter" match="any">
-        <group delimiter=" " prefix="catalogo della mostra ">
+        <group delimiter=" ">
+          <!-- Forced to use value as no term for exists currently -->
+          <text value="catalogo della mostra "/>
           <group prefix="(" suffix=")" delimiter=", ">
             <!-- This could cause lack of variables in extra input -->
             <text variable="event-place"/>
@@ -207,7 +211,7 @@
     </choose>
   </macro>
   <!-- Macro for editor/translator, N. Lastname, w/out "and" -->
-  <macro name="editor">
+  <macro name="editor_translator">
     <group delimiter=", ">
       <choose>
         <if variable="editor">
@@ -292,7 +296,7 @@
             <text variable="URL"/>
           </group>
           <group delimiter=" ">
-            <text value="data di ultima consultazione"/>
+            <text term="accessed" form="verb"/>
             <group prefix="&lt;" suffix="&gt;" delimiter=", ">
               <date variable="accessed">
                 <date-part name="day" form="numeric-leading-zeros" suffix="/"/>
@@ -300,7 +304,10 @@
                 <date-part name="year"/>
               </date>
               <!-- For the mandatory hh:mm timestamp input -->
-              <text variable="note" prefix="ore "/>
+              <group delimiter=" ">
+                <text term="timestamp" form="short"/>
+                <text variable="note"/>
+              </group>
             </group>
           </group>
         </group>
@@ -333,11 +340,11 @@
     <layout suffix="." delimiter="; ">
       <choose>
         <if position="ibid">
-          <text value="Ibidem" font-style="italic"/>
+          <text term="ibid" font-style="italic"/>
         </if>
         <else-if position="ibid-with-locator">
           <group delimiter=", ">
-            <text value="Ivi"/>
+            <text term="ibid" form="short" text-case="capitalize-first"/>
             <text macro="pageref"/>
           </group>
         </else-if>
@@ -364,7 +371,7 @@
                 <text macro="author-subsequent"/>
                 <group delimiter=" ">
                   <text macro="title-short-cit" suffix="..."/>
-                  <text value="cit."/>
+                  <text term="cited" form="short"/>
                 </group>
                 <text macro="pageref"/>
               </group>
@@ -406,7 +413,7 @@
                 <text macro="conferenceref"/>
                 <text macro="exhref"/>
                 <text macro="volref"/>
-                <text macro="editor"/>
+                <text macro="editor_translator"/>
                 <text macro="issueno"/>
                 <text macro="publisher-placeissued"/>
                 <text macro="pageno"/>
@@ -459,7 +466,7 @@
             <text macro="conferenceref"/>
             <text macro="exhref"/>
             <text macro="volref"/>
-            <text macro="editor"/>
+            <text macro="editor_translator"/>
             <text macro="issueno"/>
             <text macro="publisher-placeissued"/>
             <text macro="pageno"/>
