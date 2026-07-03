@@ -29,6 +29,10 @@
         <single>a cura di</single>
         <multiple>a cura di</multiple>
       </term>
+      <term name="collection-editor">
+        <single>a cura di</single>
+        <multiple>a cura di</multiple>
+      </term>
       <term name="accessed">accesso</term>
       <term name="number-of-volumes">
         <single>vol.</single>
@@ -44,6 +48,10 @@
       <term name="open-inner-quote">‚</term>
       <term name="close-inner-quote">’</term>
       <term name="editor">
+        <single>hg. v.</single>
+        <multiple>hg. v.</multiple>
+      </term>
+      <term name="collection-editor">
         <single>hg. v.</single>
         <multiple>hg. v.</multiple>
       </term>
@@ -65,22 +73,44 @@
         <single>ed.</single>
         <multiple>ed.</multiple>
       </term>
+      <term name="collection-editor">
+        <single>ed.</single>
+        <multiple>ed.</multiple>
+      </term>
       <term name="page-range-delimiter">–</term>
     </terms>
   </locale>
   <macro name="author">
-    <names variable="author" suffix=",">
-      <name and="text" initialize="false" initialize-with=".">
-        <name-part name="given" text-case="capitalize-first"/>
-        <name-part name="family" text-case="capitalize-first"/>
-      </name>
-    </names>
+    <choose>
+      <if variable="author" match="any">
+        <names variable="author" suffix=",">
+          <name and="text" initialize="false" initialize-with=".">
+            <name-part name="given" text-case="capitalize-first"/>
+            <name-part name="family" text-case="capitalize-first"/>
+          </name>
+        </names>
+      </if>
+      <else-if variable="editor collection-editor" match="any"/>
+      <else>
+        <text value="[s.a.]" suffix=","/>
+      </else>
+    </choose>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix=", ">
-      <label form="long" text-case="lowercase" suffix=" "/>
-      <name sort-separator=" " and="text" delimiter-precedes-last="never"/>
-    </names>
+    <choose>
+      <if variable="editor" match="any">
+        <names variable="editor" suffix=", ">
+          <label form="long" text-case="lowercase" suffix=" "/>
+          <name sort-separator=" " and="text" delimiter-precedes-last="never"/>
+        </names>
+      </if>
+      <else-if variable="collection-editor" match="any">
+        <names variable="collection-editor" suffix=", ">
+          <label form="long" text-case="lowercase" suffix=" "/>
+          <name sort-separator=" " and="text" delimiter-precedes-last="never"/>
+        </names>
+      </else-if>
+    </choose>
   </macro>
   <macro name="publisher">
     <text variable="publisher"/>
@@ -136,6 +166,13 @@
             <date variable="original-date" prefix=" (" suffix=")">
               <date-part name="year"/>
             </date>
+            <choose>
+              <if variable="collection-number" match="none">
+                <group prefix=" (" suffix=")">
+                  <text variable="collection-title"/>
+                </group>
+              </if>
+            </choose>
           </group>
         </if>
         <else-if type="manuscript thesis" match="any">
@@ -146,6 +183,16 @@
         </else>
       </choose>
     </group>
+  </macro>
+  <macro name="review-of">
+    <choose>
+      <if variable="reviewed-title">
+        <group delimiter=" " suffix=",">
+          <text value="recensione di"/>
+          <text variable="reviewed-title" quotes="true"/>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="edition">
     <choose>
@@ -189,14 +236,35 @@
   </macro>
   <macro name="date-reference">
     <choose>
-      <if variable="issued">
-        <date variable="original-date" prefix=" (" suffix=") ">
-          <date-part name="year"/>
-        </date>
-        <date variable="issued" date-parts="year" form="text"/>
+      <if variable="collection-editor" match="any">
+        <choose>
+          <if variable="editor" match="any">
+            <choose>
+              <if variable="issued">
+                <date variable="original-date" prefix=" (" suffix=") ">
+                  <date-part name="year"/>
+                </date>
+                <date variable="issued" date-parts="year" form="text"/>
+              </if>
+              <else>
+                <text term="no date" form="short"/>
+              </else>
+            </choose>
+          </if>
+        </choose>
       </if>
       <else>
-        <text term="no date" form="short"/>
+        <choose>
+          <if variable="issued">
+            <date variable="original-date" prefix=" (" suffix=") ">
+              <date-part name="year"/>
+            </date>
+            <date variable="issued" date-parts="year" form="text"/>
+          </if>
+          <else>
+            <text term="no date" form="short"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -231,6 +299,7 @@
       <group delimiter=" ">
         <text macro="author"/>
         <text macro="title"/>
+        <text macro="review-of"/>
         <choose>
           <if type="book" match="any">
             <group>
@@ -255,12 +324,16 @@
                     <group delimiter=" ">
                       <text variable="publisher-place"/>
                       <date date-parts="year" form="text" variable="issued"/>
-                      <group prefix="(" suffix=")" delimiter=" ">
-                        <text variable="collection-title"/>
-                        <text variable="collection-number"/>
-                      </group>
                     </group>
                   </else>
+                </choose>
+                <choose>
+                  <if variable="collection-number">
+                    <group prefix="(" suffix=")" delimiter=" ">
+                      <text variable="collection-title"/>
+                      <text variable="collection-number"/>
+                    </group>
+                  </if>
                 </choose>
               </group>
               <choose>
@@ -308,7 +381,16 @@
                 <group>
                   <group delimiter=" ">
                     <text term="in" text-case="lowercase"/>
-                    <text variable="container-title" font-style="italic" suffix=", "/>
+                    <group suffix=", ">
+                      <text variable="container-title" font-style="italic"/>
+                      <choose>
+                        <if variable="collection-number" match="none">
+                          <group prefix=" (" suffix=")">
+                            <text variable="collection-title"/>
+                          </group>
+                        </if>
+                      </choose>
+                    </group>
                   </group>
                   <text macro="edition"/>
                   <text macro="editor"/>
@@ -316,13 +398,97 @@
                 </group>
                 <choose>
                   <if variable="volume">
+                    <choose>
+                      <if variable="number-of-volumes">
+                        <group delimiter=", ">
+                          <text variable="publisher-place"/>
+                          <group>
+                            <label variable="volume" form="short" suffix=" "/>
+                            <text variable="volume"/>
+                          </group>
+                          <date date-parts="year" form="text" variable="issued"/>
+                        </group>
+                      </if>
+                      <else>
+                        <group delimiter=", ">
+                          <group>
+                            <label variable="volume" form="short" suffix=" "/>
+                            <text variable="volume"/>
+                          </group>
+                          <group delimiter=" ">
+                            <text variable="publisher-place"/>
+                            <date date-parts="year" form="text" variable="issued"/>
+                          </group>
+                        </group>
+                      </else>
+                    </choose>
+                  </if>
+                  <else>
                     <group delimiter=" ">
-                      <text variable="publisher-place" suffix=","/>
+                      <text variable="publisher-place"/>
+                      <date date-parts="year" form="text" variable="issued"/>
+                    </group>
+                  </else>
+                </choose>
+                <choose>
+                  <if variable="collection-number">
+                    <group prefix="(" suffix=")" delimiter=" ">
+                      <text variable="collection-title"/>
+                      <text variable="collection-number"/>
+                    </group>
+                  </if>
+                </choose>
+              </group>
+              <choose>
+                <if variable="page">
+                  <group prefix=", ">
+                    <label suffix=" " variable="page" form="short"/>
+                    <text variable="page"/>
+                  </group>
+                </if>
+              </choose>
+              <choose>
+                <if variable="URL">
+                  <text macro="url-with-date"/>
+                </if>
+                <else>
+                  <text macro="doi-punct"/>
+                </else>
+              </choose>
+            </group>
+          </else-if>
+          <else-if type="entry-dictionary" match="any">
+            <group>
+              <group delimiter=" ">
+                <group>
+                  <group delimiter=" ">
+                    <text term="in" text-case="lowercase"/>
+                    <group suffix=", ">
+                      <choose>
+                        <if variable="title-short">
+                          <text variable="title-short" font-style="italic"/>
+                        </if>
+                        <else>
+                          <text variable="container-title" font-style="italic"/>
+                        </else>
+                      </choose>
+                    </group>
+                  </group>
+                  <text macro="edition"/>
+                  <text macro="editor"/>
+                  <text macro="volumes"/>
+                </group>
+                <choose>
+                  <if variable="volume">
+                    <group delimiter=", ">
                       <group>
                         <label variable="volume" form="short" suffix=" "/>
-                        <text variable="volume" suffix=","/>
+                        <text variable="volume"/>
                       </group>
-                      <date date-parts="year" form="text" variable="issued"/>
+                      <group delimiter=" ">
+                        <text variable="publisher-place"/>
+                        <date date-parts="year" form="text" variable="issued"/>
+                      </group>
                     </group>
                   </if>
                   <else>
