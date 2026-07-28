@@ -1,4 +1,4 @@
-ruby '3.3.6'
+ruby '3.3.11'
 source 'https://rubygems.org'
 
 gem 'rake'
