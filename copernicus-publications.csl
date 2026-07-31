@@ -71,25 +71,6 @@
       </substitute>
     </names>
   </macro>
-  <macro name="access">
-    <choose>
-      <if variable="DOI" match="none">
-        <choose>
-          <if variable="URL">
-            <text variable="URL"/>
-            <group delimiter=": " prefix=", ">
-              <text term="accessed"/>
-              <date variable="accessed">
-                <date-part name="day" suffix=" "/>
-                <date-part name="month" suffix=" "/>
-                <date-part name="year"/>
-              </date>
-            </group>
-          </if>
-        </choose>
-      </if>
-    </choose>
-  </macro>
   <macro name="title">
     <text variable="title"/>
   </macro>
@@ -106,6 +87,18 @@
           <date-part name="year"/>
         </date>
       </if>
+      <else-if type="webpage">
+        <choose>
+          <if variable="accessed">
+            <date variable="accessed">
+              <date-part name="year"/>
+            </date>
+          </if>
+          <else>
+            <text term="no date" form="short"/>
+          </else>
+        </choose>
+      </else-if>
       <else>
         <text term="no date" form="short"/>
       </else>
@@ -157,6 +150,38 @@
     <text term="in" suffix=": "/>
     <text variable="container-title"/>
   </macro>
+  <macro name="access">
+    <choose>
+      <if variable="DOI" match="any">
+        <text macro="doi"/>
+      </if>
+      <else>
+        <choose>
+          <if variable="URL">
+	          <text variable="URL"/>
+            <choose>
+              <if type="webpage">
+                <text macro="accessed-date" prefix=", "/>
+              </if>
+              <else>
+                <text macro="accessed-date" prefix=" (" suffix=")"/>
+              </else>
+            </choose>
+          </if>
+        </choose>
+      </else>
+    </choose>
+  </macro>
+  <macro name="accessed-date">
+    <group delimiter=": ">
+      <text term="accessed"/>
+        <date variable="accessed">
+          <date-part name="day" suffix=" "/>
+          <date-part name="month" suffix=" "/>
+          <date-part name="year"/>
+        </date>
+    </group>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year-suffix" year-suffix-delimiter=", ">
     <sort>
       <key macro="author"/>
@@ -171,8 +196,15 @@
               <text macro="year-date"/>
             </if>
             <else>
-              <text macro="title"/>
-              <date date-parts="year" form="text" variable="accessed"/>
+              <choose>
+                <if variable="author" match="any">
+                  <text macro="author-short"/>
+                </if>
+                <else>
+                  <text macro="title"/>
+                </else>
+              </choose>
+              <text macro="year-date"/>
             </else>
           </choose>
         </group>
@@ -189,11 +221,11 @@
       <key variable="title"/>
     </sort>
     <layout>
+      <group delimiter=" " suffix=":">
+        <text macro="author"/>
+      </group>
       <choose>
         <if type="webpage article" match="none">
-          <group delimiter=" " suffix=":">
-            <text macro="author"/>
-          </group>
           <choose>
             <if type="book" match="any">
               <group delimiter=", " prefix=" ">
@@ -215,28 +247,21 @@
                 <text macro="doi"/>
               </group>
             </else-if>
-            <else-if type="dataset software">
+            <else-if type="dataset software" match="any">
               <group delimiter=", " prefix=" ">
                 <group delimiter=" ">
                   <text macro="title"/>
                   <text variable="version" prefix="(" suffix=")"/>
-                </group>
+	              </group>
                 <choose>
-                  <if type="dataset">
+		              <if type="dataset">
                     <text variable="archive" suffix=" [dataset]"/>
-                  </if>
-                  <else>
-                    <text variable="archive" suffix=" [code]"/>
+		              </if>
+		              <else>
+	                  <text variable="archive" suffix=" [code]"/>
                   </else>
-                </choose>
-                <choose>
-                  <if match="any" variable="DOI">
-                    <text macro="doi"/>
-                  </if>
-                  <else>
-                    <text variable="URL"/>
-                  </else>
-                </choose>
+		            </choose>
+                <text macro="access"/>
               </group>
             </else-if>
             <else-if type="paper-conference">
@@ -268,9 +293,11 @@
               <group delimiter=", " prefix=" ">
                 <text macro="title"/>
                 <text variable="container-title"/>
+                <text variable="collection-title"/>
+                <text variable="number"/>
                 <text macro="publisher"/>
                 <text variable="number-of-pages" suffix=" pp."/>
-                <text macro="doi"/>
+		            <text macro="access"/>
               </group>
             </else-if>
             <else-if type="article-journal" match="any">
@@ -305,25 +332,20 @@
         </if>
         <else>
           <choose>
-            <if type="webpage" match="any">
-              <text variable="title" suffix=": "/>
-              <text macro="access" prefix=" " suffix="."/>
-            </if>
-            <else-if type="article" match="any">
-              <group delimiter=" " suffix=":">
-                <text macro="author"/>
-              </group>
+            <if type="webpage">
+              <group delimiter=", " prefix=" " suffix=".">
+	              <text variable="title"/>
+		            <text macro="access"/>
+		            <date variable="issued">
+		              <date-part name="year"/>
+		            </date>
+	            </group>
+	          </if>
+            <else-if type="article">
               <group delimiter=", " prefix=" " suffix=".">
                 <text variable="title"/>
                 <text variable="archive" suffix=" [preprint]"/>
-                <choose>
-                  <if match="any" variable="DOI">
-                    <text macro="doi"/>
-                  </if>
-                  <else>
-                    <text variable="URL"/>
-                  </else>
-                </choose>
+                <text macro="access"/>
                 <date variable="issued">
                   <date-part name="day" suffix=" "/>
                   <date-part name="month" suffix=" "/>
