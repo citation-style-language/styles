@@ -1,8 +1,10 @@
 name: Pull request feedback
 
 on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
   pull_request_target:
-    types: [ opened, synchronize, workflow_dispatch]
+    types: [ opened, synchronize, workflow_dispatch ]
 
 permissions: {}
 jobs:
@@ -15,23 +17,26 @@ jobs:
     env:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
-    # owner-test just checks out the PR -- this has an exfiltration risk, make SURE that
-    # this can only be triggered by people with repo write access -- such as people that can add
-    # labels to a PR
-    # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+    # OWNER TEST: only checkout the PR head when running on pull_request (trusted to be the PR head)
+    # or when the PR head is from the same repository (no fork). This avoids checking out fork code
+    # from a pull_request_target run which GitHub blocks for security reasons.
     - name: Checkout repo for OWNER TEST
       uses: actions/checkout@v6
-      if: contains(github.event.pull_request.labels.*.name, 'safe to test')
+      if: >-
+        (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        && contains(github.event.pull_request.labels.*.name, 'safe to test')
       with:
         ref: ${{ github.event.pull_request.head.ref }}
 
-    # otherwise, checkout the current master, and the pr to the subdirectory 'pull-request'
+    # otherwise, checkout the current base branch, and then (only on safe events) the PR to subdirectory 'pull-request'
     - name: Checkout base repo for pull-request test
       uses: actions/checkout@v6
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
+      if: github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     - name: Checkout pull-request
       uses: actions/checkout@v6
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
+      if: >-
+        (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        && ! contains(github.event.pull_request.labels.*.name, 'safe to test')
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         path: pull-request
@@ -88,8 +93,10 @@ jobs:
       if: (failure() || success()) && steps.changed.outputs.style == 'true'
       run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose ${{ env.contributor }}
 
+    # For safety, only attempt to commit reindented styles when the PR comes from the same repository
+    # (i.e., not a fork). This prevents attempting to check out or push fork code from pull_request_target.
     - name: commit reindented styles
-      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true'
+      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
       continue-on-error: true
       uses: stefanzweifel/git-auto-commit-action@v6
       with:
