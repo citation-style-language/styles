@@ -238,7 +238,7 @@
       <label form="short" text-case="lowercase" prefix=" (" suffix=")"/>
     </names>
   </macro>
-  <!-- rules for volume and issue numbers of journal and magazine -->
+  <!-- rules for volume and issue numbers, and date of journal, magazine or newspaper articles -->
   <macro name="locators-article">
     <choose>
       <if match="none" variable="collection-title">
@@ -260,12 +260,17 @@
                   </group>
                 </else>
               </choose>
+              <date delimiter=" " variable="issued">
+                <date-part name="month"/>
+                <date-part name="year"/>
+              </date>			  
             </group>
           </if>
           <else-if type="article-newspaper">
             <date variable="issued" delimiter=" ">
               <date-part name="day"/>
               <date-part name="month"/>
+			  <date-part name="year"/>
             </date>
           </else-if>
         </choose>
@@ -286,7 +291,7 @@
       </else>
     </choose>
   </macro>
-  <!-- rules for collection titles of monograph series, in journal/magazine articles it will be interpreted as referencing a full issue -->
+  <!-- rules for collection titles of monograph series, in journal/magazine/newspaper articles it will be interpreted as referencing a full issue -->
   <macro name="series_title">
     <choose>
       <if match="any" variable="collection-title">
@@ -300,7 +305,7 @@
               </group>
             </group>
           </if>
-          <else-if type="article-journal article-magazine" match="any">
+          <else-if type="article-journal article-magazine article-newspaper" match="any">
             <group delimiter=", ">
               <text variable="collection-title" font-style="italic"/>
               <group delimiter=" ">
@@ -309,6 +314,7 @@
               </group>
               <date delimiter=" " variable="issued">
                 <date-part name="month"/>
+                <date-part name="year"/>
               </date>
             </group>
           </else-if>
@@ -415,9 +421,13 @@
         </date>
       </else-if>
       <else-if match="any" variable="issued">
-        <date date-parts="year" form="text" variable="issued">
-          <date-part name="year"/>
-        </date>
+        <choose>
+          <if type="article-journal article-magazine article-newspaper" match="none">
+            <date date-parts="year" form="text" variable="issued">
+               <date-part name="year"/>
+            </date>
+		  </if>
+		</choose>
       </else-if>
       <else>
         <text term="no date" form="short"/>
