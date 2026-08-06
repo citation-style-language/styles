@@ -7,20 +7,12 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
-if ENV['TRAVIS']
-  at_exit do
-    system('bundle exec sheldon')
-  end
-end
+puts "Running tests from #{Dir.pwd}"
 
 require 'rspec/core'
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  if ENV['TRAVIS']
-    spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color --format json --out spec/sheldon/travis.json }
-  else
-    spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color --format json --out spec/sheldon/travis.json }
-  end
+  spec.rspec_opts = %w{ --require spec_helper.rb --format Fuubar --color --format json --out spec/sheldon/ci.json }
 end
 
 task :default => [:spec]

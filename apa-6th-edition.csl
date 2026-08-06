@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="never" page-range-format="expanded">
   <info>
-    <title>American Psychological Association 6th edition</title>
-    <title-short>APA (6th ed.)</title-short>
+    <title>APA Style 6th edition</title>
+    <title-short>Publication Manual of the American Psychological Association (6th ed.)</title-short>
     <id>http://www.zotero.org/styles/apa-6th-edition</id>
     <link href="http://www.zotero.org/styles/apa-6th-edition" rel="self"/>
     <link href="http://owl.english.purdue.edu/owl/resource/560/01/" rel="documentation"/>
@@ -90,6 +90,11 @@
         <single>éd.</single>
         <multiple>éds.</multiple>
       </term>
+    </terms>
+  </locale>
+  <locale xml:lang="ro">
+    <terms>
+      <term name="et-al">et al.</term>
     </terms>
   </locale>
   <macro name="container-contributors-booklike">
@@ -289,7 +294,7 @@
             <choose>
               <if variable="container-title">
                 <choose>
-                  <if type="book entry entry-dictionary entry-encyclopedia">
+                  <if type="book entry entry-dictionary entry-encyclopedia" match="any">
                     <text macro="title"/>
                   </if>
                   <else>
@@ -400,7 +405,7 @@
             <choose>
               <if variable="container-title">
                 <choose>
-                  <if type="book entry entry-dictionary entry-encyclopedia">
+                  <if type="book entry entry-dictionary entry-encyclopedia" match="any">
                     <text variable="title" form="short" text-case="title" quotes="true"/>
                   </if>
                   <else>
@@ -896,30 +901,50 @@
   </macro>
   <macro name="event">
     <choose>
-      <if variable="event" type="speech paper-conference" match="any">
+      <if variable="event event-title" match="any">
+        <!-- To prevent Zotero from printing event-place due to its double-mapping of all 'place' to
+             both publisher-place and event-place. Remove this 'choose' when that is changed. -->
         <choose>
-          <!-- Don't print event info if published in a proceedings -->
-          <if variable="collection-editor editor issue page volume" match="none">
-            <group delimiter=" ">
-              <text variable="genre" text-case="capitalize-first"/>
-              <group delimiter=" ">
-                <choose>
-                  <if variable="genre">
-                    <text term="presented at"/>
-                  </if>
-                  <else>
-                    <text term="presented at" text-case="capitalize-first"/>
-                  </else>
-                </choose>
-                <group delimiter=", ">
-                  <text variable="event"/>
-                  <text variable="event-place"/>
+          <if variable="event" type="speech paper-conference" match="any">
+            <choose>
+              <!-- Don't print event info if published in a proceedings -->
+              <if variable="collection-editor editor issue page volume" match="none">
+                <group delimiter=" ">
+                  <text variable="genre" text-case="capitalize-first"/>
+                  <group delimiter=" ">
+                    <choose>
+                      <if variable="genre">
+                        <text term="presented at"/>
+                      </if>
+                      <else>
+                        <text term="presented at" text-case="capitalize-first"/>
+                      </else>
+                    </choose>
+                    <group delimiter=", ">
+                      <text macro="event-title"/>
+                      <text variable="event-place"/>
+                    </group>
+                  </group>
                 </group>
-              </group>
-            </group>
+              </if>
+            </choose>
           </if>
         </choose>
       </if>
+    </choose>
+  </macro>
+  <macro name="event-title">
+    <choose>
+      <!-- TODO: We expect "event-title" to be used,
+           but processors and applications may not be updated yet.
+           This macro ensures that either "event" or "event-title" can be accpeted.
+           Remove if procesor logic and application adoption can handle this. -->
+      <if variable="event-title">
+        <text variable="event-title"/>
+      </if>
+      <else>
+        <text variable="event"/>
+      </else>
     </choose>
   </macro>
   <macro name="issued">
@@ -964,10 +989,8 @@
         </group>
       </else-if>
       <else>
-        <group>
-          <text term="no date" form="short"/>
-          <text variable="year-suffix" prefix="-"/>
-        </group>
+        <text term="no date" form="short"/>
+        <text variable="year-suffix" prefix="-"/>
       </else>
     </choose>
   </macro>
@@ -1077,14 +1100,8 @@
     <!--This should be localized -->
     <choose>
       <if type="bill legal_case legislation" match="any"/>
-      <else-if type="interview motion_picture song" match="any">
-        <text value="Original work recorded"/>
-      </else-if>
-      <else-if type="broadcast">
-        <text value="Original work broadcast"/>
-      </else-if>
       <else>
-        <text value="Original work published"/>
+        <text term="original-work-published" text-case="capitalize-first"/>
       </else>
     </choose>
   </macro>
@@ -1380,7 +1397,7 @@
       <if type="article article-journal article-magazine article-newspaper dataset" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="paper-conference speech">
+      <else-if type="paper-conference speech" match="any">
         <choose>
           <if variable="collection-editor container-author editor" match="any">
             <text variable="container-title" font-style="italic"/>
@@ -1402,7 +1419,7 @@
         <group prefix="(" suffix=")">
           <choose>
             <if variable="references">
-              <!-- This provides the option for more elaborate description 
+              <!-- This provides the option for more elaborate description
                    of publication history, such as full "reprinted" references
                    (example 26) or retracted references -->
               <text variable="references"/>

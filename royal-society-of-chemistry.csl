@@ -14,10 +14,17 @@
       <name>Ivan Bushmarinov</name>
       <email>ib@ineos.ac.ru</email>
     </contributor>
+    <contributor>
+      <name>Steven R. Kirk</name>
+      <email>steven.kirk@cantab.net</email>
+    </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="chemistry"/>
     <summary>The Royal Society of Chemistry journal style.</summary>
-    <updated>2018-12-26T22:22:35+00:00</updated>
+    <updated>2026-01-28T19:49:13+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="editor">
@@ -29,33 +36,17 @@
   <locale xml:lang="en">
     <terms>
       <term name="presented at">presented in part at the</term>
+      <term name="patent">Pat.</term>
     </terms>
   </locale>
   <macro name="author">
-    <choose>
-      <if type="patent">
-        <group delimiter=", ">
-          <choose>
-            <if variable="authority">
-              <text variable="authority"/>
-            </if>
-            <else>
-              <text variable="publisher"/>
-            </else>
-          </choose>
-          <text variable="number"/>
-        </group>
-      </if>
-      <else>
-        <names variable="author">
-          <name initialize-with=". " and="text" delimiter=", " delimiter-precedes-last="never"/>
-          <label form="short" prefix=", " text-case="capitalize-first"/>
-          <substitute>
-            <names variable="editor"/>
-          </substitute>
-        </names>
-      </else>
-    </choose>
+    <names variable="author">
+      <name initialize-with=". " and="text" delimiter=", " delimiter-precedes-last="never"/>
+      <label form="short" prefix=", " text-case="capitalize-first"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
   </macro>
   <macro name="title">
     <choose>
@@ -112,6 +103,23 @@
       </else>
     </choose>
   </macro>
+  <macro name="patent-info">
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <text variable="authority" form="short"/>
+        <choose>
+          <if variable="genre">
+            <text text-case="capitalize-first" variable="genre"/>
+          </if>
+          <else>
+            <text term="patent" form="short" text-case="capitalize-first"/>
+          </else>
+        </choose>
+      </group>
+      <text variable="number"/>
+      <text macro="issued"/>
+    </group>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -161,7 +169,30 @@
                 <text variable="page"/>
               </if>
               <else>
-                <text variable="DOI" prefix=", DOI:"/>
+                <text variable="DOI" prefix="DOI:"/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
+        <else-if type="article" match="any">
+          <group delimiter=", ">
+            <text variable="publisher" font-style="italic"/>
+            <text macro="issued"/>
+            <text term="preprint"/>
+            <choose>
+              <if variable="number">
+                <group delimiter=":">
+                  <text variable="publisher"/>
+                  <text variable="number"/>
+                </group>
+              </if>
+            </choose>
+            <choose>
+              <if variable="DOI">
+                <text variable="DOI" prefix="DOI: "/>
+              </if>
+              <else>
+                <text variable="URL"/>
               </else>
             </choose>
           </group>
@@ -176,6 +207,31 @@
             </group>
           </group>
         </else-if>
+        <else-if type="software" match="any">
+          <group delimiter=" ">
+            <text variable="title" form="short"/>
+            <group delimiter=" " prefix="(" suffix=")">
+              <label variable="version"/>
+              <text variable="version"/>
+            </group>
+            <choose>
+              <if variable="publisher">
+                <text macro="publisher"/>
+              </if>
+              <else>
+                <choose>
+                  <if variable="DOI">
+                    <text variable="DOI" prefix=", DOI:"/>
+                  </if>
+                  <else-if variable="URL">
+                    <text variable="URL" prefix=" "/>
+                  </else-if>
+                </choose>
+              </else>
+            </choose>
+            <text macro="issued"/>
+          </group>
+        </else-if>
         <else-if type="speech" match="any">
           <group delimiter=", ">
             <group delimiter=" ">
@@ -185,6 +241,9 @@
             <text variable="event-place"/>
             <text macro="issued"/>
           </group>
+        </else-if>
+        <else-if type="patent" match="any">
+          <text macro="patent-info"/>
         </else-if>
         <else>
           <group delimiter=", ">
