@@ -1,0 +1,23 @@
+name: Label PR on Review
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write # Required to add labels
+
+jobs:
+  add-waiting-label:
+    runs-on: ubuntu-latest
+    
+    # Only run if a maintainer/collaborator is the one who submitted the review
+    if: contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.review.author_association)
+      
+    steps:
+      - name: Add waiting for response label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr edit "$PR_URL" --add-label "waiting-for-response-from-contributor"
