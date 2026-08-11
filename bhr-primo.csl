@@ -56,6 +56,7 @@
       <term name="page-range-delimiter">&#8211;</term>
       <term name="anonymous">Anon.</term>
       <term name="accessed">accessed</term>
+      <term name="thesis">thesis</term>
     </terms>
   </locale>
 
@@ -81,6 +82,7 @@
       <term name="anonymous">o. A.</term>
       <term name="accessed">abgerufen am</term>
       <term name="no date" form="short">o. J.</term>
+      <term name="thesis">Dissertation</term>
     </terms>
   </locale>
 
@@ -106,6 +108,7 @@
       <term name="anonymous">s.a.</term>
       <term name="accessed">accesso</term>
       <term name="no date" form="short">s.d.</term>
+      <term name="thesis">tesi</term>
     </terms>
   </locale>
 
@@ -222,12 +225,17 @@
   <!-- TITLE -->
   <!-- Books/theses/manuscripts: italic -->
   <!-- Articles/chapters: quoted -->
+  <!-- Books: optional (genre, event-place event-date) -->
+  <!-- before the comma, e.g. "Title (exhibition catalogue -->
+  <!-- Rome 2009), ed. ..." -->
   <macro name="title">
     <choose>
       <if type="book" match="any">
-        <text variable="title" 
-              font-style="italic" 
-              suffix=", "/>
+        <group>
+          <text variable="title" font-style="italic"/>
+          <text macro="conference-info" prefix=" "/>
+          <text value=", "/>
+        </group>
       </if>
       <else-if type="thesis manuscript" match="any">
         <text variable="title" 
@@ -324,6 +332,13 @@
 
   <!-- ACCESS / URL / DOI -->
   <!-- Produces: URL: http://... (accessed 04.12.2024). -->
+  <!-- Assumption: the DOI variable holds the bare identifier -->
+  <!-- only (e.g. "10.1177/..."), per correct MARC practice -->
+  <!-- (024 = bare identifier, 856 = full resolvable URL). -->
+  <!-- CSL 1.0 has no string manipulation, so a DOI field   -->
+  <!-- mistakenly containing "https://doi.org/..." already  -->
+  <!-- would render as a duplicated prefix here. This must  -->
+  <!-- be corrected at the cataloguing/data level, not here. -->
   <macro name="access">
     <choose>
       <if variable="DOI">
@@ -647,8 +662,10 @@
           <!-- [type] thesis, University, Year.     -->
           <else-if type="thesis" match="any">
             <group delimiter=", " suffix=".">
-              <text variable="genre" 
-                    suffix=" thesis"/>
+              <group delimiter=" ">
+                <text variable="genre"/>
+                <text term="thesis"/>
+              </group>
               <text variable="publisher"/>
               <date variable="issued" 
                     date-parts="year" 
