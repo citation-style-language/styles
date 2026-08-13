@@ -8,15 +8,17 @@
   <!-- ================================================
        Bibliotheca Hertziana - Max Planck Institute 
        for Art History
-       Polyglot: German, English, Italian
+       English-language variant (for citing publications
+       written in English). See bhr-primo-ger.csl for
+       the German counterpart.
        Optimized for Ex Libris Alma/Primo
        ================================================ -->
 
   <info>
-    <title>Bibliotheca Hertziana - Max Planck Institute for Art History (Primo/Alma)</title>
-    <title-short>BHR-Primo</title-short>
-    <id>http://www.zotero.org/styles/bhr-primo</id>
-    <link href="http://www.zotero.org/styles/bhr-primo" rel="self"/>
+    <title>Bibliotheca Hertziana - Max Planck Institute for Art History (Primo/Alma, English)</title>
+    <title-short>BHR-Primo-ENG</title-short>
+    <id>http://www.zotero.org/styles/bhr-primo-eng</id>
+    <link href="http://www.zotero.org/styles/bhr-primo-eng" rel="self"/>
     <link href="http://www.zotero.org/styles/bibliotheca-hertziana-max-planck-institute-for-art-history" rel="template"/>
     <link href="https://www.biblhertz.it/3170244/rjbh_editorial_guidelines_en.pdf" rel="documentation"/>
     <author>
@@ -32,7 +34,10 @@
   </info>
 
   <!-- ================================================
-       LOCALES
+       LOCALE (English only - the connector words and
+       punctuation conventions follow the language of
+       the CITING publication, not of each cited item;
+       see bhr-primo-ger.csl for the German counterpart)
        ================================================ -->
 
   <locale xml:lang="en">
@@ -57,58 +62,7 @@
       <term name="anonymous">Anon.</term>
       <term name="accessed">accessed</term>
       <term name="thesis">thesis</term>
-    </terms>
-  </locale>
-
-  <locale xml:lang="de">
-    <terms>
-      <term name="open-quote">&#8222;</term>
-      <term name="close-quote">&#8220;</term>
-      <term name="open-inner-quote">&#8218;</term>
-      <term name="close-inner-quote">&#8216;</term>
-      <term name="editor">
-        <single>hg. v.</single>
-        <multiple>hg. v.</multiple>
-      </term>
-      <term name="collection-editor">
-        <single>hg. v.</single>
-        <multiple>hg. v.</multiple>
-      </term>
-      <term name="page">
-        <single>S.</single>
-        <multiple>S.</multiple>
-      </term>
-      <term name="page-range-delimiter">&#8211;</term>
-      <term name="anonymous">o. A.</term>
-      <term name="accessed">abgerufen am</term>
-      <term name="no date" form="short">o. J.</term>
-      <term name="thesis">Dissertation</term>
-    </terms>
-  </locale>
-
-  <locale xml:lang="it">
-    <terms>
-      <term name="open-quote">&#8220;</term>
-      <term name="close-quote">&#8221;</term>
-      <term name="open-inner-quote">&#8216;</term>
-      <term name="close-inner-quote">&#8217;</term>
-      <term name="editor">
-        <single>a cura di</single>
-        <multiple>a cura di</multiple>
-      </term>
-      <term name="collection-editor">
-        <single>a cura di</single>
-        <multiple>a cura di</multiple>
-      </term>
-      <term name="page">
-        <single>p.</single>
-        <multiple>pp.</multiple>
-      </term>
-      <term name="page-range-delimiter">&#8211;</term>
-      <term name="anonymous">s.a.</term>
-      <term name="accessed">accesso</term>
-      <term name="no date" form="short">s.d.</term>
-      <term name="thesis">tesi</term>
+      <term name="review-of">review of</term>
     </terms>
   </locale>
 
@@ -117,6 +71,8 @@
        ================================================ -->
 
   <!-- AUTHOR -->
+  <!-- AUTHOR -->
+  <!-- Oxford comma for 3+ authors per editorial guidelines -->
   <macro name="author">
     <choose>
       <if variable="author">
@@ -124,7 +80,8 @@
           <name and="text" 
                 initialize="false" 
                 initialize-with="."
-                delimiter=", ">
+                delimiter=", "
+                delimiter-precedes-last="always">
             <name-part name="given" 
                        text-case="capitalize-first"/>
             <name-part name="family" 
@@ -323,7 +280,7 @@
     <choose>
       <if variable="reviewed-title">
         <group suffix=",">
-          <text value="review of" suffix=" "/>
+          <text term="review-of" suffix=" "/>
           <text variable="reviewed-title" quotes="true"/>
         </group>
       </if>
@@ -331,35 +288,20 @@
   </macro>
 
   <!-- ACCESS / URL / DOI -->
-  <!-- Produces: URL: http://... (accessed 04.12.2024). -->
+  <!-- DOI produces: DOI: 10.xxxx. (bare identifier, no  -->
+  <!-- URL prefix, no accessed date - per the majority   -->
+  <!-- of current editorial guidelines across all three  -->
+  <!-- languages; only the older English "Articles in    -->
+  <!-- Edited Works" PDF still showed the URL+accessed   -->
+  <!-- form, appears outdated/unsynced with the rest).    -->
+  <!-- Plain web URLs (no DOI) still get accessed date.   -->
   <!-- Assumption: the DOI variable holds the bare identifier -->
   <!-- only (e.g. "10.1177/..."), per correct MARC practice -->
   <!-- (024 = bare identifier, 856 = full resolvable URL). -->
-  <!-- CSL 1.0 has no string manipulation, so a DOI field   -->
-  <!-- mistakenly containing "https://doi.org/..." already  -->
-  <!-- would render as a duplicated prefix here. This must  -->
-  <!-- be corrected at the cataloguing/data level, not here. -->
   <macro name="access">
     <choose>
       <if variable="DOI">
-        <group>
-          <text variable="DOI" 
-                prefix="URL: https://doi.org/"/>
-          <choose>
-            <if variable="accessed">
-              <group prefix=" (" suffix=")">
-                <text term="accessed" suffix=" "/>
-                <date variable="accessed">
-                  <date-part name="day" form="numeric-leading-zeros" suffix="."/>
-                  <date-part name="month" 
-                             form="numeric-leading-zeros" 
-                             suffix="."/>
-                  <date-part name="year"/>
-                </date>
-              </group>
-            </if>
-          </choose>
-        </group>
+        <text variable="DOI" prefix="DOI: " suffix="."/>
       </if>
       <else-if variable="URL">
         <group>
