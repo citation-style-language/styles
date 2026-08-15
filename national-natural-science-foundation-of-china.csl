@@ -2,21 +2,21 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="zh-CN">
   <!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
   <info>
-    <title>National Natural Science Foundation of China (中文)</title>
+    <title>National Natural Science Foundation of China (中文) v2</title>
     <title-short>NSFC</title-short>
     <id>http://www.zotero.org/styles/national-natural-science-foundation-of-china</id>
     <link href="http://www.zotero.org/styles/national-natural-science-foundation-of-china" rel="self"/>
     <link href="http://www.zotero.org/styles/chinese-gb7714-2005-numeric" rel="template"/>
     <link href="https://isisn.nsfc.gov.cn/egrantres/template/person/%E5%8F%82%E4%B8%8E%E4%BA%BA%E6%A8%A1%E6%9D%BF-%E9%80%9A%E7%94%A8.doc" rel="documentation"/>
     <author>
-      <name>Jiongdd</name>
+      <name>updated by zjq, originally made by Jiongdd</name>
       <email>wangjiang07@foxmail.com</email>
     </author>
     <category citation-format="numeric"/>
     <category field="engineering"/>
     <category field="science"/>
     <summary>This style just implemented what the National Natural Science Foundation of China requires.</summary>
-    <updated>2017-03-08T03:24:28+00:00</updated>
+    <updated>2026-03-9T03:41:57+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -55,9 +55,12 @@
   </macro>
   <macro name="titleField">
     <choose>
-      <if type="report">
-        <text macro="title" suffix="[R]. "/>
+      <if type="article-journal">
+      <text macro="title" suffix="[J]. "/>
       </if>
+      <else-if type="report">
+        <text macro="title" suffix="[R]. "/>
+      </else-if>
       <else-if type="thesis">
         <text macro="title" suffix="[D]. "/>
       </else-if>
@@ -75,6 +78,9 @@
         <text macro="title" suffix="[G]//"/>
       </else-if>
       <else-if type="webpage">
+        <text macro="title" suffix="[EB/OL]. "/>
+      </else-if>
+      <else-if variable="number URL publisher" match="any">
         <text macro="title" suffix="[EB/OL]. "/>
       </else-if>
       <else-if type="patent">
@@ -96,28 +102,70 @@
       <name name-as-sort-order="all" sort-separator=" " delimiter=", " delimiter-precedes-last="always" suffix=", 译"/>
     </names>
   </macro>
+
   <macro name="publisher">
     <choose>
-      <if type="chapter paper-conference" match="any">
-        <text variable="container-title" suffix=". "/>
-      </if>
-      <else-if type="report">
-        <text variable="collection-title" suffix=", "/>
-        <text variable="number" suffix=", "/>
+      <!-- 期刊论文 -->
+    <if type="article-journal">
+      <text variable="container-title"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+      <text variable="volume" prefix=", "/>
+      <text variable="issue" prefix="(" suffix=")"/>
+    </if>
+    
+      <!-- 会议论文-->
+    <if type="paper-conference">
+      <text variable="container-title"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+      <text variable="publisher-place" prefix=", "/>
+    </if>
+
+    <!-- 书中章节 -->
+    <else-if type="chapter">
+      <text variable="container-title"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+      <text variable="publisher-place" prefix=", "/>
+      <text variable="volume" prefix=", "/>
+      <text variable="issue" prefix="(" suffix=")"/>
+    </else-if>
+
+    <!-- 报告 -->
+    <else-if type="report">
+      <text variable="collection-title" suffix=", "/>
+      <text variable="number"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+      <text variable="publisher-place" prefix=", "/>
+    </else-if>
+    <!-- arXiv / 预印本 -->
+      <else-if variable="number URL publisher" match="any">
+       <text variable="number"/>
+        <date variable="issued" prefix=", ">
+          <date-part name="year"/>
+        </date>
       </else-if>
-      <else-if type="bill legislation" match="any">
-        <text variable="container-title" prefix=". "/>
-      </else-if>
-      <else>
-        <text variable="container-title"/>
-      </else>
-    </choose>
-    <date variable="issued" prefix=", ">
-      <date-part name="year"/>
-    </date>
-    <text variable="publisher-place" suffix=": "/>
-    <text variable="volume" prefix=", "/>
-    <text variable="issue" prefix="(" suffix=")"/>
+    <!-- 法律文献 -->
+    <else-if type="bill legislation" match="any">
+      <text variable="container-title" prefix=". "/>
+    </else-if>
+    <!-- 其他常规文献 -->
+    <else>
+      <text variable="container-title"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+      <text variable="publisher-place" prefix=", "/>
+      <text variable="volume" prefix=", "/>
+      <text variable="issue" prefix="(" suffix=")"/>
+    </else>
+  </choose>
   </macro>
   <macro name="pageField">
     <text variable="page" strip-periods="false" quotes="false" font-style="normal" font-variant="normal" font-weight="normal" text-decoration="none" vertical-align="baseline"/>
@@ -161,6 +209,9 @@
       <text variable="citation-number" prefix="[" suffix="]"/>
       <text macro="author" suffix=". "/>
       <group delimiter=", ">
+        <choose>
+          <if variable="number URL publisher" match="all"/>
+          <else>
         <text variable="publisher"/>
         <choose>
           <if type="webpage" variable="container-title" match="all">
@@ -184,6 +235,8 @@
             </date>
           </else-if>
           <else-if type="bill legislation" match="any"/>
+        </choose>
+              </else>
         </choose>
       </group>
       <text macro="titleField"/>
