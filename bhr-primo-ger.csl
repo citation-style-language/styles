@@ -67,6 +67,10 @@
       <term name="accessed">Stand</term>
       <term name="no date" form="short">o. J.</term>
       <term name="thesis">Dissertation</term>
+      <term name="number-of-volumes" form="short">
+        <single>Bd.</single>
+        <multiple>Bde.</multiple>
+      </term>
       <term name="review-of">Rezension zu</term>
       <term name="and">u.</term>
     </terms>
@@ -169,19 +173,24 @@
   <macro name="original-date">
     <choose>
       <if variable="original-date">
-        <group suffix=", " delimiter=" ">
-          <choose>
-            <if is-numeric="edition">
-              <group delimiter=" ">
-                <number variable="edition" form="ordinal"/>
-                <text term="edition" form="short"/>
-              </group>
-            </if>
-          </choose>
-          <date variable="original-date">
-            <date-part name="year"/>
-          </date>
-        </group>
+        <choose>
+          <if is-numeric="edition">
+            <group prefix=", " delimiter=" ">
+              <number variable="edition" form="ordinal"/>
+              <text term="edition" form="short"/>
+              <date variable="original-date">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </if>
+          <else>
+            <group prefix=" (" suffix=")">
+              <date variable="original-date">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -198,6 +207,7 @@
         <group>
           <text variable="title" font-style="italic"/>
           <text macro="conference-info" prefix=" "/>
+          <text macro="original-date"/>
           <text value=", "/>
         </group>
       </if>
@@ -265,18 +275,34 @@
   <!-- CONFERENCE INFO -->
   <!-- Produces: (conference proceedings, Florence 2000) -->
   <!-- Optional: only rendered if data available in Alma -->
+  <!-- CONFERENCE INFO -->
+  <!-- With event-date (conference proceedings):    -->
+  <!--   (conference proceedings, Bonn 2006)          -->
+  <!-- Without event-date (exhibition catalogues,     -->
+  <!-- which per the guidelines omit the year here):   -->
+  <!--   (exhibition catalogue Rome/Naples)             -->
   <macro name="conference-info">
     <choose>
       <if variable="genre event-place event-date" match="any">
-        <group prefix="(" suffix=")" delimiter=", ">
-          <text variable="genre"/>
-          <group delimiter=" ">
-            <text variable="event-place"/>
-            <date variable="event-date">
-              <date-part name="year"/>
-            </date>
-          </group>
-        </group>
+        <choose>
+          <if variable="event-date">
+            <group prefix="(" suffix=")" delimiter=", ">
+              <text variable="genre"/>
+              <group delimiter=" ">
+                <text variable="event-place"/>
+                <date variable="event-date">
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </group>
+          </if>
+          <else>
+            <group prefix="(" suffix=")" delimiter=" ">
+              <text variable="genre"/>
+              <text variable="event-place"/>
+            </group>
+          </else>
+        </choose>
       </if>
     </choose>
   </macro>
@@ -447,8 +473,8 @@
       <!-- Main entry -->
       <group delimiter=" ">
         <text macro="author"/>
-        <text macro="review-of"/>
         <text macro="title"/>
+        <text macro="review-of"/>
 
         <choose>
 
@@ -461,7 +487,6 @@
             <group delimiter=" ">
               <text macro="editor"/>
               <text macro="volumes"/>
-              <text macro="original-date"/>
               <group delimiter=", " suffix=".">
                 <group delimiter=" ">
                   <choose>
@@ -519,8 +544,16 @@
           <!-- in Container Title               -->
           <!-- [(conf. proceedings, Place Year)]-->
           <!-- ed. Name, [X vols.,]             -->
-          <!-- Place Year [(Series)],           -->
+          <!-- [vol. 3/2,] Place Year [(Series)],-->
           <!-- pp. x-x.                         -->
+          <!-- Distinguishes: a specific volume  -->
+          <!-- within a counted multi-volume set -->
+          <!-- (number-of-volumes present, e.g.  -->
+          <!-- "Florence, vol. 4, 1994") from a  -->
+          <!-- bare sub-volume/part reference    -->
+          <!-- with no total count (e.g. "vol.   -->
+          <!-- 3/2, Verona 1969") - these use     -->
+          <!-- different word order.             -->
           <else-if type="chapter" match="any">
             <group delimiter=" ">
               <group>
@@ -538,7 +571,7 @@
               <group delimiter=", " suffix=".">
                 <group delimiter=" ">
                   <choose>
-                    <if variable="volume">
+                    <if variable="number-of-volumes">
                       <group delimiter=", ">
                         <text variable="publisher-place"/>
                         <text macro="volume-ref"/>
@@ -547,6 +580,17 @@
                               form="text"/>
                       </group>
                     </if>
+                    <else-if variable="volume">
+                      <group delimiter=", ">
+                        <text macro="volume-ref"/>
+                        <group delimiter=" ">
+                          <text variable="publisher-place"/>
+                          <date variable="issued" 
+                                date-parts="year" 
+                                form="text"/>
+                        </group>
+                      </group>
+                    </else-if>
                     <else>
                       <group delimiter=" ">
                         <text variable="publisher-place"/>
@@ -608,13 +652,21 @@
 
           <!-- ============ THESIS ============      -->
           <!-- First name Last name, Title,         -->
-          <!-- Dissertation, University, Year.      -->
-          <!-- (German convention omits the degree   -->
-          <!-- type prefix used in English, e.g. no  -->
-          <!-- "PhD Dissertation", just "Dissertation") -->
+          <!-- [Genre] Dissertation, University,    -->
+          <!-- Year. Guidelines call for "Art der   -->
+          <!-- Qualifikationsarbeit" (the type),     -->
+          <!-- so the genre field is included even   -->
+          <!-- if its value (e.g. "PhD") is not      -->
+          <!-- itself translated into German - the   -->
+          <!-- editor can adjust it manually, but     -->
+          <!-- the information is not silently        -->
+          <!-- dropped. -->
           <else-if type="thesis" match="any">
             <group delimiter=", " suffix=".">
-              <text term="thesis"/>
+              <group delimiter=" ">
+                <text variable="genre"/>
+                <text term="thesis"/>
+              </group>
               <text variable="publisher"/>
               <date variable="issued" 
                     date-parts="year" 
