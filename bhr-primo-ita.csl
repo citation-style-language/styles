@@ -8,10 +8,10 @@
   <!-- ================================================
        Bibliotheca Hertziana - Max Planck Institute 
        for Art History
-       Versione italiana (per pubblicazioni citanti 
-       in lingua italiana). Vedi bhr-primo-eng.csl e
-       bhr-primo-ger.csl per le controparti inglese
-       e tedesca.
+       Italian-language variant (for citing publications
+       written in Italian). See bhr-primo-eng.csl and
+       bhr-primo-ger.csl for the English and German
+       counterparts.
        Optimized for Ex Libris Alma/Primo
        ================================================ -->
 
@@ -35,16 +35,16 @@
   </info>
 
   <!-- ================================================
-       LOCALE (Italiano only - i connettivi e le 
-       convenzioni di punteggiatura seguono la lingua 
-       della pubblicazione CITANTE, non la lingua 
-       dell'opera citata; vedi bhr-primo-eng.csl e 
-       bhr-primo-ger.csl per le controparti.
-       Nessuna virgola di Oxford in italiano (come in 
-       tedesco, diversamente dall'inglese); "e" come 
-       connettivo tra nomi, secondo le norme redazionali.
-       Virgolette curve doppie (come in inglese, non 
-       come le virgolette basse tedesche).
+       LOCALE (Italian only) - connector words and 
+       punctuation conventions follow the language of 
+       the CITING publication, not the language of the 
+       item being cited; see bhr-primo-eng.csl and 
+       bhr-primo-ger.csl for the counterparts.
+       No Oxford comma in Italian (like German, unlike 
+       English); "e" as the name connector, per the 
+       editorial guidelines.
+       Curly double quotes (like English, not the 
+       German-style low quotes).
        ================================================ -->
 
   <locale xml:lang="it">
@@ -80,6 +80,28 @@
   </locale>
 
   <!-- ================================================
+       KNOWN DATA-DEPENDENT LIMITATIONS (publisher-place)
+       CSL cannot translate or reformat free-text field
+       content - it only passes variables through as-is.
+       This affects publisher-place in two ways:
+       1. Place names appear in whatever language the
+          cataloguing record uses (e.g. "Naples" instead
+          of the Italian "Napoli"), since CSL has no
+          place-name translation mechanism.
+       2. Multi-place notations follow whatever convention
+          the record itself uses. If Alma maps MARC 264 $a
+          verbatim to publisher-place, a record catalogued
+          with "Napoli [u.a.]" (MARC/German cataloguing
+          convention) will render literally as "Napoli
+          [u.a.]" - not as the guideline-required "Napoli
+          et al." CSL has no way to detect or rewrite this
+          notation, since it cannot inspect the variable's
+          text content (see also the DOI and genre/thesis-
+          type limitations documented elsewhere in this
+          file for the same underlying reason).
+       ================================================ -->
+
+  <!-- ================================================
        MACROS
        ================================================ -->
 
@@ -111,8 +133,8 @@
 
   <!-- EDITOR -->
   <!-- Produces: a cura di First Last, -->
-  <!-- No Oxford comma in Italian, per le norme -->
-  <!-- redazionali. -->
+  <!-- No Oxford comma in Italian, per the editorial -->
+  <!-- guidelines. -->
   <macro name="editor">
     <choose>
       <if variable="editor">
@@ -169,9 +191,19 @@
   </macro>
 
   <!-- ORIGINAL DATE -->
-  <!-- Produces: 1st ed. 1977, -->
-  <!-- Note: year ranges (1977-1978) must be entered 
-       manually in the source data -->
+  <!-- Called from the "title" macro (book branch),   -->
+  <!-- right after the title, so it can precede the    -->
+  <!-- editor with the correct surrounding punctuation. -->
+  <!-- Two patterns per the guidelines:                 -->
+  <!--   With a numbered edition:                       -->
+  <!--     Title, 1st ed. 1977, ed. Name, Place Year.   -->
+  <!--   Without a numbered edition (bare original       -->
+  <!--   year only):                                     -->
+  <!--     Title (1550), ed. Name, Place Year.           -->
+  <!-- Note: year ranges (e.g. "1977-1978") cannot be    -->
+  <!-- rendered - CSL has only one "issued"/"original-   -->
+  <!-- date" value per entry, not a range; must be       -->
+  <!-- entered manually in the source data if needed.    -->
   <macro name="original-date">
     <choose>
       <if variable="original-date">
@@ -262,27 +294,32 @@
   </macro>
 
   <!-- VOLUME-REF -->
-  <!-- Produces: vol. 2 -->
+  <!-- Produces: vol. 2 / vol. 4: Lo stato pontificio -->
+  <!-- (uses CSL's standard "volume-title" variable    -->
+  <!-- for the sub-title of an individual volume        -->
+  <!-- within a multi-volume work)                      -->
   <macro name="volume-ref">
     <choose>
       <if variable="volume">
         <group delimiter=" ">
           <label variable="volume" form="short"/>
-          <text variable="volume"/>
+          <group delimiter=": ">
+            <text variable="volume"/>
+            <text variable="volume-title"/>
+          </group>
         </group>
       </if>
     </choose>
   </macro>
 
   <!-- CONFERENCE INFO -->
-  <!-- Produces: (conference proceedings, Florence 2000) -->
-  <!-- Optional: only rendered if data available in Alma -->
-  <!-- CONFERENCE INFO -->
-  <!-- With event-date (conference proceedings):    -->
-  <!--   (conference proceedings, Bonn 2006)          -->
-  <!-- Without event-date (exhibition catalogues,     -->
-  <!-- which per the guidelines omit the year here):   -->
-  <!--   (exhibition catalogue Rome/Naples)             -->
+  <!-- Optional: only rendered if genre/event-place/    -->
+  <!-- event-date are present in the data.               -->
+  <!-- With event-date (conference proceedings):        -->
+  <!--   (conference proceedings, Bonn 2006)             -->
+  <!-- Without event-date (exhibition catalogues,        -->
+  <!-- which per the guidelines omit the year here):     -->
+  <!--   (exhibition catalogue Rome/Naples)               -->
   <macro name="conference-info">
     <choose>
       <if variable="genre event-place event-date" match="any">
@@ -323,13 +360,14 @@
   </macro>
 
   <!-- ACCESS / URL / DOI -->
-  <!-- DOI produces: DOI: 10.xxxx. (nur die Nummer, ohne -->
-  <!-- URL-Präfix, ohne Zugriffsdatum - entspricht der   -->
-  <!-- Mehrheit der aktuellen Redaktionsrichtlinien in    -->
-  <!-- allen drei Sprachen; nur das ältere englische PDF  -->
-  <!-- "Articles in Edited Works" zeigte noch die         -->
-  <!-- URL+accessed-Form, wirkt nicht mehr aktuell.        -->
-  <!-- Reine Web-URLs (kein DOI) erhalten weiterhin Stand. -->
+  <!-- DOI produces: DOI: 10.xxxx. (bare identifier    -->
+  <!-- only, no URL prefix, no accessed date) - this   -->
+  <!-- matches the majority of the current editorial   -->
+  <!-- guidelines across all three languages; only the -->
+  <!-- older English "Articles in Edited Works" PDF     -->
+  <!-- still showed the URL+accessed form, which        -->
+  <!-- appears to be outdated/unsynced with the rest.   -->
+  <!-- Plain web URLs (no DOI) still get "accesso".     -->
   <!-- Assumption: the DOI variable holds the bare identifier -->
   <!-- only (e.g. "10.1177/..."), per correct MARC practice -->
   <!-- (024 = bare identifier, 856 = full resolvable URL). -->
@@ -367,7 +405,7 @@
       <if variable="author">
         <names variable="author">
           <name form="short" 
-                delimiter=" / " 
+                delimiter="/" 
                 delimiter-precedes-et-al="never"
                 delimiter-precedes-last="never"
                 et-al-min="4" 
@@ -378,18 +416,15 @@
           </substitute>
         </names>
       </if>
-      <else-if variable="editor">
-        <names variable="editor">
-          <name form="short" 
-                delimiter=" / "
-                delimiter-precedes-et-al="never"
-                delimiter-precedes-last="never"
-                et-al-min="4" 
-                et-al-use-first="1"/>
-        </names>
-      </else-if>
       <else>
-        <text variable="title-short" font-style="italic"/>
+        <choose>
+          <if variable="title-short">
+            <text variable="title-short" font-style="italic"/>
+          </if>
+          <else>
+            <text variable="title" font-style="italic"/>
+          </else>
+        </choose>
       </else>
     </choose>
   </macro>
@@ -463,14 +498,7 @@
       <key macro="contributors-short"/>
       <key macro="date-reference"/>
     </sort>
-    <layout suffix=" ">
-
-      <!-- Citation key block -->
-      <!-- Produces: Vasari 1986 -->
-      <group delimiter=" " suffix=" ">
-        <text macro="contributors-short"/>
-        <text macro="date-reference"/>
-      </group>
+    <layout>
 
       <!-- Main entry -->
       <group delimiter=" ">
@@ -481,10 +509,16 @@
         <choose>
 
           <!-- ============ BOOK ============ -->
-          <!-- First name Last name, Title,  -->
-          <!-- [ed. Name,] [X vols.,]        -->
-          <!-- [1st ed. YEAR,] Place Year    -->
-          <!-- [(Series Number).]            -->
+          <!-- First name Last name, Title      -->
+          <!-- [(1st ed. YEAR) or (YEAR)],      -->
+          <!-- [ed. Name,] [X vols.,]           -->
+          <!-- Place Year [(Series Number)].    -->
+          <!-- (The original-date/edition part  -->
+          <!-- is rendered inside the "title"    -->
+          <!-- macro, right after the title      -->
+          <!-- itself, so it precedes the        -->
+          <!-- editor - see the "original-date"  -->
+          <!-- macro above.)                     -->
           <if type="book" match="any">
             <group delimiter=" ">
               <text macro="editor"/>
@@ -546,11 +580,14 @@
           <!-- in Container Title               -->
           <!-- [(conf. proceedings, Place Year)]-->
           <!-- ed. Name, [X vols.,]             -->
-          <!-- [vol. 3/2,] Place Year [(Series)],-->
+          <!-- [vol. 3/2,] Place [vol. 4:       -->
+          <!-- Sub-Title,] Year [(Series)],     -->
           <!-- pp. x-x.                         -->
           <!-- Distinguishes: a specific volume  -->
           <!-- within a counted multi-volume set -->
-          <!-- (number-of-volumes present) from a -->
+          <!-- (number-of-volumes present, may   -->
+          <!-- add ": Sub-Title" via the         -->
+          <!-- volume-title variable) from a     -->
           <!-- bare sub-volume/part reference    -->
           <!-- with no total count - different    -->
           <!-- word order.                        -->
