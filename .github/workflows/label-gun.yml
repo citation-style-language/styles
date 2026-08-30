@@ -3,22 +3,93 @@ name: 'Automated tagging for PRs and issues'
 on:
   issues:
     types: [opened, edited, closed]
-  pull_request_target:
-    types: [opened, edited, closed]
   issue_comment:
-    types: [created, edited, closed]
+    types: [created, edited]
+  # label-gun cannot handle these -- src/main.ts hard-rejects any event that
+  # isn't 'issues' or 'issue_comment' -- so they go to the 'review' job below.
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created]
 
 permissions: {}
 
+env:
+  AWAITING: waiting-for-response-from-contributor
+
 jobs:
   label:
+    if: github.event_name == 'issues' || github.event_name == 'issue_comment'
+
     permissions:
       issues: write # to add label to issues (retorquere/label-gun)
       pull-requests: write # to add label, comment on pull request (retorquere/label-gun)
 
     runs-on: ubuntu-latest
     steps:
+      # label-gun reopens a closed issue/PR when a non-maintainer comments on it
+      # (src/app.ts, 'issue_comment.created' && issue.state === 'closed') or closes
+      # it themselves ('issues.closed'), and neither is switchable off in config.
+      # Both paths are reachable only for non-maintainers acting on a closed item,
+      # so resolve the sender's permission here and skip exactly that case.
+      #
+      # The accepted set below is label-gun's own (src/app.ts Collaborators.isOwner)
+      # read off the same REST field, so this gate cannot disagree with how the
+      # action itself classifies the sender.
+      - name: Is the sender a maintainer?
+        id: sender
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+        # non-collaborators return 'none'/'read'; bot accounts and deleted users 404
+        run: |
+          permission=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq .permission 2>/dev/null || echo none)
+          echo "$SENDER has $permission permission"
+          case "$permission" in
+            admin|maintain|push|triage|write) maintainer=true ;;
+            *)                                maintainer=false ;;
+          esac
+          echo "maintainer=$maintainer" >> "$GITHUB_OUTPUT"
+
       - uses: retorquere/label-gun@v5.0.0
+        # a maintainer never triggers a reopen, and neither does anyone acting on
+        # an item that is still open. Everything else -- contributor comments on a
+        # closed thread, contributor closing their own PR -- is dropped.
+        if: steps.sender.outputs.maintainer == 'true' || github.event.issue.state == 'open'
         with:
           token: ${{ github.token }}
-          label.awaiting: "waiting-for-response-from-contributor"
+          # v5 renamed the dotted inputs; 'label.awaiting' is silently ignored and
+          # leaves the action on its 'awaiting-user-feedback' default.
+          label-awaiting: ${{ env.AWAITING }}
+
+  # A review, and a reply to an inline review comment, are neither 'issues' nor
+  # 'issue_comment', so label-gun never sees them: maintainer reviews did not set
+  # the label, and contributors answering inline could not clear it. No checkout
+  # happens here, so the write token is never exposed to pull request code.
+  review:
+    if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment'
+
+    permissions:
+      pull-requests: write # to add/remove the label on the pull request
+
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      # exactly one of these is set, depending on the event
+      ASSOCIATION: ${{ github.event.review.author_association || github.event.comment.author_association }}
+    steps:
+      - name: Maintainer asked for something
+        # an approval is not waiting on the contributor, so it is left alone
+        if: >-
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION)
+          && github.event.review.state != 'approved'
+        run: gh pr edit "$PR" --repo "$REPO" --add-label "$AWAITING"
+
+      - name: Someone else responded
+        # mirrors what label-gun does for a non-maintainer comment on an open item
+        if: ${{ !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION) }}
+        # '|| true' because the label usually isn't there, which is not a failure
+        run: gh pr edit "$PR" --repo "$REPO" --remove-label "$AWAITING" || true
