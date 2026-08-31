@@ -1,0 +1,66 @@
+name: 'Awaiting-contributor label on review'
+
+# SECURITY: pull_request_review is a privileged trigger. Like pull_request_target
+# it runs in the base repository's context, with a writable token and access to
+# secrets, including for pull requests from forks. Three properties keep that
+# harmless, and all three have to survive future edits to this file:
+#
+#   1. Nothing is checked out, so pull request code is never fetched, let alone
+#      executed. Do not add actions/checkout here. sheldon.yaml already tests
+#      pull requests and documents what that costs to do safely.
+#   2. There are no 'uses:' at all -- every step is plain 'gh' from the runner
+#      image -- so there is no third-party action here that could reach the
+#      token. Do not add one. The repository action allowlist enforces this, but
+#      that is a setting someone can widen; this comment is the reason not to.
+#   3. No pull-request-controlled text reaches a shell. The review body is never
+#      read; the values that are used -- author_association, the PR number --
+#      are computed by GitHub, not supplied by the author. Interpolating
+#      ${{ github.event.review.body }} into a run: step would be a script
+#      injection with a writable token behind it.
+#
+# https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+
+# label-gun never sees reviews -- src/main.ts rejects any event that isn't
+# 'issues' or 'issue_comment' -- so the awaiting label is maintained here for
+# review activity, matching what label-gun does for an ordinary comment.
+#
+# Deliberately NOT subscribed to pull_request_review_comment. Every inline
+# comment and every threaded reply is wrapped by GitHub in an implicit
+# COMMENTED review, so pull_request_review.submitted already fires for them and
+# the second subscription only duplicates runs -- one per inline comment, each
+# one a check on the pull request. Verified on
+# citation-style-language/style-workflow-testing#5.
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions: {}
+
+jobs:
+  # This is an operation, not a test, but any workflow run on a review event
+  # attaches a check run to the pull request head and there is no way to opt
+  # out -- so keep it to a single job with a name that reads as what it does.
+  label:
+    permissions:
+      pull-requests: write # to add/remove the label on the pull request
+
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      ASSOCIATION: ${{ github.event.review.author_association }}
+      AWAITING: waiting-for-response-from-contributor
+    steps:
+      - name: Maintainer asked for something
+        # an approval is not waiting on the contributor, so it is left alone
+        if: >-
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION)
+          && github.event.review.state != 'approved'
+        run: gh pr edit "$PR" --repo "$REPO" --add-label "$AWAITING"
+
+      - name: Someone else responded
+        # mirrors what label-gun does for a non-maintainer comment on an open item
+        if: ${{ !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION) }}
+        # '|| true' because the label usually isn't there, which is not a failure
+        run: gh pr edit "$PR" --repo "$REPO" --remove-label "$AWAITING" || true
