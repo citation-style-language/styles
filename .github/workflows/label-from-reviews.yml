@@ -53,7 +53,10 @@ jobs:
       # because a pull request whose most recent activity is a comment is
       # skipped outright here -- including bot comments, since sheldon reports on
       # each push and a push is the contributor responding.
-      - name: Work out which labels are wrong
+      #
+      # Bot *reviews* are skipped instead of counted, because a Copilot review
+      # arriving after a maintainer's is not the contributor answering.
+      - name: Find pull requests whose last word was a review
         run: |
           gh api graphql --paginate \
             -F owner="${REPO%/*}" -F name="${REPO#*/}" \
@@ -65,7 +68,7 @@ jobs:
                     nodes {
                       number
                       labels(first: 30) { nodes { name } }
-                      reviews(last: 10) { nodes { submittedAt authorAssociation state } }
+                      reviews(last: 10) { nodes { submittedAt state author { login __typename } } }
                       comments(last: 1) { nodes { createdAt } }
                     }
                   }
@@ -75,25 +78,54 @@ jobs:
               .data.repository.pullRequests.nodes[]
               | . as $pr
               # a PENDING review has no submittedAt and is not visible to anyone else
-              | ([.reviews.nodes[] | select(.submittedAt != null)] | last) as $review
+              | ([ .reviews.nodes[]
+                   | select(.submittedAt != null and .author != null and .author["__typename"] != "Bot")
+                 ] | last) as $review
               | (.comments.nodes[0].createdAt // "") as $comment
               | select($review != null)
               # someone has spoken since the review -- label-gun already ruled on it
               | select($comment == "" or $comment < $review.submittedAt)
-              | ((["OWNER", "MEMBER", "COLLABORATOR"] | index($review.authorAssociation)) != null
-                 and $review.state != "APPROVED") as $want
-              | (([$pr.labels.nodes[].name] | index($awaiting)) != null) as $has
-              | select($want != $has)
-              | [$pr.number, (if $want then "add" else "remove" end), "\($review.authorAssociation)/\($review.state)"]
-              | @tsv
-            ' > changes.tsv
+              | [ $pr.number,
+                  $review.author.login,
+                  $review.state,
+                  (([$pr.labels.nodes[].name] | index($awaiting)) != null)
+                ] | @tsv
+            ' > candidates.tsv
+          echo "$(wc -l < candidates.tsv) pull request(s) where a review is the latest activity"
+
+      # Maintainer status has to come from the repository permission, NOT from
+      # the review's authorAssociation. authorAssociation is relative to what the
+      # caller can see, and GITHUB_TOKEN cannot see *private* organisation
+      # membership: it reports a maintainer with a private membership as
+      # CONTRIBUTOR. Trusting it stripped the label from every pull request such
+      # a maintainer had reviewed. The accepted set below is label-gun's own
+      # (src/app.ts Collaborators.isOwner), so both workflows agree on who counts.
+      - name: Decide which labels are wrong
+        run: |
+          declare -A permission
+          : > changes.tsv
+          while IFS=$'\t' read -r number login state has; do
+            [ -n "$number" ] || continue
+            if [ -z "${permission[$login]+set}" ]; then
+              permission[$login]=$(gh api "repos/$REPO/collaborators/$login/permission" --jq .permission 2>/dev/null || echo none)
+              echo "  $login has ${permission[$login]} permission"
+            fi
+            case "${permission[$login]}" in
+              admin|maintain|push|triage|write) maintainer=true ;;
+              *)                                maintainer=false ;;
+            esac
+            if [ "$maintainer" = true ] && [ "$state" != "APPROVED" ]; then want=true; else want=false; fi
+            [ "$want" = "$has" ] && continue
+            if [ "$want" = true ]; then action=add; else action=remove; fi
+            printf '%s\t%s\t%s\n' "$number" "$action" "$login/$state" >> changes.tsv
+          done < candidates.tsv
           echo "changes: $(wc -l < changes.tsv)"
           cat changes.tsv
 
       # A logic error here would relabel every open pull request at once, so
-      # refuse to write anything at all if the run wants more changes than a
-      # normal tick ever should. Re-run via workflow_dispatch with a higher
-      # max-changes once the list has been eyeballed.
+      # refuse to write anything if the run wants more changes than a normal tick
+      # ever should. This has already earned its keep once: it caught the
+      # authorAssociation bug above at 26 changes instead of 10.
       - name: Apply
         run: |
           count=$(wc -l < changes.tsv)
