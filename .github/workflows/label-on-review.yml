@@ -1,5 +1,25 @@
 name: 'Awaiting-contributor label on review'
 
+# SECURITY: pull_request_review is a privileged trigger. Like pull_request_target
+# it runs in the base repository's context, with a writable token and access to
+# secrets, including for pull requests from forks. Three properties keep that
+# harmless, and all three have to survive future edits to this file:
+#
+#   1. Nothing is checked out, so pull request code is never fetched, let alone
+#      executed. Do not add actions/checkout here. sheldon.yaml already tests
+#      pull requests and documents what that costs to do safely.
+#   2. There are no 'uses:' at all -- every step is plain 'gh' from the runner
+#      image -- so there is no third-party action here that could reach the
+#      token. Do not add one. The repository action allowlist enforces this, but
+#      that is a setting someone can widen; this comment is the reason not to.
+#   3. No pull-request-controlled text reaches a shell. The review body is never
+#      read; the values that are used -- author_association, the PR number --
+#      are computed by GitHub, not supplied by the author. Interpolating
+#      ${{ github.event.review.body }} into a run: step would be a script
+#      injection with a writable token behind it.
+#
+# https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+
 # label-gun never sees reviews -- src/main.ts rejects any event that isn't
 # 'issues' or 'issue_comment' -- so the awaiting label is maintained here for
 # review activity, matching what label-gun does for an ordinary comment.
