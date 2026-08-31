@@ -1,0 +1,117 @@
+name: 'Awaiting-contributor label from reviews'
+
+# label-gun only handles 'issues' and 'issue_comment' (src/main.ts rejects
+# everything else), so review activity never reaches it: a maintainer review did
+# not set the awaiting label, and a contributor replying inline could not clear
+# it. This reconciles that gap on a schedule rather than on the review event,
+# for two reasons that both rule the event out:
+#
+#   1. pull_request_review caps GITHUB_TOKEN to read-only when the pull request
+#      comes from a fork, whatever the workflow declares -- verified on
+#      citation-style-language/style-workflow-testing#3, which got
+#      'PullRequests: read' while asking for write. Over 95% of styles pull
+#      requests are from forks, so the event-driven version failed on nearly all
+#      of them, and each failure was a red cross in the merge box.
+#   2. Any run on a pull-request event attaches a check run to the head commit,
+#      with no way to opt out. Scheduled runs attach to the default branch, so
+#      this is invisible on pull requests -- the same reason label-gun has never
+#      shown up there.
+#
+# The cost is latency: a review is picked up on the next tick, not immediately.
+on:
+  schedule:
+    # GitHub delays scheduled runs under load, so treat this as "within ~15
+    # minutes", not as a guarantee.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Log what would change without writing any labels'
+        type: boolean
+        default: false
+      max-changes:
+        description: 'Abort without writing if more than this many labels would change'
+        default: '25'
+
+permissions: {}
+
+jobs:
+  reconcile:
+    permissions:
+      pull-requests: write # to add/remove the label on pull requests
+
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      AWAITING: waiting-for-response-from-contributor
+      DRY_RUN: ${{ inputs.dry-run || 'false' }}
+      MAX_CHANGES: ${{ inputs.max-changes || '25' }}
+    steps:
+      # Ownership split with label-gun: label-gun owns every comment-driven
+      # transition and this owns every review-driven one. The two never disagree
+      # because a pull request whose most recent activity is a comment is
+      # skipped outright here -- including bot comments, since sheldon reports on
+      # each push and a push is the contributor responding.
+      - name: Work out which labels are wrong
+        run: |
+          gh api graphql --paginate \
+            -F owner="${REPO%/*}" -F name="${REPO#*/}" \
+            -f query='
+              query($owner: String!, $name: String!, $endCursor: String) {
+                repository(owner: $owner, name: $name) {
+                  pullRequests(states: OPEN, first: 50, after: $endCursor) {
+                    pageInfo { hasNextPage endCursor }
+                    nodes {
+                      number
+                      labels(first: 30) { nodes { name } }
+                      reviews(last: 10) { nodes { submittedAt authorAssociation state } }
+                      comments(last: 1) { nodes { createdAt } }
+                    }
+                  }
+                }
+              }' \
+          | jq -r --arg awaiting "$AWAITING" '
+              .data.repository.pullRequests.nodes[]
+              | . as $pr
+              # a PENDING review has no submittedAt and is not visible to anyone else
+              | ([.reviews.nodes[] | select(.submittedAt != null)] | last) as $review
+              | (.comments.nodes[0].createdAt // "") as $comment
+              | select($review != null)
+              # someone has spoken since the review -- label-gun already ruled on it
+              | select($comment == "" or $comment < $review.submittedAt)
+              | ((["OWNER", "MEMBER", "COLLABORATOR"] | index($review.authorAssociation)) != null
+                 and $review.state != "APPROVED") as $want
+              | (([$pr.labels.nodes[].name] | index($awaiting)) != null) as $has
+              | select($want != $has)
+              | [$pr.number, (if $want then "add" else "remove" end), "\($review.authorAssociation)/\($review.state)"]
+              | @tsv
+            ' > changes.tsv
+          echo "changes: $(wc -l < changes.tsv)"
+          cat changes.tsv
+
+      # A logic error here would relabel every open pull request at once, so
+      # refuse to write anything at all if the run wants more changes than a
+      # normal tick ever should. Re-run via workflow_dispatch with a higher
+      # max-changes once the list has been eyeballed.
+      - name: Apply
+        run: |
+          count=$(wc -l < changes.tsv)
+          if [ "$count" -gt "$MAX_CHANGES" ]; then
+            echo "::error::$count changes exceeds max-changes=$MAX_CHANGES -- refusing to write. Inspect the list above."
+            exit 1
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "::notice::dry run -- $count label(s) would change, nothing written"
+            exit 0
+          fi
+          while IFS=$'\t' read -r number action why; do
+            [ -n "$number" ] || continue
+            echo "#$number $action ($why)"
+            case "$action" in
+              add)    gh pr edit "$number" --repo "$REPO" --add-label "$AWAITING" ;;
+              # '|| true' because a race with label-gun can remove it first
+              remove) gh pr edit "$number" --repo "$REPO" --remove-label "$AWAITING" || true ;;
+            esac
+          done < changes.tsv
+          echo "$count label(s) changed" >> "$GITHUB_STEP_SUMMARY"
