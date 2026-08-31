@@ -1,21 +1,61 @@
 name: 'Automated tagging for PRs and issues'
 
+# Reviews are handled by label-on-review.yml, not here: label-gun rejects any
+# event that isn't 'issues' or 'issue_comment' (src/main.ts), and runs on review
+# events attach a check to the pull request, so they are kept out of this file
+# to stop it appearing in the merge box. Comment events attach to the default
+# branch instead, so this workflow stays invisible on a pull request.
 on:
   issues:
     types: [opened, edited, closed]
   issue_comment:
-    types: [created, edited, closed]
+    types: [created, edited]
 
 permissions: {}
+
+env:
+  AWAITING: waiting-for-response-from-contributor
+
 jobs:
   label:
     permissions:
-      issues: write # to add label to an issues (retorquere/label-gun)
+      issues: write # to add label to issues (retorquere/label-gun)
       pull-requests: write # to add label, comment on pull request (retorquere/label-gun)
 
     runs-on: ubuntu-latest
     steps:
+      # label-gun reopens a closed issue/PR when a non-maintainer comments on it
+      # (src/app.ts, 'issue_comment.created' && issue.state === 'closed') or closes
+      # it themselves ('issues.closed'), and neither is switchable off in config.
+      # Both paths are reachable only for non-maintainers acting on a closed item,
+      # so resolve the sender's permission here and skip exactly that case.
+      #
+      # The accepted set below is label-gun's own (src/app.ts Collaborators.isOwner)
+      # read off the same REST field, so this gate cannot disagree with how the
+      # action itself classifies the sender.
+      - name: Is the sender a maintainer?
+        id: sender
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+        # non-collaborators return 'none'/'read'; bot accounts and deleted users 404
+        run: |
+          permission=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq .permission 2>/dev/null || echo none)
+          echo "$SENDER has $permission permission"
+          case "$permission" in
+            admin|maintain|push|triage|write) maintainer=true ;;
+            *)                                maintainer=false ;;
+          esac
+          echo "maintainer=$maintainer" >> "$GITHUB_OUTPUT"
+
       - uses: retorquere/label-gun@v5.0.0
+        # a maintainer never triggers a reopen, and neither does anyone acting on
+        # an item that is still open. Everything else -- contributor comments on a
+        # closed thread, contributor closing their own PR -- is dropped.
+        if: steps.sender.outputs.maintainer == 'true' || github.event.issue.state == 'open'
         with:
           token: ${{ github.token }}
-          label.awaiting: "waiting-for-response-from-contributor"
+          # v5 renamed the dotted inputs; 'label.awaiting' is silently ignored and
+          # leaves the action on its 'awaiting-user-feedback' default.
+          label-awaiting: ${{ env.AWAITING }}
