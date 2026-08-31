@@ -1,16 +1,15 @@
 name: 'Automated tagging for PRs and issues'
 
+# Reviews are handled by label-on-review.yml, not here: label-gun rejects any
+# event that isn't 'issues' or 'issue_comment' (src/main.ts), and runs on review
+# events attach a check to the pull request, so they are kept out of this file
+# to stop it appearing in the merge box. Comment events attach to the default
+# branch instead, so this workflow stays invisible on a pull request.
 on:
   issues:
     types: [opened, edited, closed]
   issue_comment:
     types: [created, edited]
-  # label-gun cannot handle these -- src/main.ts hard-rejects any event that
-  # isn't 'issues' or 'issue_comment' -- so they go to the 'review' job below.
-  pull_request_review:
-    types: [submitted]
-  pull_request_review_comment:
-    types: [created]
 
 permissions: {}
 
@@ -19,8 +18,6 @@ env:
 
 jobs:
   label:
-    if: github.event_name == 'issues' || github.event_name == 'issue_comment'
-
     permissions:
       issues: write # to add label to issues (retorquere/label-gun)
       pull-requests: write # to add label, comment on pull request (retorquere/label-gun)
@@ -62,34 +59,3 @@ jobs:
           # v5 renamed the dotted inputs; 'label.awaiting' is silently ignored and
           # leaves the action on its 'awaiting-user-feedback' default.
           label-awaiting: ${{ env.AWAITING }}
-
-  # A review, and a reply to an inline review comment, are neither 'issues' nor
-  # 'issue_comment', so label-gun never sees them: maintainer reviews did not set
-  # the label, and contributors answering inline could not clear it. No checkout
-  # happens here, so the write token is never exposed to pull request code.
-  review:
-    if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment'
-
-    permissions:
-      pull-requests: write # to add/remove the label on the pull request
-
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
-      REPO: ${{ github.repository }}
-      PR: ${{ github.event.pull_request.number }}
-      # exactly one of these is set, depending on the event
-      ASSOCIATION: ${{ github.event.review.author_association || github.event.comment.author_association }}
-    steps:
-      - name: Maintainer asked for something
-        # an approval is not waiting on the contributor, so it is left alone
-        if: >-
-          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION)
-          && github.event.review.state != 'approved'
-        run: gh pr edit "$PR" --repo "$REPO" --add-label "$AWAITING"
-
-      - name: Someone else responded
-        # mirrors what label-gun does for a non-maintainer comment on an open item
-        if: ${{ !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), env.ASSOCIATION) }}
-        # '|| true' because the label usually isn't there, which is not a failure
-        run: gh pr edit "$PR" --repo "$REPO" --remove-label "$AWAITING" || true
