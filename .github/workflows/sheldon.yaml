@@ -1,12 +1,18 @@
 name: Pull request feedback
 
 on:
+  # sheldon itself requires pull_request_target (bin/sheldon asserts on
+  # GITHUB_EVENT_NAME), so all runs happen in the privileged context.
+  # 'labeled' is what authorises the OWNER TEST path -- see below.
   pull_request_target:
-    types: [ opened, synchronize, workflow_dispatch]
+    types: [ opened, synchronize, reopened, labeled ]
 
 permissions: {}
 jobs:
   test:
+    # don't re-run the whole suite every time an unrelated label is added
+    if: github.event.action != 'labeled' || github.event.label.name == 'safe to test'
+
     permissions:
       contents: write # to push code in repo (stefanzweifel/git-auto-commit-action)
       pull-requests: write # to comment on pull requests
@@ -14,29 +20,56 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # OWNER TEST runs untrusted PR code in the privileged context, so it is gated on the
+      # *act* of a write-access user applying 'safe to test' to this specific head commit --
+      # not on the label merely being present. A label sticks to the PR, so testing for
+      # presence would let an attacker get a benign PR labelled and then push malicious code
+      # (the label persists across 'synchronize'). See the "Revoke" step below.
+      # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+      OWNER_TEST: ${{ github.event.action == 'labeled' && github.event.label.name == 'safe to test' }}
     steps:
-    # owner-test just checks out the PR -- this has an exfiltration risk, make SURE that
-    # this can only be triggered by people with repo write access -- such as people that can add
-    # labels to a PR
-    # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+    # New commits have not been reviewed, so drop the approval. The maintainer must
+    # re-apply 'safe to test' (which fires 'labeled') to authorise the new head.
+    - name: Revoke 'safe to test' on new commits
+      if: github.event.action == 'synchronize' || github.event.action == 'reopened'
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+      # '|| true' because the label usually isn't there -- that is the normal case,
+      # not a failure worth showing a red cross for on every push.
+      run: gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label 'safe to test' || true
+
+    # OWNER TEST checks the PR out over the workspace root, so the PR's Gemfile, Rakefile
+    # and spec/ are what run -- i.e. arbitrary code execution with the job's write token.
+    # Pinned to head.sha (not head.ref) so a push racing this run cannot swap the code out
+    # from under the review.
     - name: Checkout repo for OWNER TEST
       uses: actions/checkout@v6
-      if: contains(github.event.pull_request.labels.*.name, 'safe to test')
+      if: env.OWNER_TEST == 'true'
       with:
-        ref: ${{ github.event.pull_request.head.ref }}
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.sha }}
+        # nothing pushes from the root, so don't leave the token in this tree's .git/config
+        persist-credentials: false
+        # authorised per-commit by the 'safe to test' labelling event
+        allow-unsafe-pr-checkout: true
 
     # otherwise, checkout the current master, and the pr to the subdirectory 'pull-request'
     - name: Checkout base repo for pull-request test
       uses: actions/checkout@v6
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
+      if: env.OWNER_TEST != 'true'
     - name: Checkout pull-request
       uses: actions/checkout@v6
-      if: "! contains(github.event.pull_request.labels.*.name, 'safe to test')"
+      if: env.OWNER_TEST != 'true'
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         path: pull-request
-        ref: ${{ github.event.pull_request.head.ref }}
+        ref: ${{ github.event.pull_request.head.sha }}
         token: ${{ secrets.GITHUB_TOKEN }}
+        # the PR is checked out into a subdirectory and only ever read as data
+        # (spec/spec_helper.rb points STYLE_ROOT at it); the code that runs -- Gemfile,
+        # Rakefile, spec/ -- comes from the base checkout above.
+        allow-unsafe-pr-checkout: true
 
     - name: Check for relevant changes
       uses: dorny/paths-filter@v4
@@ -51,8 +84,11 @@ jobs:
             - '*.xml'
 
     - name: Changed files
+      env:
+        STYLE_FILES: ${{ steps.changed.outputs.style_files }}
+        LOCALE_FILES: ${{ steps.changed.outputs.locale_files }}
       run: |
-        echo changed: ${{ steps.changed.outputs.style_files }} ${{ steps.changed.outputs.locale_files }}
+        echo "changed: $STYLE_FILES $LOCALE_FILES"
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -62,7 +98,9 @@ jobs:
       uses: actions/cache@v5
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        # not '**/Gemfile.lock' -- that also matches pull-request/Gemfile.lock, letting a
+        # fork PR choose the cache key. Only the base lockfile drives what gets installed.
+        key: ${{ runner.os }}-gems-${{ hashFiles('Gemfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-gems-
     - name: Bundle install
@@ -70,12 +108,14 @@ jobs:
         bundle config path vendor/bundle
         bundle update sheldon --jobs 4 --retry 3
 
+    # --contributor relaxes sheldon's check on which file types a PR may touch, so this
+    # must describe the PR *author*, never github.event.sender: on a 'labeled' event the
+    # sender is the maintainer who applied the label, which would hand every OWNER TEST
+    # run a relaxed whitelist. author_association comes straight from the event payload,
+    # so there is also no contributors API call to paginate through.
     - name: Check if the user is a contributor
-      run: |
-        contributors=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/contributors" | jq -r '.[].login')
-        if echo "$contributors" | grep -q "${{ github.event.sender.login }}"; then
-          echo "contributor=--contributor" >> $GITHUB_ENV
-        fi
+      if: contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
+      run: echo "contributor=--contributor" >> "$GITHUB_ENV"
 
     - name: Welcome to a new PR
       if: github.event.action == 'opened' && steps.changed.outputs.style == 'true'
@@ -89,7 +129,7 @@ jobs:
       run: bundle exec sheldon --token=$GITHUB_TOKEN --${{ job.status }} --verbose ${{ env.contributor }}
 
     - name: commit reindented styles
-      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true'
+      if: github.repository == 'citation-style-language/styles' && steps.changed.outputs.style == 'true' && env.OWNER_TEST != 'true'
       continue-on-error: true
       uses: stefanzweifel/git-auto-commit-action@v6
       with:
