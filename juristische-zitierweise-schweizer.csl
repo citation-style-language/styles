@@ -13,7 +13,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Swiss legal short-note style with bibliography, based on Ryser Büschi/Schlegel/Pflaum/Glatthard, Juristische Arbeiten erfolgreich schreiben und präsentieren, 3rd ed., 2024 (ISBN 978-3-7255-8458-1). Based on the Juristische Zitierweise (Stüber) style by Oliver Wolf and Philipp Zumstein. Legal commentaries use entry-encyclopedia. See the field conventions below.</summary>
-    <updated>2026-09-27T07:53:32+00:00</updated>
+    <updated>2026-10-07T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
     <!--
     Hinweise zur Verwendung in Zotero
@@ -80,13 +80,14 @@
       <term name="accessed">besucht am</term>
       <term name="editor">Hrsg.</term>
       <term name="et-al">et al.</term>
+      <term name="cited">zit.</term>
     </terms>
   </locale>
   <macro name="author">
     <choose>
       <if variable="author editor" match="any">
         <names variable="author">
-          <name delimiter="/" name-as-sort-order="all" sort-separator=" " form="long" font-style="normal" font-variant="small-caps"/>
+          <name delimiter="/" name-as-sort-order="all" sort-separator=" " form="long" font-variant="small-caps"/>
           <label form="short" prefix=" (" suffix=")"/>
           <substitute>
             <names variable="editor"/>
@@ -100,7 +101,7 @@
   </macro>
   <macro name="editor-author">
     <names variable="editor">
-      <name delimiter="/" name-as-sort-order="all" sort-separator=" " form="long" font-style="normal" font-variant="small-caps"/>
+      <name delimiter="/" name-as-sort-order="all" sort-separator=" " form="long" font-variant="small-caps"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="author"/>
@@ -111,7 +112,7 @@
     <choose>
       <if variable="author" match="any">
         <names variable="author">
-          <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1" name-as-sort-order="all" font-style="normal" font-variant="small-caps"/>
+          <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1" name-as-sort-order="all" font-variant="small-caps"/>
         </names>
       </if>
       <else>
@@ -123,7 +124,7 @@
     <choose>
       <if variable="author editor" match="any">
         <names variable="author">
-          <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1" sort-separator="" font-style="normal" font-variant="small-caps"/>
+          <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1" sort-separator="" font-variant="small-caps"/>
           <substitute>
             <names variable="editor"/>
           </substitute>
@@ -201,8 +202,10 @@
           <text variable="authority"/>
           <choose>
             <if match="any" variable="abstract">
-              <text variable="number" suffix=", "/>
-              <text variable="abstract"/>
+              <group delimiter=", ">
+                <text variable="number"/>
+                <text variable="abstract"/>
+              </group>
             </if>
             <else>
               <text variable="number"/>
@@ -218,9 +221,29 @@
               </if>
             </choose>
           </group>
-          <text variable="title" form="short" font-style="italic" prefix="&#8211; "/>
+          <text variable="title" form="short" font-style="italic" prefix="– "/>
         </group>
       </else>
+    </choose>
+  </macro>
+  <macro name="citation-title">
+    <choose>
+      <if variable="title-short">
+        <choose>
+          <if type="chapter">
+            <group delimiter=": ">
+              <text term="in"/>
+              <text variable="title" form="short"/>
+            </group>
+          </if>
+          <else>
+            <text variable="title" form="short"/>
+          </else>
+        </choose>
+      </if>
+      <else-if variable="author editor" match="none">
+        <text variable="title" form="short"/>
+      </else-if>
     </choose>
   </macro>
   <citation>
@@ -229,45 +252,21 @@
         <if type="article-journal article-newspaper thesis">
           <group delimiter=", ">
             <text macro="author-note"/>
-            <choose>
-              <if match="any" variable="title-short">
-                <text variable="title-short"/>
-              </if>
-              <else-if variable="author editor" match="none">
-                <text variable="title"/>
-              </else-if>
-            </choose>
+            <text macro="citation-title"/>
             <text variable="locator"/>
           </group>
         </if>
         <else-if type="book">
           <group delimiter=", ">
             <text macro="autor-editor-note"/>
-            <choose>
-              <if match="any" variable="title-short">
-                <text variable="title" form="short"/>
-              </if>
-              <else-if variable="author editor" match="none">
-                <text variable="title"/>
-              </else-if>
-            </choose>
+            <text macro="citation-title"/>
             <text variable="locator"/>
           </group>
         </else-if>
         <else-if type="chapter">
           <group delimiter=", ">
             <text macro="author-note"/>
-            <choose>
-              <if match="any" variable="title-short">
-                <group delimiter=": ">
-                  <text term="in"/>
-                  <text variable="title" form="short"/>
-                </group>
-              </if>
-              <else-if variable="author editor" match="none">
-                <text variable="title"/>
-              </else-if>
-            </choose>
+            <text macro="citation-title"/>
             <text variable="locator"/>
           </group>
         </else-if>
@@ -286,21 +285,14 @@
         <else>
           <group delimiter=", ">
             <text macro="author-note"/>
-            <choose>
-              <if variable="title-short">
-                <text variable="title-short"/>
-              </if>
-              <else-if variable="author editor" match="none">
-                <text variable="title"/>
-              </else-if>
-            </choose>
+            <text macro="citation-title"/>
             <text variable="locator"/>
           </group>
         </else>
       </choose>
     </layout>
   </citation>
-  <bibliography subsequent-author-substitute="&#8212;" line-spacing="1" hanging-indent="true">
+  <bibliography subsequent-author-substitute="—" line-spacing="1" hanging-indent="true">
     <sort>
       <key macro="author"/>
       <key variable="issued"/>
@@ -346,9 +338,12 @@
           </group>
           <choose>
             <if match="any" variable="title-short">
-              <group delimiter=", " prefix=" (zit.: " suffix=")">
-                <text macro="autor-editor-note"/>
-                <text variable="title" form="short"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter=", ">
+                  <text macro="autor-editor-note"/>
+                  <text variable="title" form="short"/>
+                </group>
               </group>
             </if>
           </choose>
@@ -370,9 +365,12 @@
           </group>
           <choose>
             <if variable="title-short">
-              <group delimiter=", " prefix=" (zit.: " suffix=")">
-                <text macro="autor-editor-note"/>
-                <text variable="title" form="short"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter=", ">
+                  <text macro="autor-editor-note"/>
+                  <text variable="title" form="short"/>
+                </group>
               </group>
             </if>
           </choose>
@@ -389,9 +387,12 @@
           </group>
           <choose>
             <if match="any" variable="title-short">
-              <group delimiter=", " prefix=" (zit.: " suffix=")">
-                <text macro="autor-editor-note"/>
-                <text variable="title" form="short"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter=", ">
+                  <text macro="autor-editor-note"/>
+                  <text variable="title" form="short"/>
+                </group>
               </group>
             </if>
           </choose>
@@ -419,11 +420,14 @@
           </group>
           <choose>
             <if match="any" variable="title-short">
-              <group delimiter=", " prefix=" (zit.: " suffix=")">
-                <text macro="autor-editor-note"/>
-                <group delimiter=": ">
-                  <text term="in"/>
-                  <text variable="title" form="short"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter=", ">
+                  <text macro="autor-editor-note"/>
+                  <group delimiter=": ">
+                    <text term="in"/>
+                    <text variable="title" form="short"/>
+                  </group>
                 </group>
               </group>
             </if>
@@ -439,9 +443,12 @@
               <date date-parts="year" form="text" variable="issued"/>
               <choose>
                 <if match="any" variable="title-short">
-                  <group delimiter=", " prefix=" (zit.: " suffix=")">
-                    <text macro="autor-editor-note"/>
-                    <text variable="title" form="short"/>
+                  <group delimiter=" " prefix=" (" suffix=")">
+                    <text term="cited" suffix=":"/>
+                    <group delimiter=", ">
+                      <text macro="autor-editor-note"/>
+                      <text variable="title" form="short"/>
+                    </group>
                   </group>
                 </if>
               </choose>
@@ -462,14 +469,17 @@
             </choose>
             <text variable="container-title"/>
             <text macro="edition"/>
-            <group delimiter="">
-              <text variable="publisher-place" suffix=" "/>
-              <date variable="issued" suffix=" ">
+            <group delimiter=" ">
+              <text variable="publisher-place"/>
+              <date variable="issued">
                 <date-part name="year" form="long"/>
               </date>
-              <group delimiter="-" prefix=" (zit.: " suffix=")">
-                <text variable="title" form="short"/>
-                <text macro="author-note" suffix=", Art. ... N ..."/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter="-">
+                  <text variable="title" form="short"/>
+                  <text macro="author-note" suffix=", Art. ... N ..."/>
+                </group>
               </group>
             </group>
           </group>
@@ -486,7 +496,10 @@
           </group>
           <choose>
             <if match="any" variable="title-short">
-              <text variable="title" form="short" prefix=" (zit.: " suffix=")"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <text variable="title" form="short"/>
+              </group>
             </if>
           </choose>
         </else-if>
@@ -523,9 +536,12 @@
           </group>
           <choose>
             <if variable="title-short">
-              <group delimiter=", " prefix=" (zit.: " suffix=")">
-                <text macro="autor-editor-note"/>
-                <text variable="title" form="short"/>
+              <group delimiter=" " prefix=" (" suffix=")">
+                <text term="cited" suffix=":"/>
+                <group delimiter=", ">
+                  <text macro="autor-editor-note"/>
+                  <text variable="title" form="short"/>
+                </group>
               </group>
             </if>
           </choose>
@@ -543,9 +559,12 @@
               <text variable="page"/>
               <choose>
                 <if match="any" variable="title-short">
-                  <group delimiter=", " prefix=" (zit.: " suffix=")">
-                    <text macro="autor-editor-note"/>
-                    <text variable="title" form="short"/>
+                  <group delimiter=" " prefix=" (" suffix=")">
+                    <text term="cited" suffix=":"/>
+                    <group delimiter=", ">
+                      <text macro="autor-editor-note"/>
+                      <text variable="title" form="short"/>
+                    </group>
                   </group>
                 </if>
               </choose>
