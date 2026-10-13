@@ -2,7 +2,7 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" default-locale="en-GB" page-range-format="expanded">
   <info>
     <title>Minority Protection (English)</title>
-    <title-short>Kisebbségvédelem / Minority Protection EN</title-short>
+    <title-short>Minority Protection EN</title-short>
     <id>http://www.zotero.org/styles/minority-protection-english</id>
     <link href="http://www.zotero.org/styles/minority-protection-english" rel="self"/>
     <link href="http://www.zotero.org/styles/international-organization" rel="template"/>
@@ -17,7 +17,7 @@
     <issn>2676-8992</issn>
     <eissn>2939-5410</eissn>
     <summary>English-language citation style for the academic journal Minority Protection.</summary>
-    <updated>2026-10-11T16:12:34+00:00</updated>
+    <updated>2026-10-13T18:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en-GB">
@@ -26,11 +26,15 @@
       <term name="op-cit">op. cit.</term>
       <term name="available at">Available at</term>
       <term name="accessed">accessed</term>
-      <term name="in">In</term>
-      <term name="online">online</term>
+      <!-- Journal rule: ranges with a single hyphen, never an en dash. -->
+      <term name="page-range-delimiter">-</term>
       <term name="editor" form="short">
-        <single>eds.</single>
+        <single>ed.</single>
         <multiple>eds.</multiple>
+      </term>
+      <term name="paragraph" form="short">
+        <single>para.</single>
+        <multiple>paras.</multiple>
       </term>
     </terms>
   </locale>
@@ -96,12 +100,10 @@
   <macro name="online-document-access">
     <choose>
       <if variable="URL">
-        <text term="available at" suffix=": "/>
-        <text variable="URL"/>
+        <text variable="URL" prefix="Available at: "/>
         <choose>
           <if variable="accessed">
-            <text term="accessed" prefix=", " suffix=": "/>
-            <text macro="accessed-full"/>
+            <text macro="accessed-full" prefix=", accessed: "/>
           </if>
         </choose>
       </if>
@@ -138,34 +140,51 @@
       </else>
     </choose>
   </macro>
+  <macro name="legal-locator">
+    <choose>
+      <if type="legal_case" locator="paragraph" match="all">
+        <group delimiter=" ">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </if>
+      <else>
+        <text variable="locator"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="legal-citation">
     <choose>
       <if position="ibid-with-locator">
         <group delimiter=", ">
           <text term="ibid" font-style="italic"/>
-          <text macro="locator"/>
+          <text macro="legal-locator"/>
         </group>
       </if>
       <else-if position="ibid">
         <text term="ibid" font-style="italic"/>
       </else-if>
       <else-if position="subsequent">
-        <text variable="title" form="short"/>
         <choose>
           <if type="legal_case">
-            <text macro="year" prefix=", "/>
+            <!-- Court decisions: full case name in every note (no short form). -->
+            <text variable="title"/>
+            <text macro="year" prefix=" "/>
           </if>
+          <else>
+            <text variable="title" form="short"/>
+          </else>
         </choose>
-        <text macro="locator" prefix=", "/>
+        <text macro="legal-locator" prefix=", "/>
       </else-if>
       <else>
         <text variable="title"/>
         <choose>
           <if type="legal_case">
-            <text macro="year" prefix=", "/>
+            <text macro="year" prefix=" "/>
           </if>
         </choose>
-        <text macro="locator" prefix=", "/>
+        <text macro="legal-locator" prefix=", "/>
       </else>
     </choose>
   </macro>
@@ -179,12 +198,11 @@
   <macro name="online-access">
     <choose>
       <if variable="URL">
-        <text term="online" prefix=" [" suffix="]. "/>
-        <text term="available at" suffix=": "/>
+        <text value=" [online]. Available at: "/>
         <text variable="URL"/>
         <choose>
           <if variable="accessed">
-            <text term="accessed" prefix=", " suffix=": "/>
+            <text value=", accessed: "/>
             <text macro="accessed-full"/>
           </if>
         </choose>
@@ -192,12 +210,10 @@
     </choose>
   </macro>
   <macro name="editors-en">
-    <group>
-      <names variable="editor">
-        <name name-as-sort-order="all" sort-separator=", " initialize="false" delimiter=" - " delimiter-precedes-last="never"/>
-      </names>
-      <text term="editor" form="short" plural="true" prefix=" (" suffix="):"/>
-    </group>
+    <names variable="editor">
+      <name name-as-sort-order="all" sort-separator=", " initialize="false" delimiter=" - " delimiter-precedes-last="never"/>
+      <label form="short" prefix=" (" suffix="):"/>
+    </names>
   </macro>
   <macro name="bibliography-entry">
     <choose>
@@ -223,8 +239,7 @@
       </if>
       <else-if type="chapter paper-conference" match="any">
         <text macro="author-bib" suffix=": "/>
-        <text variable="title" suffix=". "/>
-        <text term="in" suffix=": "/>
+        <text variable="title" suffix=". In: "/>
         <text macro="editors-en" suffix=" "/>
         <text variable="container-title" font-style="italic" suffix=". "/>
         <group delimiter=": " suffix=". ">
@@ -237,14 +252,14 @@
       </else-if>
       <else-if type="article-journal">
         <text macro="author-bib" suffix=": "/>
-        <text variable="title" suffix=". "/>
-        <text term="in" suffix=": "/>
+        <text variable="title" suffix=". In: "/>
         <group font-style="italic">
           <text variable="container-title"/>
           <text variable="volume" prefix=" "/>
           <text variable="issue" prefix="(" suffix=")"/>
         </group>
-        <text macro="year" prefix=". "/>
+        <text value=". "/>
+        <text macro="year"/>
         <text variable="page" prefix=", "/>
         <text macro="doi" prefix=". "/>
       </else-if>
@@ -266,20 +281,26 @@
         <text variable="container-title" font-style="italic"/>
         <choose>
           <if variable="issued">
-            <text macro="issued-full" prefix=", "/>
+            <text value=", "/>
+            <text macro="issued-full"/>
           </if>
         </choose>
         <text macro="online-access"/>
       </else-if>
+      <!-- Court decisions: case name. Court, date, case number. No decision type, no reporter.
+           URL and access date only when no case number is recorded. -->
       <else-if type="legal_case">
         <text variable="title" suffix=". "/>
-        <text variable="authority" font-style="italic"/>
+        <group delimiter=", ">
+          <text variable="authority" font-style="italic"/>
+          <text macro="issued-full"/>
+          <text variable="number"/>
+        </group>
         <choose>
-          <if variable="issued">
-            <text macro="issued-full" prefix=", Judgment of "/>
+          <if variable="number" match="none">
+            <text macro="online-access"/>
           </if>
         </choose>
-        <text macro="online-access"/>
       </else-if>
       <!-- Enacted legislation and regulations are cited without online access data. -->
       <else-if type="legislation regulation" match="any">
@@ -303,23 +324,13 @@
         <text variable="title" suffix=". "/>
         <choose>
           <if variable="archive">
-            <choose>
-              <if variable="archive">
-                <text term="in" suffix=": "/>
-                <text variable="archive" font-style="italic" suffix=". "/>
-              </if>
-            </choose>
+            <text variable="archive" font-style="italic" prefix="In: " suffix=". "/>
           </if>
           <else-if variable="container-title">
             <text variable="container-title" font-style="italic" suffix=". "/>
           </else-if>
           <else-if variable="publisher">
-            <choose>
-              <if variable="publisher">
-                <text term="in" suffix=": "/>
-                <text variable="publisher" font-style="italic" suffix=". "/>
-              </if>
-            </choose>
+            <text variable="publisher" font-style="italic" prefix="In: " suffix=". "/>
           </else-if>
         </choose>
         <text macro="year"/>
