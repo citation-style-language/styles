@@ -5,7 +5,7 @@
     <id>http://www.zotero.org/styles/infoclio-de-kurzbelege</id>
     <link href="http://www.zotero.org/styles/infoclio-de-kurzbelege" rel="self"/>
     <link href="http://www.zotero.org/styles/infoclio-de" rel="template"/>
-    <link href="https://www.infoclio.ch/de/node/133932" rel="documentation"/>
+    <link href="https://www.infoclio.ch/de/zitierstil#zotero" rel="documentation"/>
     <author>
       <name>Nicolas Chachereau</name>
       <email>nicolas.chachereau@unil.ch</email>
@@ -25,17 +25,19 @@
     <category citation-format="note"/>
     <category field="history"/>
     <category field="social_science"/>
-    <updated>2021-04-15T17:51:45+02:00</updated>
+    <updated>2025-09-10T14:15:00+02:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
     <terms>
       <term name="editor" form="short">Hg.</term>
+      <term name="editor" form="verb-short">hg. v.</term>
+      <term name="translator" form="verb-short">übers. v.</term>
+      <term name="editortranslator" form="verb-short">hg. &amp; übers. v.</term>
       <term name="interviewer" form="verb">Interview geführt von</term>
       <term name="accessed">Stand</term>
       <term name="letter">Schreiben</term>
       <term name="number-of-volumes" form="short">Bd.</term>
-      <term name="no date" form="short">o. D.</term>
       <term name="edition">Ausgabe</term>
     </terms>
   </locale>
@@ -71,8 +73,10 @@
       <group delimiter=", ">
         <group delimiter=": ">
           <text macro="creator"/>
+          <text macro="periodical-info"/>
           <group delimiter=", ">
             <text macro="title"/>
+            <text macro="scientific-editor"/>
             <group delimiter=": ">
               <text macro="in"/>
               <text macro="container-creator"/>
@@ -109,20 +113,32 @@
         <text macro="creator-for-short-references"/>
         <text macro="identifier-for-short-references"/>
       </group>
-      <date variable="issued" form="numeric" date-parts="year"/>
       <text macro="locator"/>
     </group>
   </macro>
   <macro name="creator">
-    <names variable="author">
-      <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
-      <label form="short" prefix="&#160;(" suffix=")"/>
-      <substitute>
-        <names variable="editor"/>
-        <names variable="composer"/>
-        <names variable="director"/>
-      </substitute>
-    </names>
+    <choose>
+      <if type="periodical" match="none">
+        <choose>
+          <if variable="director">
+            <!-- special rule to avoid printing the label for directors -->
+            <names variable="director">
+              <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+            </names>
+          </if>
+          <else>
+            <names variable="author">
+              <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+              <label form="short" prefix="&#160;(" suffix=")"/>
+              <substitute>
+                <names variable="editor"/>
+                <names variable="composer"/>
+              </substitute>
+            </names>
+          </else>
+        </choose>
+      </if>
+    </choose>
   </macro>
   <macro name="creator-for-short-references">
     <names variable="author">
@@ -135,8 +151,28 @@
       </substitute>
     </names>
   </macro>
+  <macro name="periodical-info">
+    <choose>
+      <if type="periodical">
+        <group delimiter=" ">
+          <text variable="container-title"/>
+          <group delimiter="&#160;">
+            <number variable="volume"/>
+            <number variable="issue" prefix="(" suffix=")"/>
+          </group>
+        </group>
+      </if>
+    </choose>
+  </macro>
   <macro name="title">
-    <text variable="title"/>
+    <group delimiter=" ">
+      <text variable="title"/>
+      <choose>
+        <if type="book">
+          <text variable="event-title" prefix="[" suffix="]"/>
+        </if>
+      </choose>
+    </group>
   </macro>
   <macro name="identifier-for-short-references">
     <choose>
@@ -163,6 +199,18 @@
         <text variable="collection-title"/>
         <text variable="container-title"/>
       </else-if>
+    </choose>
+  </macro>
+  <macro name="scientific-editor">
+    <choose>
+      <if type="book">
+        <group delimiter=" ">
+          <names variable="editor translator">
+            <label form="verb-short" suffix=" "/>
+            <name sort-separator=", " name-as-sort-order="all" et-al-min="4" et-al-use-first="3"/>
+          </names>
+        </group>
+      </if>
     </choose>
   </macro>
   <macro name="in">
@@ -315,6 +363,11 @@
   </macro>
   <macro name="date">
     <choose>
+      <if is-uncertain-date="issued">
+        <text term="circa" form="short" suffix=" "/>
+      </if>
+    </choose>
+    <choose>
       <if type="book chapter paper-conference thesis" match="any">
         <choose>
           <if variable="issued">
@@ -325,18 +378,15 @@
               </if>
             </choose>
           </if>
-          <else>
-            <text term="no date" form="short"/>
-          </else>
         </choose>
       </if>
-      <else-if type="article-journal article-newspaper article-magazine graphic entry-encyclopedia entry-dictionary report speech interview manuscript personal_communication" match="any">
+      <else-if type="periodical">
         <choose>
-          <if variable="issued">
-            <date variable="issued" form="numeric" date-parts="year-month-day"/>
+          <if variable="volume issue" match="none">
+            <date variable="issued" form="numeric" date-parts="year" prefix="Jg.&#160;"/>
           </if>
           <else>
-            <text term="no date" form="short"/>
+            <date variable="issued" form="numeric" date-parts="year"/>
           </else>
         </choose>
       </else-if>
@@ -422,19 +472,36 @@
       <if type="webpage post post-weblog dataset" match="any">
         <text macro="url-or-doi"/>
       </if>
+      <else-if type="article-journal">
+        <choose>
+          <if variable="page" match="none">
+            <text macro="url-or-doi"/>
+          </if>
+        </choose>
+      </else-if>
     </choose>
   </macro>
   <macro name="url-non-web-documents">
     <choose>
-      <if type="webpage post post-weblog dataset" match="none">
+      <if type="article-journal">
         <choose>
-          <if variable="DOI URL" match="any">
-            <group delimiter=": ">
-              <text term="online" text-case="capitalize-first"/>
-              <text macro="url-or-doi"/>
-            </group>
+          <if variable="page">
+            <text macro="url-or-doi-with-online-term"/>
           </if>
         </choose>
+      </if>
+      <else-if type="webpage post post-weblog dataset" match="none">
+        <text macro="url-or-doi-with-online-term"/>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="url-or-doi-with-online-term">
+    <choose>
+      <if variable="DOI URL" match="any">
+        <group delimiter=": ">
+          <text term="online" text-case="capitalize-first"/>
+          <text macro="url-or-doi"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -442,11 +509,7 @@
     <choose>
       <if variable="DOI">
         <group delimiter=", ">
-          <group delimiter="">
-            <text value="&lt;"/>
-            <text variable="DOI" prefix="https://doi.org/"/>
-            <text value="&gt;"/>
-          </group>
+          <text variable="DOI" prefix="&lt;https://doi.org/" suffix="&gt;"/>
           <text macro="accessed"/>
         </group>
       </if>

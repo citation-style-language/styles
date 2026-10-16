@@ -19,40 +19,48 @@
       <email>stakats@gmu.edu</email>
     </contributor>
     <contributor>
-      <name>Sebsatian Karcher</name>
+      <name>Sebastian Karcher</name>
+    </contributor>
+    <contributor>
+      <name>Patrick O'Brien</name>
     </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <issn>0006-3495</issn>
     <eissn>1542-0086</eissn>
     <summary>Style for Biophysical Journal</summary>
-    <updated>2012-09-27T22:06:38+00:00</updated>
+    <updated>2025-12-11T21:50:09+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
-    <names variable="author" suffix=". ">
+    <names variable="author">
       <name and="text" sort-separator=", " initialize-with="." name-as-sort-order="first" delimiter=", " delimiter-precedes-last="always"/>
+      <label prefix=", "/>
+      <substitute>
+        <names variable="editor translator director composer"/>
+        <text variable="title"/>
+      </substitute>
     </names>
   </macro>
   <macro name="editor">
-    <names variable="editor" suffix=". ">
+    <names variable="editor">
       <name sort-separator=" " initialize-with="" name-as-sort-order="first" delimiter=", " delimiter-precedes-last="always"/>
       <label form="long" prefix=", "/>
     </names>
   </macro>
   <macro name="date">
-    <date variable="issued" suffix=". ">
+    <date variable="issued">
       <date-part name="year"/>
     </date>
   </macro>
   <macro name="publisher">
-    <text variable="publisher-place" suffix=": "/>
-    <text variable="publisher"/>
+    <group delimiter=": ">
+      <text variable="publisher"/>
+      <text variable="publisher-place"/>
+    </group>
   </macro>
   <macro name="title">
-    <group delimiter=" ">
-      <text variable="title"/>
-    </group>
+    <text variable="title"/>
   </macro>
   <macro name="edition">
     <choose>
@@ -67,6 +75,13 @@
       </else>
     </choose>
   </macro>
+  <macro name="access">
+    <choose>
+      <if type="webpage post post-weblog" match="any">
+        <text variable="URL"/>
+      </if>
+    </choose>
+  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -76,38 +91,53 @@
     </layout>
   </citation>
   <bibliography second-field-align="flush">
-    <layout suffix=".">
+    <layout>
       <text variable="citation-number" suffix=". "/>
-      <text macro="author"/>
-      <text macro="date"/>
-      <text macro="title" suffix=". "/>
-      <choose>
-        <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
-          <text macro="edition" prefix=" "/>
-          <text macro="publisher" prefix=" "/>
-        </if>
-        <else-if type="chapter paper-conference" match="any">
-          <group prefix=" " suffix=". ">
-            <text term="in" suffix=": " text-case="capitalize-first"/>
-            <text macro="editor"/>
-            <text variable="container-title"/>
-          </group>
-          <text macro="publisher" prefix=" "/>
-          <group prefix=". ">
-            <label variable="page" form="short" suffix=" "/>
-            <text variable="page"/>
-          </group>
-        </else-if>
-        <else>
-          <group delimiter=". ">
-            <text variable="container-title" form="short" font-style="italic"/>
-            <group delimiter=":">
-              <text variable="volume"/>
-              <text variable="page"/>
+      <group delimiter=". " suffix=".">
+        <text macro="author"/>
+        <text macro="date"/>
+        <text macro="title"/>
+        <choose>
+          <if type="article-journal" match="any">
+            <group delimiter=", ">
+              <group delimiter=" ">
+                <text variable="container-title" form="short" font-style="italic"/>
+                <group delimiter=":">
+                  <text variable="volume"/>
+                  <text variable="page"/>
+                </group>
+              </group>
+              <text variable="DOI" prefix="doi: "/>
             </group>
-          </group>
-        </else>
-      </choose>
+          </if>
+          <else-if type="chapter paper-conference" match="any">
+            <group delimiter=" ">
+              <text term="in" text-case="capitalize-first"/>
+              <text variable="container-title"/>
+            </group>
+            <text macro="editor"/>
+            <group delimiter=", ">
+              <text macro="publisher"/>
+              <group delimiter=" ">
+                <label variable="page" form="short"/>
+                <text variable="page"/>
+              </group>
+            </group>
+          </else-if>
+          <else-if type="webpage post post-weblog" match="any">
+            <date form="text" date-parts="year-month-day" variable="issued"/>
+          </else-if>
+          <else-if type="thesis" match="any">
+            <text variable="genre"/>
+            <text variable="publisher"/>
+          </else-if>
+          <else>
+            <text macro="edition"/>
+            <text macro="publisher"/>
+          </else>
+        </choose>
+      </group>
+      <text macro="access" prefix=" "/>
     </layout>
   </bibliography>
 </style>
