@@ -437,7 +437,8 @@
         <text term="in" suffix=" "/>
         <text variable="container-title" font-style="italic" text-case="title"/>
       </if>
-      <else-if type="article-journal">
+      <!-- Also use title abbreviations, where available, for dictionaries and encyclopedias. https://sblhs2.com/2017/04/04/citing-reference-works-3-dictionaries-word/ -->
+      <else-if type="article-journal entry-dictionary entry-encyclopedia">
         <text variable="container-title" font-style="italic" form="short" text-case="title"/>
       </else-if>
       <else>
@@ -475,7 +476,7 @@
   <macro name="collection-title-note">
     <choose>
       <if variable="volume number-of-volumes" match="any">
-        <!-- Presence of Volume info indicates multivolume work rather than series -->
+        <!-- Series titles aren't italicized. Journal titles are. https://sblhs2.com/2016/06/09/series-journals/. Multivolume works are best entered as their own book items (6.1.3.5). The assumption that only multivolume works, not works in series, have volume numbers doesn't hold. Titled volumes in multivolume works (6.2.21) can be handled with the volume title in `title` and the multivolume work title as `volume-title`. -->
         <choose>
           <!-- This section required here rather than in title-note because the group delimiter inserts an unneeded comma otherwise-->
           <if type="chapter paper-conference" match="any">
@@ -486,7 +487,7 @@
             </choose>
           </if>
         </choose>
-        <text variable="collection-title" form="short" text-case="title" font-style="italic"/>
+        <text variable="collection-title" form="short" text-case="title"/>
         <text variable="collection-number" prefix=" "/>
       </if>
       <else>
@@ -1199,15 +1200,30 @@
           <choose>
             <!-- For situations like citation of lexica per https://sblhs2.com/2017/03/30/citing-reference-works-2-lexica/. -->
             <if locator="sub-verbo">
-              <group delimiter=", ">
-                <text variable="annote"/>
-                <text macro="point-locators-subsequent"/>
+              <group delimiter=" ">
+                <text variable="annote" suffix=","/>
+                <text term="sub-verbo" form="short"/>
+                <text variable="locator" quotes="true"/>
+                <!-- <text macro="point-locators-subsequent"/> -->
               </group>
             </if>
-            <!-- For situations like citation of collections like (M)OTP per https://sblhs2.com/2017/06/08/citing-text-collections-3-otp/ and https://sblhs2.com/2017/06/22/citing-text-collections-3-motp/. -->
+            <!-- For situations like citation of collections like (M)OTP per https://sblhs2.com/2017/06/08/citing-text-collections-3-otp/ and https://sblhs2.com/2017/06/22/citing-text-collections-3-motp/. Before a page number locator, the comma only gets suppressed when the citation is of a multivolume work. For an example with a single-volume work, see https://sblhs2.com/2017/06/01/citing-text-collections-2-anet/. -->
             <else>
               <group delimiter=" ">
-                <text variable="annote"/>
+                <choose>
+                  <if variable="volume">
+                    <text variable="annote"/>
+                  </if>
+                  <else-if locator="section">
+                    <text variable="annote"/>
+                  </else-if>
+                  <else-if locator="page" match="none">
+                    <text variable="annote"/>
+                  </else-if>
+                  <else>
+                    <text variable="annote" suffix=","/>
+                  </else>
+                </choose>
                 <text macro="point-locators-subsequent"/>
               </group>
             </else>
