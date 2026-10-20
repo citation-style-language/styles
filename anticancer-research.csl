@@ -16,13 +16,15 @@
     <issn>0250-7005</issn>
     <eissn>1791-7530</eissn>
     <summary>Reference style of the journals published by the International Institute of Anticancer Research (Anticancer Research, In Vivo, Cancer Genomics &amp; Proteomics, Cancer Diagnosis &amp; Prognosis). Numbered, cited in the text by number in parentheses, e.g., (1, 2) or (3-5). All authors are listed.</summary>
-    <updated>2026-10-07T00:00:00+00:00</updated>
+    <updated>2026-10-20T00:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
       <!-- The journals use a plain hyphen in page ranges (209-249) -->
       <term name="page-range-delimiter">-</term>
+      <!-- [Last accessed on April 3, 2018] -->
+      <term name="accessed">last accessed on</term>
     </terms>
   </locale>
   <!-- Surname followed by initials, no punctuation, all authors listed, comma-separated: Sung H, Ferlay J, Siegel RL -->
@@ -55,7 +57,7 @@
       <if is-numeric="edition">
         <group delimiter=" ">
           <number variable="edition" form="ordinal"/>
-          <text value="edn."/>
+          <label variable="edition" form="short"/>
         </group>
       </if>
       <else>
@@ -82,19 +84,32 @@
       <date-part name="year"/>
     </date>
   </macro>
-  <!-- Available at: URL [Last accessed on April 3, 2018] -->
-  <macro name="url-access">
-    <group delimiter=" ">
-      <text variable="URL" prefix="Available at: "/>
-      <date variable="accessed" prefix="[Last accessed on " suffix="]">
-        <date-part name="month" suffix=" "/>
-        <date-part name="day" suffix=", "/>
-        <date-part name="year"/>
-      </date>
-    </group>
-  </macro>
   <macro name="doi">
     <text variable="DOI" prefix="DOI: "/>
+  </macro>
+  <!-- DOI: 10.xxx, or else: Available at: URL [Last accessed on April 3, 2018] -->
+  <macro name="access">
+    <choose>
+      <if variable="DOI">
+        <text macro="doi"/>
+      </if>
+      <else-if variable="URL">
+        <group delimiter=" ">
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <text variable="URL"/>
+          </group>
+          <group delimiter=" " prefix="[" suffix="]">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed">
+              <date-part name="month" suffix=" "/>
+              <date-part name="day" suffix=", "/>
+              <date-part name="year"/>
+            </date>
+          </group>
+        </group>
+      </else-if>
+    </choose>
   </macro>
   <!-- pp 113-136 -->
   <macro name="pages-book">
@@ -103,27 +118,33 @@
       <text variable="page"/>
     </group>
   </macro>
-  <!-- Anticancer Res 38(10): 5831-5835, 2018. -->
+  <!-- Anticancer Res 38(10): 5831-5835, 2018. DOI: 10.21873/anticanres.12924 -->
   <macro name="journal-article">
-    <group delimiter=", " suffix=".">
-      <group delimiter=": ">
-        <group delimiter=" ">
-          <text macro="journal"/>
-          <group>
-            <text variable="volume"/>
-            <text variable="issue" prefix="(" suffix=")"/>
+    <group delimiter=" ">
+      <group delimiter=", " suffix=".">
+        <group delimiter=": ">
+          <group delimiter=" ">
+            <text macro="journal"/>
+            <group>
+              <text variable="volume"/>
+              <text variable="issue" prefix="(" suffix=")"/>
+            </group>
           </group>
+          <text variable="page"/>
         </group>
-        <text variable="page"/>
+        <text macro="year"/>
       </group>
-      <text macro="year"/>
+      <text macro="doi"/>
     </group>
   </macro>
   <!-- In: Receptors for Reproductive Hormones. O' Malley BW, Chamnes GC (eds.). New York City, NY, USA, Plenum Publ Corp., pp 113-136, 1973. -->
   <macro name="chapter">
     <group delimiter=" ">
       <group delimiter=". " suffix=".">
-        <text variable="container-title" prefix="In: "/>
+        <group delimiter=": ">
+          <text term="in" text-case="capitalize-first"/>
+          <text variable="container-title"/>
+        </group>
         <text macro="edition"/>
         <text macro="editor"/>
       </group>
@@ -132,9 +153,10 @@
         <text macro="pages-book"/>
         <text macro="year"/>
       </group>
+      <text macro="doi"/>
     </group>
   </macro>
-  <!-- Geneva, Switzerland, World Health Organisation, 2016. -->
+  <!-- 8th ed. Geneva, Switzerland, World Health Organisation, 2016. Available at: ... / DOI: ... -->
   <macro name="book">
     <group delimiter=" ">
       <text macro="edition"/>
@@ -142,6 +164,7 @@
         <text macro="publisher"/>
         <text macro="year"/>
       </group>
+      <text macro="access"/>
     </group>
   </macro>
   <macro name="thesis">
@@ -151,6 +174,7 @@
         <text macro="publisher"/>
         <text macro="year"/>
       </group>
+      <text macro="access"/>
     </group>
   </macro>
   <citation collapse="citation-number">
@@ -164,39 +188,24 @@
   <bibliography second-field-align="flush" entry-spacing="0">
     <layout>
       <text variable="citation-number"/>
-      <group delimiter=" ">
+      <group delimiter=". ">
         <group delimiter=": ">
           <text macro="author"/>
-          <text macro="title" suffix="."/>
+          <text macro="title"/>
         </group>
         <choose>
           <if type="article-journal article-magazine article-newspaper article periodical" match="any">
             <text macro="journal-article"/>
-            <text macro="doi"/>
           </if>
           <else-if type="chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
             <text macro="chapter"/>
-            <text macro="doi"/>
           </else-if>
           <else-if type="thesis">
             <text macro="thesis"/>
-            <text macro="url-access"/>
-          </else-if>
-          <else-if type="book report dataset software standard" match="any">
-            <text macro="book"/>
-            <choose>
-              <if variable="DOI">
-                <text macro="doi"/>
-              </if>
-              <else>
-                <text macro="url-access"/>
-              </else>
-            </choose>
           </else-if>
           <else>
-            <!-- Web pages, documents and anything else: Title. Place, Organisation, Year. Available at: URL [Last accessed on ...] -->
+            <!-- Books, reports, web pages, documents and anything else -->
             <text macro="book"/>
-            <text macro="url-access"/>
           </else>
         </choose>
       </group>
