@@ -21,13 +21,10 @@
   </info>
   <locale xml:lang="en">
     <terms>
-      <!-- The journals use a plain hyphen in page ranges (209-249) -->
       <term name="page-range-delimiter">-</term>
-      <!-- [Last accessed on April 3, 2018] -->
       <term name="accessed">last accessed on</term>
     </terms>
   </locale>
-  <!-- Surname followed by initials, no punctuation, all authors listed, comma-separated: Sung H, Ferlay J, Siegel RL -->
   <macro name="author">
     <names variable="author">
       <name delimiter=", " delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
@@ -38,7 +35,6 @@
       </substitute>
     </names>
   </macro>
-  <!-- O' Malley BW, Chamnes GC (eds.) -->
   <macro name="editor">
     <names variable="editor">
       <name delimiter=", " delimiter-precedes-last="always" initialize-with="" name-as-sort-order="all" sort-separator=" "/>
@@ -47,10 +43,6 @@
   </macro>
   <macro name="title">
     <text variable="title"/>
-  </macro>
-  <!-- Journal abbreviation without periods: CA Cancer J Clin, Br J Surg -->
-  <macro name="journal">
-    <text variable="container-title" form="short" strip-periods="true"/>
   </macro>
   <macro name="edition">
     <choose>
@@ -65,7 +57,6 @@
       </else>
     </choose>
   </macro>
-  <!-- New York City, NY, USA, Plenum Publ Corp. / Geneva, Switzerland, World Health Organisation -->
   <macro name="publisher">
     <group delimiter=", ">
       <text variable="publisher-place"/>
@@ -84,14 +75,10 @@
       <date-part name="year"/>
     </date>
   </macro>
-  <macro name="doi">
-    <text variable="DOI" prefix="DOI: "/>
-  </macro>
-  <!-- DOI: 10.xxx, or else: Available at: URL [Last accessed on April 3, 2018] -->
   <macro name="access">
     <choose>
       <if variable="DOI">
-        <text macro="doi"/>
+        <text variable="DOI" prefix="DOI: "/>
       </if>
       <else-if variable="URL">
         <group delimiter=" ">
@@ -111,20 +98,18 @@
       </else-if>
     </choose>
   </macro>
-  <!-- pp 113-136 -->
   <macro name="pages-book">
     <group delimiter=" ">
       <label variable="page" form="short" strip-periods="true"/>
       <text variable="page"/>
     </group>
   </macro>
-  <!-- Anticancer Res 38(10): 5831-5835, 2018. DOI: 10.21873/anticanres.12924 -->
   <macro name="journal-article">
     <group delimiter=". ">
       <group delimiter=", ">
         <group delimiter=": ">
           <group delimiter=" ">
-            <text macro="journal"/>
+            <text variable="container-title" form="short" strip-periods="true"/>
             <group>
               <text variable="volume"/>
               <text variable="issue" prefix="(" suffix=")"/>
@@ -136,7 +121,6 @@
       </group>
     </group>
   </macro>
-  <!-- In: Receptors for Reproductive Hormones. O' Malley BW, Chamnes GC (eds.). New York City, NY, USA, Plenum Publ Corp., pp 113-136, 1973. -->
   <macro name="chapter">
     <group delimiter=". ">
       <group delimiter=": ">
@@ -152,7 +136,6 @@
       </group>
     </group>
   </macro>
-  <!-- 8th ed. Geneva, Switzerland, World Health Organisation, 2016. Available at: ... / DOI: ... -->
   <macro name="book">
     <group delimiter=". ">
       <text macro="edition"/>
@@ -171,30 +154,6 @@
       </group>
     </group>
   </macro>
-  <!-- Author: Title. Body -->
-  <macro name="reference">
-    <group delimiter=". ">
-      <group delimiter=": ">
-        <text macro="author"/>
-        <text macro="title"/>
-      </group>
-      <choose>
-        <if type="article-journal article-magazine article-newspaper article periodical" match="any">
-          <text macro="journal-article"/>
-        </if>
-        <else-if type="chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
-          <text macro="chapter"/>
-        </else-if>
-        <else-if type="thesis">
-          <text macro="thesis"/>
-        </else-if>
-        <else>
-          <!-- Books, reports, web pages, documents and anything else -->
-          <text macro="book"/>
-        </else>
-      </choose>
-    </group>
-  </macro>
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -206,31 +165,27 @@
   <bibliography second-field-align="flush" entry-spacing="0">
     <layout>
       <text variable="citation-number"/>
-      <!-- The reference ends with a period, unless an unpunctuated DOI (articles, chapters) or DOI/URL (everything else) closes it -->
-      <choose>
-        <if type="article-journal article-magazine article-newspaper article periodical chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
-          <choose>
-            <if variable="DOI">
-              <group delimiter=". ">
-                <text macro="reference"/>
-                <text macro="doi"/>
-              </group>
-            </if>
-            <else>
-              <text macro="reference" suffix="."/>
-            </else>
-          </choose>
-        </if>
-        <else-if variable="DOI URL" match="any">
-          <group delimiter=". ">
-            <text macro="reference"/>
-            <text macro="access"/>
-          </group>
-        </else-if>
-        <else>
-          <text macro="reference" suffix="."/>
-        </else>
-      </choose>
+      <group delimiter=". " suffix=".">
+        <group delimiter=": ">
+          <text macro="author"/>
+          <text macro="title"/>
+        </group>
+        <choose>
+          <if type="article-journal article-magazine article-newspaper article periodical" match="any">
+            <text macro="journal-article"/>
+          </if>
+          <else-if type="chapter paper-conference entry-encyclopedia entry-dictionary" match="any">
+            <text macro="chapter"/>
+          </else-if>
+          <else-if type="thesis">
+            <text macro="thesis"/>
+          </else-if>
+          <else>
+            <text macro="book"/>
+          </else>
+        </choose>
+      </group>
+      <text macro="access" prefix=" "/>
     </layout>
   </bibliography>
 </style>
