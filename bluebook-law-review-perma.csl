@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ============================================================
+  Bluebook Law Review &#8212; Kirin Chang Edition
+  Based on: bluebook-law-review.xml (D'Arcus & Sims, 2025-08-22)
+  Enhanced with: bluebook-law-review-Choi.xml (Jon Choi, 2019)
+  Compliant with: The Bluebook: A Uniform System of Citation (22nd ed. 2025)
+  
+  KEY IMPROVEMENTS OVER BASE VERSION:
+  1. Choi-style at_page: handles page ("at X"), ¶, and n. locators
+  2. Supra comma fix: "Author, supra note 3, at 45" (was missing comma)
+  3. Stricter URL suppression: no URLs for article-journal, book, chapter,
+     legal_case, legislation (per Bluebook practice)
+  4. Rule 18.2.1(d) / 22nd ed.: archiving REQUIRED for web sources.
+     → XPI auto-saves perma.cc URL to Zotero "Place" field (= CSL publisher-place).
+     → Manual: paste https://perma.cc/XXXX-XXXX directly into Place field.
+     → Outputs: URL (last visited DATE) [PERMA_URL]
+  5. Rule 15.1 / 22nd ed.: et-al-min="4" (up to 3 authors listed in full;
+     only 4+ authors collapse to et al.) &#8212; already correct in Base, kept.
+  6. Legislation type: full support (§ sections, no-supra short form)
+  7. Legal case subsequent: short form citation, NOT supra (Rule 10)
+  8. status variable: "forthcoming YEAR" output (Rule 17)
+  9. ibid-with-locator handled separately from ibid (cleaner CSL)
+  10. Terminology: "small capitals" per 22nd ed. Rule 2 (display-only,
+      font-variant="small-caps" unchanged in CSL)
+  
+  ZOTERO USAGE NOTES:
+  - "Place" field = perma.cc URL (auto-set by XPI; or paste manually, e.g. https://perma.cc/XXXX-XXXX)
+  - "Status" field = "forthcoming" for in-press articles
+  - For legal_case subsequent short form, fill "Title Short" in Zotero
+  - locator types: "page" → "at X"; "paragraph" → "¶ X"; "note" → "n.X"
+  ============================================================
+-->
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
+  <info>
+    <title>Bluebook Law Review (perma.cc)</title>
+    <title-short>Bluebook LR perma.cc</title-short>
+    <id>http://www.zotero.org/styles/bluebook-law-review-perma</id>
+    <link href="http://www.zotero.org/styles/bluebook-law-review-perma" rel="self"/>
+    <link href="http://www.zotero.org/styles/bluebook-law-review" rel="template"/>
+    <link href="https://www.legalbluebook.com/" rel="documentation"/>
+    <author>
+      <name>Kirin Chang</name>
+      <email>cc6614@nyu.edu</email>
+      <uri>https://orcid.org/0009-0007-8537-0826</uri>
+    </author>
+    <contributor>
+      <name>Bruce D'Arcus</name>
+      <email>bdarcus@gmail.com</email>
+    </contributor>
+    <contributor>
+      <name>Nancy Sims</name>
+      <email>nsims@umich.edu</email>
+    </contributor>
+    <contributor>
+      <name>Jonathan Choi</name>
+      <email>jonathan.choi@law.nyu.edu</email>
+    </contributor>
+    <category citation-format="note"/>
+    <category field="law"/>
+    <summary>Bluebook 22nd ed. (2025) law review footnote style with mandatory perma.cc archiving per Rule 18.2.1(d). Extends the base Bluebook Law Review style with: perma.cc archive URL output in square brackets, supra comma fix, Choi-style at_page macro (¶ and n. locators), legislation support, legal_case short-form subsequent, ibid-with-locator, forthcoming/status. URL suppressed for journal articles, books, cases, statutes.</summary>
+    <updated>2026-04-09T00:00:00+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
+  </info>
+  <!-- ============================================================ -->
+  <!--  LOCALE                                                       -->
+  <!-- ============================================================ -->
+  <locale>
+    <terms>
+      <term name="editor" form="verb-short">ed.</term>
+      <!-- "ibid" term = "id." per Bluebook; referenced via text term="ibid" -->
+      <term name="ibid">id.</term>
+      <term name="translator" form="verb-short">trans.</term>
+    </terms>
+  </locale>
+  <!-- ============================================================ -->
+  <!--  AUTHOR MACROS                                                -->
+  <!-- ============================================================ -->
+  <!-- Full name list for first citation (no small-caps default) -->
+  <macro name="name-macro">
+    <names variable="author">
+      <name and="symbol" delimiter=", " delimiter-precedes-last="never"/>
+      <label form="short" prefix=" "/>
+    </names>
+  </macro>
+  <!-- Short name for supra / subsequent citations -->
+  <macro name="author-short">
+    <choose>
+      <if type="legal_case">
+        <!-- Legal case short form uses italic title-short if available -->
+        <choose>
+          <if variable="title-short">
+            <text macro="name-short-macro" font-style="italic"/>
+          </if>
+          <else>
+            <text macro="name-short-macro"/>
+          </else>
+        </choose>
+      </if>
+      <else-if type="bill legislation" match="any">
+        <text macro="name-macro"/>
+      </else-if>
+      <else-if type="book graphic motion_picture report song" match="any">
+        <text macro="name-short-macro" font-variant="small-caps"/>
+      </else-if>
+      <else>
+        <text macro="name-short-macro"/>
+      </else>
+    </choose>
+  </macro>
+  <!-- name-short-macro: last name only, "and" for final author -->
+  <macro name="name-short-macro">
+    <names variable="author">
+      <name form="short" and="text" delimiter=", "/>
+      <substitute>
+        <text variable="title" form="short"/>
+      </substitute>
+    </names>
+  </macro>
+  <!-- author: full name at start of first citation; suppressed for cases/statutes -->
+  <macro name="author">
+    <choose>
+      <if type="legal_case legislation" match="any">
+        <!-- Cases and statutes: no author displayed at line start per Bluebook -->
+      </if>
+      <else-if type="bill" match="any">
+        <text macro="name-macro"/>
+      </else-if>
+      <else-if type="book graphic motion_picture report song" match="any">
+        <text macro="name-macro" font-variant="small-caps"/>
+      </else-if>
+      <else>
+        <text macro="name-macro"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="editor-translator">
+    <names variable="editor translator" delimiter=", ">
+      <name and="symbol" delimiter=", "/>
+      <label form="short" strip-periods="false" prefix=" "/>
+    </names>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  ACCESS MACRO                                                 -->
+  <!--  Bluebook 22nd ed. Rule 18.2.1(d): archiving now REQUIRED    -->
+  <!--  Perma.cc URL: stored in Zotero "Place" field → CSL publisher-place. -->
+  <!--  Auto-set by XPI. Manual: paste https://perma.cc/… into Place.     -->
+  <!--  URL suppressed for: cases, statutes, journal articles,      -->
+  <!--  books, and chapters (per Bluebook practice).                -->
+  <!-- ============================================================ -->
+  <macro name="access">
+    <choose>
+      <!-- Suppress URLs entirely for these source types -->
+      <if type="legal_case legislation book chapter" match="any"/>
+      <!-- Webpages: URL (last visited DATE) [perma.cc URL]
+           Per Bluebook Rule 18.2.1(d) example format:
+           https://original-url (last visited DATE) [https://perma.cc/XXXX-XXXX]
+           Perma.cc URL: auto-set by XPI to Zotero "Place" field; or paste manually. -->
+      <else-if type="webpage post-weblog article-newspaper article-magazine post article-journal" match="any">
+        <group delimiter=" ">
+          <text variable="URL"/>
+          <choose>
+            <if variable="issued" match="none">
+              <!-- No issued date: add (last visited DATE) -->
+              <group delimiter=" " prefix="(" suffix=")">
+                <text value="last visited"/>
+                <date variable="accessed">
+                  <date-part name="month" form="short" suffix=" "/>
+                  <date-part name="day" suffix=", "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </if>
+          </choose>
+          <!-- perma.cc archive URL in square brackets, Bluebook Rule 18.2.1(d) -->
+          <!-- Uses Zotero archiveLocation field → CSL archive_location variable -->
+          <text variable="publisher-place" prefix="[" suffix="]"/>
+        </group>
+      </else-if>
+      <!-- Other types with URL -->
+      <else-if variable="URL">
+        <group delimiter=" ">
+          <text variable="URL"/>
+          <choose>
+            <if variable="issued" match="none">
+              <group delimiter=" " prefix="(" suffix=")">
+                <text value="last visited"/>
+                <date variable="accessed">
+                  <date-part name="month" form="short" suffix=" "/>
+                  <date-part name="day" suffix=", "/>
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </if>
+          </choose>
+          <text variable="publisher-place" prefix="[" suffix="]"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  SOURCE MACRO                                                 -->
+  <!-- ============================================================ -->
+  <macro name="source">
+    <choose>
+      <!-- JOURNAL ARTICLE: Author, Title, VOL JOURNAL FIRST_PAGE, PINCITE (YEAR) -->
+      <if type="article-journal" match="any">
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <text variable="title" text-case="title" font-style="italic"/>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text macro="container"/>
+              <text variable="page-first"/>
+            </group>
+            <text variable="locator"/>
+          </group>
+          <text macro="issuance" prefix="(" suffix=")"/>
+        </group>
+      </if>
+      <!-- LEGAL CASE: Case Name, VOL REPORTER FIRST_PAGE, PINCITE (COURT YEAR) -->
+      <else-if type="legal_case">
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <text variable="title" text-case="title"/>
+            <text variable="volume"/>
+          </group>
+          <text macro="container"/>
+          <group delimiter=", ">
+            <text variable="page-first"/>
+            <text variable="locator"/>
+          </group>
+          <text macro="issuance" prefix="(" suffix=")"/>
+        </group>
+      </else-if>
+      <!-- LEGISLATION: e.g., Americans with Disabilities Act of 1990,
+           Pub. L. No. 101-336, 42 U.S.C. § 12101 -->
+      <else-if type="legislation">
+        <group delimiter=" ">
+          <group delimiter=", ">
+            <group>
+              <text variable="title" text-case="title"/>
+              <text macro="issuance" prefix=" of "/>
+            </group>
+            <text variable="number"/>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text macro="container"/>
+              <group delimiter=" ">
+                <text value="§"/>
+                <text variable="section"/>
+              </group>
+            </group>
+          </group>
+        </group>
+      </else-if>
+      <!-- NEWSPAPER / MAGAZINE: Title, PUBLICATION, DATE, at PAGE -->
+      <else-if type="article-newspaper article-magazine" match="any">
+        <group delimiter=", ">
+          <text variable="title" text-case="title" font-style="italic"/>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text macro="container"/>
+          </group>
+          <text macro="issuance"/>
+          <group delimiter=" ">
+            <text value="at"/>
+            <text variable="page-first"/>
+          </group>
+        </group>
+      </else-if>
+      <!-- GENERIC ARTICLE / THESIS -->
+      <else-if type="article thesis" match="any">
+        <group delimiter=", ">
+          <text variable="title" text-case="title"/>
+          <text macro="container"/>
+        </group>
+        <text macro="issuance" prefix=" (" suffix=")"/>
+        <choose>
+          <if type="thesis">
+            <group delimiter=", " prefix=" (" suffix=")">
+              <text variable="genre" suffix=" dissertation"/>
+              <text variable="publisher"/>
+            </group>
+          </if>
+        </choose>
+      </else-if>
+      <!-- BOOK CHAPTER / CONFERENCE PAPER -->
+      <else-if type="chapter paper-conference" match="any">
+        <text variable="title" text-case="title" font-style="italic"/>
+        <group prefix=", " delimiter=" " suffix=" ">
+          <text variable="volume"/>
+          <text macro="container"/>
+        </group>
+        <text variable="page-first"/>
+        <text variable="locator" prefix=", "/>
+        <text macro="issuance" prefix=" (" suffix=")"/>
+      </else-if>
+      <!-- BOOK / REPORT: TITLE IN SMALL CAPS (ED., YEAR) -->
+      <else-if type="book report" match="any">
+        <text variable="title" text-case="title" font-variant="small-caps"/>
+        <text variable="locator" prefix=" "/>
+        <text macro="issuance" prefix=" (" suffix=")"/>
+      </else-if>
+      <!-- FALLBACK -->
+      <else>
+        <group delimiter=", ">
+          <text variable="title" text-case="title" font-style="italic"/>
+          <group delimiter=" ">
+            <text variable="volume"/>
+            <text macro="container"/>
+            <text variable="page-first"/>
+            <text variable="locator"/>
+            <text macro="issuance" prefix="(" suffix=")"/>
+          </group>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  ISSUANCE MACRO                                               -->
+  <!--  Handles: status (forthcoming), dates by type, court+year    -->
+  <!-- ============================================================ -->
+  <macro name="issuance">
+    <choose>
+      <!-- status variable: e.g., "forthcoming" → "Forthcoming 2026" (Rule 17) -->
+      <if match="any" variable="status">
+        <group delimiter=" ">
+          <text variable="status" text-case="capitalize-first"/>
+          <date variable="issued">
+            <date-part name="year"/>
+          </date>
+        </group>
+      </if>
+      <else>
+        <choose>
+          <!-- Periodicals, webpages, theses: include month/day where applicable -->
+          <if type="article article-journal article-magazine article-newspaper broadcast interview manuscript map patent personal_communication song speech thesis webpage post-weblog" match="any">
+            <group>
+              <choose>
+                <if type="article article-newspaper thesis webpage post-weblog" match="any">
+                  <group>
+                    <date variable="issued">
+                      <date-part name="month" form="short" suffix=" "/>
+                      <date-part name="day" prefix=" " suffix=", "/>
+                    </date>
+                  </group>
+                </if>
+                <else-if type="article-magazine">
+                  <date variable="issued">
+                    <date-part name="month" suffix=" " form="short"/>
+                  </date>
+                </else-if>
+              </choose>
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </if>
+          <!-- Legal cases: (COURT YEAR) -->
+          <else-if type="legal_case">
+            <group delimiter=" ">
+              <text variable="authority"/>
+              <date variable="issued">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else-if>
+          <!-- Books/etc.: (ed. YEAR) or (EDITOR ed., YEAR) -->
+          <else>
+            <group delimiter=", ">
+              <text macro="editor-translator"/>
+              <group delimiter=" ">
+                <group delimiter=" ">
+                  <text variable="edition"/>
+                  <label variable="edition" form="short"/>
+                </group>
+                <date variable="issued">
+                  <date-part name="year"/>
+                </date>
+              </group>
+            </group>
+          </else>
+        </choose>
+      </else>
+    </choose>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  AT_PAGE MACRO (Choi-enhanced)                               -->
+  <!--  Handles three Bluebook locator types:                       -->
+  <!--    page      → "at 45"                                       -->
+  <!--    paragraph → "¶ 12"                                        -->
+  <!--    note      → "n.5"  (no space per Bluebook convention)     -->
+  <!--  Returns nothing when no locator is present.                 -->
+  <!-- ============================================================ -->
+  <macro name="at_page">
+    <choose>
+      <if variable="locator">
+        <choose>
+          <if locator="page" match="any">
+            <group delimiter=" ">
+              <text value="at"/>
+              <text variable="locator"/>
+            </group>
+          </if>
+          <else-if locator="paragraph" match="any">
+            <group delimiter=" ">
+              <text value="¶"/>
+              <text variable="locator"/>
+            </group>
+          </else-if>
+          <else-if locator="note" match="any">
+            <!-- "n.5" with no space per Bluebook Rule 3.2 -->
+            <text variable="locator" prefix="n."/>
+          </else-if>
+          <else>
+            <!-- Default fallback: treat as page -->
+            <group delimiter=" ">
+              <text value="at"/>
+              <text variable="locator"/>
+            </group>
+          </else>
+        </choose>
+      </if>
+    </choose>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  CONTAINER MACRO                                              -->
+  <!-- ============================================================ -->
+  <macro name="container">
+    <choose>
+      <if type="chapter paper-conference" match="any">
+        <group>
+          <!-- "in" italicized per Bluebook Rule 15.2 -->
+          <text term="in" font-style="italic" prefix=" "/>
+          <text variable="container-title" font-variant="small-caps" prefix=" "/>
+        </group>
+      </if>
+      <else-if type="legal_case">
+        <text variable="container-title" form="short" prefix=" "/>
+      </else-if>
+      <else-if type="legislation">
+        <text variable="container-title"/>
+      </else-if>
+      <else-if type="article-journal">
+        <!-- Journal name in small caps, abbreviated per Tables T10/T13 -->
+        <text variable="container-title" form="short" font-variant="small-caps" prefix=" "/>
+      </else-if>
+      <else>
+        <text variable="container-title" font-variant="small-caps"/>
+      </else>
+    </choose>
+  </macro>
+  <!-- ============================================================ -->
+  <!--  CITATION LAYOUT                                              -->
+  <!--  et-al-min="4": up to 3 authors listed in full               -->
+  <!--  per Bluebook 22nd ed. Rule 15.1(a)-(b) (changed from 21st)  -->
+  <!-- ============================================================ -->
+  <citation et-al-min="4" et-al-use-first="1">
+    <layout suffix="." delimiter="; ">
+      <choose>
+        <!-- ibid WITH locator: "Id. at 45" / "Id. ¶ 12" / "Id. n.5" -->
+        <if position="ibid-with-locator">
+          <group delimiter=" ">
+            <text term="ibid" text-case="capitalize-first" font-style="italic"/>
+            <text macro="at_page"/>
+          </group>
+        </if>
+        <!-- ibid WITHOUT locator: "Id." -->
+        <else-if position="ibid">
+          <text term="ibid" text-case="capitalize-first" font-style="italic"/>
+        </else-if>
+        <!-- SUBSEQUENT CITATIONS -->
+        <else-if position="subsequent">
+          <choose>
+            <!-- Legal case: short form citation (Rule 10), NOT supra
+                 e.g., Roe v. Wade, 410 U.S. at 155
+                 Fill "Title Short" in Zotero for custom short form -->
+            <if type="legal_case">
+              <group delimiter=", ">
+                <text variable="title" form="short" font-style="italic"/>
+                <group delimiter=" ">
+                  <text variable="volume"/>
+                  <text variable="container-title" form="short"/>
+                  <text macro="at_page"/>
+                </group>
+              </group>
+            </if>
+            <!-- Legislation: code citation short form (Rule 12)
+                 e.g., 42 U.S.C. § 2000e -->
+            <else-if type="legislation">
+              <group delimiter=" ">
+                <text variable="volume"/>
+                <text variable="container-title" form="short"/>
+                <group delimiter=" ">
+                  <text value="§"/>
+                  <text variable="section"/>
+                </group>
+              </group>
+            </else-if>
+            <!-- All other types: Author, supra note X, at Y
+                 BUG FIX: comma before at_page (was missing in Base version) -->
+            <else>
+              <group delimiter=", ">
+                <group delimiter=" ">
+                  <choose>
+                    <if type="book" match="any">
+                      <text variable="volume"/>
+                    </if>
+                  </choose>
+                  <text macro="author-short"/>
+                </group>
+                <!-- "supra note 3" as its own group -->
+                <group delimiter=" ">
+                  <text value="supra" font-style="italic"/>
+                  <text value="note"/>
+                  <text variable="first-reference-note-number"/>
+                </group>
+                <!-- at_page separated by outer delimiter=", "
+                     → produces "supra note 3, at 45" ✓ -->
+                <text macro="at_page"/>
+              </group>
+            </else>
+          </choose>
+        </else-if>
+        <!-- FIRST / FULL CITATION -->
+        <else>
+          <group delimiter=", ">
+            <group delimiter=" ">
+              <choose>
+                <if type="book" match="any">
+                  <text variable="volume"/>
+                </if>
+              </choose>
+              <text macro="author"/>
+            </group>
+            <text macro="source"/>
+            <text macro="access"/>
+          </group>
+        </else>
+      </choose>
+    </layout>
+  </citation>
+</style>
