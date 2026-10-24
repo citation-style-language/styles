@@ -35,7 +35,7 @@
   <!-- MACROS (type dependent) -->
   <macro name="title">
     <choose>
-      <if type="book thesis manuscript graphic">
+      <if type="book thesis manuscript graphic" match="any">
         <text variable="title" font-style="italic" text-case="title"/>
       </if>
       <else-if type="song">
@@ -54,7 +54,7 @@
           </else>
         </choose>
       </else-if>
-      <else-if type="entry-dictionary entry-encyclopedia">
+      <else-if type="entry-dictionary entry-encyclopedia" match="any">
         <text prefix="Art. " quotes="true" variable="title" text-case="title"/>
       </else-if>
       <else>
@@ -150,7 +150,7 @@
           </substitute>
         </names>
       </if>
-      <else-if type="chapter entry-dictionary entry-encyclopedia paper-conference">
+      <else-if type="chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
         <names variable="author">
           <substitute>
             <text variable="title"/>
@@ -233,7 +233,7 @@
   </macro>
   <macro name="edition">
     <choose>
-      <if type="chapter book entry-dictionary entry-encyclopedia paper-conference">
+      <if type="chapter book entry-dictionary entry-encyclopedia paper-conference" match="any">
         <group delimiter=", ">
           <text macro="book-journal-title"/>
           <!-- reprints: place and year of the original edition -->
@@ -286,7 +286,7 @@
           <text variable="note"/>
         </group>
       </if>
-      <else-if type="webpage post-weblog">
+      <else-if type="webpage post-weblog" match="any">
         <text variable="container-title" font-style="italic" text-case="title"/>
       </else-if>
       <else-if type="thesis">
@@ -311,7 +311,7 @@
           <text macro="issued-year" prefix="(" suffix=")"/>
         </group>
       </else-if>
-      <else-if type="article-newspaper article-magazine">
+      <else-if type="article-newspaper article-magazine" match="any">
         <group delimiter=", ">
           <choose>
             <if variable="title">
@@ -379,7 +379,7 @@
           <else-if variable="URL">
             <text variable="URL"/>
             <choose>
-              <if type="webpage post-weblog">
+              <if type="webpage post-weblog" match="any">
                 <group delimiter=" ">
                   <choose>
                     <if type="webpage">
@@ -407,7 +407,7 @@
     <!-- ALWAYS KEEP IN MIND THAT "title" and "short-title" should be in sync!-->
     <!-- form="short" falls back to the full title; Gardner/Springfeld drop "Art." here (p. 269 f.) -->
     <choose>
-      <if type="book thesis manuscript graphic">
+      <if type="book thesis manuscript graphic" match="any">
         <text variable="title" form="short" font-style="italic" text-case="title"/>
       </if>
       <else-if type="song">
@@ -434,46 +434,49 @@
   <!-- FOOTNOTE (type agnostic definition) -->
   <citation>
     <layout suffix="." delimiter="; ">
-      <group delimiter=" ">
-        <group delimiter=", ">
-          <choose>
-            <if position="first">
-              <text macro="author"/>
-              <text macro="title"/>
-              <group delimiter=" ">
-                <text macro="edition"/>
-                <text macro="serie"/>
-              </group>
-              <text macro="access"/>
-              <choose>
-                <if variable="locator">
-                  <text macro="locator-page"/>
-                </if>
-                <else>
-                  <text macro="page-count"/>
-                </else>
-              </choose>
-            </if>
-            <else-if position="ibid-with-locator">
-              <text term="ibid"/>
-              <text macro="locator-page"/>
-            </else-if>
-            <else-if position="ibid">
-              <text term="ibid"/>
-            </else-if>
-            <else-if position="subsequent">
-              <text macro="author-short"/>
-              <text macro="short-title"/>
-              <choose>
-                <if type="manuscript">
-                  <text variable="call-number"/>
-                </if>
-              </choose>
-              <text macro="locator-page"/>
-            </else-if>
-          </choose>
-        </group>
-      </group>
+      <!-- the full form comes last so that processors without position tracking still render it -->
+      <choose>
+        <if position="ibid-with-locator">
+          <group delimiter=", ">
+            <text term="ibid"/>
+            <text macro="locator-page"/>
+          </group>
+        </if>
+        <else-if position="ibid">
+          <text term="ibid"/>
+        </else-if>
+        <else-if position="subsequent">
+          <group delimiter=", ">
+            <text macro="author-short"/>
+            <text macro="short-title"/>
+            <choose>
+              <if type="manuscript">
+                <text variable="call-number"/>
+              </if>
+            </choose>
+            <text macro="locator-page"/>
+          </group>
+        </else-if>
+        <else>
+          <group delimiter=", ">
+            <text macro="author"/>
+            <text macro="title"/>
+            <group delimiter=" ">
+              <text macro="edition"/>
+              <text macro="serie"/>
+            </group>
+            <text macro="access"/>
+            <choose>
+              <if variable="locator">
+                <text macro="locator-page"/>
+              </if>
+              <else>
+                <text macro="page-count"/>
+              </else>
+            </choose>
+          </group>
+        </else>
+      </choose>
     </layout>
   </citation>
   <!-- BIBLIOGRAPHY (type agnostic definition)-->
