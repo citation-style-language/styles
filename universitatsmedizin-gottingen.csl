@@ -19,6 +19,7 @@
   <locale xml:lang="de">
     <terms>
       <term name="et-al">et al.</term>
+      <term name="editor" form="short">Hrsg.</term>
       <term name="editor" form="verb-short">hrsg. v.</term>
       <term name="retrieved">abgerufen am</term>
     </terms>
@@ -50,7 +51,7 @@
   </macro>
   <macro name="author">
     <names variable="author">
-      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always" delimiter-precedes-et-al="never"/>
       <label form="short" prefix=" (" suffix=")"/>
       <substitute>
         <names variable="editor"/>
@@ -61,7 +62,7 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
-      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
+      <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always" delimiter-precedes-et-al="never"/>
       <label form="short" text-case="capitalize-first" suffix=")" prefix=" ("/>
     </names>
   </macro>
@@ -103,23 +104,17 @@
           <text variable="URL"/>
           <group delimiter=" ">
             <text term="retrieved"/>
-            <date variable="accessed" form="numeric"/>
+            <date variable="accessed" delimiter=".">
+              <date-part name="day" form="numeric-leading-zeros"/>
+              <date-part name="month" form="numeric-leading-zeros"/>
+              <date-part name="year"/>
+            </date>
           </group>
         </group>
       </if>
     </choose>
   </macro>
-  <macro name="sort-key">
-    <choose>
-      <if type="webpage post-weblog" match="any">
-        <text value="2"/>
-      </if>
-      <else>
-        <text value="1"/>
-      </else>
-    </choose>
-  </macro>
-  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true">
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-givenname="true" collapse="year" after-collapse-delimiter="; ">
     <sort>
       <key macro="year" sort="ascending"/>
       <key macro="author"/>
@@ -137,9 +132,8 @@
       </group>
     </layout>
   </citation>
-  <bibliography et-al-min="12" et-al-use-first="10" hanging-indent="true">
+  <bibliography et-al-min="11" et-al-use-first="10" hanging-indent="true">
     <sort>
-      <key macro="sort-key"/>
       <key macro="author" names-min="1" names-use-first="1"/>
       <key macro="author-count" names-min="3" names-use-first="3"/>
       <key macro="year"/>
@@ -152,7 +146,7 @@
           <group prefix=": " delimiter=". ">
             <text variable="title"/>
             <group delimiter=": ">
-              <text term="in" text-case="capitalize-first" suffix=":"/>
+              <text term="in" text-case="capitalize-first"/>
               <text macro="editor"/>
               <group delimiter=" ">
                 <text variable="container-title"/>
@@ -164,7 +158,7 @@
             </group>
             <group delimiter="; ">
               <group delimiter=" ">
-                <label variable="volume"/>
+                <label variable="volume" text-case="capitalize-first"/>
                 <text variable="volume"/>
               </group>
               <text macro="edition"/>
@@ -196,7 +190,7 @@
             </group>
             <group delimiter="; ">
               <group delimiter=" ">
-                <label variable="volume"/>
+                <label variable="volume" text-case="capitalize-first"/>
                 <text variable="volume"/>
               </group>
               <text macro="edition"/>
@@ -205,20 +199,20 @@
           </group>
         </else-if>
         <else-if type="webpage post-weblog post" match="any">
-          <choose>
-            <if variable="author editor translator title" match="any">
-              <text macro="access" prefix=". "/>
-            </if>
-            <else>
-              <text macro="access"/>
-            </else>
-          </choose>
+          <group delimiter=". ">
+            <group prefix=" " delimiter=": ">
+              <text macro="year" prefix="(" suffix=")"/>
+              <text variable="title"/>
+            </group>
+            <text variable="container-title"/>
+            <text macro="access"/>
+          </group>
         </else-if>
         <else-if type="thesis">
           <group delimiter=". " prefix=": ">
             <text variable="title"/>
-            <text variable="genre"/>
             <group delimiter=" ">
+              <text variable="genre"/>
               <text variable="publisher-place"/>
               <text macro="year"/>
             </group>
@@ -245,10 +239,17 @@
               <text variable="title" suffix="."/>
             </group>
             <text variable="container-title" form="short" strip-periods="true"/>
-            <group delimiter=", ">
-              <text variable="volume" text-decoration="underline"/>
-              <text variable="page"/>
-            </group>
+            <choose>
+              <if type="article">
+                <text value="(im Druck)"/>
+              </if>
+              <else>
+                <group delimiter=", ">
+                  <text variable="volume" text-decoration="underline"/>
+                  <text variable="page"/>
+                </group>
+              </else>
+            </choose>
           </group>
         </else>
       </choose>
