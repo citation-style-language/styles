@@ -24,7 +24,7 @@
     </contributor>
     <category citation-format="author-date"/>
     <summary>The Harvard author-date style</summary>
-    <updated>2026-10-30T13:50:00+00:00</updated>
+    <updated>2026-11-02T09:27:33+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -62,27 +62,31 @@
     </names>
   </macro>
   <macro name="access">
-    <group delimiter=". " prefix=" ">
-      <group delimiter=" " prefix="[" suffix="]">
-        <text term="accessed" text-case="capitalize-first"/>
-        <date variable="accessed">
-          <date-part name="day" suffix=" "/>
-          <date-part name="month" suffix=" "/>
-          <date-part name="year"/>
-        </date>
-      </group>
-      <group delimiter=": ">
-        <text term="available at" text-case="capitalize-first"/>
-        <choose>
-          <if match="any" variable="DOI">
-            <text variable="DOI" prefix="https://doi.org/"/>
-          </if>
-          <else-if match="any" variable="URL">
-            <text variable="URL"/>
-          </else-if>
-        </choose>
-      </group>
-    </group>
+    <choose>
+      <if match="any" variable="DOI URL">
+        <group delimiter=". " prefix=" ">
+          <group delimiter=" " prefix="[" suffix="]">
+            <text term="accessed" text-case="capitalize-first"/>
+            <date variable="accessed">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" suffix=" "/>
+              <date-part name="year"/>
+            </date>
+          </group>
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <choose>
+              <if match="any" variable="DOI">
+                <text variable="DOI" prefix="https://doi.org/"/>
+              </if>
+              <else-if match="any" variable="URL">
+                <text variable="URL"/>
+              </else-if>
+            </choose>
+          </group>
+        </group>
+      </if>
+    </choose>
   </macro>
   <macro name="title">
     <choose>
@@ -157,6 +161,13 @@
       </else>
     </choose>
   </macro>
+  <macro name="online">
+    <choose>
+      <if match="any" variable="URL DOI">
+        <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
+      </if>
+    </choose>
+  </macro>
   <citation et-al-min="3" et-al-use-first="1" disambiguate-add-year-suffix="true" disambiguate-add-names="true" disambiguate-add-givenname="true">
     <sort>
       <key variable="issued"/>
@@ -177,7 +188,7 @@
       <key variable="title"/>
     </sort>
     <layout>
-      <group delimiter=". ">
+      <group delimiter=". " suffix=".">
         <group delimiter=" ">
           <text macro="author"/>
           <text macro="year-date"/>
@@ -198,11 +209,7 @@
           </if>
           <else-if type="thesis" match="any">
             <text macro="title" suffix="."/>
-            <choose>
-              <if match="any" variable="URL">
-                <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
-              </if>
-            </choose>
+            <text macro="online" text-case="capitalize-first" prefix="[" suffix="]"/>
             <group prefix=" " delimiter=", " suffix=".">
               <text variable="genre"/>
               <text macro="publisher"/>
@@ -210,19 +217,17 @@
           </else-if>
           <else-if type="chapter paper-conference" match="any">
             <text macro="title"/>
-            <group prefix=" " delimiter=": ">
-              <text term="in" text-case="capitalize-first" font-style="italic"/>
-              <names variable="editor" delimiter=", " suffix=".">
-                <name and="text" delimiter-precedes-last="never" initialize-with=". "/>
-                <label form="short" strip-periods="false" prefix=", "/>
-              </names>
-              <group prefix=" " suffix="." delimiter=" ">
+            <group delimiter=". " prefix=" ">
+              <group delimiter=": ">
+                <text term="in" text-case="capitalize-first" font-style="normal"/>
+                <names variable="editor" delimiter=", " suffix=".">
+                  <name and="text" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="first"/>
+                  <label form="short" strip-periods="false" prefix=", "/>
+                </names>
+              </group>
+              <group delimiter=" ">
                 <text variable="container-title" font-style="italic"/>
-                <choose>
-                  <if match="any" variable="URL">
-                    <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
-                  </if>
-                </choose>
+                <text macro="online" text-case="capitalize-first" prefix="[" suffix="]"/>
               </group>
               <text variable="collection-title" prefix=" " suffix="."/>
               <group delimiter=", " prefix=" " suffix=".">
@@ -231,30 +236,33 @@
               </group>
             </group>
           </else-if>
+          <else-if type="article-magazine article-newspaper" match="any">
+            <text macro="title"/>
+            <text variable="container-title" font-style="italic"/>
+            <text macro="online"/>
+            <date variable="issued">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month"/>
+            </date>
+          </else-if>
           <else>
-            <group delimiter=" " suffix=".">
+            <group delimiter=" ">
               <text macro="title"/>
               <text macro="editor"/>
             </group>
-            <group prefix=" " suffix=".">
-              <group delimiter=" ">
-                <text variable="container-title" font-style="italic" suffix="."/>
-                <choose>
-                  <if match="any" variable="URL DOI">
-                    <text term="online" text-case="capitalize-first" prefix="[" suffix="]"/>
-                  </if>
-                </choose>
-              </group>
-              <group prefix=". ">
+            <text variable="container-title" font-style="italic"/>
+            <text macro="online"/>
+            <group delimiter=", ">
+              <group>
                 <text variable="volume" font-weight="bold"/>
                 <text variable="issue" prefix="(" suffix=")"/>
               </group>
-              <text macro="page" prefix=", "/>
+              <text macro="page"/>
             </group>
           </else>
         </choose>
       </group>
-      <text prefix=" " macro="access" suffix="."/>
+      <text macro="access" prefix=" "/>
     </layout>
   </bibliography>
 </style>
