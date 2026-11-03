@@ -28,7 +28,7 @@
     <category field="history"/>
     <category field="humanities"/>
     <summary>Annotatie en literatuurlijst volgens P. de Buck e.a., Zoeken en schrijven. Handleiding bij het maken van een historisch werkstuk (Haarlem 1982), en J.M. Kamp e.a., Geschiedenis schrijven! Wegwijzer voor historici (Amsterdam 2016). Gebaseerd op "MHRA format with full notes and bibliography"</summary>
-    <updated>2026-11-03T00:00:00+00:00</updated>
+    <updated>2026-11-03T19:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nl-NL">
@@ -237,17 +237,10 @@
   <macro name="volume-issue">
     <choose>
       <if type="article-journal">
-        <choose>
-          <if variable="issue">
-            <group delimiter=":">
-              <text variable="volume"/>
-              <text variable="issue"/>
-            </group>
-          </if>
-          <else>
-            <text variable="volume"/>
-          </else>
-        </choose>
+        <group delimiter=":">
+          <text variable="volume"/>
+          <text variable="issue"/>
+        </group>
       </if>
       <else>
         <group delimiter=" ">
@@ -436,13 +429,13 @@
     <choose>
       <if type="article-newspaper">
         <group delimiter=", ">
-          <group>
-            <text variable="edition" suffix=" "/>
+          <group delimiter=" ">
+            <text variable="edition"/>
             <text term="edition"/>
           </group>
-          <group>
-            <text term="section" suffix=" "/>
-            <text variable="section" suffix=","/>
+          <group delimiter=" ">
+            <text term="section"/>
+            <text variable="section"/>
           </group>
         </group>
       </if>
@@ -509,43 +502,43 @@
       </else>
     </choose>
   </macro>
+  <macro name="format-locator">
+    <choose>
+      <if locator="folio column rule sub-verbo" match="any">
+        <group delimiter=" ">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </if>
+      <else-if locator="note paragraph section figure part line table verse book" match="any">
+        <group delimiter=" ">
+          <label variable="locator" form="long"/>
+          <text variable="locator"/>
+        </group>
+      </else-if>
+      <else>
+        <group delimiter=" ">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <macro name="point-locators">
     <text macro="pages"/>
     <choose>
       <if type="chapter paper-conference article-journal article-magazine article-newspaper entry-dictionary entry-encyclopedia article" match="any">
         <choose>
           <if locator="page">
-            <group prefix=", ">
-              <text term="at" suffix=" "/>
+            <group prefix=", " delimiter=" ">
+              <text term="at"/>
               <text variable="locator"/>
             </group>
           </if>
-          <else-if locator="folio" match="any">
-            <group prefix=", ">
-              <text term="at" suffix=" "/>
-              <label variable="locator" form="short" prefix=" " suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="note paragraph section figure part line table verse" match="any">
-            <group prefix=", ">
-              <text term="at" suffix=" "/>
-              <label variable="locator" form="long" prefix=" " suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="sub-verbo">
-            <group prefix=", ">
-              <text term="at" suffix=" "/>
-              <label variable="locator" form="short" suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
           <else>
-            <group prefix=", ">
-              <text term="at" prefix=" " suffix=" "/>
-              <label variable="locator" form="long" prefix=" " suffix=" "/>
-              <text variable="locator"/>
+            <group prefix=", " delimiter=" ">
+              <text term="at"/>
+              <text macro="format-locator"/>
             </group>
           </else>
         </choose>
@@ -553,60 +546,20 @@
       <else-if type="manuscript">
         <choose>
           <if locator="page">
-            <text variable="locator"/>
+            <text variable="locator" prefix=" "/>
           </if>
           <else>
-            <label variable="locator" form="short" suffix=" "/>
-            <text variable="locator"/>
+            <text macro="format-locator" prefix=" "/>
           </else>
         </choose>
       </else-if>
       <else>
         <choose>
-          <if locator="folio">
-            <label variable="locator" form="short" prefix=" " suffix=" "/>
-            <text variable="locator"/>
-          </if>
-          <else-if locator="note">
-            <group prefix=", ">
-              <label variable="locator" form="long" suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="column">
-            <group prefix=", ">
-              <label variable="locator" form="short" suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="rule">
-            <group prefix=", ">
-              <label variable="locator" form="short" suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="paragraph section line verse" match="any">
-            <group prefix=", ">
-              <text term="at" suffix=" "/>
-              <label variable="locator" form="long" prefix=" " suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="table figure" match="any">
-            <group prefix=", ">
-              <text term="at" prefix=" " suffix=" "/>
-              <label variable="locator" form="long" prefix=" " suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else-if locator="sub-verbo">
-            <group prefix=", ">
-              <label variable="locator" form="short" suffix=" "/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else>
+          <if locator="page">
             <text variable="locator" prefix=" "/>
+          </if>
+          <else>
+            <text macro="format-locator" prefix=", "/>
           </else>
         </choose>
       </else>
@@ -689,51 +642,8 @@
       <if locator="page">
         <text variable="locator"/>
       </if>
-      <else-if locator="folio">
-        <label variable="locator" form="short" suffix=" "/>
-        <text variable="locator"/>
-      </else-if>
-      <else-if locator="note">
-        <label variable="locator" form="long" suffix=" "/>
-        <text variable="locator"/>
-      </else-if>
-      <else-if locator="sub-verbo">
-        <label variable="locator" form="short" suffix=" "/>
-        <text variable="locator"/>
-      </else-if>
-      <else-if locator="rule">
-        <label variable="locator" form="short" suffix=" "/>
-        <text variable="locator"/>
-      </else-if>
-      <else-if locator="column">
-        <label variable="locator" form="short" suffix=" "/>
-        <text variable="locator"/>
-      </else-if>
-      <else-if locator="table figure" match="any">
-        <group>
-          <label variable="locator" form="long" prefix=" " suffix=" "/>
-          <text variable="locator"/>
-        </group>
-      </else-if>
-      <else-if locator="paragraph section line verse" match="any">
-        <group>
-          <label variable="locator" form="long" prefix=" " suffix=" "/>
-          <text variable="locator"/>
-        </group>
-      </else-if>
-      <else-if type="manuscript">
-        <choose>
-          <if locator="page">
-            <text variable="locator"/>
-          </if>
-          <else>
-            <label variable="locator" form="short" suffix=" "/>
-            <text variable="locator"/>
-          </else>
-        </choose>
-      </else-if>
       <else>
-        <text variable="locator"/>
+        <text macro="format-locator"/>
       </else>
     </choose>
   </macro>
