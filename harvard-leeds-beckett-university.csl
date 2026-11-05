@@ -10,13 +10,17 @@
       <email>work@joejoiner.me</email>
       <uri>http://twitter.com/joejoinerr</uri>
     </author>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="author-date"/>
-    <updated>2025-07-11T12:34:00+00:00</updated>
+    <updated>2026-11-05T16:36:36+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
       <term name="presented at">presented at</term>
+      <term name="available at">available from</term>
     </terms>
   </locale>
   <macro name="sort-term">
@@ -60,11 +64,6 @@
           <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="text"/>
         </names>
       </else-if>
-      <else-if type="motion_picture" variable="URL" match="all">
-        <names variable="author">
-          <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="text"/>
-        </names>
-      </else-if>
       <else-if type="motion_picture">
         <text macro="title"/>
       </else-if>
@@ -88,35 +87,27 @@
   <macro name="online">
     <choose>
       <if variable="URL">
-        <group prefix=" [" suffix="]">
-          <text term="online" text-case="capitalize-first"/>
-          <choose>
-            <if type="personal_communication">
-              <text value=" discussion list"/>
-            </if>
-            <else-if type="graphic">
-              <text value=" image"/>
-            </else-if>
-            <else-if type="post-weblog">
-              <text value=" blog"/>
-            </else-if>
-            <else-if type="motion_picture">
-              <text value=" video"/>
-            </else-if>
-          </choose>
-        </group>
+        <choose>
+          <if type="personal_communication graphic post motion_picture" match="any">
+            <text variable="genre"/>
+          </if>
+        </choose>
       </if>
     </choose>
   </macro>
   <macro name="access">
     <choose>
       <if variable="DOI">
-        <text value="Available from: "/>
-        <text variable="DOI" prefix="&lt;https://doi.org/" suffix="&gt;"/>
+        <group delimiter=": ">
+          <text term="available at" text-case="capitalize-first"/>
+          <text variable="DOI" prefix="&lt;https://doi.org/" suffix="&gt;"/>
+        </group>
       </if>
       <else-if variable="URL">
-        <text value="Available from: "/>
-        <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+        <group delimiter=": ">
+          <text term="available at" text-case="capitalize-first"/>
+          <text variable="URL" prefix="&lt;" suffix="&gt;"/>
+        </group>
         <group prefix=" [" suffix="]">
           <text term="accessed" text-case="capitalize-first" suffix=" "/>
           <date variable="accessed" delimiter=" ">
@@ -254,15 +245,16 @@
       <key variable="title"/>
     </sort>
     <layout>
-      <!-- Author/Title -->
       <text macro="sort-term"/>
-      <!-- Year -->
       <choose>
         <if type="legal_case">
           <text macro="year" prefix=" [" suffix="]"/>
         </if>
         <else-if type="legislation">
-          <number variable="chapter-number" prefix=" (c. " suffix=")"/>
+          <group delimiter=" " prefix=" (" suffix=")">
+            <label variable="chapter-number" form="short"/>
+            <number variable="chapter-number"/>
+          </group>
         </else-if>
         <else>
           <text macro="year" prefix=" (" suffix=")"/>
@@ -440,36 +432,14 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="motion_picture" variable="URL" match="all">
+        <else-if type="motion_picture" match="any">
           <group prefix=" " delimiter=". " suffix=".">
-            <group delimiter=", ">
-              <group>
-                <choose>
-                  <if variable="author">
-                    <text macro="title"/>
-                  </if>
-                </choose>
-                <text macro="online"/>
-              </group>
-              <date variable="issued" delimiter=" ">
-                <date-part name="day"/>
-                <date-part name="month"/>
-              </date>
-            </group>
+            <names variable="director">
+              <label form="verb" text-case="capitalize-first" suffix=" "/>
+              <name initialize-with=". " name-as-sort-order="all" delimiter=", " delimiter-precedes-last="never" and="text"/>
+            </names>
+            <date form="text" date-parts="year-month-day" variable="issued"/>
             <text macro="access"/>
-          </group>
-        </else-if>
-        <else-if type="motion_picture">
-          <group prefix=" " delimiter=". " suffix=".">
-            <group>
-              <names variable="author" prefix="Directed by ">
-                <name delimiter=", " delimiter-precedes-last="never" and="text"/>
-              </names>
-            </group>
-            <group delimiter=" ">
-              <text macro="publisher"/>
-              <text variable="medium" prefix="[" suffix="]"/>
-            </group>
           </group>
         </else-if>
         <else-if type="legislation">
@@ -523,7 +493,7 @@
                 <names variable="author"/>
                 <choose>
                   <if variable="URL">
-                    <text value="[Digital audio file]"/>
+                    <text variable="medium" prefix="[" suffix="]"/>
                   </if>
                 </choose>
               </group>
@@ -533,7 +503,7 @@
             <text macro="access"/>
           </group>
         </else-if>
-        <else-if type="webpage">
+        <else-if type="webpage post post-weblog" match="any">
           <group prefix=" " delimiter=". " suffix=".">
             <group delimiter=" ">
               <choose>
