@@ -20,7 +20,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Norwegian legal citation style based on "Veiledning for henvisninger i juridiske tekster" (February 2019). Variant with full note on first citation, subsequent notes in short form (bibliography optional).</summary>
-    <updated>2026-11-06T09:19:38+00:00</updated>
+    <updated>2026-11-06T22:04:34+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nb">
@@ -51,6 +51,10 @@
       <else-if type="webpage">
         <text value="2"/>
       </else-if>
+      <!-- EU acts: Statute with Pages, see the macro "eu-legislation". This test must come before "legislation" even though EU acts are sorted later, because "choose" stops at the first match, so EU acts would otherwise be sorted as Norwegian legislation. -->
+      <else-if type="legislation" variable="page" match="all">
+        <text value="7"/>
+      </else-if>
       <else-if type="legislation">
         <text value="3"/>
       </else-if>
@@ -63,8 +67,9 @@
       <else-if type="legal_case">
         <text value="6"/>
       </else-if>
+      <!-- The apparent numbering gap here is intentional: EU acts are between legal_case and treaty, see above -->
       <else-if type="treaty">
-        <text value="7"/>
+        <text value="8"/>
       </else-if>
     </choose>
   </macro>
@@ -85,11 +90,23 @@
         </date>
       </if>
       <else-if type="treaty">
-        <date variable="available-date">
-          <date-part name="year"/>
-          <date-part name="month" form="numeric"/>
-          <date-part name="day" form="numeric-leading-zeros"/>
-        </date>
+        <choose>
+          <if variable="available-date">
+            <date variable="available-date">
+              <date-part name="year"/>
+              <date-part name="month" form="numeric"/>
+              <date-part name="day" form="numeric-leading-zeros"/>
+            </date>
+          </if>
+          <!-- EU treaties without a signature date, such as a corrigendum, sort by the OJ date -->
+          <else>
+            <date variable="event-date">
+              <date-part name="year"/>
+              <date-part name="month" form="numeric"/>
+              <date-part name="day" form="numeric-leading-zeros"/>
+            </date>
+          </else>
+        </choose>
       </else-if>
     </choose>
   </macro>
@@ -311,6 +328,31 @@
       </else>
     </choose>
   </macro>
+  <macro name="eu-legislation">
+    <!-- A Statute with Pages is an EU act: Norwegian laws have no page reference. "Code" holds year and series, such as "OJ 2019 L". Acts from October 2023 have no issue or page number, so their "Code" is "OJ L" and their act number goes in Pages, like an article number. -->
+    <group delimiter=", ">
+      <text variable="title"/>
+      <choose>
+        <!-- Up to September 2023: year, OJ issue and first page, e.g. "OJ 2019 L 178/1" -->
+        <if variable="volume">
+          <group delimiter=" ">
+            <text variable="container-title"/>
+            <group delimiter="/">
+              <text variable="volume"/>
+              <text variable="page-first"/>
+            </group>
+          </group>
+        </if>
+        <!-- From October 2023, e.g. "OJ L 2024/1689" (the year is part of the number), and special editions, which have the name of the edition in "Code", e.g. "English Special Edition: Series I Volume 1968(II) 475" -->
+        <else>
+          <group delimiter=" ">
+            <text variable="container-title"/>
+            <text variable="page-first"/>
+          </group>
+        </else>
+      </choose>
+    </group>
+  </macro>
   <macro name="nor-legislation">
     <group delimiter=" ">
       <text variable="container-title"/>
@@ -515,11 +557,25 @@
         </group>
       </group>
       <group delimiter=", ">
-        <group delimiter=" ">
-          <text variable="volume"/>
-          <text variable="container-title"/>
-          <text variable="page"/>
-        </group>
+        <choose>
+          <!-- Treaties published in the EU Official Journal up to September 2023: "container-title" (Zotero "Code") holds year and series, such as "OJ 2000 L", and "volume" (Zotero "Code Number") the OJ issue. "event-date" (Extra in Zotero, the OJ date) is only a signal, which tells these treaties apart from others such as those in UNTS or ETS. All other treaties use the general form, including EU treaties from October 2023 and special editions. -->
+          <if variable="event-date volume" match="all">
+            <group delimiter=" ">
+              <text variable="container-title"/>
+              <group delimiter="/">
+                <text variable="volume"/>
+                <text variable="page-first"/>
+              </group>
+            </group>
+          </if>
+          <else>
+            <group delimiter=" ">
+              <text variable="volume"/>
+              <text variable="container-title"/>
+              <text variable="page-first"/>
+            </group>
+          </else>
+        </choose>
         <group>
           <!-- "number" = "Public Law Number" in Zotero -->
           <text variable="number"/>
@@ -646,6 +702,24 @@
               </else>
             </choose>
           </else-if>
+          <!-- EU acts: Statute with Pages, see the macro "eu-legislation" -->
+          <else-if type="legislation" variable="page" match="all">
+            <choose>
+              <if position="first">
+                <group delimiter=" ">
+                  <text macro="eu-legislation"/>
+                  <text macro="title-short" prefix="(" suffix=")"/>
+                </group>
+              </if>
+              <else-if variable="title-short">
+                <text macro="title-short"/>
+              </else-if>
+              <!-- EU acts without a short title: the title alone -->
+              <else>
+                <text variable="title"/>
+              </else>
+            </choose>
+          </else-if>
           <else-if type="legislation regulation">
             <choose>
               <if position="first">
@@ -753,6 +827,10 @@
         </else-if>
         <else-if type="chapter entry-encyclopedia paper-conference" match="any">
           <text macro="chapter-encyclopediaentry-conferencepaper-bib" suffix="."/>
+        </else-if>
+        <!-- EU acts: Statute with Pages, see the macro "eu-legislation" -->
+        <else-if type="legislation" variable="page" match="all">
+          <text macro="eu-legislation" suffix="."/>
         </else-if>
         <else-if type="legislation regulation" match="any">
           <text macro="nor-legislation" suffix="."/>
