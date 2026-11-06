@@ -20,7 +20,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Norwegian legal citation style based on "Veiledning for henvisninger i juridiske tekster" (February 2019). Variant with short form notes (bibliography required).</summary>
-    <updated>2026-09-30T08:58:28+00:00</updated>
+    <updated>2026-11-04T21:28:17+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nb">
@@ -103,13 +103,27 @@
     </names>
   </macro>
   <macro name="author-full">
-    <names variable="author">
-      <name delimiter-precedes-last="never" name-as-sort-order="first" and="text"/>
-      <et-al term="and others"/>
-      <substitute>
-        <text macro="editor-invert"/>
-      </substitute>
-    </names>
+    <choose>
+      <!-- Names are only inverted in the bibliography, where position tests are false -->
+      <if position="first subsequent" match="any">
+        <names variable="author">
+          <name delimiter-precedes-last="never" and="text"/>
+          <et-al term="and others"/>
+          <substitute>
+            <text macro="editor"/>
+          </substitute>
+        </names>
+      </if>
+      <else>
+        <names variable="author">
+          <name delimiter-precedes-last="never" name-as-sort-order="first" and="text"/>
+          <et-al term="and others"/>
+          <substitute>
+            <text macro="editor-invert"/>
+          </substitute>
+        </names>
+      </else>
+    </choose>
   </macro>
   <macro name="editor">
     <names variable="editor">
@@ -127,9 +141,13 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <if type="article-journal chapter" match="any">
-        <text quotes="true" variable="title"/>
+      <!-- Commentaries (see commentary-bib): falls back to the title when Short Title is empty -->
+      <if type="entry-encyclopedia" variable="archive">
+        <text variable="title" form="short" font-style="italic"/>
       </if>
+      <else-if type="article-journal chapter" match="any">
+        <text quotes="true" variable="title"/>
+      </else-if>
       <else-if type="bill legislation regulation treaty" match="any">
         <text variable="title-short"/>
       </else-if>
@@ -140,9 +158,16 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="chapter entry-encyclopedia article-journal article-newspaper article-magazine post-weblog" match="any">
-        <text quotes="true" variable="title"/>
+      <!-- Commentaries (see commentary-bib): must come before the general entry-encyclopedia test -->
+      <if type="entry-encyclopedia" variable="archive">
+        <group delimiter=": " font-style="italic">
+          <text variable="container-title"/>
+          <text variable="title"/>
+        </group>
       </if>
+      <else-if type="chapter entry-encyclopedia article-journal article-newspaper article-magazine post-weblog" match="any">
+        <text quotes="true" variable="title"/>
+      </else-if>
       <else-if type="bill treaty" match="any">
         <text variable="title"/>
       </else-if>
@@ -443,6 +468,36 @@
       </else-if>
     </choose>
   </macro>
+  <!-- Online commentaries (guide section 9.2.2) are entry-encyclopedia items with the name of the service in the Zotero field Archive. Without Archive, the item is an ordinary encyclopedia entry (section 9.4). -->
+  <macro name="commentary-short">
+    <group delimiter=" ">
+      <group delimiter=", ">
+        <text macro="author-short"/>
+        <text macro="title-short"/>
+      </group>
+      <!-- Continuously updated commentaries have no year; leave Date empty in Zotero -->
+      <date variable="issued" prefix="(" suffix=")">
+        <date-part name="year"/>
+      </date>
+    </group>
+  </macro>
+  <macro name="commentary-bib">
+    <group delimiter=", ">
+      <text macro="author-full"/>
+      <text macro="title"/>
+      <text macro="issued-full-date"/>
+      <choose>
+        <!-- The locator goes before Archive in a full note. Position tests are false in the bibliography. -->
+        <if position="first">
+          <text macro="locator"/>
+        </if>
+      </choose>
+      <group>
+        <text variable="archive"/>
+        <text macro="accessed-date"/>
+      </group>
+    </group>
+  </macro>
   <macro name="personal_communication-bib">
     <group delimiter=" ">
       <text macro="author-full"/>
@@ -484,7 +539,14 @@
   </macro>
   <macro name="locator">
     <choose>
-      <if type="legislation regulation" match="any">
+      <!-- Commentaries: the section and note share one locator, e.g. "2, note 2" with the label "section" -->
+      <if type="entry-encyclopedia" variable="archive" locator="section" match="all">
+        <group delimiter="&#160;">
+          <label variable="locator" form="symbol"/>
+          <text variable="locator"/>
+        </group>
+      </if>
+      <else-if type="legislation regulation" match="any">
         <choose>
           <if locator="section paragraph" match="any">
             <group delimiter="&#160;">
@@ -499,7 +561,7 @@
             </group>
           </else>
         </choose>
-      </if>
+      </else-if>
       <else>
         <choose>
           <if locator="paragraph article-locator" match="any">
@@ -528,10 +590,13 @@
     <layout delimiter="; ">
       <group delimiter=" ">
         <choose>
-          <if type="book thesis chapter entry-encyclopedia paper-conference article-journal article-newspaper article-magazine post-weblog" match="any">
+          <if type="entry-encyclopedia" variable="archive">
+            <text macro="commentary-short"/>
+          </if>
+          <else-if type="book thesis chapter entry-encyclopedia paper-conference article-journal article-newspaper article-magazine post-weblog" match="any">
             <text macro="author-short"/>
             <text macro="issued"/>
-          </if>
+          </else-if>
           <else-if type="legislation regulation">
             <choose>
               <if position="first">
@@ -621,6 +686,9 @@
         </else-if>
         <else-if type="thesis">
           <text macro="thesis-bib" suffix="."/>
+        </else-if>
+        <else-if type="entry-encyclopedia" variable="archive">
+          <text macro="commentary-bib" suffix="."/>
         </else-if>
         <else-if type="chapter entry-encyclopedia paper-conference" match="any">
           <text macro="chapter-encyclopediaentry-conferencepaper-bib" suffix="."/>
