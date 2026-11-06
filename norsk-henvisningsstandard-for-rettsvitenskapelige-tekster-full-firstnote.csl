@@ -20,7 +20,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Norwegian legal citation style based on "Veiledning for henvisninger i juridiske tekster" (February 2019). Variant with full note on first citation, subsequent notes in short form (bibliography optional).</summary>
-    <updated>2026-11-04T21:28:17+00:00</updated>
+    <updated>2026-11-06T09:19:38+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nb">
@@ -141,13 +141,9 @@
   </macro>
   <macro name="title-short">
     <choose>
-      <!-- Commentaries (see commentary-bib): falls back to the title when Short Title is empty -->
-      <if type="entry-encyclopedia" variable="archive">
-        <text variable="title" form="short" font-style="italic"/>
-      </if>
-      <else-if type="article-journal chapter" match="any">
+      <if type="article-journal chapter" match="any">
         <text quotes="true" variable="title"/>
-      </else-if>
+      </if>
       <else-if type="bill legislation regulation treaty" match="any">
         <text variable="title-short"/>
       </else-if>
@@ -185,6 +181,12 @@
       </if>
       <else-if variable="issued">
         <date prefix="(" suffix=")" variable="issued">
+          <date-part name="year"/>
+        </date>
+      </else-if>
+      <!-- Continuously updated commentaries have no date, so the year they were read is used instead -->
+      <else-if type="entry-encyclopedia" variable="archive accessed" match="all">
+        <date prefix="(" suffix=")" variable="accessed">
           <date-part name="year"/>
         </date>
       </else-if>
@@ -469,18 +471,6 @@
     </choose>
   </macro>
   <!-- Online commentaries (guide section 9.2.2) are entry-encyclopedia items with the name of the service in the Zotero field Archive. Without Archive, the item is an ordinary encyclopedia entry (section 9.4). -->
-  <macro name="commentary-short">
-    <group delimiter=" ">
-      <group delimiter=", ">
-        <text macro="author-short"/>
-        <text macro="title-short"/>
-      </group>
-      <!-- Continuously updated commentaries have no year; leave Date empty in Zotero -->
-      <date variable="issued" prefix="(" suffix=")">
-        <date-part name="year"/>
-      </date>
-    </group>
-  </macro>
   <macro name="commentary-bib">
     <group delimiter=", ">
       <text macro="author-full"/>
@@ -596,7 +586,8 @@
                 <text macro="commentary-bib"/>
               </if>
               <else>
-                <text macro="commentary-short"/>
+                <text macro="author-short"/>
+                <text macro="issued"/>
               </else>
             </choose>
           </if>
