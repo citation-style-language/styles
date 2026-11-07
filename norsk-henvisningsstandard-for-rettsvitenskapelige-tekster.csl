@@ -20,7 +20,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Norwegian legal citation style based on "Veiledning for henvisninger i juridiske tekster" (February 2019). Variant with short form notes (bibliography required).</summary>
-    <updated>2026-11-06T22:04:34+00:00</updated>
+    <updated>2026-11-07T14:45:50+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nb">
@@ -583,6 +583,23 @@
       </group>
     </group>
   </macro>
+  <!-- Labels without a form of their own in the "locator" macro. "paragraph" and "article-locator" print in long form. -->
+  <macro name="locator-default">
+    <choose>
+      <if locator="paragraph article-locator" match="any">
+        <group delimiter=" ">
+          <label variable="locator" form="long"/>
+          <text variable="locator"/>
+        </group>
+      </if>
+      <else>
+        <group delimiter="&#160;">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <macro name="locator">
     <choose>
       <!-- Commentaries: the section and note share one locator, e.g. "2, note 2" with the label "section" -->
@@ -592,43 +609,23 @@
           <text variable="locator"/>
         </group>
       </if>
+      <!-- Legislation: "section" and "paragraph" both print as "§". All other labels, such as articles of EU acts, print as for other types -->
       <else-if type="legislation regulation" match="any">
         <choose>
           <if locator="section paragraph" match="any">
             <group delimiter="&#160;">
+              <!-- variable="section" always gives "§". With variable="locator", the label "paragraph" would give "¶" -->
               <label variable="section" form="symbol"/>
               <text variable="locator"/>
             </group>
           </if>
           <else>
-            <group delimiter="&#160;">
-              <label variable="locator" form="short"/>
-              <text variable="locator"/>
-            </group>
+            <text macro="locator-default"/>
           </else>
         </choose>
       </else-if>
       <else>
-        <choose>
-          <if locator="paragraph article-locator" match="any">
-            <group delimiter=" ">
-              <label variable="locator" form="long"/>
-              <text variable="locator"/>
-            </group>
-          </if>
-          <else-if locator="page">
-            <group delimiter="&#160;">
-              <label variable="locator" form="short"/>
-              <text variable="locator"/>
-            </group>
-          </else-if>
-          <else>
-            <group delimiter=" ">
-              <label variable="locator" form="short"/>
-              <text variable="locator"/>
-            </group>
-          </else>
-        </choose>
+        <text macro="locator-default"/>
       </else>
     </choose>
   </macro>
