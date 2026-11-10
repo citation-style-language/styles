@@ -5,24 +5,28 @@
     <id>http://www.zotero.org/styles/journal-of-hearing-science</id>
     <link href="http://www.zotero.org/styles/journal-of-hearing-science" rel="self"/>
     <link href="http://www.zotero.org/styles/nlm-citation-sequence" rel="template"/>
-    <link href="http://www.journalofhearingscience.com/index.php?/content/get_cont/3" rel="documentation"/>
+    <link href="https://www.journalofhearingscience.com/Manuscript-Preparation,3857.html" rel="documentation"/>
     <author>
       <name>Aleksandra Mankiewicz-Malinowska</name>
       <email>a.malinowska@ifps.org.pl</email>
     </author>
+    <contributor>
+      <name>Patrick O'Brien</name>
+    </contributor>
     <category citation-format="numeric"/>
     <category field="medicine"/>
     <category field="science"/>
     <issn>2083-389X</issn>
     <eissn>2084-3127</eissn>
     <summary>Journal of Hearing Science style</summary>
-    <updated>2012-09-27T22:06:38+00:00</updated>
+    <updated>2026-09-17T13:33:40+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
       <term name="retrieved">available</term>
       <term name="section" form="short">sect.</term>
+      <term name="report">Report No.</term>
     </terms>
   </locale>
   <macro name="author">
@@ -48,44 +52,39 @@
     </group>
   </macro>
   <macro name="publisher">
-    <group delimiter=": " suffix=";">
-      <choose>
-        <if type="thesis">
-          <text variable="publisher-place" prefix="[" suffix="]"/>
-        </if>
-        <else>
-          <text variable="publisher-place"/>
-        </else>
-      </choose>
+    <group delimiter=": " prefix=" ">
+      <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
   </macro>
   <macro name="access">
     <choose>
-      <if variable="URL">
-        <group delimiter=": ">
-          <group delimiter=" ">
-            <text term="retrieved" text-case="capitalize-first"/>
-            <text term="from"/>
-          </group>
-          <text variable="URL"/>
-        </group>
+      <if variable="DOI">
+        <text variable="DOI" prefix="https://doi.org/"/>
       </if>
+      <else-if variable="URL">
+        <group delimiter=" ">
+          <group delimiter=": ">
+            <group delimiter=" ">
+              <text term="retrieved" text-case="capitalize-first"/>
+              <text term="from"/>
+            </group>
+            <text variable="URL"/>
+          </group>
+          <text macro="accessed-date"/>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="accessed-date">
-    <choose>
-      <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
-          <text term="cited"/>
-          <date variable="accessed">
-            <date-part name="year"/>
-            <date-part name="month" prefix=" " form="short" strip-periods="true"/>
-            <date-part name="day" prefix=" "/>
-          </date>
-        </group>
-      </if>
-    </choose>
+    <group delimiter=" " prefix="[" suffix="]">
+      <text term="accessed" text-case="capitalize-first"/>
+      <date variable="accessed" delimiter=".">
+        <date-part name="day" form="numeric-leading-zeros" suffix="."/>
+        <date-part name="month" form="numeric-leading-zeros" suffix="."/>
+        <date-part name="year"/>
+      </date>
+    </group>
   </macro>
   <macro name="container-title">
     <choose>
@@ -96,11 +95,8 @@
         <text variable="container-title" suffix=","/>
       </else-if>
       <else-if type="chapter paper-conference" match="any">
-        <group delimiter=". " suffix=".">
-          <text variable="container-title"/>
-        </group>
+        <text variable="container-title" prefix=". " suffix="."/>
       </else-if>
-      <!--add event-name and event-place once they become available-->
       <else-if type="bill">
         <group delimiter=", ">
           <group delimiter=". ">
@@ -114,7 +110,7 @@
         </group>
       </else-if>
       <else>
-        <text variable="container-title" suffix="."/>
+        <text variable="container-title"/>
       </else>
     </choose>
   </macro>
@@ -145,21 +141,18 @@
         </group>
       </if>
       <else>
-        <text variable="edition" suffix="."/>
+        <text variable="edition"/>
       </else>
     </choose>
   </macro>
   <macro name="date">
     <choose>
       <if type="article-magazine article-newspaper" match="any">
-        <group suffix=";" delimiter=" ">
-          <date variable="issued" delimiter=" ">
-            <date-part name="year"/>
-            <date-part name="month" form="short" strip-periods="true"/>
-            <date-part name="day"/>
-          </date>
-          <text macro="accessed-date"/>
-        </group>
+        <date delimiter=" " variable="issued" prefix="; ">
+          <date-part name="year"/>
+          <date-part name="month" form="short" strip-periods="true"/>
+          <date-part name="day"/>
+        </date>
       </if>
       <else-if type="article-journal" match="any">
         <date variable="issued" form="numeric" date-parts="year" suffix=";"/>
@@ -176,43 +169,46 @@
         </group>
       </else-if>
       <else-if type="report">
-        <date variable="issued" delimiter=" ">
+        <date delimiter=" " variable="issued" prefix="; ">
           <date-part name="year"/>
           <date-part name="month" form="short" strip-periods="true"/>
         </date>
       </else-if>
+      <else-if type="patent" match="any">
+        <date date-parts="year" form="text" variable="issued"/>
+      </else-if>
       <else>
-        <group suffix=".">
-          <date variable="issued">
-            <date-part name="year"/>
-          </date>
-          <text macro="accessed-date" prefix=" "/>
-        </group>
+        <date variable="issued" prefix="; ">
+          <date-part name="year"/>
+        </date>
       </else>
     </choose>
   </macro>
   <macro name="pages">
     <choose>
-      <if type="article-journal article-magazine article-newspaper" match="any">
-        <text variable="page"/>
-      </if>
-      <else>
-        <text variable="page" prefix="p. "/>
-      </else>
+      <if type="article-journal" match="none"/>
     </choose>
   </macro>
   <macro name="journal-location">
     <choose>
       <if type="article-journal article-magazine" match="any">
-        <text variable="volume"/>
-        <text variable="issue" prefix="(" suffix=")"/>
+        <group delimiter=": ">
+          <group>
+            <text variable="volume"/>
+            <text variable="issue" prefix="(" suffix=")"/>
+          </group>
+          <text variable="page"/>
+        </group>
       </if>
     </choose>
   </macro>
   <macro name="report-details">
     <choose>
       <if type="report">
-        <text variable="number" prefix="Report No.: "/>
+        <group delimiter=": ">
+          <text term="report"/>
+          <text variable="number"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -220,11 +216,11 @@
     <sort>
       <key variable="citation-number"/>
     </sort>
-    <layout prefix="(" suffix=")" delimiter=",">
+    <layout delimiter="," prefix="[" suffix="]">
       <text variable="citation-number"/>
     </layout>
   </citation>
-  <bibliography et-al-min="7" et-al-use-first="3" second-field-align="flush">
+  <bibliography et-al-min="7" et-al-use-first="6" second-field-align="flush">
     <layout>
       <group suffix=". ">
         <text variable="citation-number"/>
@@ -233,15 +229,13 @@
         <text macro="author"/>
         <text macro="title"/>
       </group>
-      <group delimiter=" " suffix=". ">
+      <group suffix=". ">
         <text macro="editor"/>
         <text macro="container-title"/>
         <text macro="publisher"/>
         <text macro="date"/>
-        <group delimiter=": ">
-          <text macro="journal-location"/>
-          <text macro="pages"/>
-        </group>
+        <text macro="pages"/>
+        <text macro="journal-location"/>
       </group>
       <text macro="report-details" suffix=". "/>
       <text macro="access"/>

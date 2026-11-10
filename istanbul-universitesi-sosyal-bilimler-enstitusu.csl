@@ -13,17 +13,16 @@
     <category citation-format="note"/>
     <category field="social_science"/>
     <summary xml:lang="tr">Ansiklopedi maddesi, internet sayfası, kitap, makale ve tez ögeleri İstanbul Üniversitesi Sosyal Bilimler Enstitüsü Tez Hazırlama Yönergesi'ne uygun olarak oluşturulmuştur.</summary>
-    <updated>2020-07-08T18:25:00+00:00</updated>
+    <updated>2026-10-13T12:00:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="tr">
     <terms>
       <term name="editortranslator" form="verb">ed. &amp; çev.</term>
-      <term name="ibid">a.y.</term>
+      <term name="ibid">a.e.</term>
       <term name="issue" form="short">No:</term>
       <term name="volume" form="short">C.</term>
       <term name="number-of-volumes">cilt</term>
-      <term name="cited">a.g.e.</term>
       <term name="editorial-director">nşr.</term>
       <term name="editorial-director" form="short">nşr.</term>
       <term name="editorial-director" form="verb-short">nşr.</term>
@@ -32,8 +31,16 @@
       <term name="collection-editor" form="verb-short">thk.</term>
       <term name="director" form="short">haz.</term>
       <term name="director" form="verb-short">haz.</term>
+      <term name="et-al">v.d.</term>
+      <term name="thesis">Tezi</term>
     </terms>
   </locale>
+  <macro name="pages">
+    <group delimiter=" ">
+      <label variable="page" form="short" plural="never"/>
+      <text variable="page"/>
+    </group>
+  </macro>
   <macro name="editor-translator">
     <group delimiter=", ">
       <group delimiter=" ">
@@ -307,10 +314,12 @@
       <choose>
         <if match="any" variable="volume">
           <choose>
-            <if type="article-journal" variable="volume" match="all"></if>
+            <if type="article-journal entry-dictionary paper-conference" match="any"/>
             <else>
-              <label plural="never" prefix=", " suffix=" " variable="volume" form="short"/>
-              <text variable="volume"/>
+              <group delimiter=" " prefix=", ">
+                <label variable="volume" form="short" plural="never"/>
+                <text variable="volume"/>
+              </group>
             </else>
           </choose>
         </if>
@@ -354,10 +363,13 @@
       <choose>
         <if match="any" variable="volume">
           <choose>
-            <if type="article-journal" variable="volume" match="all"></if>
+            <if type="article-journal entry-dictionary" match="any"/>
+            <else-if type="paper-conference" variable="locator" match="all"/>
             <else>
-              <label plural="never" prefix="" suffix=" " variable="volume" form="short"/>
-              <text variable="volume"/>
+              <group delimiter=" ">
+                <label variable="volume" form="short" plural="never"/>
+                <text variable="volume"/>
+              </group>
             </else>
           </choose>
         </if>
@@ -411,7 +423,7 @@
         <if type="bill entry-encyclopedia legislation legal_case" match="none">
           <text variable="container-title" text-case="title" font-style="normal" font-weight="bold"/>
         </if>
-        <else-if type="entry-encyclopedia" match="any"></else-if>
+        <else-if type="entry-encyclopedia" match="any"/>
       </choose>
     </group>
   </macro>
@@ -432,7 +444,7 @@
             </choose>
           </group>
         </if>
-        <else-if type="entry-encyclopedia" match="any"></else-if>
+        <else-if type="entry-encyclopedia" match="any"/>
       </choose>
     </group>
   </macro>
@@ -739,6 +751,26 @@
       <else-if type="speech">
         <text variable="event-place"/>
       </else-if>
+      <else-if type="book chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
+        <group delimiter=", ">
+          <choose>
+            <if variable="publisher-place">
+              <text variable="publisher-place"/>
+            </if>
+            <else>
+              <text term="no-place" form="short"/>
+            </else>
+          </choose>
+          <choose>
+            <if variable="publisher">
+              <text variable="publisher"/>
+            </if>
+            <else>
+              <text term="no-publisher" form="short"/>
+            </else>
+          </choose>
+        </group>
+      </else-if>
       <else>
         <group delimiter=", ">
           <text variable="publisher-place"/>
@@ -789,7 +821,11 @@
             </group>
           </else-if>
           <else-if type="article-newspaper article-magazine" match="any">
-            <date form="numeric" variable="issued" prefix="(" suffix=")"/>
+            <date variable="issued">
+              <date-part name="day" suffix=" "/>
+              <date-part name="month" suffix=" "/>
+              <date-part name="year"/>
+            </date>
           </else-if>
           <else-if type="article-journal" match="any">
             <date date-parts="year" form="text" variable="issued"/>
@@ -884,10 +920,7 @@
         </choose>
       </else-if>
       <else-if match="none" variable="locator">
-        <group>
-          <label plural="never" suffix=" " variable="page" form="short"/>
-          <text variable="page"/>
-        </group>
+        <text macro="pages"/>
       </else-if>
     </choose>
   </macro>
@@ -924,9 +957,8 @@
     <choose>
       <if variable="locator" match="none">
         <choose>
-          <if type="article-journal paper-conference" match="any">
-            <label plural="never" suffix=" " variable="page" form="short"/>
-            <text variable="page"/>
+          <if type="article-journal article-magazine article-newspaper paper-conference" match="any">
+            <text macro="pages"/>
           </if>
           <else-if type="entry-dictionary" match="any">
             <group>
@@ -937,45 +969,23 @@
                       <label plural="never" variable="volume" form="short"/>
                       <text variable="volume"/>
                     </group>
-                    <group delimiter=" ">
-                      <label plural="never" variable="page" form="short"/>
-                      <text variable="page"/>
-                    </group>
+                    <text macro="pages"/>
                   </group>
                 </if>
                 <else>
-                  <label plural="never" suffix=" " variable="page" form="short"/>
-                  <text variable="page"/>
+                  <text macro="pages"/>
                 </else>
               </choose>
             </group>
           </else-if>
           <else-if type="chapter entry-encyclopedia" match="any">
-            <group>
-              <choose>
-                <if variable="volume">
-                  <group delimiter=", ">
-                    <group delimiter=" ">
-                      <label plural="never" variable="page" form="short"/>
-                      <text variable="page"/>
-                    </group>
-                  </group>
-                </if>
-                <else>
-                  <label plural="never" suffix=" " variable="page" form="short"/>
-                  <text variable="page"/>
-                </else>
-              </choose>
-            </group>
+            <text macro="pages"/>
           </else-if>
         </choose>
       </if>
       <else-if type="article-journal">
         <group delimiter=" ">
-          <choose>
-            <if locator="page" match="none"></if>
-          </choose>
-          <label plural="never" suffix=" " variable="locator" form="short"/>
+          <label plural="never" variable="locator" form="short"/>
           <text variable="locator"/>
         </group>
       </else-if>
@@ -994,7 +1004,7 @@
       </else-if>
       <else>
         <group delimiter=" ">
-          <label plural="never" suffix=" " variable="locator" form="short"/>
+          <label plural="never" variable="locator" form="short"/>
           <text variable="locator"/>
         </group>
       </else>
@@ -1014,10 +1024,7 @@
       <if type="article-journal">
         <choose>
           <if variable="volume issue" match="any">
-            <group>
-              <label plural="never" prefix=", " suffix=" " variable="page" form="short"/>
-              <text variable="page"/>
-            </group>
+            <text macro="pages" prefix=", "/>
           </if>
         </choose>
       </if>
@@ -1025,29 +1032,30 @@
         <group>
           <choose>
             <if match="any" variable="volume">
-              <label plural="never" prefix=", " suffix=" " variable="volume" form="short"/>
-              <text variable="volume" suffix=", "/>
+              <group delimiter=" " prefix=", " suffix=", ">
+                <label plural="never" variable="volume" form="short"/>
+                <text variable="volume"/>
+              </group>
             </if>
           </choose>
         </group>
-        <label plural="never" suffix=" " variable="page" form="short"/>
-        <text variable="page"/>
+        <text macro="pages"/>
       </else-if>
-      <else-if type="chapter entry-encyclopedia" match="any">
-        <label plural="never" prefix=", " suffix=" " variable="page" form="short"/>
-        <text variable="page"/>
+      <else-if type="article-magazine article-newspaper chapter entry-encyclopedia" match="any">
+        <text macro="pages" prefix=", "/>
       </else-if>
       <else-if type="paper-conference" match="any">
         <group>
           <choose>
             <if match="any" variable="volume">
-              <label plural="never" prefix=", " suffix=" " variable="volume" form="short"/>
-              <text variable="volume"/>
+              <group delimiter=" " prefix=", ">
+                <label plural="never" variable="volume" form="short"/>
+                <text variable="volume"/>
+              </group>
             </if>
           </choose>
         </group>
-        <label plural="never" prefix=", " suffix=" " variable="page" form="short"/>
-        <text variable="page"/>
+        <text macro="pages" prefix=", "/>
       </else-if>
     </choose>
   </macro>
@@ -1151,7 +1159,10 @@
             <choose>
               <if variable="title" match="none"/>
               <else-if type="thesis" match="any">
-                <text variable="genre" prefix="" suffix=" Tezi"/>
+                <group delimiter=" ">
+                  <text variable="genre"/>
+                  <text term="thesis"/>
+                </group>
               </else-if>
               <else-if type="manuscript speech" match="any">
                 <text variable="genre" prefix="(" suffix=")"/>
@@ -1253,7 +1264,7 @@
           </group>
           <choose>
             <if type="thesis">
-              <text variable="genre" text-case="title" prefix="" suffix=" Tezi"/>
+              <text variable="genre" text-case="title"/>
             </if>
             <else-if match="none" variable="container-title">
               <text variable="event"/>
@@ -1279,9 +1290,11 @@
       </choose>
       <choose>
         <if variable="issued" match="none">
-          <group delimiter=" ">
-            <date form="numeric" variable="accessed" prefix="(" suffix=")"/>
-          </group>
+          <choose>
+            <if type="article-journal legal_case book thesis" match="any">
+              <date form="numeric" variable="accessed" prefix="(" suffix=")"/>
+            </if>
+          </choose>
         </if>
       </choose>
       <choose>
@@ -1291,9 +1304,16 @@
               <text variable="DOI" prefix="doi:"/>
             </if>
             <else>
-              <group delimiter="">
-                <text variable="URL" prefix="(Çevrimiçi) "/>
-                <date form="numeric" variable="accessed" prefix=", "/>
+              <group delimiter=", ">
+                <group delimiter=" ">
+                  <text term="online" prefix="(" suffix=")" text-case="capitalize-first"/>
+                  <text variable="URL"/>
+                </group>
+                <date variable="accessed">
+                  <date-part name="day" suffix=" "/>
+                  <date-part name="month" suffix=" "/>
+                  <date-part name="year"/>
+                </date>
               </group>
             </else>
           </choose>
@@ -1313,9 +1333,11 @@
       </choose>
       <choose>
         <if variable="issued" match="none">
-          <group delimiter=" ">
-            <date form="numeric" variable="accessed" prefix=" (" suffix=")"/>
-          </group>
+          <choose>
+            <if type="article-journal legal_case book thesis" match="any">
+              <date form="numeric" variable="accessed" prefix=" (" suffix=")"/>
+            </if>
+          </choose>
         </if>
       </choose>
       <choose>
@@ -1325,9 +1347,16 @@
               <text variable="DOI" prefix=", doi:"/>
             </if>
             <else>
-              <group delimiter="">
-                <text variable="URL" prefix=", (Çevrimiçi) "/>
-                <date form="numeric" variable="accessed" prefix=", "/>
+              <group delimiter=", " prefix=", ">
+                <group delimiter=" ">
+                  <text term="online" prefix="(" suffix=")" text-case="capitalize-first"/>
+                  <text variable="URL"/>
+                </group>
+                <date variable="accessed">
+                  <date-part name="day" suffix=" "/>
+                  <date-part name="month" suffix=" "/>
+                  <date-part name="year"/>
+                </date>
               </group>
             </else>
           </choose>
@@ -1368,25 +1397,12 @@
       <choose>
         <if position="ibid-with-locator">
           <group delimiter=", ">
-            <text macro="contributors-short"/>
-            <text term="cited" text-case="lowercase" font-weight="bold"/>
+            <text term="ibid" text-case="capitalize-first"/>
             <text macro="point-locators-subsequent"/>
           </group>
         </if>
         <else-if position="ibid">
-          <choose>
-            <if variable="container-author author" match="none">
-              <group delimiter=", ">
-                <text term="ibid" text-case="lowercase" font-weight="bold"/>
-              </group>
-            </if>
-            <else>
-              <group delimiter=", ">
-                <text macro="contributors-short"/>
-                <text term="ibid" text-case="lowercase" font-weight="bold"/>
-              </group>
-            </else>
-          </choose>
+          <text term="ibid" text-case="capitalize-first"/>
         </else-if>
         <else-if position="near-note">
           <group delimiter=", ">
@@ -1458,7 +1474,7 @@
       </choose>
     </layout>
   </citation>
-  <bibliography delimiter-precedes-et-al="never" delimiter-precedes-last="always" et-al-min="4" et-al-use-first="1" subsequent-author-substitute="&#8212;&#8212;&#8212;" entry-spacing="0" hanging-indent="true">
+  <bibliography delimiter-precedes-et-al="never" delimiter-precedes-last="always" et-al-min="4" et-al-use-first="1" entry-spacing="0" hanging-indent="true">
     <sort>
       <key macro="contributors-sort"/>
       <key variable="title"/>
