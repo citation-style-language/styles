@@ -3,24 +3,28 @@
   <info>
     <title>Journal of Computer Applications in Archaeology</title>
     <title-short>JCAA</title-short>
-    <id>http://www.zotero.org/styles/journal-of-computer-applications-in-archaeology</id>
-    <link href="http://www.zotero.org/styles/journal-of-computer-applications-in-archaeology" rel="self"/>
-    <link href="http://www.zotero.org/styles/citizen-science-theory-and-practice" rel="template"/>
-    <link href="http://journal.caa-international.org/about/submissions/#References" rel="documentation"/>
+    <id>http://zotero.org</id>
+    <link href="http://zotero.org" rel="self"/>
+    <link href="http://zotero.org" rel="template"/>
+    <link href="https://caa-international.org" rel="documentation"/>
     <author>
       <name>Patrick O'Brien</name>
       <email>obrienpat86@gmail.com</email>
     </author>
-	<contributor>
+    <contributor>
       <name>Ronald Visser</name>
       <email>r.m.visser@saxion.nl</email>
+    </contributor>
+    <contributor>
+      <name>Andreas Angourakis</name>
+      <email>andros.spica@gmail.com</email>
     </contributor>
     <category citation-format="author-date"/>
     <category field="science"/>
     <eissn>2514-8362</eissn>
-    <summary>Harvard author-date style edited for Journal of Computer Applications in Archaeology.</summary>
-    <updated>2017-05-28T00:39:40+00:00</updated>
-    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
+    <summary>Harvard author-date style edited for Journal of Computer Applications in Archaeology with title sorting fallback modifications.</summary>
+    <updated>2026-11-10T12:20:00+00:00</updated>
+    <rights license="http://creativecommons.org">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <terms>
@@ -30,11 +34,8 @@
   <macro name="editor">
     <names variable="editor" delimiter=", ">
       <name and="text" initialize-with="" name-as-sort-order="all"/>
-      <label form="short" prefix=" (" suffix=")"/>
+      <label form="short" text-case="lowercase" prefix=" (" suffix=".)"/>
     </names>
-  </macro>
-  <macro name="anon">
-    <text term="anonymous" form="short" text-case="capitalize-first" strip-periods="true"/>
   </macro>
   <macro name="author">
     <names variable="author">
@@ -48,7 +49,7 @@
             <text variable="publisher"/>
           </if>
         </choose>
-        <text macro="anon"/>
+        <text variable="title" font-style="italic"/>
       </substitute>
     </names>
   </macro>
@@ -63,7 +64,7 @@
             <text variable="publisher"/>
           </if>
         </choose>
-        <text macro="anon"/>
+        <text variable="title" form="short" font-style="italic"/>
       </substitute>
     </names>
   </macro>
@@ -76,7 +77,7 @@
         <text variable="title" font-style="italic"/>
       </else-if>
       <else-if type="article-journal" match="any">
-        <text variable="title" suffix=""/>
+        <text variable="title"/>
       </else-if>
       <else>
         <text variable="title" suffix="."/>
@@ -84,7 +85,7 @@
     </choose>
   </macro>
   <macro name="publisher">
-    <group delimiter=": " suffix=".">
+    <group delimiter=": ">
       <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
@@ -147,9 +148,15 @@
         </group>
       </if>
       <else>
-        <text variable="DOI" prefix="DOI: https://doi.org/"/>
+        <text variable="DOI" prefix="DOI: "/>
       </else>
     </choose>
+  </macro>
+  <macro name="thesis-institution">
+    <group delimiter=", " suffix=".">
+      <text variable="publisher"/>
+      <text variable="publisher-place"/>
+    </group>
   </macro>
   <citation et-al-min="4" et-al-use-first="1" disambiguate-add-year-suffix="true" collapse="year">
     <sort>
@@ -169,24 +176,28 @@
   <bibliography initialize-with="." hanging-indent="true" line-spacing="2">
     <sort>
       <key macro="author"/>
-      <key macro="year-date"/>
       <key variable="title"/>
+      <key macro="year-date"/>
     </sort>
     <layout suffix=".">
       <text macro="author"/>
       <text macro="year-date" prefix=". "/>
       <choose>
         <if type="thesis">
-          <group prefix=". " delimiter=". ">
-            <text macro="title" font-style="italic"/>
+          <text macro="title" font-style="italic" prefix=". "/>
+          <group delimiter=", " prefix=". ">
             <text macro="edition"/>
-            <text variable="genre"/>
-            <text macro="publisher"/>
+            <text value="Unpublished thesis (PhD)"/>
+            <text macro="thesis-institution"/>
           </group>
         </if>
         <else-if type="webpage">
           <group prefix=". " delimiter=". ">
-            <text macro="title"/>
+            <choose>
+              <if variable="author editor translator" match="any">
+                <text macro="title"/>
+              </if>
+            </choose>
             <text macro="edition"/>
           </group>
           <group delimiter=", " prefix=" " suffix=".">
@@ -199,13 +210,17 @@
           </group>
         </else-if>
         <else-if type="article-journal article-newspaper broadcast personal_communication thesis" match="any">
-          <group>
-            <text macro="title" prefix=" "/>
+          <group prefix=".">
+            <choose>
+              <if variable="author editor translator" match="any">
+                <text macro="title" prefix=" "/>
+              </if>
+            </choose>
             <text macro="editor" prefix=" "/>
           </group>
           <choose>
             <if variable="author" match="any">
-              <text variable="container-title" font-style="italic" prefix=". " suffix=""/>
+              <text variable="container-title" font-style="italic" prefix=". " suffix=","/>
             </if>
           </choose>
           <group prefix=" " suffix=".">
@@ -221,7 +236,11 @@
         </else-if>
         <else-if type="book graphic" match="any">
           <group prefix=". " delimiter=". ">
-            <text macro="title"/>
+            <choose>
+              <if variable="author editor translator" match="any">
+                <text macro="title"/>
+              </if>
+            </choose>
             <group delimiter=" ">
               <text variable="collection-title"/>
               <text variable="collection-number"/>
@@ -232,15 +251,19 @@
           </group>
         </else-if>
         <else-if type="chapter paper-conference" match="any">
-          <group delimiter=". " prefix=" " suffix=".">
-            <text macro="title" suffix="."/>
+          <group delimiter=" " prefix=". " suffix=".">
+            <choose>
+              <if variable="author editor translator" match="any">
+                <text macro="title" suffix="."/>
+              </if>
+            </choose>
             <text term="in" text-case="capitalize-first" suffix=":"/>
             <text macro="editor"/>
             <text variable="container-title" font-style="italic" suffix="."/>
             <text variable="collection-title" suffix="."/>
             <text macro="edition" suffix="."/>
             <text macro="issued"/>
-            <text macro="publisher" suffix="."/>
+            <text macro="publisher" suffix=","/>
             <label variable="page" form="short"/>
             <text macro="pages"/>
           </group>
@@ -248,7 +271,11 @@
         <else>
           <group delimiter=". " prefix=" " suffix=".">
             <group delimiter=" ">
-              <text macro="title"/>
+              <choose>
+                <if variable="author editor translator" match="any">
+                  <text macro="title"/>
+                </if>
+              </choose>
               <text macro="editor"/>
             </group>
             <text variable="container-title" font-style="italic"/>
