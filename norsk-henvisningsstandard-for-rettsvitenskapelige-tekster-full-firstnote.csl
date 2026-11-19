@@ -20,7 +20,7 @@
     <category citation-format="note"/>
     <category field="law"/>
     <summary>Norwegian legal citation style based on "Veiledning for henvisninger i juridiske tekster" (February 2019). Variant with full note on first citation, subsequent notes in short form (bibliography optional).</summary>
-    <updated>2026-11-13T14:45:50+00:00</updated>
+    <updated>2026-11-19T14:25:10+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="nb">
@@ -296,6 +296,7 @@
         <text macro="issued-no-parenthesis"/>
       </group>
     </group>
+    <text macro="locator-first-note"/>
     <text macro="DOI"/>
   </macro>
   <macro name="nor-case">
@@ -425,6 +426,7 @@
         <text variable="page"/>
       </group>
     </group>
+    <text macro="locator-first-note"/>
     <text macro="DOI"/>
     <text macro="retrieved-from"/>
   </macro>
@@ -447,6 +449,7 @@
         </if>
       </choose>
     </group>
+    <text macro="locator-first-note"/>
     <choose>
       <if variable="DOI">
         <text macro="DOI"/>
@@ -482,6 +485,7 @@
       <text variable="publisher"/>
       <text macro="issued-full-date"/>
     </group>
+    <text macro="locator-first-note"/>
     <text macro="DOI"/>
   </macro>
   <macro name="chapter-encyclopediaentry-conferencepaper-bib">
@@ -499,7 +503,12 @@
         <text variable="publisher"/>
         <text macro="issued-no-parenthesis"/>
       </group>
+      <group delimiter=" ">
+        <label variable="page" form="short"/>
+        <text variable="page"/>
+      </group>
     </group>
+    <text macro="locator-first-note"/>
     <choose>
       <if variable="DOI">
         <text macro="DOI"/>
@@ -627,6 +636,31 @@
       <else>
         <text macro="locator-default"/>
       </else>
+    </choose>
+  </macro>
+  <!-- The locator in a full first note, placed by the bibliography macros before DOI and URL. After a page range, it is introduced by the term "at" ("på", guide pp. 21&#8211;22), e.g. "s. 103&#8211;114, på s. 110". Position tests are false in the bibliography, so the bibliography is unaffected. -->
+  <macro name="locator-first-note">
+    <choose>
+      <if position="first">
+        <choose>
+          <if type="chapter entry-encyclopedia paper-conference article-journal article-newspaper article-magazine post-weblog" match="any">
+            <choose>
+              <if variable="page" locator="page" match="all">
+                <group delimiter=" " prefix=", ">
+                  <text term="at"/>
+                  <text macro="locator"/>
+                </group>
+              </if>
+              <else>
+                <text macro="locator" prefix=" "/>
+              </else>
+            </choose>
+          </if>
+          <else>
+            <text macro="locator" prefix=" "/>
+          </else>
+        </choose>
+      </if>
     </choose>
   </macro>
   <citation disambiguate-add-givenname="true" givenname-disambiguation-rule="primary-name" disambiguate-add-year-suffix="true" et-al-min="4" et-al-use-first="1">
@@ -784,9 +818,9 @@
           </else>
         </choose>
         <choose>
-          <if type="entry-encyclopedia" variable="archive">
+          <if type="book thesis chapter entry-encyclopedia paper-conference article-journal article-newspaper article-magazine post-weblog" match="any">
             <choose>
-              <!-- commentary-bib places the locator itself in a first note -->
+              <!-- In a first note, the full reference places the locator itself (macros "commentary-bib" and "locator-first-note") -->
               <if position="first" match="none">
                 <text macro="locator"/>
               </if>
