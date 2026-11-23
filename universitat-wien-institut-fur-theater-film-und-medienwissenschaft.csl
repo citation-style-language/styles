@@ -13,7 +13,7 @@
     <category citation-format="note"/>
     <category field="humanities"/>
     <summary>Dieser Stil beruht in großen Teilen auf dem Handbuch "Wissenschaftliches Arbeiten in der Theater-, Film- und Medienwissenschaft". Er wurde unter Zuhilfenahme von künstlicher Intelligenz erstellt.</summary>
-    <updated>2026-11-07T01:03:05+00:00</updated>
+    <updated>2026-11-23T17:38:04+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="de">
@@ -21,6 +21,14 @@
       <term name="accessed">Letzter Zugriff am</term>
       <term name="et-al">et al.</term>
       <term name="editor" form="short">Hg.</term>
+      <term name="editor" form="verb-short">hg. v.</term>
+      <term name="translator" form="verb-short">übers. v.</term>
+      <term name="director" form="short">R.</term>
+      <term name="composer">Komposition</term>
+      <term name="performer">Interpretation</term>
+      <term name="anonymous" form="short">O. A.</term>
+      <term name="no-place" form="short">o. A.</term>
+      <term name="original-work-published" form="short">Orig.</term>
       <term name="no date">o. A.</term>
       <term name="open-quote">„</term>
       <term name="close-quote">“</term>
@@ -44,12 +52,12 @@
               <name delimiter="/" initialize="false"/>
               <label form="short" prefix=" (" suffix=")"/>
             </names>
-            <text value="O. A."/>
+            <text term="anonymous" form="short"/>
           </substitute>
         </names>
       </else-if>
       <else>
-        <text value="O. A."/>
+        <text term="anonymous" form="short"/>
       </else>
     </choose>
   </macro>
@@ -68,12 +76,12 @@
               <name form="short" delimiter="/"/>
               <label form="short" prefix=" (" suffix=")"/>
             </names>
-            <text value="O. A."/>
+            <text term="anonymous" form="short"/>
           </substitute>
         </names>
       </else-if>
       <else>
-        <text value="O. A."/>
+        <text term="anonymous" form="short"/>
       </else>
     </choose>
   </macro>
@@ -92,12 +100,12 @@
               <name delimiter="/" initialize="false" name-as-sort-order="first" sort-separator=", "/>
               <label form="short" prefix=" (" suffix=")"/>
             </names>
-            <text value="O. A."/>
+            <text term="anonymous" form="short"/>
           </substitute>
         </names>
       </else-if>
       <else>
-        <text value="O. A."/>
+        <text term="anonymous" form="short"/>
       </else>
     </choose>
   </macro>
@@ -114,16 +122,22 @@
   <macro name="editors">
     <choose>
       <if variable="author container-title" match="any">
-        <names variable="editor" prefix="hg. v. ">
-          <name delimiter="/" initialize="false"/>
-        </names>
+        <group delimiter=" ">
+          <text term="editor" form="verb-short"/>
+          <names variable="editor">
+            <name delimiter="/" initialize="false"/>
+          </names>
+        </group>
       </if>
     </choose>
   </macro>
   <macro name="translator">
-    <names variable="translator" prefix="übers. v. ">
-      <name delimiter="/" initialize="false"/>
-    </names>
+    <group delimiter=" ">
+      <text term="translator" form="verb-short"/>
+      <names variable="translator">
+        <name delimiter="/" initialize="false"/>
+      </names>
+    </group>
   </macro>
   <macro name="title">
     <choose>
@@ -298,7 +312,7 @@
             <text variable="publisher-place"/>
           </if>
           <else>
-            <text value="o. A."/>
+            <text term="no-place" form="short"/>
           </else>
         </choose>
         <text variable="publisher"/>
@@ -307,33 +321,36 @@
     </group>
   </macro>
   <macro name="original">
-    <group prefix=" (Orig.: " suffix=")" delimiter=", ">
-      <choose>
-        <if type="motion_picture broadcast song" match="any">
-          <text variable="original-title" font-style="italic"/>
-          <group delimiter=" ">
-            <text variable="original-publisher-place"/>
-            <date variable="original-date">
-              <date-part name="year"/>
-            </date>
-          </group>
-        </if>
-        <else>
-          <names variable="original-author">
-            <name delimiter="/" initialize="false"/>
-          </names>
-          <text variable="original-title" font-style="italic"/>
-          <group delimiter=" ">
-            <group delimiter=": ">
+    <group prefix=" (" suffix=")" delimiter=" ">
+      <text term="original-work-published" form="short" suffix=":"/>
+      <group delimiter=", ">
+        <choose>
+          <if type="motion_picture broadcast song" match="any">
+            <text variable="original-title" font-style="italic"/>
+            <group delimiter=" ">
               <text variable="original-publisher-place"/>
-              <text variable="original-publisher"/>
+              <date variable="original-date">
+                <date-part name="year"/>
+              </date>
             </group>
-            <date variable="original-date">
-              <date-part name="year"/>
-            </date>
-          </group>
-        </else>
-      </choose>
+          </if>
+          <else>
+            <names variable="original-author">
+              <name delimiter="/" initialize="false"/>
+            </names>
+            <text variable="original-title" font-style="italic"/>
+            <group delimiter=" ">
+              <group delimiter=": ">
+                <text variable="original-publisher-place"/>
+                <text variable="original-publisher"/>
+              </group>
+              <date variable="original-date">
+                <date-part name="year"/>
+              </date>
+            </group>
+          </else>
+        </choose>
+      </group>
     </group>
   </macro>
   <macro name="online">
@@ -359,6 +376,7 @@
       <text macro="pages"/>
       <choose>
         <if variable="page">
+          <!-- CSL has no exact term for this pinpoint-page introduction. -->
           <text macro="locator" prefix="hier "/>
         </if>
         <else>
@@ -368,12 +386,15 @@
     </group>
   </macro>
   <macro name="directors">
-    <names variable="director" prefix="R.: ">
-      <name delimiter="/" initialize="false"/>
-      <substitute>
-        <names variable="author"/>
-      </substitute>
-    </names>
+    <group delimiter=": ">
+      <text term="director" form="short"/>
+      <names variable="director">
+        <name delimiter="/" initialize="false"/>
+        <substitute>
+          <names variable="author"/>
+        </substitute>
+      </names>
+    </group>
   </macro>
   <macro name="episode">
     <group delimiter=" ">
@@ -402,12 +423,18 @@
   <macro name="music-full">
     <group delimiter=", ">
       <text macro="title"/>
-      <names variable="composer" prefix="Komposition: ">
-        <name delimiter="/" initialize="false"/>
-      </names>
-      <names variable="author" prefix="Interpretation: ">
-        <name delimiter="/" initialize="false"/>
-      </names>
+      <group delimiter=": ">
+        <text term="composer"/>
+        <names variable="composer">
+          <name delimiter="/" initialize="false"/>
+        </names>
+      </group>
+      <group delimiter=": ">
+        <text term="performer"/>
+        <names variable="author">
+          <name delimiter="/" initialize="false"/>
+        </names>
+      </group>
       <text variable="medium"/>
       <group>
         <group delimiter=" ">
@@ -510,6 +537,7 @@
       <else-if type="software">
         <group delimiter=", ">
           <text macro="title"/>
+          <!-- CSL 1.0 has no dedicated game-design role term; keep the handbook label. -->
           <names variable="author" prefix="Design: ">
             <name delimiter="/" initialize="false"/>
           </names>
@@ -837,6 +865,7 @@
         <if type="post">
           <group delimiter=" ">
             <text variable="genre"/>
+            <!-- Fixed German date connector; no exact CSL term is available. -->
             <text value="vom"/>
             <text macro="date"/>
           </group>
