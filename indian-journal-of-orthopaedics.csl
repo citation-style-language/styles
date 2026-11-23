@@ -21,11 +21,14 @@
     <updated>2026-10-20T00:00:00+05:30</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+
   <locale xml:lang="en">
     <terms>
       <term name="page-range-delimiter">-</term>
+      <term name="available at">available from</term>
     </terms>
   </locale>
+
   <macro name="author">
     <names variable="author">
       <name initialize-with="" name-as-sort-order="all" sort-separator=" " delimiter=", " delimiter-precedes-last="never"/>
@@ -35,12 +38,14 @@
       </substitute>
     </names>
   </macro>
+
   <macro name="editor">
     <names variable="editor">
       <name initialize-with="" name-as-sort-order="all" sort-separator=" " delimiter=", " delimiter-precedes-last="never"/>
       <label form="long" prefix=", "/>
     </names>
   </macro>
+
   <macro name="issued-year">
     <choose>
       <if variable="issued">
@@ -53,13 +58,15 @@
       </else>
     </choose>
   </macro>
+
   <macro name="issued-date">
-    <date variable="issued">
-      <date-part name="year" suffix=" "/>
-      <date-part name="month" form="short" suffix=" "/>
+    <date variable="issued" delimiter=" ">
+      <date-part name="year"/>
+      <date-part name="month" form="short"/>
       <date-part name="day"/>
     </date>
   </macro>
+
   <macro name="edition">
     <choose>
       <if is-numeric="edition">
@@ -73,13 +80,18 @@
       </else>
     </choose>
   </macro>
+
   <macro name="accessed">
-    <date variable="accessed" prefix="[cited " suffix="]">
-      <date-part name="year" suffix=" "/>
-      <date-part name="month" form="short" suffix=" "/>
-      <date-part name="day"/>
-    </date>
+    <group prefix="[" suffix="]" delimiter=" ">
+      <text term="cited"/>
+      <date variable="accessed" delimiter=" ">
+        <date-part name="year"/>
+        <date-part name="month" form="short"/>
+        <date-part name="day"/>
+      </date>
+    </group>
   </macro>
+
   <macro name="identifier">
     <choose>
       <if variable="DOI">
@@ -88,11 +100,15 @@
       <else-if variable="URL">
         <group delimiter=". ">
           <text macro="accessed"/>
-          <text variable="URL" prefix="Available from: "/>
+          <group delimiter=": ">
+            <text term="available at" text-case="capitalize-first"/>
+            <text variable="URL"/>
+          </group>
         </group>
       </else-if>
     </choose>
   </macro>
+
   <macro name="journal-details">
     <group delimiter=";">
       <group delimiter=" ">
@@ -105,12 +121,14 @@
       </group>
     </group>
   </macro>
+
   <macro name="publisher">
     <group delimiter=": ">
       <text variable="publisher-place"/>
       <text variable="publisher"/>
     </group>
   </macro>
+
   <citation collapse="citation-number">
     <sort>
       <key variable="citation-number"/>
@@ -119,6 +137,7 @@
       <text variable="citation-number"/>
     </layout>
   </citation>
+
   <bibliography entry-spacing="0" second-field-align="flush">
     <layout suffix=".">
       <text variable="citation-number" suffix=". "/>
@@ -139,7 +158,10 @@
           <group delimiter=", ">
             <text variable="title"/>
             <text macro="edition"/>
-            <text variable="volume" prefix="Vol. "/>
+            <group delimiter=" ">
+              <label variable="volume" form="short" text-case="capitalize-first"/>
+              <text variable="volume"/>
+            </group>
             <text variable="publisher-place"/>
             <text variable="publisher"/>
             <text macro="issued-year"/>
@@ -148,14 +170,20 @@
         </else-if>
         <else-if type="chapter entry entry-dictionary entry-encyclopedia paper-conference" match="any">
           <text variable="title" suffix=". "/>
-          <group prefix="In " delimiter=", ">
-            <text macro="editor"/>
-            <text variable="container-title"/>
-            <text macro="edition"/>
-            <text variable="volume" prefix="Vol. "/>
-            <text variable="publisher-place"/>
-            <text variable="publisher"/>
-            <text macro="issued-year"/>
+          <group delimiter=" ">
+            <text term="in" text-case="capitalize-first"/>
+            <group delimiter=", ">
+              <text macro="editor"/>
+              <text variable="container-title"/>
+              <text macro="edition"/>
+              <group delimiter=" ">
+                <label variable="volume" form="short" text-case="capitalize-first"/>
+                <text variable="volume"/>
+              </group>
+              <text variable="publisher-place"/>
+              <text variable="publisher"/>
+              <text macro="issued-year"/>
+            </group>
           </group>
           <text variable="page" prefix=";"/>
         </else-if>
@@ -164,20 +192,34 @@
           <text variable="genre" prefix=" [" suffix="]"/>
           <text macro="publisher" prefix=". "/>
           <text macro="issued-year" prefix="; "/>
-          <text variable="number" prefix=". Report No.: "/>
+          <group prefix=". " delimiter=" ">
+            <text term="report" text-case="capitalize-first"/>
+            <label variable="number" form="short" text-case="capitalize-first" suffix=":"/>
+            <text variable="number"/>
+          </group>
         </else-if>
         <else-if type="dataset">
           <text variable="title"/>
           <text term="dataset" prefix=" [" suffix="]. "/>
           <text variable="publisher" suffix="; "/>
           <text macro="issued-year"/>
-          <text variable="version" prefix=". Version "/>
+          <group prefix=". " delimiter=" ">
+            <label variable="version" text-case="capitalize-first"/>
+            <text variable="version"/>
+          </group>
         </else-if>
         <else-if type="patent">
-          <text variable="title" suffix=". "/>
-          <text variable="jurisdiction" suffix=" patent "/>
-          <text variable="number" suffix=". "/>
-          <text macro="issued-date"/>
+          <group delimiter=". ">
+            <text variable="title"/>
+            <group delimiter=" ">
+              <group delimiter=" ">
+                <text variable="jurisdiction"/>
+                <text term="patent"/>
+              </group>
+              <text variable="number"/>
+            </group>
+            <text macro="issued-date"/>
+          </group>
         </else-if>
         <else-if type="webpage post post-weblog" match="any">
           <text variable="title"/>
